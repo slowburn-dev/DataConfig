@@ -1,0 +1,29 @@
+{
+	"FileVersion" : 3,
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"FriendlyName" : "Data Config",
+	"Description" : "Data Config Importer",
+	"Category" : "Editor",
+	"CreatedBy" : "jagttt",
+	"CreatedByURL" : "http://pre-sence.com",
+	"DocsURL" : "http://pre-sence.com",
+	"MarketplaceURL" : "",
+	"SupportURL" : "",
+	"EnabledByDefault" : true,
+	"CanContainContent" : true,
+	"IsBetaVersion" : false,
+	"Installed" : false,
+	"Modules": [
+		{
+			"Name": "DataConfigCore",
+			"Type": "Editor",
+			"LoadingPhase": "None"
+		},
+		{
+			"Name": "DataConfigTests",
+			"Type": "Program",
+	    	"LoadingPhase": "PostConfigInit"
+		}
+	]
+}
