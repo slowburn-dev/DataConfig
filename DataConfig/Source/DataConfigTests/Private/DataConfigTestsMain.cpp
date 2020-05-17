@@ -1,10 +1,18 @@
 #include "CoreMinimal.h"
+#include "Misc/CompilationResult.h"
 #include "Misc/ScopeExit.h"
 #include "DataConfigTypes.h"
-
 #include "RequiredProgramMainCPPInclude.h"
 
+#include "Adhocs.h"
 IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
+
+static void Body()
+{
+	PropertyReaderScaffolding();
+
+	return;
+}
 
 INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 {
@@ -30,16 +38,24 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		}
 	}
 
+	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
+
 	FString ShortCmdLine = FCommandLine::RemoveExeName(*CmdLine);
 	ShortCmdLine.TrimStartInline();
+
+	if (GEngineLoop.PreInit(*ShortCmdLine) != 0)
+	{
+		UE_LOG(LogDataConfigCore, Error, TEXT("Failed to initialize the engine (PreInit failed)."));
+		return ECompilationResult::CrashOrAssert;
+	}
+
+	Body();
 
 	ON_SCOPE_EXIT
 	{
 		FEngineLoop::AppPreExit();
 		FEngineLoop::AppExit();
 	};
-
-	Hello();
 
 	return 0;
 }

@@ -1,10 +1,10 @@
 #include "DataConfigTypes.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogDataConfigCore, Log, All)
+DEFINE_LOG_CATEGORY(LogDataConfigCore);
 
 void Hello()
 {
-  UE_LOG(LogDataConfigCore, Log, TEXT("Hello from DataConfigCore"));
+	UE_LOG(LogDataConfigCore, Display, TEXT("Hello from DataConfigCore"));
 }
 
 
