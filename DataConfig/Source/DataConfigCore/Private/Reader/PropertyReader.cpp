@@ -17,57 +17,72 @@ struct Nil {
 
 struct StateClassRoot
 {
-	TWeakObjectPtr<UObject> ClassObject;
+	UObject* ClassObject;
 
 	StateClassRoot(UObject* ClassObject)
 		: ClassObject(ClassObject)
-	{}
+	{
+		check(IsValid(ClassObject));
+	}
 };
 
 struct StateClassProperty
 {
-	TWeakObjectPtr<UObject> ClassObject;
-	TWeakObjectPtr<UProperty> Property;
+	UObject* ClassObject;
+	UProperty* Property;
 
 	StateClassProperty(UObject* ClassObject, UProperty* Property)
 		: ClassObject(ClassObject)
 		, Property(Property)
-	{}
+	{
+		check(IsValid(ClassObject));
+		check(IsValid(Property));
+	}
 };
 
 struct StateStructRoot 
 {
 	void* StructPtr;
-	TWeakObjectPtr<UScriptStruct> StructClass;
+	UScriptStruct* StructClass;
 
 	StateStructRoot(void* StructPtr, UScriptStruct* StructClass)
 		: StructPtr(StructPtr)
 		, StructClass(StructClass)
-	{}
+	{
+		check(StructPtr != nullptr);
+		check(IsValid(StructClass));
+	}
 };
 
 struct StateStructProperty 
 {
 	void* StructPtr;
-	TWeakObjectPtr<UScriptStruct> StructClass;
-	TWeakObjectPtr<UProperty> Property;
+	UScriptStruct* StructClass;
+	UProperty* Property;
 
 	StateStructProperty(void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
 		: StructPtr(StructPtr)
 		, StructClass(StructClass)
 		, Property(Property)
-	{}
+	{
+		check(StructPtr != nullptr);
+		check(IsValid(StructClass));
+		check(IsValid(Property));
+	}
 };
 
 struct StatePrimitive 
 {
 	void* PrimitivePtr;
-	TWeakObjectPtr<UProperty> Property;
+	UProperty* Property;
 
 	StatePrimitive(void* PrimitivePtr, UProperty* Property)
 		: PrimitivePtr(PrimitivePtr)
 		, Property(Property)
-	{}
+	{
+		check(PrimitivePtr != nullptr);
+		check(IsValid(Property));
+	}
 };
 
 using ReaderState = TVariant<
@@ -145,17 +160,17 @@ FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 {
 	if (StateClassProperty* CPStatePtr = TryGetState<StateClassProperty>(Reader))
 	{
-		if (TProperty* OutProperty = Cast<TProperty>(CPStatePtr->Property.Get()))
+		if (TProperty* OutProperty = Cast<TProperty>(CPStatePtr->Property))
 		{
 			OutT = OutProperty->GetPropertyValue(
-				OutProperty->ContainerPtrToValuePtr<TPrimitive>(CPStatePtr->ClassObject.Get())
+				OutProperty->ContainerPtrToValuePtr<TPrimitive>(CPStatePtr->ClassObject)
 			);
 			return Ok();
 		}
 	}
 	else if (StateStructProperty* SPStatePtr = TryGetState<StateStructProperty>(Reader))
 	{
-		if (TProperty* OutProperty = Cast<TProperty>(SPStatePtr->Property.Get()))
+		if (TProperty* OutProperty = Cast<TProperty>(SPStatePtr->Property))
 		{
 			OutT = OutProperty->GetPropertyValue(
 				OutProperty->ContainerPtrToValuePtr<TPrimitive>(SPStatePtr->StructPtr)
@@ -165,7 +180,7 @@ FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 	}
 	else if (StatePrimitive* PStatePtr = TryGetState<StatePrimitive>(Reader))
 	{
-		if (TProperty* OutProperty = Cast<TProperty>(PStatePtr->Property.Get()))
+		if (TProperty* OutProperty = Cast<TProperty>(PStatePtr->Property))
 		{
 			OutT = OutProperty->GetPropertyValue(PStatePtr->PrimitivePtr);
 			return Ok();
@@ -240,7 +255,7 @@ FVisitResult FPropertyReader::ReadAny(FVisitor &Visitor)
 	}
 	else if (StateClassProperty* CPStatePtr = TryGetState<StateClassProperty>(this))
 	{
-		return DispatchReadByProperty(this, Visitor, CPStatePtr->Property.Get());
+		return DispatchReadByProperty(this, Visitor, CPStatePtr->Property);
 	}
 	else if (StateStructRoot* SRStatePtr = TryGetState<StateStructRoot>(this))
 	{
@@ -248,11 +263,11 @@ FVisitResult FPropertyReader::ReadAny(FVisitor &Visitor)
 	}
 	else if (StateStructProperty* SPStatePtr = TryGetState<StateStructProperty>(this))
 	{
-		return DispatchReadByProperty(this, Visitor, SPStatePtr->Property.Get());
+		return DispatchReadByProperty(this, Visitor, SPStatePtr->Property);
 	}
 	else if (StatePrimitive* PStatePtr = TryGetState<StatePrimitive>(this))
 	{
-		return DispatchReadByProperty(this, Visitor, PStatePtr->Property.Get());
+		return DispatchReadByProperty(this, Visitor, PStatePtr->Property);
 	}
 
 	return Fail(EReaderErrorCode::DispatchAnyFail);
@@ -289,14 +304,14 @@ FVisitResult FPropertyReader::ReadStruct(FVisitor &Visitor)
 FPropertyReader::FStructMapAccess::FStructMapAccess(FPropertyReader* ParentPtr)
 	: Parent(*ParentPtr)
 {
- 	auto StructClass = GetState(&Parent).Get<StateStructRoot>().StructClass.Get();
+ 	auto StructClass = GetState(&Parent).Get<StateStructRoot>().StructClass;
 	Link = StructClass ? StructClass->PropertyLink : nullptr;
 }
 
 FVisitResult FPropertyReader::FStructMapAccess::Num(size_t& OutNum)
 {
 	//	TODO check struct validity
-	OutNum = CountEffectiveProperties(GetState(&Parent).Get<StateStructRoot>().StructClass.Get());
+	OutNum = CountEffectiveProperties(GetState(&Parent).Get<StateStructRoot>().StructClass);
 	return Ok();
 }
 
@@ -323,10 +338,12 @@ FVisitResult FPropertyReader::FStructMapAccess::ReadValue(FVisitor &Visitor)
 	if (Link != nullptr)
 	{
 		auto& StructRootState = GetState(&Parent).Get<StateStructRoot>();
+		//	we're already constructing other readers...
+		//	maybe we don't need the state?
 		FPropertyReader ValueReader(
 			StructRootState.StructPtr,
-			StructRootState.StructClass.Get(),
-			Link.Get()
+			StructRootState.StructClass,
+			Link
 		);
 		return ValueReader.ReadAny(Visitor);
 	}

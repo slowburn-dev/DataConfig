@@ -33,7 +33,7 @@ struct DATACONFIGCORE_API FPropertyReader
 	struct FStructMapAccess : public FMapAccess
 	{
 		FPropertyReader& Parent;
-		TWeakObjectPtr<UProperty> Link;
+		UProperty* Link;
 
 		FStructMapAccess(FPropertyReader* Parent);
 
