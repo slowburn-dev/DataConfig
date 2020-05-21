@@ -2,23 +2,30 @@
 
 #include "CoreMinimal.h"
 
+namespace DataConfig
+{
+
+enum class EReaderErrorCode : uint32;
+
 struct DATACONFIGCORE_API FVisitResult
 {
-	bool bOK = true;
-	FString ErrMsg;
+	uint32 Status : 31;
+	uint32 bHasData : 1;
 
-	static FORCEINLINE FVisitResult Ok() {
-		return FVisitResult();
-	}
-
-	template<typename FmtType, typename... Types>
-	static FVisitResult Fail(const FmtType& Fmt, Types... Args) {
-		return FVisitResult{
-			false,
-			FString::Printf(Fmt, Args...),
-		};
+	FORCEINLINE bool Ok()
+	{
+		return Status == 0;
 	}
 };
+
+static FORCEINLINE FVisitResult Ok() {
+	return FVisitResult{0, 0};
+}
+
+static FORCEINLINE FVisitResult Fail(EReaderErrorCode Status) {
+	check((uint32)Status != 0);
+	return FVisitResult{ (uint32)Status, 0 };
+}
 
 struct FVisitor;
 
@@ -38,11 +45,12 @@ struct DATACONFIGCORE_API FVisitor
 	virtual ~FVisitor();
 
 	virtual FVisitResult VisitBool(bool Value);
-	virtual FVisitResult VisitName(FName Name);
-	virtual FVisitResult VisitString(FString Str);
+	virtual FVisitResult VisitName(FName Value);
+	virtual FVisitResult VisitString(FString Value);
 	virtual FVisitResult VisitMap(FMapAccess& MapAccess);
 
 };
 
+} // namespace DataConfig
 
 

@@ -14,5 +14,6 @@ struct FTestStruct_Alpha
 
 
 void PropertyReaderScaffolding();
+void PropertyVisitorRoundtrip();
 
 

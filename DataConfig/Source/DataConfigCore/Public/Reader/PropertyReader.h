@@ -7,6 +7,10 @@
 
 class UProperty;
 
+namespace DataConfig
+{
+
+
 struct DATACONFIGCORE_API FPropertyReader 
 {
 	FPropertyReader();
@@ -43,11 +47,12 @@ struct DATACONFIGCORE_API FPropertyReader
 	//	TODO figure out if private even works
 	//	TODO add a new TVaraint that works with this storage
 	//		 ie the Variant don't contain storage it self
-	using ImplStorageType = AlignedStorage<64>::Type;
+
+	//	TODO delete copy constructor, this isn't trival copyable
+	using ImplStorageType = TAlignedStorage<64>::Type;
 	ImplStorageType ImplStorage;
 };
 
 
-
-
+} // namespace DataConfig
 

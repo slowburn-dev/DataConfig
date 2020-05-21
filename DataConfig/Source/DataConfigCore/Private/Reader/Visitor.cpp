@@ -1,53 +1,58 @@
 #include "Reader/Visitor.h"
+#include "Reader/ReaderErrorCodes.h"
+
+namespace DataConfig {
 
 FVisitor::~FVisitor()
 {}
 
 FVisitResult FVisitor::VisitBool(bool Value)
 {
-	return FVisitResult::Fail(TEXT("Unexpected bool"));
+	return Fail(EReaderErrorCode::UnexpectedBool);
 }
 
 FVisitResult FVisitor::VisitName(FName Name)
 {
-	return FVisitResult::Fail(TEXT("Unexpected Name"));
+	return Fail(EReaderErrorCode::UnexpectedName);
 }
 
 FVisitResult FVisitor::VisitString(FString Str)
 {
-	return FVisitResult::Fail(TEXT("Unexpected String"));
+	return Fail(EReaderErrorCode::UnexpectedString);
 }
 
 FVisitResult FVisitor::VisitMap(FMapAccess& MapAccess)
 {
-	return FVisitResult::Fail(TEXT("Unexpected MapAccess"));
+	return Fail(EReaderErrorCode::UnexpectedMap);
 }
-
 
 FVisitResult FMapAccess::Num(size_t& OutNum)
 {
-	return FVisitResult::Fail(TEXT("Unexpected MapAccess Num"));
+	return Fail(EReaderErrorCode::UnexpectedMapNum);
 }
 
 FVisitResult FMapAccess::HasPending(bool& bOutHasPending)
 {
-	return FVisitResult::Fail(TEXT("Unexpected MapAccess HasPending"));
+	return Fail(EReaderErrorCode::UnexpectedMapHasPending);
 }
 
 FVisitResult FMapAccess::ReadKey(FVisitor &Visitor)
 {
-	return FVisitResult::Fail(TEXT("Unexpected Key"));
+	return Fail(EReaderErrorCode::UnexpectedMapKey);
 }
 
 FVisitResult FMapAccess::ReadValue(FVisitor &Visitor)
 {
-	return FVisitResult::Fail(TEXT("Unexpected Value"));
+	return Fail(EReaderErrorCode::UnexpectedMapValue);
 }
 
 FVisitResult FMapAccess::Next()
 {
-	return FVisitResult::Fail(TEXT("Unexpected Next"));
+	return Fail(EReaderErrorCode::UnexpectedMapNext);
 }
 
 FMapAccess::~FMapAccess()
 {}
+
+} // namespace DataConfig
+

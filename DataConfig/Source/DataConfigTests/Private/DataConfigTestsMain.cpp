@@ -9,7 +9,8 @@ IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
 static void Body()
 {
-	PropertyReaderScaffolding();
+	PropertyVisitorRoundtrip();
+	//PropertyReaderScaffolding();
 
 	return;
 }

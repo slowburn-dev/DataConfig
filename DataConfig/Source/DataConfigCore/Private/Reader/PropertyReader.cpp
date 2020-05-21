@@ -1,8 +1,11 @@
-#include <Reader/PropertyReader.h>
 #include "CoreMinimal.h"
 #include "UObject/UnrealType.h"
 #include "Templates/Casts.h"
 #include "Misc/TVariant.h"
+#include <Reader/PropertyReader.h>
+#include <Reader/ReaderErrorCodes.h>
+
+namespace DataConfig {
 
 struct Unknown {
 	//	pass
@@ -134,10 +137,10 @@ static FVisitResult DispatchReadByProperty(FPropertyReader* Reader, FVisitor& Vi
 	else if (Property->IsA<UStrProperty>())
 		return Reader->ReadString(Visitor);
 
-	return FVisitResult::Fail(TEXT("Unhandled Dispatch"));
+	return Fail(EReaderErrorCode::DispatchAnyFail);
 }
 
-template<typename TPrimitive, typename TProperty>
+template<typename TPrimitive, typename TProperty, EReaderErrorCode ErrCode>
 FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 {
 	if (StateClassProperty* CPStatePtr = TryGetState<StateClassProperty>(Reader))
@@ -147,7 +150,7 @@ FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 			OutT = OutProperty->GetPropertyValue(
 				OutProperty->ContainerPtrToValuePtr<TPrimitive>(CPStatePtr->ClassObject.Get())
 			);
-			return FVisitResult::Ok();
+			return Ok();
 		}
 	}
 	else if (StateStructProperty* SPStatePtr = TryGetState<StateStructProperty>(Reader))
@@ -157,7 +160,7 @@ FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 			OutT = OutProperty->GetPropertyValue(
 				OutProperty->ContainerPtrToValuePtr<TPrimitive>(SPStatePtr->StructPtr)
 			);
-			return FVisitResult::Ok();
+			return Ok();
 		}
 	}
 	else if (StatePrimitive* PStatePtr = TryGetState<StatePrimitive>(Reader))
@@ -165,20 +168,19 @@ FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 		if (TProperty* OutProperty = Cast<TProperty>(PStatePtr->Property.Get()))
 		{
 			OutT = OutProperty->GetPropertyValue(PStatePtr->PrimitivePtr);
-			return FVisitResult::Ok();
+			return Ok();
 		}
 	}
 
-	return FVisitResult::Fail(TEXT("Failed to get primitive"));
+	return Fail(ErrCode);
 }
 
-
-template<typename TPrimitive, typename TProperty, typename TMethod>
+template<typename TPrimitive, typename TProperty, EReaderErrorCode ErrCode, typename TMethod>
 FVisitResult ReadPrimitive(FPropertyReader* Reader, FVisitor& Visitor, TMethod Method)
 {
 	TPrimitive Value;
-	FVisitResult Result = TryGetPrimitive<TPrimitive, TProperty>(Reader, Value);
-	if (Result.bOK)
+	FVisitResult Result = TryGetPrimitive<TPrimitive, TProperty, ErrCode>(Reader, Value);
+	if (Result.Ok())
 	{
 		return (Visitor.*Method)(Value);
 	}
@@ -253,22 +255,22 @@ FVisitResult FPropertyReader::ReadAny(FVisitor &Visitor)
 		return DispatchReadByProperty(this, Visitor, PStatePtr->Property.Get());
 	}
 
-	return FVisitResult::Fail(TEXT("unhandled read any"));
+	return Fail(EReaderErrorCode::DispatchAnyFail);
 }
 
 FVisitResult FPropertyReader::ReadBool(FVisitor &Visitor)
 {
-	return ReadPrimitive<bool, UBoolProperty>(this, Visitor, &FVisitor::VisitBool);
+	return ReadPrimitive<bool, UBoolProperty, EReaderErrorCode::ExpectBoolFail>(this, Visitor, &FVisitor::VisitBool);
 }
 
 FVisitResult FPropertyReader::ReadName(FVisitor &Visitor)
 {
-	return ReadPrimitive<FName, UNameProperty>(this, Visitor, &FVisitor::VisitName);
+	return ReadPrimitive<FName, UNameProperty, EReaderErrorCode::ExpectNameFail>(this, Visitor, &FVisitor::VisitName);
 }
 
 FVisitResult FPropertyReader::ReadString(FVisitor &Visitor)
 {
-	return ReadPrimitive<FString, UStrProperty>(this, Visitor, &FVisitor::VisitString);
+	return ReadPrimitive<FString, UStrProperty, EReaderErrorCode::ExpectStringFail>(this, Visitor, &FVisitor::VisitString);
 }
 
 FVisitResult FPropertyReader::ReadStruct(FVisitor &Visitor)
@@ -280,7 +282,7 @@ FVisitResult FPropertyReader::ReadStruct(FVisitor &Visitor)
 	}
 	else
 	{
-		return FVisitResult::Fail(TEXT("expect struct but in non struct root state"));
+		return Fail(EReaderErrorCode::ExpectStructFail);
 	}
 }
 
@@ -295,25 +297,24 @@ FVisitResult FPropertyReader::FStructMapAccess::Num(size_t& OutNum)
 {
 	//	TODO check struct validity
 	OutNum = CountEffectiveProperties(GetState(&Parent).Get<StateStructRoot>().StructClass.Get());
-	return FVisitResult::Ok();
+	return Ok();
 }
 
 FVisitResult FPropertyReader::FStructMapAccess::HasPending(bool& bOutHasPending)
 {
 	bOutHasPending = Link != nullptr;
-	return FVisitResult::Ok();
+	return Ok();
 }
 
 FVisitResult FPropertyReader::FStructMapAccess::ReadKey(FVisitor &Visitor)
 {
 	if (Link != nullptr)
 	{
-		Visitor.VisitName(Link->GetFName());
-		return FVisitResult::Ok();
+		return Visitor.VisitName(Link->GetFName());
 	}
 	else
 	{
-		return FVisitResult::Fail(TEXT("Read non existant key"));
+		return Fail(EReaderErrorCode::OutOfBoundMapKeyRead);
 	}
 }
 
@@ -327,12 +328,11 @@ FVisitResult FPropertyReader::FStructMapAccess::ReadValue(FVisitor &Visitor)
 			StructRootState.StructClass.Get(),
 			Link.Get()
 		);
-		ValueReader.ReadAny(Visitor);
-		return FVisitResult::Ok();
+		return ValueReader.ReadAny(Visitor);
 	}
 	else
 	{
-		return FVisitResult::Fail(TEXT("Read non existant value"));
+		return Fail(EReaderErrorCode::OutOfBoundMapValueRead);
 	}
 }
 
@@ -343,5 +343,7 @@ FVisitResult FPropertyReader::FStructMapAccess::Next()
 		Link = Link->PropertyLinkNext;
 	}
 
-	return FVisitResult::Ok();
+	return Ok();
 }
+
+} // namespace DataConfig
