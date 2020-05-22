@@ -1,37 +1,38 @@
 #include "Adhocs.h"
 #include "Reader/PropertyReader.h"
 #include "UObject/UnrealType.h"
-#include "Reader/ReaderErrorCodes.h"
+#include "DataConfigTypes.h"
+#include "DataConfigErrorCodes.h"
 
 using namespace DataConfig;
 
 struct FScafVisitor : public FVisitor
 {
-	FVisitResult VisitBool(bool Value) override
+	FResult VisitBool(bool Value) override
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a bool: %d"), Value);
 		return Ok();
 	}
 
-	FVisitResult VisitName(const FName& Name) override
+	FResult VisitName(const FName& Name) override
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a name: %s"), *Name.ToString());
 		return Ok();
 	}
 
-	FVisitResult VisitString(const FString& Str) override
+	FResult VisitString(const FString& Str) override
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a str: %s"), *Str);
 		return Ok();
 	}
 
-	FVisitResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
+	FResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a struct: %s"), *Name.ToString());
 		while (true)
 		{
 			bool bHasPending;
-			FVisitResult Ret;
+			FResult Ret;
 
 			Ret = MapAccess.HasPending(bHasPending);
 			if (!bHasPending) return Ret;
@@ -64,7 +65,7 @@ struct FGetNameVisitor : public FVisitor
 {
 	FName Name;
 
-	FVisitResult VisitName(const FName& aName) override
+	FResult VisitName(const FName& aName) override
 	{
 		this->Name = aName;
 		return Ok();
@@ -93,29 +94,29 @@ struct FWritePropertyVisitor : public FVisitor
 	TWeakObjectPtr<UField> Struct;	
 	void* DataPtr = nullptr;
 
-	FVisitResult VisitBool(bool Value) override {
+	FResult VisitBool(bool Value) override {
 		if (UBoolProperty* BoolProperty = Cast<UBoolProperty>(Struct.Get())) {
 			BoolProperty->SetPropertyValue(DataPtr, Value);
 			return Ok();
 		}
 		else
 		{
-			return Fail(EReaderErrorCode::ExpectBoolFail);
+			return Fail(EErrorCode::ExpectBoolFail);
 		}
 	}
 
-	FVisitResult VisitName(const FName& Value) override {
+	FResult VisitName(const FName& Value) override {
 		if (UNameProperty* NameProperty = Cast<UNameProperty>(Struct.Get())) {
 			NameProperty->SetPropertyValue(DataPtr, Value);
 			return Ok();
 		}
 		else
 		{
-			return Fail(EReaderErrorCode::ExpectNameFail);
+			return Fail(EErrorCode::ExpectNameFail);
 		}
 	}
 
-	FVisitResult VisitString(const FString& Value) override {
+	FResult VisitString(const FString& Value) override {
 		if (UStrProperty* StrProperty = Cast<UStrProperty>(Struct.Get()))
 		{
 			StrProperty->SetPropertyValue(DataPtr, Value);
@@ -123,7 +124,7 @@ struct FWritePropertyVisitor : public FVisitor
 		}
 		else
 		{
-			return Fail(EReaderErrorCode::ExpectStringFail);
+			return Fail(EErrorCode::ExpectStringFail);
 		}
 	}
 
@@ -140,7 +141,7 @@ struct FConstructVisitor : public FVisitor
 		//	TODO expecting 
 	}
 
-	FVisitResult VisitClass(const FName& ClassName, FMapAccess& MapAccess) override
+	FResult VisitClass(const FName& ClassName, FMapAccess& MapAccess) override
 	{
 		UClass* Class = CastChecked<UClass>(Datum.Struct.Get());
 		UObject* Obj = (UObject*)Datum.DataPtr;
@@ -148,7 +149,7 @@ struct FConstructVisitor : public FVisitor
 		while (true)
 		{
 			bool bHasPending;
-			FVisitResult Ret;
+			FResult Ret;
 
 			Ret = MapAccess.HasPending(bHasPending);
 			if (!Ret.Ok()) return Ret;
@@ -162,7 +163,7 @@ struct FConstructVisitor : public FVisitor
 		}
 	}
 
-	FVisitResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
+	FResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
 	{
 		UScriptStruct* Struct = CastChecked<UScriptStruct>(Datum.Struct.Get());
 		void* StructPtr = Datum.DataPtr;
@@ -170,7 +171,7 @@ struct FConstructVisitor : public FVisitor
 		while (true)
 		{
 			bool bHasPending;
-			FVisitResult Ret;
+			FResult Ret;
 
 			Ret = MapAccess.HasPending(bHasPending);
 			if (!Ret.Ok()) return Ret;
@@ -186,7 +187,7 @@ struct FConstructVisitor : public FVisitor
 			//	Get Property By Name
 			UProperty* Property = GetPropertyByName(Struct, NameGetter.Name);
 			if (!Property)
-				return Fail(EReaderErrorCode::UnknownError);
+				return Fail(EErrorCode::UnknownError);
 
 			FWritePropertyVisitor Writer;
 			Writer.Struct = Property;

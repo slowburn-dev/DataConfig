@@ -3,7 +3,7 @@
 namespace DataConfig
 {
 
-enum class EReaderErrorCode : uint32
+enum class EErrorCode : uint32
 {
 	Ok = 0,
 	//	Visitor

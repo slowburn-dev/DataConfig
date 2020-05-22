@@ -2,8 +2,8 @@
 #include "UObject/UnrealType.h"
 #include "Templates/Casts.h"
 #include "Misc/TVariant.h"
-#include <Reader/PropertyReader.h>
-#include <Reader/ReaderErrorCodes.h>
+#include "Reader/PropertyReader.h"
+#include "DataConfigErrorCodes.h"
 
 namespace DataConfig {
 
@@ -141,7 +141,7 @@ static size_t CountEffectiveProperties(UStruct* Struct)
 	return EffectiveCount;
 }
 
-static FVisitResult DispatchReadByProperty(FPropertyReader* Reader, FVisitor& Visitor, UProperty* Property)
+static FResult DispatchReadByProperty(FPropertyReader* Reader, FVisitor& Visitor, UProperty* Property)
 {
 	check(Reader);
 	check(Property);
@@ -152,11 +152,11 @@ static FVisitResult DispatchReadByProperty(FPropertyReader* Reader, FVisitor& Vi
 	else if (Property->IsA<UStrProperty>())
 		return Reader->ReadString(Visitor);
 
-	return Fail(EReaderErrorCode::DispatchAnyFail);
+	return Fail(EErrorCode::DispatchAnyFail);
 }
 
-template<typename TPrimitive, typename TProperty, EReaderErrorCode ErrCode>
-FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
+template<typename TPrimitive, typename TProperty, EErrorCode ErrCode>
+FResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 {
 	if (StateClassProperty* CPStatePtr = TryGetState<StateClassProperty>(Reader))
 	{
@@ -190,11 +190,11 @@ FVisitResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 	return Fail(ErrCode);
 }
 
-template<typename TPrimitive, typename TProperty, EReaderErrorCode ErrCode, typename TMethod>
-FVisitResult ReadPrimitive(FPropertyReader* Reader, FVisitor& Visitor, TMethod Method)
+template<typename TPrimitive, typename TProperty, EErrorCode ErrCode, typename TMethod>
+FResult ReadPrimitive(FPropertyReader* Reader, FVisitor& Visitor, TMethod Method)
 {
 	TPrimitive Value;
-	FVisitResult Result = TryGetPrimitive<TPrimitive, TProperty, ErrCode>(Reader, Value);
+	FResult Result = TryGetPrimitive<TPrimitive, TProperty, ErrCode>(Reader, Value);
 	if (Result.Ok())
 	{
 		return (Visitor.*Method)(Value);
@@ -207,6 +207,7 @@ FVisitResult ReadPrimitive(FPropertyReader* Reader, FVisitor& Visitor, TMethod M
 
 FPropertyReader::FPropertyReader()
 {
+	static_assert(sizeof(FPropertyReader) <= 64, "larger than cacheline");
 	static_assert(sizeof(ReaderState) <= sizeof(ImplStorageType), "impl storage size too small");
 	new(&ImplStorage) ReaderState(TInPlaceType<Unknown>{});
 }
@@ -246,7 +247,7 @@ FPropertyReader::~FPropertyReader()
 	GetState(this).~ReaderState();
 }
 
-FVisitResult FPropertyReader::ReadAny(FVisitor &Visitor)
+FResult FPropertyReader::ReadAny(FVisitor &Visitor)
 {
 	//	this is basically a dispatch function
 	if (StateClassRoot* CRStatePtr = TryGetState<StateClassRoot>(this))
@@ -270,75 +271,75 @@ FVisitResult FPropertyReader::ReadAny(FVisitor &Visitor)
 		return DispatchReadByProperty(this, Visitor, PStatePtr->Property);
 	}
 
-	return Fail(EReaderErrorCode::DispatchAnyFail);
+	return Fail(EErrorCode::DispatchAnyFail);
 }
 
-FVisitResult FPropertyReader::ReadBool(FVisitor &Visitor) 
+FResult FPropertyReader::ReadBool(FVisitor &Visitor) 
 {
-	return ReadPrimitive<bool, UBoolProperty, EReaderErrorCode::ExpectBoolFail>(this, Visitor, &FVisitor::VisitBool);
+	return ReadPrimitive<bool, UBoolProperty, EErrorCode::ExpectBoolFail>(this, Visitor, &FVisitor::VisitBool);
 }
 
-FVisitResult FPropertyReader::ReadName(FVisitor &Visitor)
+FResult FPropertyReader::ReadName(FVisitor &Visitor)
 {
-	return ReadPrimitive<FName, UNameProperty, EReaderErrorCode::ExpectNameFail>(this, Visitor, &FVisitor::VisitName);
+	return ReadPrimitive<FName, UNameProperty, EErrorCode::ExpectNameFail>(this, Visitor, &FVisitor::VisitName);
 }
 
-FVisitResult FPropertyReader::ReadString(FVisitor &Visitor)
+FResult FPropertyReader::ReadString(FVisitor &Visitor)
 {
-	return ReadPrimitive<FString, UStrProperty, EReaderErrorCode::ExpectStringFail>(this, Visitor, &FVisitor::VisitString);
+	return ReadPrimitive<FString, UStrProperty, EErrorCode::ExpectStringFail>(this, Visitor, &FVisitor::VisitString);
 }
 
-FVisitResult FPropertyReader::ReadFloat(FVisitor &Visitor)
+FResult FPropertyReader::ReadFloat(FVisitor &Visitor)
 {
-	return ReadPrimitive<float, UFloatProperty, EReaderErrorCode::ExpectFloatFail>(this, Visitor, &FVisitor::VisitFloat);
+	return ReadPrimitive<float, UFloatProperty, EErrorCode::ExpectFloatFail>(this, Visitor, &FVisitor::VisitFloat);
 }
 
-FVisitResult FPropertyReader::ReadDouble(FVisitor &Visitor)
+FResult FPropertyReader::ReadDouble(FVisitor &Visitor)
 {
-	return ReadPrimitive<double, UDoubleProperty, EReaderErrorCode::ExpectDoubleFail>(this, Visitor, &FVisitor::VisitDouble);
+	return ReadPrimitive<double, UDoubleProperty, EErrorCode::ExpectDoubleFail>(this, Visitor, &FVisitor::VisitDouble);
 }
 
-FVisitResult FPropertyReader::ReadInt8(FVisitor &Visitor)
+FResult FPropertyReader::ReadInt8(FVisitor &Visitor)
 {
-	return ReadPrimitive<int8, UInt8Property, EReaderErrorCode::ExpectInt8Fail>(this, Visitor, &FVisitor::VisitInt8);
+	return ReadPrimitive<int8, UInt8Property, EErrorCode::ExpectInt8Fail>(this, Visitor, &FVisitor::VisitInt8);
 }
 
-FVisitResult FPropertyReader::ReadInt16(FVisitor &Visitor)
+FResult FPropertyReader::ReadInt16(FVisitor &Visitor)
 {
-	return ReadPrimitive<int16, UInt16Property, EReaderErrorCode::ExpectInt16Fail>(this, Visitor, &FVisitor::VisitInt16);
+	return ReadPrimitive<int16, UInt16Property, EErrorCode::ExpectInt16Fail>(this, Visitor, &FVisitor::VisitInt16);
 }
 
-FVisitResult FPropertyReader::ReadInt(FVisitor &Visitor)
+FResult FPropertyReader::ReadInt(FVisitor &Visitor)
 {
-	return ReadPrimitive<int, UIntProperty, EReaderErrorCode::ExpectIntFail>(this, Visitor, &FVisitor::VisitInt);
+	return ReadPrimitive<int, UIntProperty, EErrorCode::ExpectIntFail>(this, Visitor, &FVisitor::VisitInt);
 }
 
-FVisitResult FPropertyReader::ReadInt64(FVisitor &Visitor)
+FResult FPropertyReader::ReadInt64(FVisitor &Visitor)
 {
-	return ReadPrimitive<int64, UInt64Property, EReaderErrorCode::ExpectInt64Fail>(this, Visitor, &FVisitor::VisitInt64);
+	return ReadPrimitive<int64, UInt64Property, EErrorCode::ExpectInt64Fail>(this, Visitor, &FVisitor::VisitInt64);
 }
 
-FVisitResult FPropertyReader::ReadByte(FVisitor &Visitor)
+FResult FPropertyReader::ReadByte(FVisitor &Visitor)
 {
-	return ReadPrimitive<uint8, UByteProperty, EReaderErrorCode::ExpectByteFail>(this, Visitor, &FVisitor::VisitByte);
+	return ReadPrimitive<uint8, UByteProperty, EErrorCode::ExpectByteFail>(this, Visitor, &FVisitor::VisitByte);
 }
 
-FVisitResult FPropertyReader::ReadUInt16(FVisitor &Visitor)
+FResult FPropertyReader::ReadUInt16(FVisitor &Visitor)
 {
-	return ReadPrimitive<uint16, UInt16Property, EReaderErrorCode::ExpectUInt16Fail>(this, Visitor, &FVisitor::VisitUInt16);
+	return ReadPrimitive<uint16, UInt16Property, EErrorCode::ExpectUInt16Fail>(this, Visitor, &FVisitor::VisitUInt16);
 }
 
-FVisitResult FPropertyReader::ReadUInt32(FVisitor &Visitor)
+FResult FPropertyReader::ReadUInt32(FVisitor &Visitor)
 {
-	return ReadPrimitive<uint32, UUInt32Property, EReaderErrorCode::ExpectUInt32Fail>(this, Visitor, &FVisitor::VisitUInt32);
+	return ReadPrimitive<uint32, UUInt32Property, EErrorCode::ExpectUInt32Fail>(this, Visitor, &FVisitor::VisitUInt32);
 }
 
-FVisitResult FPropertyReader::ReadUInt64(FVisitor &Visitor)
+FResult FPropertyReader::ReadUInt64(FVisitor &Visitor)
 {
-	return ReadPrimitive<uint64, UUInt64Property, EReaderErrorCode::ExpectUInt64Fail>(this, Visitor, &FVisitor::VisitUInt64);
+	return ReadPrimitive<uint64, UUInt64Property, EErrorCode::ExpectUInt64Fail>(this, Visitor, &FVisitor::VisitUInt64);
 }
 
-FVisitResult FPropertyReader::ReadClass(FVisitor &Visitor)
+FResult FPropertyReader::ReadClass(FVisitor &Visitor)
 {
 	if (StateClassRoot* StatePtr = TryGetState<StateClassRoot>(this))
 	{
@@ -347,11 +348,11 @@ FVisitResult FPropertyReader::ReadClass(FVisitor &Visitor)
 	}
 	else
 	{
-		return Fail(EReaderErrorCode::ExpectClassFail);
+		return Fail(EErrorCode::ExpectClassFail);
 	}
 }
 
-FVisitResult FPropertyReader::ReadStruct(FVisitor &Visitor)
+FResult FPropertyReader::ReadStruct(FVisitor &Visitor)
 {
 	if (StateStructRoot* StatePtr = TryGetState<StateStructRoot>(this))
 	{
@@ -361,13 +362,13 @@ FVisitResult FPropertyReader::ReadStruct(FVisitor &Visitor)
 	}
 	else
 	{
-		return Fail(EReaderErrorCode::ExpectStructFail);
+		return Fail(EErrorCode::ExpectStructFail);
 	}
 }
 
-FVisitResult FPropertyReader::ReadMap(FVisitor &Visitor)
+FResult FPropertyReader::ReadMap(FVisitor &Visitor)
 {
-	return Fail(EReaderErrorCode::ExpectMapFail);
+	return Fail(EErrorCode::ExpectMapFail);
 }
 
 
@@ -408,18 +409,18 @@ FPropertyReader::FStructMapAccess::FStructMapAccess(FPropertyReader* ParentPtr)
 	Link = FirstEffectiveProperty(StructClass->PropertyLink);
 }
 
-FVisitResult FPropertyReader::FStructMapAccess::Num(TOptional<size_t>& OutNum)
+FResult FPropertyReader::FStructMapAccess::Num(TOptional<size_t>& OutNum)
 {
 	return Ok();
 }
 
-FVisitResult FPropertyReader::FStructMapAccess::HasPending(bool& bOutHasPending)
+FResult FPropertyReader::FStructMapAccess::HasPending(bool& bOutHasPending)
 {
 	bOutHasPending = Link != nullptr;
 	return Ok();
 }
 
-FVisitResult FPropertyReader::FStructMapAccess::ReadKey(FVisitor &Visitor)
+FResult FPropertyReader::FStructMapAccess::ReadKey(FVisitor &Visitor)
 {
 	if (Link != nullptr)
 	{
@@ -427,11 +428,11 @@ FVisitResult FPropertyReader::FStructMapAccess::ReadKey(FVisitor &Visitor)
 	}
 	else
 	{
-		return Fail(EReaderErrorCode::OutOfBoundMapKeyRead);
+		return Fail(EErrorCode::OutOfBoundMapKeyRead);
 	}
 }
 
-FVisitResult FPropertyReader::FStructMapAccess::ReadValue(FVisitor &Visitor)
+FResult FPropertyReader::FStructMapAccess::ReadValue(FVisitor &Visitor)
 {
 	if (Link != nullptr)
 	{
@@ -445,11 +446,11 @@ FVisitResult FPropertyReader::FStructMapAccess::ReadValue(FVisitor &Visitor)
 	}
 	else
 	{
-		return Fail(EReaderErrorCode::OutOfBoundMapValueRead);
+		return Fail(EErrorCode::OutOfBoundMapValueRead);
 	}
 }
 
-FVisitResult FPropertyReader::FStructMapAccess::Next()
+FResult FPropertyReader::FStructMapAccess::Next()
 {
 	Link = NextEffectiveProperty(Link);
 	return Ok();
@@ -462,24 +463,24 @@ FPropertyReader::FClassMapAccess::FClassMapAccess(FPropertyReader* ParentPtr)
 	Link = FirstEffectiveProperty(Class->PropertyLink);
 }
 
-FVisitResult FPropertyReader::FClassMapAccess::Num(TOptional<size_t>& OutNum)
+FResult FPropertyReader::FClassMapAccess::Num(TOptional<size_t>& OutNum)
 {
 	return Ok();
 }
 
-FVisitResult FPropertyReader::FClassMapAccess::HasPending(bool& bOutHasPending)
+FResult FPropertyReader::FClassMapAccess::HasPending(bool& bOutHasPending)
 {
 	bOutHasPending = Link != nullptr;
 	return Ok();
 }
 
-FVisitResult FPropertyReader::FClassMapAccess::Next()
+FResult FPropertyReader::FClassMapAccess::Next()
 {
 	Link = NextEffectiveProperty(Link);
 	return Ok();
 }
 
-FVisitResult FPropertyReader::FClassMapAccess::ReadKey(FVisitor &Visitor)
+FResult FPropertyReader::FClassMapAccess::ReadKey(FVisitor &Visitor)
 {
 	if (Link != nullptr)
 	{
@@ -487,11 +488,11 @@ FVisitResult FPropertyReader::FClassMapAccess::ReadKey(FVisitor &Visitor)
 	}
 	else
 	{
-		return Fail(EReaderErrorCode::OutOfBoundMapKeyRead);
+		return Fail(EErrorCode::OutOfBoundMapKeyRead);
 	}
 }
 
-FVisitResult FPropertyReader::FClassMapAccess::ReadValue(FVisitor &Visitor)
+FResult FPropertyReader::FClassMapAccess::ReadValue(FVisitor &Visitor)
 {
 	if (Link != nullptr)
 	{
@@ -504,7 +505,7 @@ FVisitResult FPropertyReader::FClassMapAccess::ReadValue(FVisitor &Visitor)
 	}
 	else
 	{
-		return Fail(EReaderErrorCode::OutOfBoundMapValueRead);
+		return Fail(EErrorCode::OutOfBoundMapValueRead);
 	}
 }
 
