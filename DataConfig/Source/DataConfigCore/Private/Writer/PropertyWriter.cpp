@@ -19,7 +19,7 @@ static TState* TryGetState(FPropertyWriter* Self) {
 
 FPropertyWriter::FPropertyWriter()
 {
-	static_assert(sizeof(FPropertyReader) <= 64, "larger than cacheline");
+	static_assert(sizeof(FPropertyReader) <= sizeof(FWriterStorage), "larger than cacheline");
 	static_assert(sizeof(WriterState) <= sizeof(ImplStorageType), "impl storage size too small");
 	new(&ImplStorage) WriterState(TInPlaceType<StateUnknown>{});
 }
@@ -110,16 +110,17 @@ FResult FPropertyWriter::FStructMapWriter::End()
 	return Ok();
 }
 
-void FPropertyWriter::FStructMapWriter::Emplace(void* StructPtr, UScriptStruct* StructClass)
+FPropertyWriter::FStructMapWriter::FStructMapWriter(void* StructPtr, UScriptStruct* StructClass)
+	: FPropertyWriter(StructPtr, StructClass)
 {
-	check(GetState(this).IsType<StateUnknown>());
-	GetState(this).Emplace<StateStructRoot>(StructPtr, StructClass);
+	static_assert(sizeof(FStructMapWriter) <= sizeof(FWriterStorage), "larger than cacheline");
 }
 
-FResult FPropertyWriter::WriteStruct(const FName& StructName, FStructMapWriter& OutWriter)
+FResult FPropertyWriter::WriteStruct(const FName& StructName, FWriterStorage& OutWriter)
 {
 	if (StateStructRoot* StatePtr = TryGetState<StateStructRoot>(this))
 	{
+		OutWriter.Emplace<FStructMapWriter>(StatePtr->StructPtr, StatePtr->StructClass);
 		return Ok();
 	}
 	else
@@ -127,7 +128,6 @@ FResult FPropertyWriter::WriteStruct(const FName& StructName, FStructMapWriter& 
 		return Fail(EErrorCode::ExpectStructFail);
 	}
 }
-
 
 
 } // namespace DataConfig

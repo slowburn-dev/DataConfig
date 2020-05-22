@@ -1,12 +1,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Writer/Writer.h"
 
 namespace DataConfig
 {
 
+/*
+struct DATACONFIGCORE_API FPropertyDatum
+{
+	UField* Property;
+	void* DataPtr;
+};
 
-struct DATACONFIGCORE_API FPropertyWriter : private FNoncopyable
+struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
+{
+	FPropertyWriter(UField* Property);
+
+	FPropertyDatum ActiveDatum;
+};
+*/
+
+struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 {
 	FPropertyWriter();
 	virtual ~FPropertyWriter();
@@ -17,14 +32,12 @@ struct DATACONFIGCORE_API FPropertyWriter : private FNoncopyable
 	FPropertyWriter(void* StructPtr, UScriptStruct* StructClass, UProperty* Property);
 	FPropertyWriter(void* PrimitivePtr, UProperty* Property);
 
-	FResult WriteBool(bool Value);
-	FResult WriteName(const FName& Value);
-	FResult WriteString(const FString& Value);
+	FResult WriteBool(bool Value) override;
+	FResult WriteName(const FName& Value) override;
+	FResult WriteString(const FString& Value) override;
 
 	struct FStructMapWriter;
-
-	FResult WriteStruct(const FName& StructName, FStructMapWriter& OutWriter);
-
+	FResult WriteStruct(const FName& StructName, FWriterStorage& OutWriter) override;
 
 	using ImplStorageType = TAlignedStorage<56>::Type;
 	ImplStorageType ImplStorage;
@@ -32,12 +45,10 @@ struct DATACONFIGCORE_API FPropertyWriter : private FNoncopyable
 
 struct FPropertyWriter::FStructMapWriter : public FPropertyWriter 
 {
-	void Emplace(void* StructPtr, UScriptStruct* StructClass);
+	FStructMapWriter(void* StructPtr, UScriptStruct* StructClass);
 
-	FResult End();
+	FResult End() override;
 };
-
-
 
 
 }	// namespace DataConfig

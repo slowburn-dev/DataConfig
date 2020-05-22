@@ -1,5 +1,6 @@
 #include "Adhocs.h"
 #include "Reader/PropertyReader.h"
+#include "Writer/PropertyWriter.h"
 #include "UObject/UnrealType.h"
 #include "DataConfigTypes.h"
 #include "DataConfigErrorCodes.h"
@@ -165,6 +166,7 @@ struct FConstructVisitor : public FVisitor
 
 	FResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
 	{
+		/*
 		UScriptStruct* Struct = CastChecked<UScriptStruct>(Datum.Struct.Get());
 		void* StructPtr = Datum.DataPtr;
 
@@ -199,11 +201,67 @@ struct FConstructVisitor : public FVisitor
 			Ret = MapAccess.Next();
 			if (!Ret.Ok()) return Ret;
 		}
+		*/
 
 		return Ok();
 	}
 
 };
+
+
+struct FPropertyRoundtripVisitor : public FVisitor
+{
+	FPropertyWriter Writer;
+
+	FResult VisitBool(bool Value) override
+	{
+		return Writer.WriteBool(Value);
+	}
+
+	FResult VisitName(const FName& Value) override
+	{
+		return Writer.WriteName(Value);
+	}
+
+	FResult VisitString(const FString& Value) override
+	{
+		return Writer.WriteString(Value);
+	}
+
+	FResult VisitStruct(const FName& StructName, FMapAccess& MapAccess) override
+	{
+		/*
+		FWriterHandle Writer;
+		Writer.WriteStruct(StructName, Writer);
+		FDelegateVisitor DelegateVisitor(Writer);
+		//	TODO it still needs a visitor to wrap it and send into reader
+
+		while (true)
+		{
+			bool bHasPending;
+			FResult Ret;
+
+			Ret = MapAccess.HasPending(bHasPending);
+			if (!Ret.Ok()) return Ret;
+			if (!bHasPending) return Ret;
+
+			//	using specific visitor to get
+			Ret = MapAccess.ReadKey(DelegateVisitor);	
+			if (!Ret.Ok()) return Ret;
+			Ret = MapAccess.ReadValue(DelegateVisitor);
+			if (!Ret.Ok()) return Ret;
+			Ret = MapAccess.Next();
+			if (!Ret.Ok()) return Ret;
+		}
+
+		MapWriter.End();
+		*/
+
+		return Ok();
+	}
+
+};
+
 
 void PropertyReaderScaffolding()
 {
@@ -223,6 +281,7 @@ void PropertyReaderScaffolding()
 
 	return;
 }
+
 void PropertyVisitorRoundtrip()
 {
 	FTestStruct_Alpha StructAlpha{};
@@ -260,33 +319,5 @@ void PropertyVisitorRoundtrip()
 	}
 
 	return;
-}
-
-void PropertyVisitorClassRoundtrip()
-{
-	UTestClass_Alpha* Obj = NewObject<UTestClass_Alpha>();
-
-	/*
-	Obj->ABool = true;
-	Obj->AName = FName(TEXT("ALPHA"));
-	Obj->AStr = FString(TEXT("A L P H A"));
-
-	FTestStruct_Alpha& StructAlpha = Obj->AStruct;
-	StructAlpha.ABool = true;
-	StructAlpha.AName = FName(TEXT("ALPHA"));
-	StructAlpha.AStr = FString(TEXT("A L P H A"));
-
-
-	{
-		FDatum Datum;
-		Datum.Struct = UTestClass_Alpha::StaticClass();
-		Datum.DataPtr = Obj;
-
-		FConstructVisitor OutVisitor(Datum);
-
-		FPropertyReader Reader(Obj);
-		Reader.ReadAny(OutVisitor);
-	}
-	*/
 }
 

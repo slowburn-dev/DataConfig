@@ -22,16 +22,14 @@ struct DATACONFIGCORE_API FResult
 	}
 };
 
-static FORCEINLINE FResult Ok() {
+FORCEINLINE FResult Ok() {
 	return FResult{0, 0};
 }
 
-static FORCEINLINE FResult Fail(EErrorCode Status) {
+FORCEINLINE FResult Fail(EErrorCode Status) {
 	check((uint32)Status != 0);
 	return FResult{ (uint32)Status, 0 };
 }
-
-
 
 //	std::aligned_storage stub
 //	https://devdocs.io/cpp/types/aligned_storage
@@ -43,6 +41,8 @@ struct TAlignedStorage
 		unsigned char Data[Align(_Len, _Align)];
 	};
 };
+
+DATACONFIGCORE_API uint8* GetUnitializedBitPattern128();
 
 } // namespace DataConfig
 

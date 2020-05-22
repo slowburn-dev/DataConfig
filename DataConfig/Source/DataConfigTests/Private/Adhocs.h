@@ -25,8 +25,6 @@ class UTestClass_Alpha : public UObject
 };
 
 
-void PropertyReaderScaffolding();
 void PropertyVisitorRoundtrip();
-void PropertyVisitorClassRoundtrip();
 
 
