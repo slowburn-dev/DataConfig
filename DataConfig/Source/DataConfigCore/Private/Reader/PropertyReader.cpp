@@ -1,99 +1,11 @@
 #include "CoreMinimal.h"
-#include "UObject/UnrealType.h"
 #include "Templates/Casts.h"
-#include "Misc/TVariant.h"
 #include "Reader/PropertyReader.h"
 #include "DataConfigErrorCodes.h"
+#include "PropretyCommon/PropertyStates.h"
+#include "PropretyCommon/PropertyUtils.h"
 
 namespace DataConfig {
-
-struct Unknown {
-	//	pass
-};
-
-struct Nil {
-	//	pass
-};
-
-struct StateClassRoot
-{
-	UObject* ClassObject;
-
-	StateClassRoot(UObject* ClassObject)
-		: ClassObject(ClassObject)
-	{
-		check(IsValid(ClassObject));
-	}
-};
-
-struct StateClassProperty
-{
-	UObject* ClassObject;
-	UProperty* Property;
-
-	StateClassProperty(UObject* ClassObject, UProperty* Property)
-		: ClassObject(ClassObject)
-		, Property(Property)
-	{
-		check(IsValid(ClassObject));
-		check(IsValid(Property));
-	}
-};
-
-struct StateStructRoot 
-{
-	void* StructPtr;
-	UScriptStruct* StructClass;
-
-	StateStructRoot(void* StructPtr, UScriptStruct* StructClass)
-		: StructPtr(StructPtr)
-		, StructClass(StructClass)
-	{
-		check(StructPtr != nullptr);
-		check(IsValid(StructClass));
-	}
-};
-
-struct StateStructProperty 
-{
-	void* StructPtr;
-	UScriptStruct* StructClass;
-	UProperty* Property;
-
-	StateStructProperty(void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
-		: StructPtr(StructPtr)
-		, StructClass(StructClass)
-		, Property(Property)
-	{
-		check(StructPtr != nullptr);
-		check(IsValid(StructClass));
-		check(IsValid(Property));
-	}
-};
-
-struct StatePrimitive 
-{
-	void* PrimitivePtr;
-	UProperty* Property;
-
-	StatePrimitive(void* PrimitivePtr, UProperty* Property)
-		: PrimitivePtr(PrimitivePtr)
-		, Property(Property)
-	{
-		check(PrimitivePtr != nullptr);
-		check(IsValid(Property));
-	}
-};
-
-using ReaderState = TVariant<
-	Unknown,
-	Nil,
-	StateClassRoot,
-	StateClassProperty,
-	StateStructRoot,
-	StateStructProperty,
-	StatePrimitive
->;
 
 static FORCEINLINE ReaderState& GetState(FPropertyReader* Self)
 {
@@ -108,37 +20,6 @@ static TState& GetState(FPropertyReader* Self) {
 template<typename TState>
 static TState* TryGetState(FPropertyReader* Self) {
 	return GetState(Self).TryGet<TState>();
-}
-
-static bool IsEffectiveProperty(UProperty* Property)
-{
-	check(Property);
-	return Property->IsA<UBoolProperty>()
-		|| Property->IsA<UFloatProperty>()
-		|| Property->IsA<UDoubleProperty>()
-		|| Property->IsA<UIntProperty>()
-		|| Property->IsA<UUInt32Property>()
-		|| Property->IsA<UStrProperty>()
-		|| Property->IsA<UNameProperty>()
-		|| Property->IsA<UStructProperty>()
-		|| Property->IsA<UObjectProperty>()
-		|| Property->IsA<UMapProperty>()
-		|| Property->IsA<UArrayProperty>();
-}
-
-static size_t CountEffectiveProperties(UStruct* Struct)
-{
-	check(Struct);
-	size_t EffectiveCount = 0;
-	for (UProperty* Property = Struct->PropertyLink; Property; Property = Property->PropertyLinkNext)
-	{
-		if (IsEffectiveProperty(Property))
-		{
-			++EffectiveCount;
-		}
-	}
-
-	return EffectiveCount;
 }
 
 static FResult DispatchReadByProperty(FPropertyReader* Reader, FVisitor& Visitor, UProperty* Property)
@@ -369,37 +250,6 @@ FResult FPropertyReader::ReadStruct(FVisitor &Visitor)
 FResult FPropertyReader::ReadMap(FVisitor &Visitor)
 {
 	return Fail(EErrorCode::ExpectMapFail);
-}
-
-
-static UProperty* NextEffectiveProperty(UProperty* Property) 
-{
-	while (true)
-	{
-		if (Property == nullptr)
-			return nullptr;
-
-		Property = Property->PropertyLinkNext;
-
-		if (Property == nullptr)
-			return nullptr;
-
-		if (IsEffectiveProperty(Property))
-			return Property;
-	}
-
-	checkNoEntry();
-	return nullptr;
-}
-
-static UProperty* FirstEffectiveProperty(UProperty* Property)
-{
-	if (Property == nullptr)
-		return nullptr;
-
-	return  IsEffectiveProperty(Property)
-		? Property
-		: NextEffectiveProperty(Property);
 }
 
 FPropertyReader::FStructMapAccess::FStructMapAccess(FPropertyReader* ParentPtr)

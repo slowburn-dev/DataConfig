@@ -10,8 +10,7 @@ class UProperty;
 namespace DataConfig
 {
 
-
-struct DATACONFIGCORE_API FPropertyReader 
+struct DATACONFIGCORE_API FPropertyReader  : private FNoncopyable
 {
 	FPropertyReader();
 	~FPropertyReader();
