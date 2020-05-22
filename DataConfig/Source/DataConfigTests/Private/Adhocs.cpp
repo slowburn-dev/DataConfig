@@ -13,20 +13,21 @@ struct FScafVisitor : public FVisitor
 		return Ok();
 	}
 
-	FVisitResult VisitName(FName Name) override
+	FVisitResult VisitName(const FName& Name) override
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a name: %s"), *Name.ToString());
 		return Ok();
 	}
 
-	FVisitResult VisitString(FString Str) override
+	FVisitResult VisitString(const FString& Str) override
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a str: %s"), *Str);
 		return Ok();
 	}
 
-	FVisitResult VisitMap(FMapAccess& MapAccess) override
+	FVisitResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
 	{
+		UE_LOG(LogDataConfigCore, Display, TEXT("Visiting a struct: %s"), *Name.ToString());
 		while (true)
 		{
 			bool bHasPending;
@@ -63,7 +64,7 @@ struct FGetNameVisitor : public FVisitor
 {
 	FName Name;
 
-	FVisitResult VisitName(FName aName) override
+	FVisitResult VisitName(const FName& aName) override
 	{
 		this->Name = aName;
 		return Ok();
@@ -103,7 +104,7 @@ struct FWritePropertyVisitor : public FVisitor
 		}
 	}
 
-	FVisitResult VisitName(FName Value) override {
+	FVisitResult VisitName(const FName& Value) override {
 		if (UNameProperty* NameProperty = Cast<UNameProperty>(Struct.Get())) {
 			NameProperty->SetPropertyValue(DataPtr, Value);
 			return Ok();
@@ -114,7 +115,7 @@ struct FWritePropertyVisitor : public FVisitor
 		}
 	}
 
-	FVisitResult VisitString(FString Value) override {
+	FVisitResult VisitString(const FString& Value) override {
 		if (UStrProperty* StrProperty = Cast<UStrProperty>(Struct.Get()))
 		{
 			StrProperty->SetPropertyValue(DataPtr, Value);
@@ -139,7 +140,29 @@ struct FConstructVisitor : public FVisitor
 		//	TODO expecting 
 	}
 
-	FVisitResult VisitMap(FMapAccess& MapAccess) override
+	FVisitResult VisitClass(const FName& ClassName, FMapAccess& MapAccess) override
+	{
+		UClass* Class = CastChecked<UClass>(Datum.Struct.Get());
+		UObject* Obj = (UObject*)Datum.DataPtr;
+
+		while (true)
+		{
+			bool bHasPending;
+			FVisitResult Ret;
+
+			Ret = MapAccess.HasPending(bHasPending);
+			if (!Ret.Ok()) return Ret;
+			if (!bHasPending) return Ret;
+
+			FGetNameVisitor NameGetter;
+			Ret = MapAccess.ReadKey(NameGetter);	
+			if (!Ret.Ok()) return Ret;
+
+
+		}
+	}
+
+	FVisitResult VisitStruct(const FName& Name, FMapAccess& MapAccess) override
 	{
 		UScriptStruct* Struct = CastChecked<UScriptStruct>(Datum.Struct.Get());
 		void* StructPtr = Datum.DataPtr;
@@ -150,8 +173,8 @@ struct FConstructVisitor : public FVisitor
 			FVisitResult Ret;
 
 			Ret = MapAccess.HasPending(bHasPending);
-			if (!bHasPending) return Ret;
 			if (!Ret.Ok()) return Ret;
+			if (!bHasPending) return Ret;
 
 			//	damn how do i construct this?
 			//	the best case is to construct a value out of this
@@ -235,5 +258,33 @@ void PropertyVisitorRoundtrip()
 	}
 
 	return;
+}
+
+void PropertyVisitorClassRoundtrip()
+{
+	UTestClass_Alpha* Obj = NewObject<UTestClass_Alpha>();
+
+	/*
+	Obj->ABool = true;
+	Obj->AName = FName(TEXT("ALPHA"));
+	Obj->AStr = FString(TEXT("A L P H A"));
+
+	FTestStruct_Alpha& StructAlpha = Obj->AStruct;
+	StructAlpha.ABool = true;
+	StructAlpha.AName = FName(TEXT("ALPHA"));
+	StructAlpha.AStr = FString(TEXT("A L P H A"));
+
+
+	{
+		FDatum Datum;
+		Datum.Struct = UTestClass_Alpha::StaticClass();
+		Datum.DataPtr = Obj;
+
+		FConstructVisitor OutVisitor(Datum);
+
+		FPropertyReader Reader(Obj);
+		Reader.ReadAny(OutVisitor);
+	}
+	*/
 }
 
