@@ -90,7 +90,7 @@ FPropertyReader::FPropertyReader()
 {
 	static_assert(sizeof(FPropertyReader) <= 64, "larger than cacheline");
 	static_assert(sizeof(ReaderState) <= sizeof(ImplStorageType), "impl storage size too small");
-	new(&ImplStorage) ReaderState(TInPlaceType<Unknown>{});
+	new(&ImplStorage) ReaderState(TInPlaceType<StateUnknown>{});
 }
 
 FPropertyReader::FPropertyReader(UObject* ClassObject)

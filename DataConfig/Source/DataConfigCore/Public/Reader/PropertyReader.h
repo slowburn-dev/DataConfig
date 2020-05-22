@@ -13,7 +13,7 @@ namespace DataConfig
 struct DATACONFIGCORE_API FPropertyReader  : private FNoncopyable
 {
 	FPropertyReader();
-	~FPropertyReader();
+	virtual ~FPropertyReader();
 
 	FPropertyReader(UObject* ClassObject);
 	FPropertyReader(UObject* ClassObject, UProperty* Property);

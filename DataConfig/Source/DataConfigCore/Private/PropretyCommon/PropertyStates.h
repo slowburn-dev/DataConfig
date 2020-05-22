@@ -6,12 +6,16 @@
 namespace DataConfig
 {
 
-struct Unknown {
+struct StateUnknown {
 	//	pass
 };
 
-struct Nil {
+struct StateNil {
 	//	pass
+};
+
+struct StateEnded {
+	//	pass, writer only state
 };
 
 struct StateClassRoot
@@ -85,8 +89,19 @@ struct StatePrimitive
 };
 
 using ReaderState = TVariant<
-	Unknown,
-	Nil,
+	StateUnknown,
+	StateNil,
+	StateClassRoot,
+	StateClassProperty,
+	StateStructRoot,
+	StateStructProperty,
+	StatePrimitive
+>;
+
+
+using WriterState = TVariant<
+	StateUnknown,
+	StateEnded,
 	StateClassRoot,
 	StateClassProperty,
 	StateStructRoot,

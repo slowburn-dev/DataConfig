@@ -55,6 +55,9 @@ enum class EErrorCode : uint32
 	OutOfBoundMapKeyRead,
 	OutOfBoundMapValueRead,
 
+	//	Writer
+	WriteAfterEnded,
+
 	//	Unknown
 	UnknownError,
 

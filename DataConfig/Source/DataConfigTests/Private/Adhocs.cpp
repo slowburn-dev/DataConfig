@@ -168,6 +168,7 @@ struct FConstructVisitor : public FVisitor
 		UScriptStruct* Struct = CastChecked<UScriptStruct>(Datum.Struct.Get());
 		void* StructPtr = Datum.DataPtr;
 
+
 		while (true)
 		{
 			bool bHasPending;
