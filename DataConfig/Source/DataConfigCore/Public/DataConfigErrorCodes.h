@@ -6,61 +6,61 @@ namespace DataConfig
 enum class EErrorCode : uint32
 {
 	Ok = 0,
-	//	Visitor
-	UnexpectedBool,
-	UnexpectedName,
-	UnexpectedString,
 
-	UnexpectedFloat,
-	UnexpectedDouble,
+	WriteBoolFail,
+	WriteNameFail,
+	WriteStringFail,
 
-	UnexpectedInt8,
-	UnexpectedInt16,
-	UnexpectedInt,
-	UnexpectedInt64,
+	WriteFloatFail,
+	WriteDoubleFail,
 
-	UnexpectedByte,
-	UnexpectedUInt16,
-	UnexpectedUInt32,
-	UnexpectedUInt64,
+	WriteInt8Fail,
+	WriteInt16Fail,
+	WriteIntFail,
+	WriteInt64Fail,
 
-	UnexpectedStruct,
-	UnexpectedClass,
+	WriteByteFail,
+	WriteUInt16Fail,
+	WriteUInt32Fail,
+	WriteUInt64Fail,
 
-	UnexpectedMap,
-	UnexpectedMapAccess,
+	WriteStructRootFail,
+	WriteStructEndFail,
+	WriteClassFail,
 
-	//	Reader
-	DispatchAnyFail,
-	ExpectBoolFail,
-	ExpectNameFail,
-
-	ExpectFloatFail,
-	ExpectDoubleFail,
-
-	ExpectInt8Fail,
-	ExpectInt16Fail,
-	ExpectIntFail,
-	ExpectInt64Fail,
-
-	ExpectByteFail,
-	ExpectUInt16Fail,
-	ExpectUInt32Fail,
-	ExpectUInt64Fail,
-
-	ExpectStringFail,
-	ExpectClassFail,
-	ExpectStructFail,
-	ExpectStructEndFail,
-	ExpectMapFail,
-	OutOfBoundMapKeyRead,
-	OutOfBoundMapValueRead,
+	WriteMapFail,
 
 	//	Writer
 	UnexpectedEnd,
 	WriteAfterEnded,
 	EndWhileWaitingKey,
 	DupliatedEnd,
+
+	//	Reader
+	ReadBoolFail,
+	ReadNameFail,
+
+	ReadFloatFail,
+	ReadDoubleFail,
+
+	ReadInt8Fail,
+	ReadInt16Fail,
+	ReadIntFail,
+	ReadInt64Fail,
+
+	ReadByteFail,
+	ReadUInt16Fail,
+	ReadUInt32Fail,
+	ReadUInt64Fail,
+
+	ReadStringFail,
+	ReadClassFail,
+	ReadStructFail,
+	ReadStructEndFail,
+	ReadMapFail,
+	ReadOutOfBoundMapKey,
+	ReadOutOfBoundMapValue,
+
 
 	//	Map/Struct/Class
 	StructKeyNotFound,
@@ -71,7 +71,6 @@ enum class EErrorCode : uint32
 
 	//	Unknown
 	UnknownError,
-
 };
 
 } // namespace DataConfig

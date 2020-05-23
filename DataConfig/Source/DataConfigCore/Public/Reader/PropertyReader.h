@@ -14,7 +14,6 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 {
 	FPropertyReader();
 	FPropertyReader(FPropertyDatum Datum);
-	~FPropertyReader();
 
 	EDataEntry Peek() override;
 
@@ -34,7 +33,7 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 		ImplStorageType ImplStorage;
 	};
 
-	TArray<FPropertyState, TInlineAllocator<16>> States;
+	TArray<FPropertyState, TInlineAllocator<8>> States;
 };
 
 //	we know it's POD like

@@ -155,9 +155,6 @@ FPropertyReader::FPropertyReader(FPropertyDatum Datum)
 	}
 }
 
-FPropertyReader::~FPropertyReader()
-{}
-
 EDataEntry FPropertyReader::Peek()
 {
 	if (StateNil* NilStatePtr = TryGetTopState<StateNil>(this))
@@ -198,7 +195,7 @@ EDataEntry FPropertyReader::Peek()
 
 FResult FPropertyReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
-	return TryGetPrimitive<bool, UBoolProperty, EErrorCode::ExpectBoolFail>(this, OutPtr);
+	return TryGetPrimitive<bool, UBoolProperty, EErrorCode::ReadBoolFail>(this, OutPtr);
 }
 
 FResult FPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
@@ -206,7 +203,7 @@ FResult FPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 	if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(this))
 	{
 		//	TODO
-		return TryGetPrimitive<FName, UNameProperty, EErrorCode::ExpectNameFail>(this, OutPtr);
+		return TryGetPrimitive<FName, UNameProperty, EErrorCode::ReadNameFail>(this, OutPtr);
 	}
 	else if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
 	{
@@ -222,18 +219,18 @@ FResult FPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 		}
 		else
 		{
-			return TryGetPrimitive<FName, UNameProperty, EErrorCode::ExpectNameFail>(this, OutPtr);
+			return TryGetPrimitive<FName, UNameProperty, EErrorCode::ReadNameFail>(this, OutPtr);
 		}
 	}
 	else
 	{
-		return TryGetPrimitive<FName, UNameProperty, EErrorCode::ExpectNameFail>(this, OutPtr);
+		return TryGetPrimitive<FName, UNameProperty, EErrorCode::ReadNameFail>(this, OutPtr);
 	}
 }
 
 FResult FPropertyReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 {
-	return TryGetPrimitive<FString, UStrProperty, EErrorCode::ExpectStringFail>(this, OutPtr);
+	return TryGetPrimitive<FString, UStrProperty, EErrorCode::ReadStringFail>(this, OutPtr);
 }
 
 static void PushFirstStructPropertyState(FPropertyReader* Reader, FName* OutNamePtr, void* StructPtr, UScriptStruct* StructClass)
@@ -308,7 +305,7 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 			}
 			else
 			{
-				return Fail(EErrorCode::ExpectStructFail);
+				return Fail(EErrorCode::ReadStructFail);
 			}
 		}
 		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
@@ -323,7 +320,7 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 		return Ok();
 	}
 
-	return Fail(EErrorCode::ExpectStructFail);
+	return Fail(EErrorCode::ReadStructFail);
 }
 
 FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
@@ -346,7 +343,7 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 	}
 	else
 	{
-		return Fail(EErrorCode::ExpectStructEndFail);
+		return Fail(EErrorCode::ReadStructEndFail);
 	}
 }
 
