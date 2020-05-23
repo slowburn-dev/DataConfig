@@ -1,27 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PropertyCommon/PropertyDatum.h"
 #include "Writer/Writer.h"
 
 namespace DataConfig
 {
-
-struct DATACONFIGCORE_API FPropertyDatum
-{
-	UField* Property;
-	void* DataPtr;
-
-	FPropertyDatum();
-	FPropertyDatum(UField* InProperty, void* InDataPtr);
-
-	FORCEINLINE bool IsNone() 
-	{
-		check((Property == nullptr && DataPtr == nullptr) || (Property != nullptr && DataPtr != nullptr));
-		return Property == nullptr;
-	}
-
-	static const FPropertyDatum NONE;
-};
 
 struct DATACONFIGCORE_API FBasePropertyWriter : public FWriter, private FNoncopyable
 {

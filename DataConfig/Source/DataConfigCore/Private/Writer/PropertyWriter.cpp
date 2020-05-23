@@ -180,8 +180,6 @@ FPrimitivePropertyWriter::FPrimitivePropertyWriter(void* PrimitivePtr, UProperty
 	ActiveDatum.DataPtr = PrimitivePtr;
 }
 
-const FPropertyDatum FPropertyDatum::NONE = FPropertyDatum();
-
 //	TODO note that we support out of order writes
 FStructMapWriter::FStructMapWriter(void* InStructPtr, UScriptStruct* InStructClass)
 {
@@ -264,18 +262,6 @@ FPropertyDatum FStructMapWriter::FindChildDatumByName(const FName& ChildName)
 	}
 
 	return FPropertyDatum::NONE;
-}
-
-FPropertyDatum::FPropertyDatum()
-{
-	Property = nullptr;
-	DataPtr = nullptr;
-}
-
-FPropertyDatum::FPropertyDatum(UField* InProperty, void* InDataPtr)
-{
-	Property = InProperty;
-	DataPtr = InDataPtr;
 }
 
 } // namespace DataConfig

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "DataConfigTypes.h"
+#include "PropertyCommon/PropertyDatum.h"
 #include "Reader/Reader.h"
 
 class UProperty;
@@ -12,6 +13,7 @@ namespace DataConfig
 struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 {
 	FPropertyReader();
+	FPropertyReader(FPropertyDatum Datum);
 	~FPropertyReader();
 
 	EDataEntry Peek() override;

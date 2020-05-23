@@ -64,8 +64,10 @@ enum class EErrorCode : uint32
 
 	//	Map/Struct/Class
 	StructKeyNotFound,
+	StructExpectKeyFail,
 	StructWriteNonKey,
 	StructEndWhenStillHasValue,
+	StructReadAfterEnded,
 
 	//	Unknown
 	UnknownError,

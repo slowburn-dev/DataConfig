@@ -12,6 +12,15 @@ struct FTestStruct_Alpha
 	UPROPERTY(EditAnywhere) FString AStr;
 };
 
+USTRUCT()
+struct FNestStruct1
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) FName AName;
+	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct;
+};
+
 UCLASS()
 class UTestClass_Alpha : public UObject
 {

@@ -63,8 +63,16 @@ struct StateStructRoot
 struct StateStructProperty 
 {
 	void* StructPtr;
-	UScriptStruct* StructClass;
+	UScriptStruct* StructClass;	// TODO actually can get rid of this, it's on stack parent
 	UProperty* Property;	// this is actually the Link, it's the iterator
+
+	enum class EState 
+	{
+		ExpectKey,
+		ExpectValue,
+		Ended,
+	};
+	EState State;
 
 	StateStructProperty(void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
 		: StructPtr(StructPtr)
@@ -74,6 +82,7 @@ struct StateStructProperty
 		check(StructPtr != nullptr);
 		check(IsValid(StructClass));
 		check(IsValid(Property));
+		State = EState::ExpectKey;
 	}
 };
 
