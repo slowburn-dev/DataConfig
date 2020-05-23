@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UObject/UnrealType.h"
+//	TODO get rid of this TVariant by using tagged union for max compatibility
 #include "Misc/TVariant.h"
 
 namespace DataConfig
@@ -57,11 +58,13 @@ struct StateStructRoot
 	}
 };
 
+//	TODO we maybe only need two pointers, figure this out
+//		 get rid of this when doing removing Variant
 struct StateStructProperty 
 {
 	void* StructPtr;
 	UScriptStruct* StructClass;
-	UProperty* Property;
+	UProperty* Property;	// this is actually the Link, it's the iterator
 
 	StateStructProperty(void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
 		: StructPtr(StructPtr)
@@ -89,7 +92,6 @@ struct StatePrimitive
 };
 
 using ReaderState = TVariant<
-	StateUnknown,
 	StateNil,
 	StateClassRoot,
 	StateClassProperty,
@@ -98,7 +100,7 @@ using ReaderState = TVariant<
 	StatePrimitive
 >;
 
-
+//	TODO remove this
 using WriterState = TVariant<
 	StateUnknown,
 	StateEnded,

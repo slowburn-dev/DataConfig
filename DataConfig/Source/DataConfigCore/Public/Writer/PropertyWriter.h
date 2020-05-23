@@ -6,20 +6,66 @@
 namespace DataConfig
 {
 
-/*
 struct DATACONFIGCORE_API FPropertyDatum
 {
 	UField* Property;
 	void* DataPtr;
+
+	FPropertyDatum();
+	FPropertyDatum(UField* InProperty, void* InDataPtr);
+
+	FORCEINLINE bool IsNone() 
+	{
+		check((Property == nullptr && DataPtr == nullptr) || (Property != nullptr && DataPtr != nullptr));
+		return Property == nullptr;
+	}
+
+	static const FPropertyDatum NONE;
 };
 
-struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
+struct DATACONFIGCORE_API FBasePropertyWriter : public FWriter, private FNoncopyable
 {
-	FPropertyWriter(UField* Property);
-
 	FPropertyDatum ActiveDatum;
+
+	FResult WriteBool(bool Value) override;
+	FResult WriteName(const FName& Value) override;
+	FResult WriteString(const FString& Value) override;
+	FResult WriteStruct(const FName& StructName, FWriterStorage& OutWriter);
+
+	virtual FResult PreWriteCheck();
 };
-*/
+
+struct DATACONFIGCORE_API FPrimitivePropertyWriter : public FBasePropertyWriter
+{
+	using Super = FBasePropertyWriter;
+
+	FPrimitivePropertyWriter(void* PrimitivePtr, UProperty* Property);
+};
+
+struct DATACONFIGCORE_API FStructMapWriter : public FBasePropertyWriter
+{
+	using Super = FBasePropertyWriter;
+
+	FStructMapWriter(void* InStructPtr, UScriptStruct* InStructClass);
+
+	void* StructPtr;
+	UScriptStruct* StructClass;
+
+	enum class EState : uint8
+	{
+		WaitWriteKey, 
+		WaitWriteValue,
+		End,
+	};
+	EState State;
+
+	FResult WriteName(const FName& Value) override;
+	FResult PreWriteCheck() override;
+
+	FResult End() override;
+
+	FPropertyDatum FindChildDatumByName(const FName& ChildName);
+};
 
 struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 {

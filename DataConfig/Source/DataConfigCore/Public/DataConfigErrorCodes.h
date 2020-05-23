@@ -51,6 +51,7 @@ enum class EErrorCode : uint32
 	ExpectStringFail,
 	ExpectClassFail,
 	ExpectStructFail,
+	ExpectStructEndFail,
 	ExpectMapFail,
 	OutOfBoundMapKeyRead,
 	OutOfBoundMapValueRead,
@@ -58,6 +59,13 @@ enum class EErrorCode : uint32
 	//	Writer
 	UnexpectedEnd,
 	WriteAfterEnded,
+	EndWhileWaitingKey,
+	DupliatedEnd,
+
+	//	Map/Struct/Class
+	StructKeyNotFound,
+	StructWriteNonKey,
+	StructEndWhenStillHasValue,
 
 	//	Unknown
 	UnknownError,

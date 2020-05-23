@@ -65,5 +65,22 @@ UProperty* FirstEffectiveProperty(UProperty* Property)
 		: NextEffectiveProperty(Property);
 }
 
+EDataEntry PropertyToDataEntry(UProperty* Property)
+{
+	check(Property)
+	if (Property->IsA<UBoolProperty>()) return EDataEntry::Bool;
+	if (Property->IsA<UFloatProperty>()) return EDataEntry::Float;
+	if (Property->IsA<UDoubleProperty>()) return EDataEntry::Double;
+	if (Property->IsA<UIntProperty>()) return EDataEntry::Int;
+	if (Property->IsA<UUInt32Property>()) return EDataEntry::UInt32;
+	if (Property->IsA<UStrProperty>()) return EDataEntry::String;
+	if (Property->IsA<UNameProperty>()) return EDataEntry::Name;
+	if (Property->IsA<UStructProperty>()) return EDataEntry::StructRoot;
+	if (Property->IsA<UObjectProperty>()) return EDataEntry::ClassRoot;
+	if (Property->IsA<UMapProperty>()) return EDataEntry::MapRoot;
+	if (Property->IsA<UArrayProperty>()) return EDataEntry::ArrayRoot;
+	checkNoEntry();
+	return EDataEntry::Ended;
+}
 
 } // namespace DataConfig

@@ -10,6 +10,7 @@ struct FWriterStorage;
 
 struct DATACONFIGCORE_API FWriter
 {
+	FWriter();
 	virtual ~FWriter();
 
 	virtual FResult WriteBool(bool Value);
@@ -49,7 +50,7 @@ struct DATACONFIGCORE_API FWriterStorage : private FNoncopyable
 	template<typename TWriter, typename... TArgs>
 	TWriter* Emplace(TArgs&&... Args)
 	{
-		EmplaceCheck();
+		check(IsEmpty());
 		return new (this)TWriter(Forward<TArgs>(Args)...);
 	}
 
@@ -57,7 +58,7 @@ struct DATACONFIGCORE_API FWriterStorage : private FNoncopyable
 	~FWriterStorage();
 
 private:
-	void EmplaceCheck();
+	bool IsEmpty();
 };
 
 }	// namespace DataConfig

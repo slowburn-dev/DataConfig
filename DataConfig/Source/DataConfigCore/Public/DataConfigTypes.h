@@ -42,7 +42,42 @@ struct TAlignedStorage
 	};
 };
 
-DATACONFIGCORE_API uint8* GetUnitializedBitPattern128();
+DATACONFIGCORE_API uint8* GetZeroBitPattern128();
+
+enum class EDataEntry
+{
+	//	Data Type
+	Nil,
+
+	Bool,
+	Name,
+	String,
+
+	Float,
+	Double,
+
+	Int8,
+	Int16,
+	Int,
+	Int64,
+
+	Byte,
+	UInt16,
+	UInt32,
+	UInt64,
+
+	//	Struct
+	StructRoot,
+	StructEnd,
+
+	ClassRoot,
+	MapRoot,
+	ArrayRoot,
+
+	//	Meta
+	Ended, // or error or invalid state, 
+};
+
 
 } // namespace DataConfig
 

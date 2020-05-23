@@ -7,63 +7,86 @@
 
 namespace DataConfig {
 
-static FORCEINLINE ReaderState& GetState(FPropertyReader* Self)
+static FORCEINLINE ReaderState& GetTopState(FPropertyReader* Self)
 {
-	return *((ReaderState*)(&Self->ImplStorage));
+	return *reinterpret_cast<ReaderState*>(&Self->States.Top().ImplStorage);
 }
 
 template<typename TState>
-static TState& GetState(FPropertyReader* Self) {
-	return GetState(Self).Get<TState>();
+static TState& GetTopState(FPropertyReader* Self) {
+	return GetTopState(Self).Get<TState>();
 }
 
 template<typename TState>
-static TState* TryGetState(FPropertyReader* Self) {
-	return GetState(Self).TryGet<TState>();
+static TState* TryGetTopState(FPropertyReader* Self) {
+	return GetTopState(Self).TryGet<TState>();
 }
 
-static FResult DispatchReadByProperty(FPropertyReader* Reader, FVisitor& Visitor, UProperty* Property)
+static void PushNilState(FPropertyReader* Reader) 
 {
-	check(Reader);
-	check(Property);
-	if (Property->IsA<UBoolProperty>())
-		return Reader->ReadBool(Visitor);
-	else if (Property->IsA<UNameProperty>())
-		return Reader->ReadName(Visitor);
-	else if (Property->IsA<UStrProperty>())
-		return Reader->ReadString(Visitor);
+	Reader->States.AddDefaulted();
+}
 
-	return Fail(EErrorCode::DispatchAnyFail);
+static void PushClassRootState(FPropertyReader* Reader, UObject* ClassObject)
+{
+	Reader->States.AddDefaulted();
+	GetTopState(Reader).Emplace<StateClassRoot>(ClassObject);
+}
+
+static void PushStructRootState(FPropertyReader* Reader, void* StructPtr, UScriptStruct* StructClass)
+{
+	Reader->States.AddDefaulted();
+	GetTopState(Reader).Emplace<StateStructRoot>(StructPtr, StructClass);
+}
+
+static void PushClassPropertyState(FPropertyReader* Reader, UObject* ClassObject, UProperty* Property)
+{
+	Reader->States.AddDefaulted();
+	GetTopState(Reader).Emplace<StateClassProperty>(ClassObject, Property);
+}
+
+static void PushStructPropertyState(FPropertyReader* Reader, void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
+{
+	Reader->States.AddDefaulted();
+	GetTopState(Reader).Emplace<StateStructProperty>(StructPtr, StructClass, Property);
+}
+
+static void PopState(FPropertyReader* Reader)
+{
+	Reader->States.Pop();
+	check(Reader->States.Num() >= 1);
 }
 
 template<typename TPrimitive, typename TProperty, EErrorCode ErrCode>
 FResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 {
-	if (StateClassProperty* CPStatePtr = TryGetState<StateClassProperty>(Reader))
+	if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(Reader))
 	{
-		if (TProperty* OutProperty = Cast<TProperty>(CPStatePtr->Property))
+		if (TProperty* OutProperty = Cast<TProperty>(ClassPropertyState->Property))
 		{
 			OutT = OutProperty->GetPropertyValue(
-				OutProperty->ContainerPtrToValuePtr<TPrimitive>(CPStatePtr->ClassObject)
+				OutProperty->ContainerPtrToValuePtr<TPrimitive>(ClassPropertyState->ClassObject)
 			);
+			//	TODO iterate
 			return Ok();
 		}
 	}
-	else if (StateStructProperty* SPStatePtr = TryGetState<StateStructProperty>(Reader))
+	else if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(Reader))
 	{
-		if (TProperty* OutProperty = Cast<TProperty>(SPStatePtr->Property))
+		if (TProperty* OutProperty = Cast<TProperty>(StructPropertyState->Property))
 		{
 			OutT = OutProperty->GetPropertyValue(
-				OutProperty->ContainerPtrToValuePtr<TPrimitive>(SPStatePtr->StructPtr)
+				OutProperty->ContainerPtrToValuePtr<TPrimitive>(StructPropertyState->StructPtr)
 			);
+			StructPropertyState->Property = NextEffectiveProperty(StructPropertyState->Property);
 			return Ok();
 		}
 	}
-	else if (StatePrimitive* PStatePtr = TryGetState<StatePrimitive>(Reader))
+	else if (StatePrimitive* PrimitiveState = TryGetTopState<StatePrimitive>(Reader))
 	{
-		if (TProperty* OutProperty = Cast<TProperty>(PStatePtr->Property))
+		if (TProperty* OutProperty = Cast<TProperty>(PrimitiveState->Property))
 		{
-			OutT = OutProperty->GetPropertyValue(PStatePtr->PrimitivePtr);
+			OutT = OutProperty->GetPropertyValue(PrimitiveState->PrimitivePtr);
 			return Ok();
 		}
 	}
@@ -71,175 +94,77 @@ FResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive& OutT)
 	return Fail(ErrCode);
 }
 
-template<typename TPrimitive, typename TProperty, EErrorCode ErrCode, typename TMethod>
-FResult ReadPrimitive(FPropertyReader* Reader, FVisitor& Visitor, TMethod Method)
+template<typename TPrimitive, typename TProperty, EErrorCode ErrCode>
+FResult ReadPrimitive(FPropertyReader* Reader, TPrimitive* OutPtr)
 {
-	TPrimitive Value;
-	FResult Result = TryGetPrimitive<TPrimitive, TProperty, ErrCode>(Reader, Value);
-	if (Result.Ok())
-	{
-		return (Visitor.*Method)(Value);
-	}
-	else
-	{
-		return Result;
-	}
+	return TryGetPrimitive<TPrimitive, TProperty, ErrCode>(Reader, *OutPtr);
 }
+
 
 FPropertyReader::FPropertyReader()
 {
-	static_assert(sizeof(FPropertyReader) <= 64, "larger than cacheline");
-	static_assert(sizeof(ReaderState) <= sizeof(ImplStorageType), "impl storage size too small");
-	new(&ImplStorage) ReaderState(TInPlaceType<StateUnknown>{});
-}
-
-FPropertyReader::FPropertyReader(UObject* ClassObject)
-	: FPropertyReader()
-{
-	GetState(this).Emplace<StateClassRoot>(ClassObject);
-}
-
-FPropertyReader::FPropertyReader(UObject* ClassObject, UProperty* Property)
-	: FPropertyReader()
-{
-	GetState(this).Emplace<StateClassProperty>(ClassObject, Property);
-}
-
-FPropertyReader::FPropertyReader(void* StructPtr, UScriptStruct* StructClass)
-	: FPropertyReader()
-{
-	GetState(this).Emplace<StateStructRoot>(StructPtr, StructClass);
-}
-
-FPropertyReader::FPropertyReader(void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
-	: FPropertyReader()
-{
-	GetState(this).Emplace<StateStructProperty>(StructPtr, StructClass, Property);
-}
-
-FPropertyReader::FPropertyReader(void* PrimitivePtr, UProperty* Property)
-	: FPropertyReader()
-{
-	GetState(this).Emplace<StatePrimitive>(PrimitivePtr, Property);
+	PushNilState(this);
 }
 
 FPropertyReader::~FPropertyReader()
-{
-	GetState(this).~ReaderState();
-}
+{}
 
-FResult FPropertyReader::ReadAny(FVisitor &Visitor)
+EDataEntry FPropertyReader::Peek()
 {
-	//	this is basically a dispatch function
-	if (StateClassRoot* CRStatePtr = TryGetState<StateClassRoot>(this))
+	if (StateNil* NilStatePtr = TryGetTopState<StateNil>(this))
 	{
-		//	TODO class root
+		return EDataEntry::Ended;
 	}
-	else if (StateClassProperty* CPStatePtr = TryGetState<StateClassProperty>(this))
+	else if (StateClassRoot* ClassRootState = TryGetTopState<StateClassRoot>(this))
 	{
-		return DispatchReadByProperty(this, Visitor, CPStatePtr->Property);
+		return EDataEntry::ClassRoot;
 	}
-	else if (StateStructRoot* SRStatePtr = TryGetState<StateStructRoot>(this))
+	else if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
 	{
-		return ReadStruct(Visitor);
+		return EDataEntry::StructRoot;
 	}
-	else if (StateStructProperty* SPStatePtr = TryGetState<StateStructProperty>(this))
+	else if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(this))
 	{
-		return DispatchReadByProperty(this, Visitor, SPStatePtr->Property);
+		return PropertyToDataEntry(ClassPropertyState->Property);
 	}
-	else if (StatePrimitive* PStatePtr = TryGetState<StatePrimitive>(this))
+	else if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
 	{
-		return DispatchReadByProperty(this, Visitor, PStatePtr->Property);
+		return PropertyToDataEntry(StructPropertyState->Property);
 	}
 
-	return Fail(EErrorCode::DispatchAnyFail);
+	return EDataEntry::Ended;
 }
 
-FResult FPropertyReader::ReadBool(FVisitor &Visitor) 
+FResult FPropertyReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
-	return ReadPrimitive<bool, UBoolProperty, EErrorCode::ExpectBoolFail>(this, Visitor, &FVisitor::VisitBool);
+	return TryGetPrimitive<bool, UBoolProperty, EErrorCode::ExpectBoolFail>(this, *OutPtr);
 }
 
-FResult FPropertyReader::ReadName(FVisitor &Visitor)
+FResult FPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 {
-	return ReadPrimitive<FName, UNameProperty, EErrorCode::ExpectNameFail>(this, Visitor, &FVisitor::VisitName);
+	return TryGetPrimitive<FName, UNameProperty, EErrorCode::ExpectNameFail>(this, *OutPtr);
 }
 
-FResult FPropertyReader::ReadString(FVisitor &Visitor)
+FResult FPropertyReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 {
-	return ReadPrimitive<FString, UStrProperty, EErrorCode::ExpectStringFail>(this, Visitor, &FVisitor::VisitString);
+	return TryGetPrimitive<FString, UStrProperty, EErrorCode::ExpectStringFail>(this, *OutPtr);
 }
 
-FResult FPropertyReader::ReadFloat(FVisitor &Visitor)
+FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
-	return ReadPrimitive<float, UFloatProperty, EErrorCode::ExpectFloatFail>(this, Visitor, &FVisitor::VisitFloat);
-}
-
-FResult FPropertyReader::ReadDouble(FVisitor &Visitor)
-{
-	return ReadPrimitive<double, UDoubleProperty, EErrorCode::ExpectDoubleFail>(this, Visitor, &FVisitor::VisitDouble);
-}
-
-FResult FPropertyReader::ReadInt8(FVisitor &Visitor)
-{
-	return ReadPrimitive<int8, UInt8Property, EErrorCode::ExpectInt8Fail>(this, Visitor, &FVisitor::VisitInt8);
-}
-
-FResult FPropertyReader::ReadInt16(FVisitor &Visitor)
-{
-	return ReadPrimitive<int16, UInt16Property, EErrorCode::ExpectInt16Fail>(this, Visitor, &FVisitor::VisitInt16);
-}
-
-FResult FPropertyReader::ReadInt(FVisitor &Visitor)
-{
-	return ReadPrimitive<int, UIntProperty, EErrorCode::ExpectIntFail>(this, Visitor, &FVisitor::VisitInt);
-}
-
-FResult FPropertyReader::ReadInt64(FVisitor &Visitor)
-{
-	return ReadPrimitive<int64, UInt64Property, EErrorCode::ExpectInt64Fail>(this, Visitor, &FVisitor::VisitInt64);
-}
-
-FResult FPropertyReader::ReadByte(FVisitor &Visitor)
-{
-	return ReadPrimitive<uint8, UByteProperty, EErrorCode::ExpectByteFail>(this, Visitor, &FVisitor::VisitByte);
-}
-
-FResult FPropertyReader::ReadUInt16(FVisitor &Visitor)
-{
-	return ReadPrimitive<uint16, UInt16Property, EErrorCode::ExpectUInt16Fail>(this, Visitor, &FVisitor::VisitUInt16);
-}
-
-FResult FPropertyReader::ReadUInt32(FVisitor &Visitor)
-{
-	return ReadPrimitive<uint32, UUInt32Property, EErrorCode::ExpectUInt32Fail>(this, Visitor, &FVisitor::VisitUInt32);
-}
-
-FResult FPropertyReader::ReadUInt64(FVisitor &Visitor)
-{
-	return ReadPrimitive<uint64, UUInt64Property, EErrorCode::ExpectUInt64Fail>(this, Visitor, &FVisitor::VisitUInt64);
-}
-
-FResult FPropertyReader::ReadClass(FVisitor &Visitor)
-{
-	if (StateClassRoot* StatePtr = TryGetState<StateClassRoot>(this))
+	if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
 	{
-		//	TODO
+		if (OutNamePtr != nullptr)
+		{
+			*OutNamePtr = StructRootState->StructClass->GetFName();
+		}
+
+		PushStructPropertyState(this,
+			StructRootState->StructPtr,
+			StructRootState->StructClass,
+			FirstEffectiveProperty(StructRootState->StructClass->PropertyLink)
+		);
 		return Ok();
-	}
-	else
-	{
-		return Fail(EErrorCode::ExpectClassFail);
-	}
-}
-
-FResult FPropertyReader::ReadStruct(FVisitor &Visitor)
-{
-	if (StateStructRoot* StatePtr = TryGetState<StateStructRoot>(this))
-	{
-		check(StatePtr->StructClass);
-		FStructMapAccess StructMapAccess(this);
-		return Visitor.VisitStruct(StatePtr->StructClass->GetFName(), StructMapAccess);
 	}
 	else
 	{
@@ -247,116 +172,37 @@ FResult FPropertyReader::ReadStruct(FVisitor &Visitor)
 	}
 }
 
-FResult FPropertyReader::ReadMap(FVisitor &Visitor)
+FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
-	return Fail(EErrorCode::ExpectMapFail);
-}
-
-FPropertyReader::FStructMapAccess::FStructMapAccess(FPropertyReader* ParentPtr)
-	: Parent(*ParentPtr)
-{
- 	auto StructClass = GetState(&Parent).Get<StateStructRoot>().StructClass;
-	Link = FirstEffectiveProperty(StructClass->PropertyLink);
-}
-
-FResult FPropertyReader::FStructMapAccess::Num(TOptional<size_t>& OutNum)
-{
-	return Ok();
-}
-
-FResult FPropertyReader::FStructMapAccess::HasPending(bool& bOutHasPending)
-{
-	bOutHasPending = Link != nullptr;
-	return Ok();
-}
-
-FResult FPropertyReader::FStructMapAccess::ReadKey(FVisitor &Visitor)
-{
-	if (Link != nullptr)
+	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
 	{
-		return Visitor.VisitName(Link->GetFName());
+		if (NextEffectiveProperty(StructPropertyState->Property) != nullptr)
+		{
+			return Fail(EErrorCode::StructEndWhenStillHasValue);
+		}
+
+		if (OutNamePtr != nullptr)
+		{
+			*OutNamePtr = StructPropertyState->StructClass->GetFName();
+		}
+
+		PopState(this);
+		return Ok();
 	}
 	else
 	{
-		return Fail(EErrorCode::OutOfBoundMapKeyRead);
+		return Fail(EErrorCode::ExpectStructEndFail);
 	}
 }
 
-FResult FPropertyReader::FStructMapAccess::ReadValue(FVisitor &Visitor)
+FPropertyReader::FPropertyState::FPropertyState()
 {
-	if (Link != nullptr)
-	{
-		auto& StructRootState = GetState<StateStructRoot>(&Parent);
-		FPropertyReader ValueReader(
-			StructRootState.StructPtr,
-			StructRootState.StructClass,
-			Link
-		);
-		return ValueReader.ReadAny(Visitor);
-	}
-	else
-	{
-		return Fail(EErrorCode::OutOfBoundMapValueRead);
-	}
+	static_assert(sizeof(FPropertyState) <= 64, "larger than cacheline");
+	static_assert(sizeof(ReaderState) <= sizeof(FPropertyState), "impl storage size too small");
+	//	TODO drop the TVariant and use a pod type, as we know it's a pod
+	new(&ImplStorage) ReaderState(TInPlaceType<StateNil>{});
 }
 
-FResult FPropertyReader::FStructMapAccess::Next()
-{
-	Link = NextEffectiveProperty(Link);
-	return Ok();
-}
 
-FPropertyReader::FClassMapAccess::FClassMapAccess(FPropertyReader* ParentPtr)
-	: Parent(*ParentPtr)
-{
-	auto Class = GetState<StateClassRoot>(&Parent).ClassObject->GetClass();
-	Link = FirstEffectiveProperty(Class->PropertyLink);
-}
-
-FResult FPropertyReader::FClassMapAccess::Num(TOptional<size_t>& OutNum)
-{
-	return Ok();
-}
-
-FResult FPropertyReader::FClassMapAccess::HasPending(bool& bOutHasPending)
-{
-	bOutHasPending = Link != nullptr;
-	return Ok();
-}
-
-FResult FPropertyReader::FClassMapAccess::Next()
-{
-	Link = NextEffectiveProperty(Link);
-	return Ok();
-}
-
-FResult FPropertyReader::FClassMapAccess::ReadKey(FVisitor &Visitor)
-{
-	if (Link != nullptr)
-	{
-		return Visitor.VisitName(Link->GetFName());
-	}
-	else
-	{
-		return Fail(EErrorCode::OutOfBoundMapKeyRead);
-	}
-}
-
-FResult FPropertyReader::FClassMapAccess::ReadValue(FVisitor &Visitor)
-{
-	if (Link != nullptr)
-	{
-		auto& ClassRootState = GetState<StateClassRoot>(&Parent);
-		FPropertyReader ValueReader(
-			ClassRootState.ClassObject,
-			Link
-		);
-		return ValueReader.ReadAny(Visitor);
-	}
-	else
-	{
-		return Fail(EErrorCode::OutOfBoundMapValueRead);
-	}
-}
 
 } // namespace DataConfig

@@ -1,88 +1,42 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/WeakObjectPtr.h"
-#include "Reader/Visitor.h"
 #include "DataConfigTypes.h"
+#include "Reader/Reader.h"
 
 class UProperty;
 
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FPropertyReader  : private FNoncopyable
+struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 {
 	FPropertyReader();
-	virtual ~FPropertyReader();
+	~FPropertyReader();
 
-	FPropertyReader(UObject* ClassObject);
-	FPropertyReader(UObject* ClassObject, UProperty* Property);
-	FPropertyReader(void* StructPtr, UScriptStruct* StructClass);
-	FPropertyReader(void* StructPtr, UScriptStruct* StructClass, UProperty* Property);
-	FPropertyReader(void* PrimitivePtr, UProperty* Property);
+	EDataEntry Peek() override;
 
-	FResult ReadAny(FVisitor &Visitor);
+	FResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
+	FResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
+	FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
+	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 
-	FResult ReadBool(FVisitor &Visitor);
-	FResult ReadName(FVisitor &Visitor);
-	FResult ReadString(FVisitor &Visitor);
+	//	Top reason we're dong this is that there's UProperty and FProperty change in UE4.25
+	//	if not doing this it's a bit difficult
+	struct FPropertyState
+	{
+		FPropertyState();
 
-	FResult ReadFloat(FVisitor &Visitor);
-	FResult ReadDouble(FVisitor &Visitor);
+		using ImplStorageType = TAlignedStorage<64>::Type;
+		ImplStorageType ImplStorage;
+	};
 
-	FResult ReadInt8(FVisitor &Visitor);
-	FResult ReadInt16(FVisitor &Visitor);
-	FResult ReadInt(FVisitor &Visitor);
-	FResult ReadInt64(FVisitor &Visitor);
-
-	FResult ReadByte(FVisitor &Visitor);
-	FResult ReadUInt16(FVisitor &Visitor);
-	FResult ReadUInt32(FVisitor &Visitor);
-	FResult ReadUInt64(FVisitor &Visitor);
-
-	FResult ReadClass(FVisitor &Visitor);
-	FResult ReadStruct(FVisitor &Visitor);
-	FResult ReadMap(FVisitor &Visitor);
-
-	struct FStructMapAccess;
-	struct FClassMapAccess;
-
-	//	TODO figure out if private even works
-	//	TODO add a new TVaraint that works with this storage
-	//		 ie the Variant don't contain storage it self
-
-	//	TODO delete copy constructor, this isn't trival copyable
-	using ImplStorageType = TAlignedStorage<56>::Type;
-	ImplStorageType ImplStorage;
+	TArray<FPropertyState, TInlineAllocator<16>> States;
 };
 
-struct FPropertyReader::FStructMapAccess : public FMapAccess
-{
-	FPropertyReader& Parent;
-	UProperty* Link;
-
-	FStructMapAccess(FPropertyReader* Parent);
-
-	FResult Num(TOptional<size_t>& OutNum) override;
-	FResult HasPending(bool& bOutHasPending) override;
-	FResult Next() override;
-	FResult ReadKey(FVisitor &Visitor) override;
-	FResult ReadValue(FVisitor &Visitor) override;
-};
-
-struct FPropertyReader::FClassMapAccess : public FMapAccess
-{
-	FPropertyReader& Parent;
-	UProperty* Link;
-
-	FClassMapAccess(FPropertyReader* Parent);
-
-	FResult Num(TOptional<size_t>& OutNum) override;
-	FResult HasPending(bool& bOutHasPending) override;
-	FResult Next() override;
-	FResult ReadKey(FVisitor &Visitor) override;
-	FResult ReadValue(FVisitor &Visitor) override;
-};
+//	we know it's POD like
+template<> struct TIsPODType<FPropertyReader::FPropertyState> { enum { Value = true }; };
 
 
 } // namespace DataConfig

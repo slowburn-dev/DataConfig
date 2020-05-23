@@ -3,6 +3,9 @@
 namespace DataConfig
 {
 
+FWriter::FWriter()
+{}
+
 FWriter::~FWriter()
 {}
 
@@ -26,18 +29,20 @@ FResult FWriter::End() { return Fail(EErrorCode::UnexpectedEnd); }
 
 FWriterStorage::FWriterStorage()
 {
-	FMemory::Memcpy(ImplStorage.Data, GetUnitializedBitPattern128(), sizeof(FWriterStorage));
+	FMemory::Memzero(ImplStorage.Data, sizeof(FWriterStorage));
 }
 
 FWriterStorage::~FWriterStorage()
 {
-	checkf(FMemory::Memcmp(ImplStorage.Data, GetUnitializedBitPattern128(), sizeof(FWriterStorage)) != 0, TEXT("writer storage isn't initialized when going out of scope"))
-	reinterpret_cast<FWriter*>(this)->~FWriter();
+	if (!IsEmpty())
+	{
+		Get()->~FWriter();
+	}
 }
 
-void FWriterStorage::EmplaceCheck()
+bool FWriterStorage::IsEmpty()
 {
-	checkf(FMemory::Memcmp(ImplStorage.Data, GetUnitializedBitPattern128(), sizeof(FWriterStorage)) == 0, TEXT("emplacing inistialized"));
+	return FMemory::Memcmp(ImplStorage.Data, GetZeroBitPattern128(), sizeof(FWriterStorage)) == 0;
 }
 
 
