@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  
+  <!-- `Type` is the glob pattern that matches in the `Watch` window `Type` column. --> 
+  <!-- ref: https://github.com/bitshares/bitshares-fc/blob/master/fc.natvis -->
+  <!-- the key is `DisplayName` has {} and `Item` don't -->
+  <Type Name="TArray&lt;DataConfig::FPropertyReader::FPropertyState,*&gt;::ElementType">
+    <DisplayString>{*(DataConfig::ReaderState*)(&amp;ImplStorage.Data)}</DisplayString>
+    <Expand>
+      <Item Name="Variant">*(DataConfig::ReaderState*)(&amp;ImplStorage.Data)</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
+
+
