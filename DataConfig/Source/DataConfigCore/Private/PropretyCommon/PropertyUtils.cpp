@@ -65,6 +65,20 @@ UProperty* FirstEffectiveProperty(UProperty* Property)
 		: NextEffectiveProperty(Property);
 }
 
+UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name)
+{
+	for (UProperty* Property = InProperty; Property; Property = Property->PropertyLinkNext)
+	{
+		if (Property->GetFName() == Name 
+			&& IsEffectiveProperty(Property))
+		{
+			return Property;
+		}
+	}
+
+	return nullptr;
+}
+
 EDataEntry PropertyToDataEntry(UProperty* Property)
 {
 	check(Property)

@@ -12,6 +12,13 @@
     </Expand>
   </Type>
 
+  <Type Name="TArray&lt;DataConfig::FPropertyWriter::FPropertyState,*&gt;::ElementType">
+    <DisplayString>{*(DataConfig::WriterState*)(&amp;ImplStorage.Data)}</DisplayString>
+    <Expand>
+      <Item Name="Variant">*(DataConfig::WriterState*)(&amp;ImplStorage.Data)</Item>
+    </Expand>
+  </Type>
+
 </AutoVisualizer>
 
 

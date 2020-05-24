@@ -31,6 +31,17 @@ FORCEINLINE FResult Fail(EErrorCode Status) {
 	return FResult{ (uint32)Status, 0 };
 }
 
+FORCEINLINE FResult FailIf(bool Cond, EErrorCode Status) {
+	check((uint32)Status != 0);
+	if (Cond) {
+		return Fail(Status);
+	}
+	else
+	{
+		return Ok();
+	}
+}
+
 //	std::aligned_storage stub
 //	https://devdocs.io/cpp/types/aligned_storage
 template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
@@ -77,6 +88,9 @@ enum class EDataEntry
 	//	Meta
 	Ended, // or error or invalid state, 
 };
+
+EErrorCode GetReadErrorCode(EDataEntry DataEntry);
+EErrorCode GetWriteErrorCode(EDataEntry DataEntry);
 
 
 } // namespace DataConfig

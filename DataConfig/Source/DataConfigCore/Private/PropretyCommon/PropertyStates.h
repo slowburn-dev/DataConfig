@@ -7,16 +7,8 @@
 namespace DataConfig
 {
 
-struct StateUnknown {
-	//	pass
-};
-
 struct StateNil {
 	//	pass
-};
-
-struct StateEnded {
-	//	pass, writer only state
 };
 
 struct StateClassRoot
@@ -81,7 +73,8 @@ struct StateStructProperty
 	{
 		check(StructPtr != nullptr);
 		check(IsValid(StructClass));
-		check(IsValid(Property));
+		//	relaxed as Writer starts with no property
+		//check(IsValid(Property));
 		State = EState::ExpectKey;
 	}
 };
@@ -109,10 +102,8 @@ using ReaderState = TVariant<
 	StatePrimitive
 >;
 
-//	TODO remove this
 using WriterState = TVariant<
-	StateUnknown,
-	StateEnded,
+	StateNil,
 	StateClassRoot,
 	StateClassProperty,
 	StateStructRoot,

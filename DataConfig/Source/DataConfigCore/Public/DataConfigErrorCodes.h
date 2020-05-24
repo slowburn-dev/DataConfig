@@ -7,6 +7,7 @@ enum class EErrorCode : uint32
 {
 	Ok = 0,
 
+	WriteNilFail,
 	WriteBoolFail,
 	WriteNameFail,
 	WriteStringFail,
@@ -29,14 +30,16 @@ enum class EErrorCode : uint32
 	WriteClassFail,
 
 	WriteMapFail,
+	WriteArrayFail,
 
 	//	Writer
-	UnexpectedEnd,
+	WriteEndFail,
 	WriteAfterEnded,
 	EndWhileWaitingKey,
 	DupliatedEnd,
 
 	//	Reader
+	ReadNilFail,
 	ReadBoolFail,
 	ReadNameFail,
 
@@ -58,14 +61,17 @@ enum class EErrorCode : uint32
 	ReadStructFail,
 	ReadStructEndFail,
 	ReadMapFail,
+	ReadArrayFail,
+	ReadEndFail,
+
 	ReadOutOfBoundMapKey,
 	ReadOutOfBoundMapValue,
 
 
 	//	Map/Struct/Class
 	StructKeyNotFound,
-	StructExpectKeyFail,
-	StructWriteNonKey,
+	ReadStructKeyFail,
+	WriteStructKeyFail,
 	StructEndWhenStillHasValue,
 	StructReadAfterEnded,
 

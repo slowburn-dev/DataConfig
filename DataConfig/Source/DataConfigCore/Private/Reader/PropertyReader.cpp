@@ -81,7 +81,7 @@ FResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive* OutPtr)
 			if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
 			{
 				//	handled in `ReadName`
-				return Fail(EErrorCode::StructExpectKeyFail);	
+				return Fail(EErrorCode::ReadStructKeyFail);	
 			}
 			else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
 			{
@@ -288,7 +288,7 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 	{
 		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
 		{
-			return Fail(EErrorCode::StructExpectKeyFail);	
+			return Fail(EErrorCode::ReadStructKeyFail);	
 		}
 		else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
 		{
