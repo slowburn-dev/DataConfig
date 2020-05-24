@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Reader/Reader.h"
+#include "Writer/Writer.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
@@ -19,6 +21,7 @@ struct FNestStruct1
 
 	UPROPERTY(EditAnywhere) FName AName;
 	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct;
+	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct2;
 };
 
 UCLASS()
@@ -31,6 +34,18 @@ class UTestClass_Alpha : public UObject
 	UPROPERTY(EditAnywhere) FString AStr;
 
 	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct;
+};
+
+
+using namespace DataConfig;
+struct FPipeVisitor
+{
+	FReader* Reader;
+	FWriter* Writer;
+
+	FPipeVisitor(FReader* InReader, FWriter* InWriter);
+
+	FResult PipeVisit();
 };
 
 

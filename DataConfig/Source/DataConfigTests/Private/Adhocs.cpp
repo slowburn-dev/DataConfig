@@ -8,6 +8,26 @@
 
 using namespace DataConfig;
 
+void PropertyVisitorRoundtrip()
+{
+	FNestStruct1 NestStruct{};
+	NestStruct.AName = FName(TEXT("Nest"));
+
+	FTestStruct_Alpha& StructAlpha = NestStruct.AStruct;
+	StructAlpha.ABool = true;
+	StructAlpha.AName = FName(TEXT("ALPHA"));
+	StructAlpha.AStr = FString(TEXT("A L P H A"));
+
+	FNestStruct1 OutStruct{};
+
+	FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+
+	FPipeVisitor PipeVisitor(&Reader, &Writer);
+	FResult Ret = PipeVisitor.PipeVisit();
+
+	UE_LOG(LogDataConfigCore, Display, TEXT("pipe ret: %d"), Ret.Status);
+}
 
 void PropertyVisitorRoundtrip_ReadNested()
 {
@@ -64,7 +84,7 @@ void PropertyVisitorRoundtrip_ReadNested()
 }
 
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip_WriteNested()
 {
 	FNestStruct1 NestStruct{};
 	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));

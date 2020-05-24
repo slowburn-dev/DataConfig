@@ -42,6 +42,14 @@ FORCEINLINE FResult FailIf(bool Cond, EErrorCode Status) {
 	}
 }
 
+#define TRY(expr)							\
+	do {									\
+		::DataConfig::FResult Ret = (expr);	\
+		if (!Ret.Ok()) {					\
+			return Ret;						\
+		}									\
+	} while (0)
+
 //	std::aligned_storage stub
 //	https://devdocs.io/cpp/types/aligned_storage
 template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
