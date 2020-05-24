@@ -6,8 +6,6 @@
 namespace DataConfig
 {
 
-struct FWriterStorage;
-
 struct DATACONFIGCORE_API FWriter
 {
 	FWriter();

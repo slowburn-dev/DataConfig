@@ -2,6 +2,7 @@
 #include "Writer/Writer.h"
 #include "Reader/PropertyReader.h"
 #include "Writer/PropertyWriter.h"
+#include "Writer/PrettyPrintWriter.h"
 #include "UObject/UnrealType.h"
 #include "DataConfigTypes.h"
 #include "DataConfigErrorCodes.h"
@@ -20,13 +21,24 @@ void PropertyVisitorRoundtrip()
 
 	FNestStruct1 OutStruct{};
 
-	FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+	{
+		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+		FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
 
-	FPipeVisitor PipeVisitor(&Reader, &Writer);
-	FResult Ret = PipeVisitor.PipeVisit();
+		FPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FResult Ret = RoundtripVisit.PipeVisit();
+		if (!Ret.Ok())
+			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
+	}
 
-	UE_LOG(LogDataConfigCore, Display, TEXT("pipe ret: %d"), Ret.Status);
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+
+		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		PrettyPrintVisit.PipeVisit();
+	}
 }
 
 void PropertyVisitorRoundtrip_ReadNested()
