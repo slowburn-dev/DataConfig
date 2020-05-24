@@ -66,13 +66,22 @@ void PropertyVisitorRoundtrip_ReadNested()
 
 void PropertyVisitorRoundtrip()
 {
-	FTestStruct_Alpha StructAlpha{};
-	//StructAlpha.AName = FName(TEXT("ALPHA"));
-	//StructAlpha.ABool = true;
-	//StructAlpha.AStr = FString(TEXT("A L P H A"));
+	FNestStruct1 NestStruct{};
+	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
-	FPropertyWriter Writer(FPropertyDatum(FTestStruct_Alpha::StaticStruct(), &StructAlpha));
+	//	Root
+	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.WriteStructRoot(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
+	//	Outer Name
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("OUTER"))).Ok());
+
+	//	Nest Struct
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AStruct"))).Ok());
 	check(Writer.Peek(EDataEntry::StructRoot).Ok());
 	check(Writer.WriteStructRoot(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
@@ -91,13 +100,17 @@ void PropertyVisitorRoundtrip()
 	check(Writer.Peek(EDataEntry::String).Ok());
 	check(Writer.WriteString(TEXT("A L P H A O N E")).Ok());
 
-	check(Writer.Peek(EDataEntry::StructEnd).Ok());	// note that both End or Name are ok
+	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end nested
 	check(Writer.WriteStructEnd(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
+
+	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end outer struct
+	check(Writer.WriteStructEnd(FNestStruct1::StaticStruct()->GetFName()).Ok());
 	check(Writer.Peek(EDataEntry::Ended).Ok());
 
-	UE_LOG(LogDataConfigCore, Display, TEXT("bool: %d"), StructAlpha.ABool);
-	UE_LOG(LogDataConfigCore, Display, TEXT("name: %s"), *StructAlpha.AName.ToString());
-	UE_LOG(LogDataConfigCore, Display, TEXT("str: %s"), *StructAlpha.AStr);
+	UE_LOG(LogDataConfigCore, Display, TEXT("name: %s"), *NestStruct.AName.ToString());
+	UE_LOG(LogDataConfigCore, Display, TEXT("bool: %d"), NestStruct.AStruct.ABool);
+	UE_LOG(LogDataConfigCore, Display, TEXT("name: %s"), *NestStruct.AStruct.AName.ToString());
+	UE_LOG(LogDataConfigCore, Display, TEXT("str: %s"), *NestStruct.AStruct.AStr);
 
 	return;
 }

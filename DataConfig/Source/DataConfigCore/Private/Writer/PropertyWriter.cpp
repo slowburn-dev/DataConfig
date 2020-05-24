@@ -115,6 +115,34 @@ FResult TryWritePrimitive(FPropertyWriter* Writer, const TPrimitive& Value)
 	return Fail(EErrorCode::UnknownError);
 }
 
+
+static FResult FinishTopStateValueWrite(FPropertyWriter* Writer)
+{
+	if (StateNil* NilState = TryGetTopState<StateNil>(Writer))
+	{
+		return Ok();
+	}
+	else if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(Writer))
+	{
+		//	TODO
+		return Ok();
+	}
+	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(Writer))
+	{
+		if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
+		{
+			StructPropertyState->State = StateStructProperty::EState::ExpectKey;
+			return Ok();
+		}
+		else
+		{
+			return Fail(EErrorCode::UnknownError);
+		}
+	}
+
+	return Fail(EErrorCode::UnknownError);
+}
+
 FPropertyWriter::FPropertyWriter()
 {
 	PushNilState(this);
@@ -228,7 +256,35 @@ FResult FPropertyWriter::WriteString(const FString& Value)
 
 FResult FPropertyWriter::WriteStructRoot(const FName& Name)
 {
-	if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
+	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
+	{
+		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
+		{
+			return Fail(EErrorCode::ReadStructKeyFail);
+		}
+		else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
+		{
+			if (UStructProperty* StructProperty = Cast<UStructProperty>(StructPropertyState->Property))
+			{
+				PushStructRootState(this,
+					StructProperty->ContainerPtrToValuePtr<void>(StructPropertyState->StructPtr),
+					StructProperty->Struct
+				);
+				StateStructRoot& StructRootRef = GetTopState<StateStructRoot>(this);
+				PushStructPropertyState(this, StructRootRef.StructPtr, StructRootRef.StructClass, nullptr);
+				return Ok();
+			}
+			else 
+			{
+				return Fail(EErrorCode::WriteStructRootFail);
+			}
+		}
+		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
+		{
+			return Fail(EErrorCode::WriteStructAfterEnd);
+		}
+	}
+	else if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
 	{
 		//	TODO check the Name against struct name
 		PushStructPropertyState(this,
@@ -251,8 +307,7 @@ FResult FPropertyWriter::WriteStructEnd(const FName& Name)
 			//	TODO check the Name against struct name
 			PopState(this);
 			PopState(this);
-			//	TODO finish top state value write
-			return Ok();
+			return FinishTopStateValueWrite(this);
 		}
 		else if (StructPropertyState->State == StateStructProperty::EState::Ended
 			|| StructPropertyState->State == StateStructProperty::EState::ExpectValue)

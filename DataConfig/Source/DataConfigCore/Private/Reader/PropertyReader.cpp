@@ -240,6 +240,7 @@ static void PushFirstStructPropertyState(FPropertyReader* Reader, FName* OutName
 		*OutNamePtr = StructClass->GetFName();
 	}
 
+	//	TODO 
 	PushStructPropertyState(Reader,
 		StructPtr,
 		StructClass,
