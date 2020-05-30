@@ -12,6 +12,23 @@ using namespace DataConfig;
 
 void PropertyVisitorRoundtrip()
 {
+	FMapOfStruct1 MapOfStruct{};
+	MapOfStruct.StrStructMap.Add(TEXT("First"), { TEXT("What"), });
+	MapOfStruct.StrStructMap.Add(TEXT("Second"), { TEXT("What"), true, TEXT("Fuck") });
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPropertyReader Reader(FPropertyDatum(FMapOfStruct1::StaticStruct(), &MapOfStruct));
+		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		FResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+	}
+}
+
+void PropertyVisitorRoundtrip_MapStruct()
+{
 	FMapContainer1 MapStruct{};
 	MapStruct.StrStrMap.Add(TEXT("These"), TEXT("Are"));
 	MapStruct.StrStrMap.Add(TEXT("My"), TEXT("Twisted"));

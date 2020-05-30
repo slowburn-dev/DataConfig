@@ -369,6 +369,25 @@ static FResult FinishTopStateValueRead(FPropertyReader* Reader)
 			return Fail(EErrorCode::UnknownError);
 		}
 	}
+	else if (StateMappingProperty* MappingPropertyState = TryGetTopState<StateMappingProperty>(Reader))
+	{
+		if (MappingPropertyState->State == StateMappingProperty::EState::ExpectValue)
+		{
+			//	actually this duplicates TryGetPrimitive()...
+			//	so it's actually a bit weird
+			MappingPropertyState->Index += 1;
+			if (MappingPropertyState->Index >= MappingPropertyState->MapHelper.Num())
+			{
+				MappingPropertyState->State = StateMappingProperty::EState::Ended;
+			}
+			else
+			{
+				MappingPropertyState->State = StateMappingProperty::EState::ExpectKey;
+			}
+
+			return Ok();
+		}
+	}
 
 	return Fail(EErrorCode::UnknownError);
 }
@@ -404,6 +423,37 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 			return Fail(EErrorCode::ReadStructAfterEnded);
 		}
 		checkNoEntry();
+	}
+	else if (StateMappingProperty* MapPropertyState = TryGetTopState<StateMappingProperty>(this))
+	{
+		if (MapPropertyState->State == StateMappingProperty::EState::ExpectKey)
+		{
+			return Fail(EErrorCode::ReadStructFail);
+		}
+		else if (MapPropertyState->State == StateMappingProperty::EState::ExpectValue)
+		{
+			if (UStructProperty* StructProperty = Cast<UStructProperty>(MapPropertyState->MapHelper.GetValueProperty()))
+			{
+				void* StructPtr = MapPropertyState->MapHelper.GetValuePtr(MapPropertyState->Index);
+
+				PushStructRootState(this,
+					StructPtr,
+					StructProperty->Struct
+				);
+				StateStructRoot& StructRootRef = GetTopState<StateStructRoot>(this);
+				PushFirstStructPropertyState(this, OutNamePtr, StructRootRef.StructPtr, StructRootRef.StructClass);
+
+				return Ok();
+			}
+			else
+			{
+				return Fail(EErrorCode::ReadStructFail);
+			}
+		}
+		else
+		{
+			return Fail(EErrorCode::ReadMapEndFail);
+		}
 	}
 	else if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
 	{

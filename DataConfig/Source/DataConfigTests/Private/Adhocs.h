@@ -34,6 +34,14 @@ struct FMapContainer1
 
 };
 
+USTRUCT()
+struct FMapOfStruct1
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) TMap<FString, FTestStruct_Alpha> StrStructMap;
+};
+
 
 UCLASS()
 class UTestClass_Alpha : public UObject
