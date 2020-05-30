@@ -31,6 +31,8 @@ enum class EErrorCode : uint32
 	WriteClassFail,
 
 	WriteMapFail,
+	WriteMapEndFail,
+
 	WriteArrayFail,
 
 	//	Writer
@@ -61,20 +63,23 @@ enum class EErrorCode : uint32
 	ReadClassFail,
 	ReadStructFail,
 	ReadStructEndFail,
-	ReadMapFail,
 	ReadArrayFail,
 	ReadEndFail,
 
 	ReadOutOfBoundMapKey,
 	ReadOutOfBoundMapValue,
 
+	//	Map
+	ReadMapFail,
+	ReadMapEndFail,
+	ReadMapEndWhenStillHasValue,
+	ReadMapAfterEnd,
 
-	//	Map/Struct/Class
 	StructKeyNotFound,
 	ReadStructKeyFail,
 	WriteStructKeyFail,
 	StructEndWhenStillHasValue,
-	StructReadAfterEnded,
+	ReadStructAfterEnded,
 
 	//	Unknown
 	UnknownError,

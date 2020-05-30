@@ -93,12 +93,52 @@ struct StatePrimitive
 	}
 };
 
+struct StateMappingRoot
+{
+	void* MapPtr;
+	UMapProperty* MapProperty;
+
+	StateMappingRoot(void* InMapPtr, UMapProperty* InMapProperty)
+	{
+		check(InMapPtr);
+		check(IsValid(InMapProperty));
+		MapPtr = InMapPtr;
+		MapProperty = InMapProperty;
+	}
+};
+
+struct StateMappingProperty
+{
+	FScriptMapHelper MapHelper;
+	int Index;
+
+	enum class EState 
+	{
+		ExpectKey,
+		ExpectValue,
+		Ended,
+	};
+	EState State;
+
+	StateMappingProperty(void* InMapPtr, UMapProperty* InProperty)
+		: MapHelper(InProperty, InMapPtr)
+	{
+		check(IsValid(InProperty));
+		check(InMapPtr);
+		Index = 0;
+		State = EState::ExpectKey;
+	}
+
+};
+
 using ReaderState = TVariant<
 	StateNil,
 	StateClassRoot,
 	StateClassProperty,
 	StateStructRoot,
 	StateStructProperty,
+	StateMappingRoot,
+	StateMappingProperty,
 	StatePrimitive
 >;
 

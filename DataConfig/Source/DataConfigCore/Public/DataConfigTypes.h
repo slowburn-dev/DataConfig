@@ -28,6 +28,11 @@ FORCEINLINE FResult Ok() {
 
 FORCEINLINE FResult Fail(EErrorCode Status) {
 	check((uint32)Status != 0);
+
+#if DO_CHECK
+	PLATFORM_BREAK();
+#endif
+
 	return FResult{ (uint32)Status, 0 };
 }
 
@@ -49,6 +54,8 @@ FORCEINLINE FResult FailIf(bool Cond, EErrorCode Status) {
 			return Ret;						\
 		}									\
 	} while (0)
+
+
 
 //	std::aligned_storage stub
 //	https://devdocs.io/cpp/types/aligned_storage
@@ -90,7 +97,11 @@ enum class EDataEntry
 	StructEnd,
 
 	ClassRoot,
+
+	//	Map
 	MapRoot,
+	MapEnd,
+
 	ArrayRoot,
 
 	//	Meta

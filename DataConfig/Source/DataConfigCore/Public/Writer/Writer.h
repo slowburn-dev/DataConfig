@@ -19,6 +19,10 @@ struct DATACONFIGCORE_API FWriter
 
 	virtual FResult WriteStructRoot(const FName& Name);
 	virtual FResult WriteStructEnd(const FName& Name);
+
+	//	TODO can write key/value data entry types
+	virtual FResult WriteMapRoot();
+	virtual FResult WriteMapEnd();
 };
 
 

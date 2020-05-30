@@ -24,6 +24,17 @@ struct FNestStruct1
 	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct2;
 };
 
+USTRUCT()
+struct FMapContainer1
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) TMap<FString, FString> StrStrMap;
+	UPROPERTY(EditAnywhere) TMap<FName, bool> NameBoolMap;
+
+};
+
+
 UCLASS()
 class UTestClass_Alpha : public UObject
 {
@@ -35,7 +46,6 @@ class UTestClass_Alpha : public UObject
 
 	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct;
 };
-
 
 using namespace DataConfig;
 struct FPipeVisitor

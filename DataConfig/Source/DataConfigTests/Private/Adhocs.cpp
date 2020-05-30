@@ -9,7 +9,30 @@
 
 using namespace DataConfig;
 
+
 void PropertyVisitorRoundtrip()
+{
+	FMapContainer1 MapStruct{};
+	MapStruct.StrStrMap.Add(TEXT("These"), TEXT("Are"));
+	MapStruct.StrStrMap.Add(TEXT("My"), TEXT("Twisted"));
+	MapStruct.StrStrMap.Add(TEXT("Words"), TEXT("."));
+
+	MapStruct.NameBoolMap.Add(TEXT("true"), true);
+	MapStruct.NameBoolMap.Add(TEXT("false"), false);
+
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+	FPropertyReader Reader(FPropertyDatum(FMapContainer1::StaticStruct(), &MapStruct));
+	FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+	FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+	FResult Ret = PrettyPrintVisit.PipeVisit();
+	if (!Ret.Ok())
+	{
+		UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+	}
+}
+
+
+void PropertyVisitorRoundtrip_Basics()
 {
 	FNestStruct1 NestStruct{};
 	NestStruct.AName = FName(TEXT("Nest"));

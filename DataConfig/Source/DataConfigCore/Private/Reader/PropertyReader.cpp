@@ -51,6 +51,19 @@ static void PushStructPropertyState(FPropertyReader* Reader, void* StructPtr, US
 	GetTopState(Reader).Emplace<StateStructProperty>(StructPtr, StructClass, Property);
 }
 
+static void PushMappingRootState(FPropertyReader* Reader, void* MapPtr, UMapProperty* MapProperty)
+{
+	Reader->States.AddDefaulted();
+	GetTopState(Reader).Emplace<StateMappingRoot>(MapPtr, MapProperty);
+}
+
+static void PushMappingPropertyState(FPropertyReader* Reader, void* MapPtr, UMapProperty* MapProperty)
+{
+	Reader->States.AddDefaulted();
+	GetTopState(Reader).Emplace<StateMappingProperty>(MapPtr, MapProperty);
+}
+
+//	TODO tempalte this with a assertion
 static void PopState(FPropertyReader* Reader)
 {
 	Reader->States.Pop();
@@ -105,9 +118,66 @@ FResult TryGetPrimitive(FPropertyReader* Reader, TPrimitive* OutPtr)
 			}
 			else if (StructPropertyState->State == StateStructProperty::EState::Ended)
 			{
-				return Fail(EErrorCode::StructReadAfterEnded);
+				return Fail(EErrorCode::ReadStructAfterEnded);
 			}
 		}
+	}
+	else if (StateMappingProperty* MappingPropertyState = TryGetTopState<StateMappingProperty>(Reader))
+	{
+		UProperty* Property = nullptr;
+		void* Ptr = nullptr;
+
+		if (MappingPropertyState->State == StateMappingProperty::EState::ExpectKey)
+		{
+			Property = MappingPropertyState->MapHelper.GetKeyProperty();
+			Ptr = MappingPropertyState->MapHelper.GetKeyPtr(MappingPropertyState->Index);
+		}
+		else if (MappingPropertyState->State == StateMappingProperty::EState::ExpectValue)
+		{
+			Property = MappingPropertyState->MapHelper.GetValueProperty();
+			Ptr = MappingPropertyState->MapHelper.GetValuePtr(MappingPropertyState->Index);
+		}
+		else if (MappingPropertyState->State == StateMappingProperty::EState::Ended)
+		{
+			return Fail(EErrorCode::ReadMapAfterEnd);
+		}
+		else
+		{
+			checkNoEntry();
+		}
+
+		if (TProperty* OutProperty = Cast<TProperty>(Property))
+		{
+			if (OutPtr != nullptr)
+			{
+				*OutPtr = OutProperty->GetPropertyValue(Ptr);
+			}
+
+			if (MappingPropertyState->State == StateMappingProperty::EState::ExpectKey)
+			{
+				MappingPropertyState->State = StateMappingProperty::EState::ExpectValue;
+			}
+			else if (MappingPropertyState->State == StateMappingProperty::EState::ExpectValue)
+			{
+				MappingPropertyState->Index += 1;
+				if (MappingPropertyState->Index >= MappingPropertyState->MapHelper.Num())
+				{
+					MappingPropertyState->State = StateMappingProperty::EState::Ended;
+				}
+				else
+				{
+					MappingPropertyState->State = StateMappingProperty::EState::ExpectKey;
+				}
+			}
+			else
+			{
+				checkNoEntry();
+			}
+
+			return Ok();
+		}
+
+		return Fail(ErrCode);
 	}
 	else if (StatePrimitive* PrimitiveState = TryGetTopState<StatePrimitive>(Reader))
 	{
@@ -169,6 +239,10 @@ EDataEntry FPropertyReader::Peek()
 	{
 		return EDataEntry::StructRoot;
 	}
+	else if (StateMappingRoot* MappingRootState = TryGetTopState<StateMappingRoot>(this))
+	{
+		return EDataEntry::MapRoot;
+	}
 	else if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(this))
 	{
 		return PropertyToDataEntry(ClassPropertyState->Property);
@@ -186,6 +260,22 @@ EDataEntry FPropertyReader::Peek()
 		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
 		{
 			return EDataEntry::StructEnd;
+		}
+		checkNoEntry();
+	}
+	else if (StateMappingProperty* MapPropertyState = TryGetTopState<StateMappingProperty>(this))
+	{
+		if (MapPropertyState->State == StateMappingProperty::EState::ExpectKey)
+		{
+			return PropertyToDataEntry(MapPropertyState->MapHelper.GetKeyProperty());
+		}
+		else if (MapPropertyState->State == StateMappingProperty::EState::ExpectValue)
+		{
+			return PropertyToDataEntry(MapPropertyState->MapHelper.GetValueProperty());
+		}
+		else
+		{
+			return EDataEntry::MapEnd;
 		}
 		checkNoEntry();
 	}
@@ -311,7 +401,7 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 		}
 		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
 		{
-			return Fail(EErrorCode::StructReadAfterEnded);
+			return Fail(EErrorCode::ReadStructAfterEnded);
 		}
 		checkNoEntry();
 	}
@@ -328,7 +418,7 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 {
 	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
 	{
-		if (NextEffectiveProperty(StructPropertyState->Property) != nullptr)
+		if (StructPropertyState->State != StateStructProperty::EState::Ended)
 		{
 			return Fail(EErrorCode::StructEndWhenStillHasValue);
 		}
@@ -346,6 +436,61 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 	{
 		return Fail(EErrorCode::ReadStructEndFail);
 	}
+}
+
+FResult FPropertyReader::ReadMapRoot(FContextStorage* CtxPtr)
+{
+	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
+	{
+		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
+		{
+			return Fail(EErrorCode::ReadMapFail);
+		}
+		else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
+		{
+			if (UMapProperty* MapProperty = Cast<UMapProperty>(StructPropertyState->Property))
+			{
+				void* MapPtr = MapProperty->ContainerPtrToValuePtr<void>(StructPropertyState->StructPtr);
+				PushMappingRootState(this, MapPtr, MapProperty);
+				PushMappingPropertyState(this, MapPtr, MapProperty);
+
+				return Ok();
+			}
+			else
+			{
+				return Fail(EErrorCode::ReadMapFail);
+			}
+		}
+		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
+		{
+			return Fail(EErrorCode::ReadStructAfterEnded);
+		}
+	}
+	else if (StateMappingRoot* MappingRootState = TryGetTopState<StateMappingRoot>(this))
+	{
+		PushMappingPropertyState(this, MappingRootState->MapPtr, MappingRootState->MapProperty);
+		return Ok();
+	}
+
+	return Fail(EErrorCode::ReadMapFail);
+}
+
+FResult FPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
+{
+	if (StateMappingProperty* MappingPropertyState = TryGetTopState<StateMappingProperty>(this))
+	{
+		if (MappingPropertyState->State != StateMappingProperty::EState::Ended)
+		{
+			return Fail(EErrorCode::ReadMapEndWhenStillHasValue);
+		}
+
+		PopState(this);
+		PopState(this);
+
+		return FinishTopStateValueRead(this);
+	}
+
+	return Ok();
 }
 
 FPropertyReader::FPropertyState::FPropertyState()

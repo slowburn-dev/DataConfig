@@ -17,6 +17,8 @@ struct DATACONFIGCORE_API FPrettyPrintWriter : public FWriter
 	FResult WriteString(const FString& Value) override;
 	FResult WriteStructRoot(const FName& Name) override;
 	FResult WriteStructEnd(const FName& Name) override;
+	FResult WriteMapRoot() override;
+	FResult WriteMapEnd() override;
 
 	FOutputDevice& Output;
 	FString Indent;

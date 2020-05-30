@@ -22,6 +22,9 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 	FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
 	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FResult ReadMapRoot(FContextStorage* CtxPtr) override;
+	FResult ReadMapEnd(FContextStorage* CtxPtr) override;
+
 
 	//	Top reason we're dong this is that there's UProperty and FProperty change in UE4.25
 	//	if not doing this it's a bit difficult
