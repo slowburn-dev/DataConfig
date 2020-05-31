@@ -9,7 +9,7 @@
 
 using namespace DataConfig;
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip_StructStruct()
 {
 	FMapOfStruct2 St{};
 	St.StructStructMap.Add(
@@ -72,7 +72,7 @@ void PropertyVisitorRoundtrip_MapStruct()
 }
 
 
-void PropertyVisitorRoundtrip_Basics()
+void PropertyVisitorRoundtrip()
 {
 	FNestStruct1 NestStruct{};
 	NestStruct.AName = FName(TEXT("Nest"));
@@ -82,6 +82,7 @@ void PropertyVisitorRoundtrip_Basics()
 	StructAlpha.AName = FName(TEXT("ALPHA"));
 	StructAlpha.AStr = FString(TEXT("A L P H A"));
 
+	/*
 	FNestStruct1 OutStruct{};
 
 	{
@@ -93,11 +94,13 @@ void PropertyVisitorRoundtrip_Basics()
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
+	*/
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 
-		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+		//FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
 		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
 		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
 		PrettyPrintVisit.PipeVisit();

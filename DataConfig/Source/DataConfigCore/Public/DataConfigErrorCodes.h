@@ -81,7 +81,7 @@ enum class EErrorCode : uint32
 	StructEndWhenStillHasValue,
 	ReadStructAfterEnded,
 
-	//	Unknown
+	//	global fallback
 	UnknownError,
 };
 

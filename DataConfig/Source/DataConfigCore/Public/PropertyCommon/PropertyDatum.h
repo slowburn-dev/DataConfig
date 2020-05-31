@@ -24,6 +24,13 @@ struct DATACONFIGCORE_API FPropertyDatum
 		return Property == nullptr;
 	}
 
+	template<typename TProperty>
+	FORCEINLINE TProperty* As()
+	{
+		return CastChecked<TProperty>(Property);
+	}
+
+
 	static const FPropertyDatum NONE;
 };
 

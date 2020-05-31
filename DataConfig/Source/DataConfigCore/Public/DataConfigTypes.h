@@ -7,6 +7,8 @@ DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All)
 namespace DataConfig
 {
 
+DATACONFIGCORE_API uint8* GetZeroBitPattern128();
+
 enum class EErrorCode : uint32;
 
 struct DATACONFIGCORE_API FResult
@@ -68,8 +70,6 @@ struct TAlignedStorage
 	};
 };
 
-DATACONFIGCORE_API uint8* GetZeroBitPattern128();
-
 enum class EDataEntry
 {
 	//	Data Type
@@ -111,6 +111,22 @@ enum class EDataEntry
 EErrorCode GetReadErrorCode(EDataEntry DataEntry);
 EErrorCode GetWriteErrorCode(EDataEntry DataEntry);
 
+struct DATACONFIGCORE_API FContextStorage : private FNoncopyable
+{
+	using ImplStorageType = TAlignedStorage<64>::Type;
+	ImplStorageType ImplStorage;
+
+	template<typename TContext, typename... TArgs>
+	TContext& Emplace(TArgs&&... Args)
+	{
+		check(IsEmpty());
+		return (new (this)TContext(Forward<TArgs>(Args)...));
+	}
+
+	FContextStorage();
+	~FContextStorage();
+	bool IsEmpty();
+};
 
 } // namespace DataConfig
 

@@ -11,7 +11,7 @@ uint8* GetZeroBitPattern128()
 	return __BUFFER;
 }
 
-DataConfig::EErrorCode GetReadErrorCode(EDataEntry DataEntry)
+EErrorCode GetReadErrorCode(EDataEntry DataEntry)
 {
 	switch (DataEntry)
 	{
@@ -41,7 +41,7 @@ DataConfig::EErrorCode GetReadErrorCode(EDataEntry DataEntry)
 	return EErrorCode::UnknownError;
 }
 
-DataConfig::EErrorCode GetWriteErrorCode(EDataEntry DataEntry)
+EErrorCode GetWriteErrorCode(EDataEntry DataEntry)
 {
 	switch (DataEntry)
 	{
@@ -69,5 +69,7 @@ DataConfig::EErrorCode GetWriteErrorCode(EDataEntry DataEntry)
 
 	return EErrorCode::UnknownError;
 }
+
+
 
 } // namespace DataConfig

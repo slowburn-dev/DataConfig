@@ -1,4 +1,6 @@
 #include "Writer/PropertyWriter.h"
+#include "PropretyCommon/PropertyStates.h"
+
 
 namespace DataConfig {
 
