@@ -9,8 +9,31 @@
 
 using namespace DataConfig;
 
-
 void PropertyVisitorRoundtrip()
+{
+	FMapOfStruct2 St{};
+	St.StructStructMap.Add(
+		{TEXT("Key1"), true},
+		{ TEXT("Value1"), }
+	);
+
+	St.StructStructMap.Add(
+		{TEXT("Key2"), false},
+		{ TEXT("Value2"), true, TEXT("Fuck") }
+	);
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPropertyReader Reader(FPropertyDatum(FMapOfStruct2::StaticStruct(), &St));
+		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		FResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+	}
+}
+
+void PropertyVisitorRoundtrip__StructContainsMapContainsStruct()
 {
 	FMapOfStruct1 MapOfStruct{};
 	MapOfStruct.StrStructMap.Add(TEXT("First"), { TEXT("What"), });
