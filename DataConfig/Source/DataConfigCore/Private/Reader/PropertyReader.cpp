@@ -7,65 +7,6 @@
 
 namespace DataConfig {
 
-using ReaderStorageType = FPropertyReader::FPropertyState::ImplStorageType;
-
-static FORCEINLINE ReaderStorageType* GetTopStorage(FPropertyReader* Self)
-{
-	return &Self->States.Top().ImplStorage;
-}
-
-static FORCEINLINE FBaseState& GetTopState(FPropertyReader* Self)
-{
-	return *reinterpret_cast<FBaseState*>(GetTopStorage(Self));
-}
-
-template<typename TState>
-static TState& GetTopState(FPropertyReader* Self) {
-	return *GetTopState(Self).As<TState>();
-}
-
-template<typename TState>
-static TState* TryGetTopState(FPropertyReader* Self) {
-	return GetTopState(Self).As<TState>();
-}
-
-static void PushNilState(FPropertyReader* Reader) 
-{
-	Reader->States.AddDefaulted();
-	Emplace<FStateNil>(GetTopStorage(Reader));
-}
-
-static void PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject)
-{
-	Reader->States.AddDefaulted();
-	Emplace<FStateClass>(GetTopStorage(Reader), InClassObject);
-}
-
-static void PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
-{
-	Reader->States.AddDefaulted();
-	Emplace<FStateStruct>(GetTopStorage(Reader), InStructPtr, InStructClass);
-}
-
-static void PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty)
-{
-	Reader->States.AddDefaulted();
-	Emplace<FStateMap>(GetTopStorage(Reader), InMapPtr, InMapProperty);
-}
-
-static void PopState(FPropertyReader* Reader)
-{
-	Reader->States.Pop();
-	check(Reader->States.Num() >= 1);
-}
-
-template<typename TState>
-static void PopState(FPropertyReader* Reader)
-{
-	check(TState::ID == GetTopState(Reader).GetType());
-	PopState(Reader);
-}
-
 FPropertyReader::FPropertyReader()
 {
 	PushNilState(this);
@@ -136,7 +77,7 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 {
 	if (FStateStruct* StructState = TryGetTopState<FStateStruct>(this))
 	{
-		TRY(StructState->ReadStructRoot(OutNamePtr, CtxPtr));
+		TRY(StructState->ReadStructRoot(this, OutNamePtr, CtxPtr));
 
 		return Ok();
 	}
@@ -150,7 +91,7 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 {
 	if (FStateStruct* StructState = TryGetTopState<FStateStruct>(this))
 	{
-		TRY(StructState->ReadStructEnd(OutNamePtr, CtxPtr));
+		TRY(StructState->ReadStructEnd(this, OutNamePtr, CtxPtr));
 
 		return Ok();
 	}

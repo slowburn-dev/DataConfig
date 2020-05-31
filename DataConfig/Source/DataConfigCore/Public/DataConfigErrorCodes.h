@@ -77,6 +77,7 @@ enum class EErrorCode : uint32
 
 	StructKeyNotFound,
 	ReadStructKeyFail,
+	ReadStructNextFail,
 	WriteStructKeyFail,
 	StructEndWhenStillHasValue,
 	ReadStructAfterEnded,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UObject/UnrealType.h"
+#include "Reader/PropertyReader.h"
 
 namespace DataConfig {
 
@@ -23,6 +24,7 @@ struct FBaseState
 	virtual EDataEntry Peek();
 	virtual FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr);
 	virtual FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum);
+	virtual FResult EndReadValue();
 
 	//	intentionally ommitting virtual destructor, we don't really need it as
 	//	we want all these states bitwise relocateable
@@ -41,10 +43,10 @@ T* FBaseState::As()
 }
 
 template<typename TState, typename TStorage, typename... TArgs>
-void Emplace(TStorage* Storage, TArgs&&... Args)
+TState& Emplace(TStorage* Storage, TArgs&&... Args)
 {
 	static_assert(sizeof(TState) <= sizeof(TStorage), "storage too small");
-	new (Storage) TState(Forward<TArgs>(Args)...);
+	return *(new (Storage) TState(Forward<TArgs>(Args)...));
 }
 
 struct FStateNil : public FBaseState
@@ -101,10 +103,12 @@ struct FStateStruct : public FBaseState
 	EDataEntry Peek() override;
 	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult EndReadValue() override;
 
-	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
-	FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadStructRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadStructEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
 
+	FResult ReadPastRoot();
 };
 
 struct FStateMap : public FBaseState
@@ -130,6 +134,42 @@ struct FStateMap : public FBaseState
 static_assert(TIsTriviallyDestructible<FStateClass>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FStateStruct>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FStateMap>::Value, "need trivial destructible");
+
+//	need these as readers needs to push states
+using ReaderStorageType = FPropertyReader::FPropertyState::ImplStorageType;
+
+static FORCEINLINE ReaderStorageType* GetTopStorage(FPropertyReader* Self)
+{
+	return &Self->States.Top().ImplStorage;
+}
+
+static FORCEINLINE FBaseState& GetTopState(FPropertyReader* Self)
+{
+	return *reinterpret_cast<FBaseState*>(GetTopStorage(Self));
+}
+
+template<typename TState>
+static TState& GetTopState(FPropertyReader* Self) {
+	return *GetTopState(Self).As<TState>();
+}
+
+template<typename TState>
+static TState* TryGetTopState(FPropertyReader* Self) {
+	return GetTopState(Self).As<TState>();
+}
+
+FStateNil& PushNilState(FPropertyReader* Reader);
+FStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject);
+FStateStruct& PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass);
+FStateMap& PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty);
+void PopState(FPropertyReader* Reader);
+
+template<typename TState>
+static void PopState(FPropertyReader* Reader)
+{
+	check(TState::ID == GetTopState(Reader).GetType());
+	PopState(Reader);
+}
 
 } // namespace DataConfig
 
