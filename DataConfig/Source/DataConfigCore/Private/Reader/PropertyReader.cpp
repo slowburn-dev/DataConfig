@@ -19,7 +19,7 @@ FPropertyReader::FPropertyReader(FPropertyDatum Datum)
 	{
 		//	pass
 	}
-	else if (Datum.Property->IsA<UClassProperty>()) 
+	else if (Datum.Property->IsA<UClass>()) 
 	{
 		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
 		check(IsValid(Obj));
@@ -108,6 +108,44 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 	else
 	{
 		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+DataConfig::FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	FBaseState& TopState = GetTopState(this);
+	{
+		FStateClass* ClassState = TopState.As<FStateClass>();
+		if (ClassState != nullptr
+			&& ClassState->State == FStateClass::EState::ExpectRoot)
+		{
+			TRY(ClassState->ReadClassRoot(OutNamePtr, CtxPtr));
+			return Ok();
+		}
+	}
+
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.ReadDataEntry(UClassProperty::StaticClass(), EErrorCode::ReadClassFail, CtxPtr, Datum));
+
+		FStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
+		TRY(ChildClass.ReadClassEnd(OutNamePtr, CtxPtr));
+	}
+
+	return Ok();
+}
+
+DataConfig::FResult FPropertyReader::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	if (FStateClass* ClassState = TryGetTopState<FStateClass>(this))
+	{
+		TRY(ClassState->ReadClassEnd(OutNamePtr, CtxPtr));
+		PopState<FStateClass>(this);
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadClassEndFail);
 	}
 }
 

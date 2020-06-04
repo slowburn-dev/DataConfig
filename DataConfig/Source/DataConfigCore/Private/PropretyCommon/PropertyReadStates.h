@@ -61,13 +61,31 @@ struct FStateClass : public FBaseState
 	UObject* ClassObject;
 	UProperty* Property;
 
+	enum class EState
+	{
+		ExpectRoot,
+		ExpectKey,
+		ExpectValue,
+		ExpectEnd,
+		Ended,
+	};
+	EState State;
+
 	FStateClass(UObject* InClassObject)
 	{
 		ClassObject = InClassObject;
 		Property = nullptr;
+		State = EState::ExpectRoot;
 	}
 
 	EPropertyType GetType() override;
+	EDataEntry Peek() override;
+	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult EndReadValue() override;
+
+	FResult ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
 };
 
 struct FStateStruct : public FBaseState

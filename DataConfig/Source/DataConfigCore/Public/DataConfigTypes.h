@@ -96,7 +96,9 @@ enum class EDataEntry
 	StructRoot,
 	StructEnd,
 
+	//	Class
 	ClassRoot,
+	ClassEnd,
 
 	//	Map
 	MapRoot,

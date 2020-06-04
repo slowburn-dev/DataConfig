@@ -19,6 +19,8 @@ FResult FWriter::WriteName(const FName& Value) { return Fail(EErrorCode::WriteNa
 FResult FWriter::WriteString(const FString& Value) { return Fail(EErrorCode::WriteStringFail); }
 FResult FWriter::WriteStructRoot(const FName& Name) { return Fail(EErrorCode::WriteStructRootFail); }
 FResult FWriter::WriteStructEnd(const FName& Name) { return Fail(EErrorCode::WriteStructEndFail); }
+FResult FWriter::WriteClassRoot(const FName& Name) { return Fail(EErrorCode::WriteClassFail); }
+FResult FWriter::WriteClassEnd(const FName& Name) { return Fail(EErrorCode::WriteClassEndFail); }
 FResult FWriter::WriteMapRoot() { return Fail(EErrorCode::WriteMapFail); }
 FResult FWriter::WriteMapEnd() { return Fail(EErrorCode::WriteMapEndFail); }
 

@@ -11,6 +11,24 @@ using namespace DataConfig;
 
 void PropertyVisitorRoundtrip()
 {
+	UTestObj_Alpha* Obj = NewObject<UTestObj_Alpha>();
+	Obj->AStr = TEXT("A STR");
+	Obj->AStruct.ABool = false;
+	Obj->AStruct.AStr = "A Struct STr";
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPropertyReader Reader(FPropertyDatum(UTestObj_Alpha::StaticClass(), Obj));
+		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		FResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+	}
+}
+
+void PropertyVisitorRoundtrip__StructStructMap()
+{
 	FMapOfStruct2 St{};
 	St.StructStructMap.Add(
 		{TEXT("Key1"), true},

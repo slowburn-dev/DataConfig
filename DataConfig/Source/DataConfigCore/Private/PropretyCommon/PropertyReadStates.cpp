@@ -64,6 +64,154 @@ EPropertyType FStateClass::GetType()
 	return EPropertyType::ClassProperty;
 }
 
+EDataEntry FStateClass::Peek()
+{
+	if (State == EState::ExpectRoot)
+	{
+		return EDataEntry::ClassRoot;
+	}
+	else if (State == EState::ExpectEnd)
+	{
+		return EDataEntry::ClassEnd;
+	}
+	else if (State == EState::ExpectKey)
+	{
+		return EDataEntry::Name;
+	}
+	else if (State == EState::ExpectValue)
+	{
+		check(Property);
+		return PropertyToDataEntry(Property);
+	}
+	else
+	{
+		checkNoEntry();
+		return EDataEntry::Ended;
+	}
+}
+
+FResult FStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectKey)
+	{
+		check(Property);
+		if (OutNamePtr)
+		{
+			*OutNamePtr = Property->GetFName();
+		}
+
+		State = EState::ExpectValue;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		FPropertyDatum Datum;
+		TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+
+		if (OutNamePtr)
+		{
+			*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+		}
+
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadNameFail);
+	}
+}
+
+FResult FStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+{
+	if (State == EState::ExpectKey)
+	{
+		checkNoEntry();	// should've bee already handled in `ReadName`
+		return Fail(EErrorCode::ReadClassKeyFail);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		check(ExpectedPropertyClass);
+		check(Property);
+		if (Property->IsA(ExpectedPropertyClass))
+		{
+			OutDatum.Property = Property;
+			OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(ClassObject);
+
+			EndReadValue();
+			return Ok();
+		}
+		else
+		{
+			return Fail(FailCode);
+		}
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadClassKeyFail);
+	}
+}
+
+FResult FStateClass::EndReadValue()
+{
+	if (State == EState::ExpectValue)
+	{
+		Property = NextEffectiveProperty(Property);
+		if (Property == nullptr)
+		{
+			State = EState::ExpectEnd;
+		}
+		else
+		{
+			State = EState::ExpectKey;
+		}
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadClassNextFail);
+	}
+}
+
+FResult FStateClass::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectRoot)
+	{
+		check(ClassObject);
+		UClass* Cls = ClassObject->GetClass();
+		if (OutNamePtr)
+			*OutNamePtr = Cls->GetFName();
+
+		Property = FirstEffectiveProperty(Cls->PropertyLink);
+		if (Property == nullptr)
+		{
+			State = EState::ExpectEnd;
+		}
+		else
+		{
+			State = EState::ExpectKey;
+		}
+
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadClassFail);
+	}
+}
+
+FResult FStateClass::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectEnd)
+	{
+		State = EState::Ended;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadClassEndFail);
+	}
+}
+
 EPropertyType FStateStruct::GetType()
 {
 	return EPropertyType::StructProperty;
@@ -324,6 +472,7 @@ DataConfig::FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
+		//	TODO check key/value type validity
 		FScriptMap* ScriptMap = (FScriptMap*)MapPtr;
 		if (ScriptMap->Num() == 0)
 		{

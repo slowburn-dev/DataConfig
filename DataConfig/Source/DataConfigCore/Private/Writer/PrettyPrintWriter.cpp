@@ -52,6 +52,20 @@ FResult FPrettyPrintWriter::WriteStructEnd(const FName& Name)
 	return Ok();
 }
 
+DataConfig::FResult FPrettyPrintWriter::WriteClassRoot(const FName& Name)
+{
+	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *Name.ToString());
+	Indent += PER_INDENT;
+	return Ok();
+}
+
+DataConfig::FResult FPrettyPrintWriter::WriteClassEnd(const FName& Name)
+{
+	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
+	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *Name.ToString());
+	return Ok();
+}
+
 FResult FPrettyPrintWriter::WriteMapRoot()
 {
 	Output.Logf(TEXT("%s- map begin"), *Indent);
@@ -65,5 +79,6 @@ FResult FPrettyPrintWriter::WriteMapEnd()
 	Output.Logf(TEXT("%s- map end"), *Indent);
 	return Ok();
 }
+
 
 }	// namespace DataConfig
