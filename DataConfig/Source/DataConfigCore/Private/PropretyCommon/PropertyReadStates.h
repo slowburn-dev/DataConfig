@@ -131,6 +131,7 @@ struct FStateMap : public FBaseState
 		MapPtr = InMapPtr;
 		MapProperty = InMapProperty;
 		Index = 0;
+		State = EState::ExpectRoot;
 	}
 
 	EPropertyType GetType() override;
@@ -139,8 +140,8 @@ struct FStateMap : public FBaseState
 	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 	FResult EndReadValue() override;
 
-	FResult ReadMapRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
-	FResult ReadMapEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadMapRoot(FContextStorage* CtxPtr);
+	FResult ReadMapEnd(FContextStorage* CtxPtr);
 };
 
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway

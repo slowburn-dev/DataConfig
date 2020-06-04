@@ -320,14 +320,38 @@ FResult FStateMap::EndReadValue()
 	}
 }
 
-DataConfig::FResult FStateMap::ReadMapRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr)
+DataConfig::FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 {
-	return Ok();
+	if (State == EState::ExpectRoot)
+	{
+		FScriptMap* ScriptMap = (FScriptMap*)MapPtr;
+		if (ScriptMap->Num() == 0)
+		{
+			State = EState::ExpectEnd;
+		}
+		else
+		{
+			State = EState::ExpectKey;
+		}
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadMapFail);
+	}
 }
 
-DataConfig::FResult FStateMap::ReadMapEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr)
+DataConfig::FResult FStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 {
-	return Ok();
+	if (State == EState::ExpectEnd)
+	{
+		State = EState::Ended;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadMapEndFail);
+	}
 }
 
 } // namespace DataConfig

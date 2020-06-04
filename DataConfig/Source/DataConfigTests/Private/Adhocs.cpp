@@ -9,7 +9,7 @@
 
 using namespace DataConfig;
 
-void PropertyVisitorRoundtrip_StructStruct()
+void PropertyVisitorRoundtrip()
 {
 	FMapOfStruct2 St{};
 	St.StructStructMap.Add(
@@ -50,7 +50,7 @@ void PropertyVisitorRoundtrip__StructContainsMapContainsStruct()
 	}
 }
 
-void PropertyVisitorRoundtrip_MapStruct()
+void PropertyVisitorRoundtrip__MapStruct()
 {
 	FMapContainer1 MapStruct{};
 	MapStruct.StrStrMap.Add(TEXT("These"), TEXT("Are"));
@@ -72,7 +72,7 @@ void PropertyVisitorRoundtrip_MapStruct()
 }
 
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip__Basic()
 {
 	FNestStruct1 NestStruct{};
 	NestStruct.AName = FName(TEXT("Nest"));

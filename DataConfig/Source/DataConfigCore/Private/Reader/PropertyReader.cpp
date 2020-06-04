@@ -113,12 +113,40 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 
 FResult FPropertyReader::ReadMapRoot(FContextStorage* CtxPtr)
 {
+	FBaseState& TopState = GetTopState(this);
+	{
+		FStateMap* MapState = TopState.As<FStateMap>();
+		if (MapState != nullptr
+			&& MapState->State == FStateMap::EState::ExpectRoot)
+		{
+			TRY(MapState->ReadMapRoot(CtxPtr));
+			return Ok();
+		}
+	}
+
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.ReadDataEntry(UMapProperty::StaticClass(), EErrorCode::ReadMapFail, CtxPtr, Datum));
+
+		FStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.As<UMapProperty>());
+		TRY(ChildMap.ReadMapRoot(CtxPtr));
+	}
+
 	return Ok();
 }
 
 FResult FPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
 {
-	return Ok();
+	if (FStateMap* StateMap = TryGetTopState<FStateMap>(this))
+	{
+		TRY(StateMap->ReadMapEnd(CtxPtr));
+		PopState<FStateMap>(this);
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadMapFail);
+	}
 }
 
 } // namespace DataConfig
