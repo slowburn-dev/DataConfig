@@ -75,24 +75,34 @@ FResult FPropertyReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 
 FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
-	if (FStateStruct* StructState = TryGetTopState<FStateStruct>(this))
+	FBaseState& TopState = GetTopState(this);
 	{
-		TRY(StructState->ReadStructRoot(this, OutNamePtr, CtxPtr));
+		FStateStruct* StructState = TopState.As<FStateStruct>();
+		if (StructState != nullptr
+			&& StructState->State == FStateStruct::EState::ExpectRoot)
+		{
+			TRY(StructState->ReadStructRoot(OutNamePtr, CtxPtr));
+			return Ok();
+		}
+	}
 
-		return Ok();
-	}
-	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		FPropertyDatum Datum;
+		TRY(TopState.ReadDataEntry(UStructProperty::StaticClass(), EErrorCode::ReadStructFail, CtxPtr, Datum));
+
+		FStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.As<UStructProperty>()->Struct);
+		TRY(ChildStruct.ReadStructRoot(OutNamePtr, CtxPtr));
 	}
+
+	return Ok();
 }
 
 FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (FStateStruct* StructState = TryGetTopState<FStateStruct>(this))
 	{
-		TRY(StructState->ReadStructEnd(this, OutNamePtr, CtxPtr));
-
+		TRY(StructState->ReadStructEnd(OutNamePtr, CtxPtr));
+		PopState<FStateStruct>(this);
 		return Ok();
 	}
 	else

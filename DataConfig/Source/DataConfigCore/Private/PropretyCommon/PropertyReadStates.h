@@ -26,9 +26,7 @@ struct FBaseState
 	virtual FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum);
 	virtual FResult EndReadValue();
 
-	//	intentionally ommitting virtual destructor, we don't really need it as
-	//	we want all these states bitwise relocateable
-
+	//	!!!  intentionally ommitting virtual destructor, keep these state trivia
 	template<typename T>
 	T* As();
 };
@@ -105,10 +103,8 @@ struct FStateStruct : public FBaseState
 	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 	FResult EndReadValue() override;
 
-	FResult ReadStructRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
-	FResult ReadStructEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
-
-	FResult ReadPastRoot();
+	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
 };
 
 struct FStateMap : public FBaseState
@@ -119,6 +115,17 @@ struct FStateMap : public FBaseState
 	UMapProperty* MapProperty;
 	uint16 Index;
 
+	enum class EState : uint16
+	{
+		ExpectRoot,
+		ExpectKey,
+		ExpectValue,
+		ExpectEnd,
+		Ended
+	};
+
+	EState State;
+
 	FStateMap(void* InMapPtr, UMapProperty* InMapProperty)
 	{
 		MapPtr = InMapPtr;
@@ -127,6 +134,13 @@ struct FStateMap : public FBaseState
 	}
 
 	EPropertyType GetType() override;
+	EDataEntry Peek() override;
+	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult EndReadValue() override;
+
+	FResult ReadMapRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadMapEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr);
 };
 
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway

@@ -181,10 +181,13 @@ FResult FStateStruct::EndReadValue()
 	}
 }
 
-FResult FStateStruct::ReadPastRoot()
+DataConfig::FResult FStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
+		if (OutNamePtr)
+			*OutNamePtr = StructClass->GetFName();
+
 		Property = FirstEffectiveProperty(StructClass->PropertyLink);
 		if (Property == nullptr)
 		{
@@ -203,47 +206,11 @@ FResult FStateStruct::ReadPastRoot()
 	}
 }
 
-FResult FStateStruct::ReadStructRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr)
-{
-	//	why this makes sense even it's a bit weird, is that
-	//	this is state based. on different state the same method actually means different things
-	//	and we'll need to handle every state anyway.
-	if (State == EState::ExpectRoot)
-	{
-		TRY(ReadPastRoot());
-
-		if (OutNamePtr)
-			*OutNamePtr = StructClass->GetFName();
-
-		return Ok();
-	}
-	else if (State == EState::ExpectValue)
-	{
-		FPropertyDatum Datum;
-		TRY(ReadDataEntry(UStructProperty::StaticClass(), EErrorCode::ReadStructFail, CtxPtr, Datum));
-
-		//	this maps to the double Push state
-		FStateStruct& ChildStruct = PushStructPropertyState(Self, Datum.DataPtr, Datum.As<UStructProperty>()->Struct);
-
-		TRY(ChildStruct.ReadPastRoot());
-		if (OutNamePtr)
-			*OutNamePtr = ChildStruct.StructClass->GetFName();
-
-		return Ok();
-	}
-	else 
-	{
-		return Fail(EErrorCode::ReadStructFail);
-	}
-}
-
-FResult FStateStruct::ReadStructEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr)
+DataConfig::FResult FStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
-
-		PopState<FStateStruct>(Self);
 		//	!!! note that this doens't need to EndRead, it's done before entering this state
 		//TRY(GetTopState(Self).EndReadValue());
 		return Ok();
@@ -254,10 +221,113 @@ FResult FStateStruct::ReadStructEnd(FPropertyReader* Self, FName* OutNamePtr, FC
 	}
 }
 
-
 EPropertyType FStateMap::GetType()
 {
 	return EPropertyType::MapProperty;
+}
+
+EDataEntry FStateMap::Peek()
+{
+	if (State == EState::ExpectRoot)
+	{
+		return EDataEntry::MapRoot;
+	}
+	else if (State == EState::ExpectEnd)
+	{
+		return EDataEntry::MapEnd;
+	}
+	else if (State == EState::ExpectKey)
+	{
+		check(MapProperty);
+		return PropertyToDataEntry(MapProperty->KeyProp);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		check(MapProperty);
+		return PropertyToDataEntry(MapProperty->ValueProp);
+	}
+	else
+	{
+		checkNoEntry();
+		return EDataEntry::Ended;
+	}
+}
+
+FResult FStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	FPropertyDatum Datum;
+	TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+
+	if (OutNamePtr)
+	{
+		*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+	}
+
+	return Ok();
+}
+
+FResult FStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+{
+	if (State == EState::Ended
+		|| State == EState::ExpectRoot
+		|| State == EState::ExpectEnd)
+		return Fail(FailCode);
+
+	FScriptMapHelper MapHelper(MapProperty, MapPtr);
+	if (State == EState::ExpectKey)
+	{
+		OutDatum.Property = MapHelper.GetKeyProperty();
+		OutDatum.DataPtr = MapHelper.GetKeyPtr(Index);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		OutDatum.Property = MapHelper.GetValueProperty();
+		OutDatum.DataPtr = MapHelper.GetValuePtr(Index);
+	}
+	else
+	{
+		checkNoEntry();
+	}
+
+	TRY(EndReadValue());
+	return Ok();
+}
+
+FResult FStateMap::EndReadValue()
+{
+	if (State == EState::ExpectKey)
+	{
+		State = EState::ExpectValue;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		FScriptMap* ScriptMap = (FScriptMap*)MapPtr;
+		Index += 1;
+		if (Index < ScriptMap->Num())
+		{
+			State = EState::ExpectKey;
+		}
+		else
+		{
+			State = EState::ExpectEnd;
+		}
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+DataConfig::FResult FStateMap::ReadMapRoot(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	return Ok();
+}
+
+DataConfig::FResult FStateMap::ReadMapEnd(FPropertyReader* Self, FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	return Ok();
 }
 
 } // namespace DataConfig
