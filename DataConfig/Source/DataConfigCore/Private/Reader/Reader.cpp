@@ -14,6 +14,8 @@ FResult FReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr) { ret
 FResult FReader::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr) {	return Fail(EErrorCode::ReadClassEndFail); }
 FResult FReader::ReadMapRoot(FContextStorage* CtxPtr) { return Fail(EErrorCode::ReadMapFail); }
 FResult FReader::ReadMapEnd(FContextStorage* CtxPtr) { return Fail(EErrorCode::ReadMapEndFail); }
+FResult FReader::ReadArrayRoot(FContextStorage* CtxPtr) { return Fail(EErrorCode::ReadArrayFail); }
+FResult FReader::ReadArrayEnd(FContextStorage* CtxPtr) { return Fail(EErrorCode::ReadArrayEndFail); }
 
 } // namespace DataConfig
 

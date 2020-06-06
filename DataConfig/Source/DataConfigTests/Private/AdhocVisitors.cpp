@@ -67,6 +67,16 @@ FResult FPipeVisitor::PipeVisit()
 			TRY(Reader->ReadClassEnd(&Name, nullptr));
 			TRY(Writer->WriteClassEnd(Name));
 		}
+		else if (PeekEntry == EDataEntry::ArrayRoot)
+		{
+			TRY(Reader->ReadArrayRoot(nullptr));
+			TRY(Writer->WriteArrayRoot());
+		}
+		else if (PeekEntry == EDataEntry::ArrayEnd)
+		{
+			TRY(Reader->ReadArrayEnd(nullptr));
+			TRY(Writer->WriteArrayEnd());
+		}
 		else if (PeekEntry == EDataEntry::Ended)
 		{
 			return Ok();

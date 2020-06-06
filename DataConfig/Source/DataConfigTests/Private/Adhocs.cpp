@@ -15,6 +15,9 @@ void PropertyVisitorRoundtrip()
 	Obj->AStr = TEXT("A STR");
 	Obj->AStruct.ABool = false;
 	Obj->AStruct.AStr = "A Struct STr";
+	Obj->AStruct.Names.Emplace(TEXT("One"));
+	Obj->AStruct.Names.Emplace(TEXT("Two"));
+	Obj->AStruct.Names.Emplace(TEXT("Three"));
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);

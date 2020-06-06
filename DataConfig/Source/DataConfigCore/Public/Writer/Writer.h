@@ -26,6 +26,8 @@ struct DATACONFIGCORE_API FWriter
 	virtual FResult WriteMapRoot();
 	virtual FResult WriteMapEnd();
 
+	virtual FResult WriteArrayRoot();
+	virtual FResult WriteArrayEnd();
 
 };
 

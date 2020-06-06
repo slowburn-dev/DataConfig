@@ -23,6 +23,8 @@ FResult FWriter::WriteClassRoot(const FName& Name) { return Fail(EErrorCode::Wri
 FResult FWriter::WriteClassEnd(const FName& Name) { return Fail(EErrorCode::WriteClassEndFail); }
 FResult FWriter::WriteMapRoot() { return Fail(EErrorCode::WriteMapFail); }
 FResult FWriter::WriteMapEnd() { return Fail(EErrorCode::WriteMapEndFail); }
+FResult FWriter::WriteArrayRoot() { return Fail(EErrorCode::WriteArrayFail); }
+FResult FWriter::WriteArrayEnd() { return Fail(EErrorCode::WriteArrayEndFail); }
 
 }	// namespace DataConfig
 

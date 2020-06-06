@@ -36,6 +36,7 @@ enum class EErrorCode : uint32
 	WriteMapEndFail,
 
 	WriteArrayFail,
+	WriteArrayEndFail,
 
 	//	Writer
 	WriteEndFail,
@@ -65,6 +66,7 @@ enum class EErrorCode : uint32
 	ReadStructFail,
 	ReadStructEndFail,
 	ReadArrayFail,
+	ReadArrayEndFail,
 	ReadEndFail,
 
 	ReadOutOfBoundMapKey,

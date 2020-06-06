@@ -27,6 +27,9 @@ struct DATACONFIGCORE_API FReader
 	virtual FResult ReadMapRoot(FContextStorage* CtxPtr);
 	virtual FResult ReadMapEnd(FContextStorage* CtxPtr);
 
+	virtual FResult ReadArrayRoot(FContextStorage* CtxPtr);
+	virtual FResult ReadArrayEnd(FContextStorage* CtxPtr);
+
 };
 
 

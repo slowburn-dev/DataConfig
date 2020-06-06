@@ -187,4 +187,43 @@ FResult FPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
 	}
 }
 
+FResult FPropertyReader::ReadArrayRoot(FContextStorage* CtxPtr)
+{
+	FBaseState& TopState = GetTopState(this);
+
+	{
+		FStateArray* ArrayState = TopState.As<FStateArray>();
+		if (ArrayState != nullptr
+			&& ArrayState->State == FStateArray::EState::ExpectRoot)
+		{
+			TRY(ArrayState->ReadArrayRoot(CtxPtr));
+			return Ok();
+		}
+	}
+
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.ReadDataEntry(UArrayProperty::StaticClass(), EErrorCode::ReadArrayFail, CtxPtr, Datum));
+
+		FStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.As<UArrayProperty>());
+		TRY(ChildArray.ReadArrayRoot(CtxPtr));
+	}
+
+	return Ok();
+}
+
+FResult FPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
+{
+	if (FStateArray* ArrayState = TryGetTopState<FStateArray>(this))
+	{
+		TRY(ArrayState->ReadArrayEnd(CtxPtr));
+		PopState<FStateArray>(this);
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
 } // namespace DataConfig

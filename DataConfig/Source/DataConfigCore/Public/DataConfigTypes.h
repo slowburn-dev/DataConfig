@@ -104,7 +104,12 @@ enum class EDataEntry
 	MapRoot,
 	MapEnd,
 
+	//	Array
 	ArrayRoot,
+	ArrayEnd,
+
+	//	Reference
+	Reference,
 
 	//	Meta
 	Ended, // or error or invalid state, 

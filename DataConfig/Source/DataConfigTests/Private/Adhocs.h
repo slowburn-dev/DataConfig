@@ -12,6 +12,8 @@ struct FTestStruct_Alpha
 	UPROPERTY(EditAnywhere) FName AName;
 	UPROPERTY(EditAnywhere) bool ABool;
 	UPROPERTY(EditAnywhere) FString AStr;
+
+	UPROPERTY(EditAnywhere) TArray<FName> Names;
 };
 
 UCLASS()

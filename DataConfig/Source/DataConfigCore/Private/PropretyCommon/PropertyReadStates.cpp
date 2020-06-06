@@ -28,6 +28,12 @@ FStateMap& PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr, UMa
 	return Emplace<FStateMap>(GetTopStorage(Reader), InMapPtr, InMapProperty);
 }
 
+DataConfig::FStateArray& PushArrayPropertyState(FPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
+{
+	Reader->States.AddDefaulted();
+	return Emplace<FStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);
+}
+
 void PopState(FPropertyReader* Reader)
 {
 	Reader->States.Pop();
@@ -204,6 +210,13 @@ FResult FStateClass::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
+		check(ClassObject);
+
+		if (OutNamePtr)
+		{
+			*OutNamePtr = ClassObject->GetClass()->GetFName();
+		}
+
 		return Ok();
 	}
 	else
@@ -329,7 +342,7 @@ FResult FStateStruct::EndReadValue()
 	}
 }
 
-DataConfig::FResult FStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -354,11 +367,17 @@ DataConfig::FResult FStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStor
 	}
 }
 
-DataConfig::FResult FStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
+
+		if (OutNamePtr)
+		{
+			*OutNamePtr = StructClass->GetFName();
+		}
+
 		//	!!! note that this doens't need to EndRead, it's done before entering this state
 		//TRY(GetTopState(Self).EndReadValue());
 		return Ok();
@@ -468,11 +487,18 @@ FResult FStateMap::EndReadValue()
 	}
 }
 
-DataConfig::FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
+FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		//	TODO check key/value type validity
+		//	check map effectiveness
+		if (!IsEffectiveProperty(MapProperty->KeyProp)
+			|| !IsEffectiveProperty(MapProperty->ValueProp))
+		{
+			State = EState::ExpectEnd;
+			return Ok();
+		}
+
 		FScriptMap* ScriptMap = (FScriptMap*)MapPtr;
 		if (ScriptMap->Num() == 0)
 		{
@@ -490,7 +516,7 @@ DataConfig::FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 	}
 }
 
-DataConfig::FResult FStateMap::ReadMapEnd(FContextStorage* CtxPtr)
+FResult FStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -500,6 +526,128 @@ DataConfig::FResult FStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 	else
 	{
 		return Fail(EErrorCode::ReadMapEndFail);
+	}
+}
+
+EPropertyType FStateArray::GetType()
+{
+	return EPropertyType::ArrayProperty;
+}
+
+EDataEntry FStateArray::Peek()
+{
+	if (State == EState::ExpectRoot)
+	{
+		return EDataEntry::ArrayRoot;
+	}
+	else if (State == EState::ExpectEnd)
+	{
+		return EDataEntry::ArrayEnd;
+	}
+	else if (State == EState::ExpectItem)
+	{
+		check(ArrayProperty->Inner);
+		return PropertyToDataEntry(ArrayProperty->Inner);
+	}
+	else if (State == EState::Ended)
+	{
+		return EDataEntry::Ended;
+	}
+	else
+	{
+		checkNoEntry();
+		return EDataEntry::Ended;
+	}
+}
+
+FResult FStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+{
+	FPropertyDatum Datum;
+	TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+
+	if (OutNamePtr)
+	{
+		*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+	}
+
+	return Ok();
+}
+
+FResult FStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+{
+	if (State == EState::Ended
+		|| State == EState::ExpectRoot
+		|| State == EState::ExpectEnd)
+		return Fail(FailCode);
+
+	check(State == EState::ExpectItem);
+	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
+	OutDatum.Property = ArrayProperty->Inner;
+	OutDatum.DataPtr = ArrayHelper.GetRawPtr(Index);
+
+	TRY(EndReadValue());
+	return Ok();
+}
+
+FResult FStateArray::EndReadValue()
+{
+	if (State == EState::ExpectItem)
+	{
+		FScriptArray* ScriptArray = (FScriptArray*)ArrayPtr;
+		Index += 1;
+		if (Index < ScriptArray->Num())
+		{
+			State = EState::ExpectItem;
+		}
+		else
+		{
+			State = EState::ExpectEnd;
+		}
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+FResult FStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectRoot)
+	{
+		if (!IsEffectiveProperty(ArrayProperty->Inner))
+		{
+			State = EState::ExpectEnd;
+			return Ok();
+		}
+
+		FScriptArray* ScriptArray = (FScriptArray*)ArrayPtr;
+		if (ScriptArray->Num() == 0)
+		{
+			State = EState::ExpectEnd;
+		}
+		else
+		{
+			State = EState::ExpectItem;
+		}
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadArrayFail);
+	}
+}
+
+FResult FStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectEnd)
+	{
+		State = EState::Ended;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadArrayEndFail);
 	}
 }
 

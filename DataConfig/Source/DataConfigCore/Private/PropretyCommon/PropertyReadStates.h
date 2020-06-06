@@ -11,6 +11,7 @@ enum class EPropertyType
 	ClassProperty,
 	StructProperty,
 	MapProperty,
+	ArrayProperty,
 };
 
 enum class EDataEntry;
@@ -29,6 +30,11 @@ struct FBaseState
 	//	!!!  intentionally ommitting virtual destructor, keep these state trivia
 	template<typename T>
 	T* As();
+
+	//	non copyable
+	FBaseState() = default;
+	FBaseState(const FNoncopyable&) = delete;
+	FBaseState& operator=(const FBaseState&) = delete;
 };
 
 template<typename T>
@@ -162,11 +168,47 @@ struct FStateMap : public FBaseState
 	FResult ReadMapEnd(FContextStorage* CtxPtr);
 };
 
+struct FStateArray : public FBaseState
+{
+	static const EPropertyType ID = EPropertyType::ArrayProperty;
+
+	void* ArrayPtr;
+	UArrayProperty* ArrayProperty;
+	uint16 Index;
+
+	enum class EState : uint16
+	{
+		ExpectRoot,
+		ExpectEnd,
+		ExpectItem,
+		Ended,
+	};
+	EState State;
+
+	FStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
+	{
+		ArrayPtr = InArrayPtr;
+		ArrayProperty = InArrayProperty;
+		State = EState::ExpectRoot;
+		Index = 0;
+	}
+
+	EPropertyType GetType() override;
+	EDataEntry Peek() override;
+	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult EndReadValue() override;
+
+	FResult ReadArrayRoot(FContextStorage* CtxPtr);
+	FResult ReadArrayEnd(FContextStorage* CtxPtr);
+};
+
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway
 //	we'll just needs to assume these types are trivially destructable
 static_assert(TIsTriviallyDestructible<FStateClass>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FStateStruct>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FStateMap>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FStateArray>::Value, "need trivial destructible");
 
 //	need these as readers needs to push states
 using ReaderStorageType = FPropertyReader::FPropertyState::ImplStorageType;
@@ -195,6 +237,7 @@ FStateNil& PushNilState(FPropertyReader* Reader);
 FStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject);
 FStateStruct& PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass);
 FStateMap& PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty);
+FStateArray& PushArrayPropertyState(FPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty);
 void PopState(FPropertyReader* Reader);
 
 template<typename TState>

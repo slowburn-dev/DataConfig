@@ -81,4 +81,18 @@ FResult FPrettyPrintWriter::WriteMapEnd()
 }
 
 
+FResult FPrettyPrintWriter::WriteArrayRoot()
+{
+	Output.Logf(TEXT("%s- array begin"), *Indent);
+	Indent += PER_INDENT;
+	return Ok();
+}
+
+FResult FPrettyPrintWriter::WriteArrayEnd()
+{
+	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
+	Output.Logf(TEXT("%s- array end"), *Indent);
+	return Ok();
+}
+
 }	// namespace DataConfig
