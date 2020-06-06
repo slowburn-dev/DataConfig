@@ -38,15 +38,20 @@ FORCEINLINE FResult Fail(EErrorCode Status) {
 	return FResult{ (uint32)Status, 0 };
 }
 
-FORCEINLINE FResult FailIf(bool Cond, EErrorCode Status) {
+FORCEINLINE FResult Expect(bool CondToBeTrue, EErrorCode Status) {
 	check((uint32)Status != 0);
-	if (Cond) {
-		return Fail(Status);
-	}
-	else
-	{
+	if (CondToBeTrue)
 		return Ok();
-	}
+	else
+		return Fail(Status);
+}
+
+FORCEINLINE FResult FailIf(bool CondToBeFalse, EErrorCode Status) {
+	check((uint32)Status != 0);
+	if (CondToBeFalse)
+		return Fail(Status);
+	else
+		return Ok();
 }
 
 #define TRY(expr)							\

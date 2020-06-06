@@ -4,73 +4,32 @@
 
 namespace DataConfig {
 
-FStateNil& PushNilState(FPropertyReader* Reader) 
-{
-	Reader->States.AddDefaulted();
-	return Emplace<FStateNil>(GetTopStorage(Reader));
-}
-
-FStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject)
-{
-	Reader->States.AddDefaulted();
-	return Emplace<FStateClass>(GetTopStorage(Reader), InClassObject);
-}
-
-FStateStruct& PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
-{
-	Reader->States.AddDefaulted();
-	return Emplace<FStateStruct>(GetTopStorage(Reader), InStructPtr, InStructClass);
-}
-
-FStateMap& PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty)
-{
-	Reader->States.AddDefaulted();
-	return Emplace<FStateMap>(GetTopStorage(Reader), InMapPtr, InMapProperty);
-}
-
-DataConfig::FStateArray& PushArrayPropertyState(FPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
-{
-	Reader->States.AddDefaulted();
-	return Emplace<FStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);
-}
-
-void PopState(FPropertyReader* Reader)
-{
-	Reader->States.Pop();
-	check(Reader->States.Num() >= 1);
-}
-
-EDataEntry FBaseState::Peek()
+EDataEntry FBaseReadState::Peek()
 {
 	return EDataEntry::Ended;
 }
 
-FResult FBaseState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FBaseReadState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	return Fail(EErrorCode::UnknownError);
 }
 
-FResult FBaseState::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	return Fail(EErrorCode::UnknownError);
 }
 
-FResult FBaseState::EndReadValue()
+EPropertyReadType FReadStateNil::GetType()
 {
-	return Fail(EErrorCode::UnknownError);
+	return EPropertyReadType::Nil;
 }
 
-EPropertyType FStateNil::GetType()
+EPropertyReadType FReadStateClass::GetType()
 {
-	return EPropertyType::Nil;
+	return EPropertyReadType::ClassProperty;
 }
 
-EPropertyType FStateClass::GetType()
-{
-	return EPropertyType::ClassProperty;
-}
-
-EDataEntry FStateClass::Peek()
+EDataEntry FReadStateClass::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -96,7 +55,7 @@ EDataEntry FStateClass::Peek()
 	}
 }
 
-FResult FStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -127,7 +86,7 @@ FResult FStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -157,7 +116,7 @@ FResult FStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode Fai
 	}
 }
 
-FResult FStateClass::EndReadValue()
+FResult FReadStateClass::EndReadValue()
 {
 	if (State == EState::ExpectValue)
 	{
@@ -178,7 +137,7 @@ FResult FStateClass::EndReadValue()
 	}
 }
 
-FResult FStateClass::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateClass::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -205,7 +164,7 @@ FResult FStateClass::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FStateClass::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateClass::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -225,12 +184,12 @@ FResult FStateClass::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-EPropertyType FStateStruct::GetType()
+EPropertyReadType FReadStateStruct::GetType()
 {
-	return EPropertyType::StructProperty;
+	return EPropertyReadType::StructProperty;
 }
 
-EDataEntry FStateStruct::Peek()
+EDataEntry FReadStateStruct::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -260,7 +219,7 @@ EDataEntry FStateStruct::Peek()
 	}
 }
 
-FResult FStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -291,7 +250,7 @@ FResult FStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -307,7 +266,7 @@ FResult FStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode Fa
 			OutDatum.Property = Property;
 			OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(StructPtr);
 
-			EndReadValue();
+			EndReadValue();	// this now guarentee success
 			return Ok();
 		}
 		else
@@ -321,7 +280,7 @@ FResult FStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode Fa
 	}
 }
 
-FResult FStateStruct::EndReadValue()
+FResult FReadStateStruct::EndReadValue()
 {
 	if (State == EState::ExpectValue)
 	{
@@ -342,7 +301,7 @@ FResult FStateStruct::EndReadValue()
 	}
 }
 
-FResult FStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -367,7 +326,7 @@ FResult FStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -388,12 +347,12 @@ FResult FStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-EPropertyType FStateMap::GetType()
+EPropertyReadType FReadStateMap::GetType()
 {
-	return EPropertyType::MapProperty;
+	return EPropertyReadType::MapProperty;
 }
 
-EDataEntry FStateMap::Peek()
+EDataEntry FReadStateMap::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -420,7 +379,7 @@ EDataEntry FStateMap::Peek()
 	}
 }
 
-FResult FStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	FPropertyDatum Datum;
 	TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
@@ -433,7 +392,7 @@ FResult FStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return Ok();
 }
 
-FResult FStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -460,7 +419,7 @@ FResult FStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailC
 	return Ok();
 }
 
-FResult FStateMap::EndReadValue()
+FResult FReadStateMap::EndReadValue()
 {
 	if (State == EState::ExpectKey)
 	{
@@ -487,7 +446,7 @@ FResult FStateMap::EndReadValue()
 	}
 }
 
-FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
+FResult FReadStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -516,7 +475,7 @@ FResult FStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 	}
 }
 
-FResult FStateMap::ReadMapEnd(FContextStorage* CtxPtr)
+FResult FReadStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -529,12 +488,12 @@ FResult FStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 	}
 }
 
-EPropertyType FStateArray::GetType()
+EPropertyReadType FReadStateArray::GetType()
 {
-	return EPropertyType::ArrayProperty;
+	return EPropertyReadType::ArrayProperty;
 }
 
-EDataEntry FStateArray::Peek()
+EDataEntry FReadStateArray::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -560,7 +519,7 @@ EDataEntry FStateArray::Peek()
 	}
 }
 
-FResult FStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FReadStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	FPropertyDatum Datum;
 	TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
@@ -573,7 +532,7 @@ FResult FStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return Ok();
 }
 
-FResult FStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -589,7 +548,7 @@ FResult FStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode Fai
 	return Ok();
 }
 
-FResult FStateArray::EndReadValue()
+FResult FReadStateArray::EndReadValue()
 {
 	if (State == EState::ExpectItem)
 	{
@@ -611,7 +570,7 @@ FResult FStateArray::EndReadValue()
 	}
 }
 
-FResult FStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
+FResult FReadStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -638,7 +597,7 @@ FResult FStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
 	}
 }
 
-FResult FStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
+FResult FReadStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{

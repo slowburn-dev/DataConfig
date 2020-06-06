@@ -26,6 +26,7 @@ enum class EErrorCode : uint32
 	WriteUInt64Fail,
 
 	WriteStructRootFail,
+	WriteStructValueFail,
 	WriteStructAfterEnd,
 	WriteStructEndFail,
 
