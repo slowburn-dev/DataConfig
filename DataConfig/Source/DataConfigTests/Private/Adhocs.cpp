@@ -10,7 +10,7 @@
 
 using namespace DataConfig;
 
-void PropertyVisitorRoundtrip__Class()
+void PropertyVisitorRoundtrip()
 {
 	UTestObj_Alpha* Obj = NewObject<UTestObj_Alpha>();
 	Obj->AStr = TEXT("A STR");
@@ -22,15 +22,25 @@ void PropertyVisitorRoundtrip__Class()
 	Obj->AStruct.Names.Emplace(TEXT("Three"));
 	*/
 
+	UTestObj_Alpha* OutObj = NewObject<UTestObj_Alpha>();
+
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
 		FPropertyReader Reader(FPropertyDatum(UTestObj_Alpha::StaticClass(), Obj));
-		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
+		FPropertyWriter WriteWriter(FPropertyDatum(UTestObj_Alpha::StaticClass(), OutObj));
+
+		FWeakCompositeWriter Writer;
+		Writer.Writers.Add(&PrettyPrinter);
+		Writer.Writers.Add(&WriteWriter);
+
+		FPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
-			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
+
 }
 
 void PropertyVisitorRoundtrip__StructStructMap()
@@ -96,7 +106,7 @@ void PropertyVisitorRoundtrip__MapStruct()
 }
 
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip__Basic()
 {
 	FNestStruct1 NestStruct{};
 	NestStruct.AName = FName(TEXT("Nest"));

@@ -88,6 +88,39 @@ struct FWriteStateStruct : public FBaseWriteState
 
 };
 
+struct FWriteStateClass : public FBaseWriteState
+{
+	static const EPropertyWriteType ID = EPropertyWriteType::ClassProperty;
+
+	UObject* ClassObject;
+	UProperty* Property;
+
+	enum class EState
+	{
+		ExpectRoot,
+		ExpectKeyOrEnd,
+		ExpectValue,
+		Ended,
+	};
+	EState State;
+
+	FWriteStateClass(UObject* InClassObject)
+	{
+		ClassObject = InClassObject;
+		Property = nullptr;
+		State = EState::ExpectRoot;
+	}
+
+	EPropertyWriteType GetType() override;
+	FResult Peek(EDataEntry Next) override;
+	FResult WriteName(const FName& Value) override;
+	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+
+	FResult WriteClassRoot(const FName& Name);
+	FResult WriteClassEnd(const FName& Name);
+
+};
+
 
 template<typename TProperty, typename TValue, EErrorCode ErrCode>
 FResult WriteValue(FBaseWriteState& State, const TValue& Value)

@@ -21,6 +21,9 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	FResult WriteStructRoot(const FName& Name) override;
 	FResult WriteStructEnd(const FName& Name) override;
 
+	FResult WriteClassRoot(const FName& Name) override;
+	FResult WriteClassEnd(const FName& Name) override;
+
 	struct FPropertyState
 	{
 		using ImplStorageType = TAlignedStorage<64>::Type;
@@ -28,6 +31,7 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	};
 
 	TArray<FPropertyState, TInlineAllocator<8>> States;
+
 };
 
 

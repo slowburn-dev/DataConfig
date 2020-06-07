@@ -113,6 +113,100 @@ FResult FWriteStateStruct::WriteStructEnd(const FName& Name)
 	}
 }
 
+EPropertyWriteType FWriteStateClass::GetType()
+{
+	return EPropertyWriteType::ClassProperty;
+}
+
+FResult FWriteStateClass::Peek(EDataEntry Next)
+{
+	if (State == EState::ExpectRoot)
+	{
+		return Expect(Next == EDataEntry::ClassRoot, EErrorCode::WriteClassFail);
+	}
+	else if (State == EState::ExpectKeyOrEnd)
+	{
+		return Expect(Next == EDataEntry::ClassEnd || Next == EDataEntry::Name, EErrorCode::WriteClassKeyFail);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		check(Property);
+		return Expect(Next == PropertyToDataEntry(Property), EErrorCode::WriteClassValueFail);
+	}
+	else if (State == EState::Ended)
+	{
+		return Fail(EErrorCode::WriteStructAfterEnd);
+	}
+	else
+	{
+		checkNoEntry();
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+FResult FWriteStateClass::WriteName(const FName& Value)
+{
+	if (State == EState::ExpectKeyOrEnd)
+	{
+		Property = NextPropertyByName(ClassObject->GetClass()->PropertyLink, Value);
+		if (Property == nullptr)
+			return Fail(EErrorCode::WriteClassKeyFail);
+
+		State = EState::ExpectValue;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		TRY((WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value)));
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteNameFail);
+	}
+}
+
+FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+{
+	if (State != EState::ExpectValue)
+		return Fail(EErrorCode::WriteClassValueFail);
+
+	if (!Property->IsA(ExpectedPropertyClass))
+		return Fail(EErrorCode::WriteClassValueFail);
+
+	OutDatum.Property = Property;
+	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(ClassObject);
+
+	State = EState::ExpectKeyOrEnd;
+	return Ok();
+}
+
+FResult FWriteStateClass::WriteClassRoot(const FName& Name)
+{
+	if (State == EState::ExpectRoot)
+	{
+		State = EState::ExpectKeyOrEnd;
+		return Expect(Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassFail);
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteClassFail);
+	}
+}
+
+FResult FWriteStateClass::WriteClassEnd(const FName& Name)
+{
+	if (State == EState::ExpectKeyOrEnd)
+	{
+		State = EState::Ended;
+		return Expect(Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassEndFail);
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteClassEndFail);
+	}
+}
+
 } // namespace DataConfig
 
 

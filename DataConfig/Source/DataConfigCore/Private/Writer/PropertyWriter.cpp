@@ -29,13 +29,11 @@ static FWriteStateNil& PushNilState(FPropertyWriter* Writer) {
 	return Emplace<FWriteStateNil>(GetTopStorage(Writer));
 }
 
-/*
-static void PushClassPropertyState(FPropertyWriter* Writer, UObject* ClassObject, UProperty* Property)
+static FWriteStateClass& PushClassPropertyState(FPropertyWriter* Writer, UObject* InClassObject)
 {
 	Writer->States.AddDefaulted();
-	GetTopState(Writer).Emplace<StateClassProperty>(ClassObject, Property);
+	return Emplace<FWriteStateClass>(GetTopStorage(Writer), InClassObject);
 }
-*/
 
 static FWriteStateStruct& PushStructPropertyState(FPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct)
 {
@@ -68,10 +66,11 @@ FPropertyWriter::FPropertyWriter(FPropertyDatum Datum)
 	{
 		//	pass
 	}
-	else if (Datum.Property->IsA<UClassProperty>())
+	else if (Datum.Property->IsA<UClass>())
 	{
-		//	TODO
-		checkNoEntry();
+		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
+		check(IsValid(Obj));
+		PushClassPropertyState(this, Obj);
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -140,6 +139,43 @@ FResult FPropertyWriter::WriteStructEnd(const FName& Name)
 	else
 	{
 		return Fail(EErrorCode::WriteStructEndFail);
+	}
+}
+
+FResult FPropertyWriter::WriteClassRoot(const FName& Name)
+{
+	FBaseWriteState& TopState = GetTopState(this);
+	{
+		FWriteStateClass* ClassState = TopState.As<FWriteStateClass>();
+		if (ClassState != nullptr
+			&& ClassState->State == FWriteStateClass::EState::ExpectRoot)
+		{
+			return ClassState->WriteClassRoot(Name);
+		}
+	}
+
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.WriteDataEntry(UClassProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
+
+		FWriteStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
+		TRY(ChildClass.WriteClassRoot(Name));
+	}
+
+	return Ok();
+}
+
+FResult FPropertyWriter::WriteClassEnd(const FName& Name)
+{
+	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
+	{
+		TRY(ClassState->WriteClassEnd(Name));
+		PopState<FWriteStateClass>(this);
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteClassEndFail);
 	}
 }
 
