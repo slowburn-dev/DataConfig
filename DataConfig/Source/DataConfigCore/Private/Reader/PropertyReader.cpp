@@ -2,8 +2,8 @@
 #include "CoreMinimal.h"
 #include "Templates/Casts.h"
 #include "DataConfigErrorCodes.h"
-#include "PropretyCommon/PropertyReadStates.h"
-#include "PropretyCommon/PropertyUtils.h"
+#include "PropertyCommon/PropertyReadStates.h"
+#include "PropertyCommon/PropertyUtils.h"
 
 namespace DataConfig {
 
@@ -54,7 +54,7 @@ FReadStateMap& PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr,
 	return Emplace<FReadStateMap>(GetTopStorage(Reader), InMapPtr, InMapProperty);
 }
 
-DataConfig::FReadStateArray& PushArrayPropertyState(FPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
+FReadStateArray& PushArrayPropertyState(FPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FReadStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);

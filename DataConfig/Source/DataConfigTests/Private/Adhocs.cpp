@@ -2,6 +2,7 @@
 #include "Writer/Writer.h"
 #include "Reader/PropertyReader.h"
 #include "Writer/PropertyWriter.h"
+#include "Writer/CompositeWriters.h"
 #include "Writer/PrettyPrintWriter.h"
 #include "UObject/UnrealType.h"
 #include "DataConfigTypes.h"
@@ -9,15 +10,17 @@
 
 using namespace DataConfig;
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip__Class()
 {
 	UTestObj_Alpha* Obj = NewObject<UTestObj_Alpha>();
 	Obj->AStr = TEXT("A STR");
 	Obj->AStruct.ABool = false;
 	Obj->AStruct.AStr = "A Struct STr";
+	/*
 	Obj->AStruct.Names.Emplace(TEXT("One"));
 	Obj->AStruct.Names.Emplace(TEXT("Two"));
 	Obj->AStruct.Names.Emplace(TEXT("Three"));
+	*/
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
@@ -93,7 +96,7 @@ void PropertyVisitorRoundtrip__MapStruct()
 }
 
 
-void PropertyVisitorRoundtrip__Basic()
+void PropertyVisitorRoundtrip()
 {
 	FNestStruct1 NestStruct{};
 	NestStruct.AName = FName(TEXT("Nest"));
@@ -103,28 +106,24 @@ void PropertyVisitorRoundtrip__Basic()
 	StructAlpha.AName = FName(TEXT("ALPHA"));
 	StructAlpha.AStr = FString(TEXT("A L P H A"));
 
-	/*
+
 	FNestStruct1 OutStruct{};
 
 	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
 		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-		FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+		FPropertyWriter WriteWriter(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+
+		FWeakCompositeWriter Writer;
+		Writer.Writers.Add(&PrettyPrinter);
+		Writer.Writers.Add(&WriteWriter);
 
 		FPipeVisitor RoundtripVisit(&Reader, &Writer);
 		FResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
-	}
-	*/
-
-	{
-		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-
-		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-		//FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
-		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
-		PrettyPrintVisit.PipeVisit();
 	}
 }
 

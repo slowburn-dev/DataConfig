@@ -13,7 +13,7 @@ struct FTestStruct_Alpha
 	UPROPERTY(EditAnywhere) bool ABool;
 	UPROPERTY(EditAnywhere) FString AStr;
 
-	UPROPERTY(EditAnywhere) TArray<FName> Names;
+	//UPROPERTY(EditAnywhere) TArray<FName> Names;
 };
 
 UCLASS()

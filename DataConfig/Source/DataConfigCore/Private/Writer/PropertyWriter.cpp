@@ -1,50 +1,46 @@
 #include "Writer/PropertyWriter.h"
-#include "PropretyCommon/PropertyStates.h"
-#include "PropretyCommon/PropertyWriteStates.h"
+#include "PropertyCommon/PropertyWriteStates.h"
 
 namespace DataConfig {
 
-static FORCEINLINE WriterState& GetTopState(FPropertyWriter* Self)
+static FORCEINLINE FBaseWriteState& GetTopState(FPropertyWriter* Self)
 {
-	return *reinterpret_cast<WriterState*>(&Self->States.Top().ImplStorage);
+	return *reinterpret_cast<FBaseWriteState*>(&Self->States.Top().ImplStorage);
+}
+
+using WriterStorageType = FPropertyWriter::FPropertyState::ImplStorageType;
+static FORCEINLINE WriterStorageType* GetTopStorage(FPropertyWriter* Self)
+{
+	return &Self->States.Top().ImplStorage;
 }
 
 template<typename TState>
 static TState& GetTopState(FPropertyWriter* Self) {
-	return GetTopState(Self).Get<TState>();
+	return *GetTopState(Self).As<TState>();
 }
 
 template<typename TState>
 static TState* TryGetTopState(FPropertyWriter* Self) {
-	return GetTopState(Self).TryGet<TState>();
+	return GetTopState(Self).As<TState>();
 }
 
-static void PushNilState(FPropertyWriter* Writer) {
+static FWriteStateNil& PushNilState(FPropertyWriter* Writer) {
 	Writer->States.AddDefaulted();
+	return Emplace<FWriteStateNil>(GetTopStorage(Writer));
 }
 
-static void PushClassRootState(FPropertyWriter* Writer, UObject* ClassObject)
-{
-	Writer->States.AddDefaulted();
-	GetTopState(Writer).Emplace<StateClassRoot>(ClassObject);
-}
-
-static void PushStructRootState(FPropertyWriter* Writer, void* StructPtr, UScriptStruct* StructClass)
-{
-	Writer->States.AddDefaulted();
-	GetTopState(Writer).Emplace<StateStructRoot>(StructPtr, StructClass);
-}
-
+/*
 static void PushClassPropertyState(FPropertyWriter* Writer, UObject* ClassObject, UProperty* Property)
 {
 	Writer->States.AddDefaulted();
 	GetTopState(Writer).Emplace<StateClassProperty>(ClassObject, Property);
 }
+*/
 
-static void PushStructPropertyState(FPropertyWriter* Writer, void* StructPtr, UScriptStruct* StructClass, UProperty* Property)
+static FWriteStateStruct& PushStructPropertyState(FPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct)
 {
 	Writer->States.AddDefaulted();
-	GetTopState(Writer).Emplace<StateStructProperty>(StructPtr, StructClass, Property);
+	return Emplace<FWriteStateStruct>(GetTopStorage(Writer), InStructPtr, InStructStruct);
 }
 
 static void PopState(FPropertyWriter* Writer)
@@ -53,96 +49,11 @@ static void PopState(FPropertyWriter* Writer)
 	check(Writer->States.Num() >= 1);
 }
 
-template<typename TPrimitive, typename TProperty, EErrorCode ErrCode>
-FResult TryWritePrimitive(FPropertyWriter* Writer, const TPrimitive& Value)
+template<typename TState>
+static void PopState(FPropertyWriter* Writer)
 {
-	if (GetTopState(Writer).IsType<StateNil>())
-	{
-		return Fail(EErrorCode::WriteAfterEnded);
-	}
-	else if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(Writer))
-	{
-		if (TProperty* WriteProperty = Cast<TProperty>(ClassPropertyState->Property))
-		{
-			WriteProperty->SetPropertyValue(ClassPropertyState->ClassObject, Value);
-			return Ok();
-		}
-		else
-		{
-			return Fail(ErrCode);
-		}
-	}
-	else if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(Writer))
-	{
-		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
-		{
-			//	should be already handled in `WriteName` 
-			return Fail(EErrorCode::WriteStructKeyFail);
-		}
-		else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
-		{
-			if (TProperty* WriteProperty = Cast<TProperty>(StructPropertyState->Property))
-			{
-				WriteProperty->SetPropertyValue(
-					WriteProperty->ContainerPtrToValuePtr<TPrimitive>(StructPropertyState->StructPtr),
-					Value
-				);
-				//	note that this is now expect key OR expect end
-				StructPropertyState->State = StateStructProperty::EState::ExpectKey;
-				return Ok();
-			}
-			else
-			{
-				return Fail(ErrCode);
-			}
-		}
-		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
-		{
-			return Fail(EErrorCode::WriteStructEndFail);
-		}
-		checkNoEntry();
-	}
-	else if (StatePrimitive* PrimitiveState = TryGetTopState<StatePrimitive>(Writer))
-	{
-		if (TProperty* WriteProperty = Cast<TProperty>(PrimitiveState->Property))
-		{
-			WriteProperty->SetPropertyValue(PrimitiveState->PrimitivePtr, Value);
-		}
-		else
-		{
-			return Fail(ErrCode);
-		}
-	}
-
-	return Fail(EErrorCode::UnknownError);
-}
-
-
-static FResult FinishTopStateValueWrite(FPropertyWriter* Writer)
-{
-	if (StateNil* NilState = TryGetTopState<StateNil>(Writer))
-	{
-		return Ok();
-	}
-	else if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(Writer))
-	{
-		//	TODO
-		return Ok();
-	}
-	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(Writer))
-	{
-		if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
-		{
-			StructPropertyState->State = StateStructProperty::EState::ExpectKey;
-			return Ok();
-		}
-		else
-		{
-			return Fail(EErrorCode::UnknownError);
-		}
-	}
-
-	return Fail(EErrorCode::UnknownError);
+	check(TState::ID == GetTopState(Writer).GetType());
+	PopState(Writer);
 }
 
 FPropertyWriter::FPropertyWriter()
@@ -159,13 +70,12 @@ FPropertyWriter::FPropertyWriter(FPropertyDatum Datum)
 	}
 	else if (Datum.Property->IsA<UClassProperty>())
 	{
-		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
-		check(IsValid(Obj));
-		PushClassRootState(this, Obj);
+		//	TODO
+		checkNoEntry();
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
-		PushStructRootState(this,
+		PushStructPropertyState(this,
 			Datum.DataPtr,
 			CastChecked<UScriptStruct>(Datum.Property)
 		);
@@ -178,155 +88,59 @@ FPropertyWriter::FPropertyWriter(FPropertyDatum Datum)
 
 FResult FPropertyWriter::Peek(EDataEntry Next)
 {
-	if (StateNil* NilState = TryGetTopState<StateNil>(this))
-	{
-		return FailIf(Next != EDataEntry::Ended, EErrorCode::WriteEndFail);
-	}
-	else if (StatePrimitive* PrimtiveState = TryGetTopState<StatePrimitive>(this))
-	{
-		return FailIf(PropertyToDataEntry(PrimtiveState->Property) != Next, GetWriteErrorCode(Next));
-	}
-	else if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(this))
-	{
-		return FailIf(PropertyToDataEntry(ClassPropertyState->Property) != Next, GetWriteErrorCode(Next));
-	}
-	else if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
-	{
-		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
-		{
-			//	OK to end in waiting key
-			if (Next == EDataEntry::StructEnd)
-				return Ok();
-			return FailIf(EDataEntry::Name != Next, EErrorCode::WriteStructKeyFail);
-		}
-		else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
-		{
-			return FailIf(PropertyToDataEntry(StructPropertyState->Property) != Next, GetWriteErrorCode(Next));
-		}
-		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
-		{
-			return FailIf(EDataEntry::StructEnd != Next, EErrorCode::WriteStructEndFail);
-		}
-	}
-	else if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
-	{
-		return FailIf(EDataEntry::StructRoot != Next, EErrorCode::WriteStructRootFail);
-	}
-
-	return Fail(EErrorCode::UnknownError);
+	return GetTopState(this).Peek(Next);
 }
 
 FResult FPropertyWriter::WriteBool(bool Value)
 {
-	return TryWritePrimitive<bool, UBoolProperty, EErrorCode::WriteBoolFail>(this, Value);
+	return WriteValue<UBoolProperty, bool, EErrorCode::WriteBoolFail>(GetTopState(this), Value);
 }
 
 FResult FPropertyWriter::WriteName(const FName& Value)
 {
-	if (StateClassProperty* ClassPropertyState = TryGetTopState<StateClassProperty>(this))
-	{
-		//	TODO
-		return TryWritePrimitive<FName, UNameProperty, EErrorCode::WriteNameFail>(this, Value);
-	}
-	else if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
-	{
-		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
-		{
-			//	actually not writing anything, just selecting property to write
-			//	TODO always starting from first for now
-			UProperty* TargetProperty = NextPropertyByName(StructPropertyState->StructClass->PropertyLink, Value);
-			if (TargetProperty == nullptr)
-			{
-				return Fail(EErrorCode::WriteStructKeyFail);
-			}
-			else
-			{
-				StructPropertyState->Property = TargetProperty;
-				StructPropertyState->State = StateStructProperty::EState::ExpectValue;
-			}
-			return Ok();
-		}
-	}
-
-	return TryWritePrimitive<FName, UNameProperty, EErrorCode::WriteNameFail>(this, Value);
+	return GetTopState(this).WriteName(Value);
 }
 
 FResult FPropertyWriter::WriteString(const FString& Value)
 {
-	return TryWritePrimitive<FString, UStrProperty, EErrorCode::WriteStringFail>(this, Value);
+	return WriteValue<UStrProperty, FString, EErrorCode::WriteStringFail>(GetTopState(this), Value);
 }
 
 FResult FPropertyWriter::WriteStructRoot(const FName& Name)
 {
-	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
+	FBaseWriteState& TopState = GetTopState(this);
 	{
-		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
+		FWriteStateStruct* StructState = TopState.As<FWriteStateStruct>();
+		if (StructState != nullptr
+			&& StructState->State == FWriteStateStruct::EState::ExpectRoot)
 		{
-			return Fail(EErrorCode::ReadStructKeyFail);
+			return StructState->WriteStructRoot(Name);
 		}
-		else if (StructPropertyState->State == StateStructProperty::EState::ExpectValue)
-		{
-			if (UStructProperty* StructProperty = Cast<UStructProperty>(StructPropertyState->Property))
-			{
-				PushStructRootState(this,
-					StructProperty->ContainerPtrToValuePtr<void>(StructPropertyState->StructPtr),
-					StructProperty->Struct
-				);
-				StateStructRoot& StructRootRef = GetTopState<StateStructRoot>(this);
-				PushStructPropertyState(this, StructRootRef.StructPtr, StructRootRef.StructClass, nullptr);
-				return Ok();
-			}
-			else 
-			{
-				return Fail(EErrorCode::WriteStructRootFail);
-			}
-		}
-		else if (StructPropertyState->State == StateStructProperty::EState::Ended)
-		{
-			return Fail(EErrorCode::WriteStructAfterEnd);
-		}
-	}
-	else if (StateStructRoot* StructRootState = TryGetTopState<StateStructRoot>(this))
-	{
-		//	TODO check the Name against struct name
-		PushStructPropertyState(this,
-			StructRootState->StructPtr,
-			StructRootState->StructClass,
-			nullptr	// write null as the key is determined at next write
-		);
-		return Ok();
 	}
 
-	return Fail(EErrorCode::WriteStructRootFail);
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.WriteDataEntry(UStructProperty::StaticClass(), EErrorCode::WriteStructRootFail, Datum));
+			
+		FWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.As<UStructProperty>()->Struct);
+		TRY(ChildStruct.WriteStructRoot(Name));
+	}
+
+	return Ok();
 }
 
 FResult FPropertyWriter::WriteStructEnd(const FName& Name)
 {
-	if (StateStructProperty* StructPropertyState = TryGetTopState<StateStructProperty>(this))
+	if (FWriteStateStruct* StructState = TryGetTopState<FWriteStateStruct>(this))
 	{
-		if (StructPropertyState->State == StateStructProperty::EState::ExpectKey)
-		{
-			//	TODO check the Name against struct name
-			PopState(this);
-			PopState(this);
-			return FinishTopStateValueWrite(this);
-		}
-		else if (StructPropertyState->State == StateStructProperty::EState::Ended
-			|| StructPropertyState->State == StateStructProperty::EState::ExpectValue)
-		{
-			return Fail(EErrorCode::WriteStructEndFail);
-		}
+		TRY(StructState->WriteStructEnd(Name));
+		PopState<FWriteStateStruct>(this);
+		return Ok();
 	}
-
-
-	return Fail(EErrorCode::WriteStructEndFail);
-}
-
-FPropertyWriter::FPropertyState::FPropertyState()
-{
-	static_assert(sizeof(FPropertyState) <= 64, "larger than cacheline");
-	static_assert(sizeof(WriterState) <= sizeof(FPropertyState), "impl storage size too small");
-	new(&ImplStorage) ReaderState(TInPlaceType<StateNil>{});
+	else
+	{
+		return Fail(EErrorCode::WriteStructEndFail);
+	}
 }
 
 } // namespace DataConfig
