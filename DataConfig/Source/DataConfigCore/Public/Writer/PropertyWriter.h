@@ -27,6 +27,8 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	FResult WriteMapRoot() override;
 	FResult WriteMapEnd() override;
 
+	FResult WriteArrayRoot() override;
+	FResult WriteArrayEnd() override;
 
 	struct FPropertyState
 	{
@@ -35,7 +37,6 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	};
 
 	TArray<FPropertyState, TInlineAllocator<8>> States;
-
 
 };
 

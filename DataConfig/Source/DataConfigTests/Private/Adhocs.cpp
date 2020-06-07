@@ -10,17 +10,15 @@
 
 using namespace DataConfig;
 
-void PropertyVisitorRoundtrip__ClassObj()
+void PropertyVisitorRoundtrip()
 {
 	UTestObj_Alpha* Obj = NewObject<UTestObj_Alpha>();
 	Obj->AStr = TEXT("A STR");
 	Obj->AStruct.ABool = false;
 	Obj->AStruct.AStr = "A Struct STr";
-	/*
 	Obj->AStruct.Names.Emplace(TEXT("One"));
 	Obj->AStruct.Names.Emplace(TEXT("Two"));
 	Obj->AStruct.Names.Emplace(TEXT("Three"));
-	*/
 
 	UTestObj_Alpha* OutObj = NewObject<UTestObj_Alpha>();
 
@@ -43,7 +41,7 @@ void PropertyVisitorRoundtrip__ClassObj()
 
 }
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip__StructStruct()
 {
 	FMapOfStruct2 St{};
 	St.StructStructMap.Add(

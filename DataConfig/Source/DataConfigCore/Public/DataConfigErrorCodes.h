@@ -42,6 +42,7 @@ enum class EErrorCode : uint32
 	WriteMapAfterEnd,
 
 	WriteArrayFail,
+	WriteArrayAfterEnd,
 	WriteArrayEndFail,
 
 	//	Writer

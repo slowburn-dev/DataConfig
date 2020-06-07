@@ -47,6 +47,12 @@ static FWriteStateMap& PushMappingPropertyState(FPropertyWriter* Writer, void* I
 	return Emplace<FWriteStateMap>(GetTopStorage(Writer), InMapPtr, InMapProperty);
 }
 
+static FWriteStateArray& PushArrayPropertyState(FPropertyWriter* Writer, void* InArrayPtr, UArrayProperty* InArrayProperty)
+{
+	Writer->States.AddDefaulted();
+	return Emplace<FWriteStateArray>(GetTopStorage(Writer), InArrayPtr, InArrayProperty);
+}
+
 static void PopState(FPropertyWriter* Writer)
 {
 	Writer->States.Pop();
@@ -219,6 +225,43 @@ FResult FPropertyWriter::WriteMapEnd()
 	else
 	{
 		return Fail(EErrorCode::WriteMapEndFail);
+	}
+}
+
+FResult FPropertyWriter::WriteArrayRoot()
+{
+	FBaseWriteState& TopState = GetTopState(this);
+	{
+		FWriteStateArray* ArrayState = TopState.As<FWriteStateArray>();
+		if (ArrayState != nullptr
+			&& ArrayState->State == FWriteStateArray::EState::ExpectRoot)
+		{
+			return ArrayState->WriteArrayRoot();
+		}
+	}
+
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.WriteDataEntry(UArrayProperty::StaticClass(), EErrorCode::WriteArrayFail, Datum));
+
+		FWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.As<UArrayProperty>());
+		TRY(ChildArray.WriteArrayRoot());
+	}
+
+	return Ok();
+}
+
+FResult FPropertyWriter::WriteArrayEnd()
+{
+	if (FWriteStateArray* ArrayState = TryGetTopState<FWriteStateArray>(this))
+	{
+		TRY(ArrayState->WriteArrayEnd());
+		PopState<FWriteStateArray>(this);
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteArrayEndFail);
 	}
 }
 

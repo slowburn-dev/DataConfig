@@ -310,6 +310,77 @@ FResult FWriteStateMap::WriteMapEnd()
 	}
 }
 
+EPropertyWriteType FWriteStateArray::GetType()
+{
+	return EPropertyWriteType::ArrayProperty;
+}
+
+FResult FWriteStateArray::Peek(EDataEntry Next)
+{
+	if (State == EState::ExpectRoot)
+	{
+		return Expect(Next == EDataEntry::ArrayRoot, EErrorCode::WriteArrayFail);
+	}
+	else if (State == EState::ExpectItemOrEnd)
+	{
+		return Expect(Next == EDataEntry::ArrayEnd || Next == PropertyToDataEntry(ArrayProperty->Inner), EErrorCode::WriteArrayFail);
+	}
+	else if (State == EState::Ended)
+	{
+		return Fail(EErrorCode::WriteArrayFail);
+	}
+	else
+	{
+		checkNoEntry();
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+FResult FWriteStateArray::WriteName(const FName& Value)
+{
+	return WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value);
+}
+
+FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+{
+	if (State != EState::ExpectItemOrEnd)
+		return Fail(FailCode);
+
+	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
+	ArrayHelper.AddValue();
+	OutDatum.Property = ArrayProperty->Inner;
+	OutDatum.DataPtr = ArrayHelper.GetRawPtr(Index);
+
+	++Index;
+	return Ok();
+}
+
+FResult FWriteStateArray::WriteArrayRoot()
+{
+	if (State == EState::ExpectRoot)
+	{
+		State = EState::ExpectItemOrEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteArrayFail);
+	}
+}
+
+FResult FWriteStateArray::WriteArrayEnd()
+{
+	if (State == EState::ExpectItemOrEnd)
+	{
+		State = EState::Ended;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteArrayEndFail);
+	}
+}
+
 } // namespace DataConfig
 
 

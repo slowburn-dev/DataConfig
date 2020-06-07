@@ -159,6 +159,39 @@ struct FWriteStateMap : public FBaseWriteState
 
 };
 
+struct FWriteStateArray : public FBaseWriteState
+{
+	static const EPropertyWriteType ID = EPropertyWriteType::ArrayProperty;
+
+	void* ArrayPtr;
+	UArrayProperty* ArrayProperty;
+	uint16 Index;
+
+	enum class EState : uint16
+	{
+		ExpectRoot,
+		ExpectItemOrEnd,
+		Ended,
+	};
+	EState State;
+
+	FWriteStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
+	{
+		ArrayPtr = InArrayPtr;
+		ArrayProperty = InArrayProperty;
+		State = EState::ExpectRoot;
+		Index = 0;
+	}
+
+	EPropertyWriteType GetType() override;
+	FResult Peek(EDataEntry Next) override;
+	FResult WriteName(const FName& Value) override;
+	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+
+	FResult WriteArrayRoot();
+	FResult WriteArrayEnd();
+};
+
 
 
 template<typename TProperty, typename TValue, EErrorCode ErrCode>
