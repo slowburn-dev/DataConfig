@@ -207,6 +207,109 @@ FResult FWriteStateClass::WriteClassEnd(const FName& Name)
 	}
 }
 
+EPropertyWriteType FWriteStateMap::GetType()
+{
+	return EPropertyWriteType::MapProperty;
+}
+
+FResult FWriteStateMap::Peek(EDataEntry Next)
+{
+	if (State == EState::ExpectRoot)
+	{
+		return Expect(Next == EDataEntry::MapRoot, EErrorCode::WriteMapFail);
+	}
+	else if (State == EState::ExpectKeyOrEnd)
+	{
+		check(MapProperty);
+		return Expect(Next == EDataEntry::MapEnd || Next == PropertyToDataEntry(MapProperty->KeyProp), EErrorCode::WriteMapKeyFail);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		check(MapProperty);
+		return Expect(Next == PropertyToDataEntry(MapProperty->ValueProp), EErrorCode::WriteMapValueFail);
+	}
+	else if (State == EState::Ended)
+	{
+		return Fail(EErrorCode::WriteMapAfterEnd);
+	}
+	else
+	{
+		checkNoEntry();
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+FResult FWriteStateMap::WriteName(const FName& Value)
+{
+	return WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value);
+}
+
+FResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+{
+	if (State == EState::ExpectKeyOrEnd)
+	{
+		FScriptMapHelper MapHelper(MapProperty, MapPtr);
+		//	crucial to construct, future write is copy assignment
+		MapHelper.AddDefaultValue_Invalid_NeedsRehash();
+		bNeedsRehash = true;
+		MapHelper.GetKeyPtr(Index);
+
+		OutDatum.Property = MapHelper.GetKeyProperty();
+		OutDatum.DataPtr = MapHelper.GetKeyPtr(Index);
+
+		State = EState::ExpectValue;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		FScriptMapHelper MapHelper(MapProperty, MapPtr);
+
+		OutDatum.Property = MapHelper.GetValueProperty();
+		OutDatum.DataPtr = MapHelper.GetValuePtr(Index);
+
+		++Index;
+		State = EState::ExpectKeyOrEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(FailCode);
+	}
+}
+
+FResult FWriteStateMap::WriteMapRoot()
+{
+	if (State == EState::ExpectRoot)
+	{
+		State = EState::ExpectKeyOrEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteMapFail);
+	}
+}
+
+FResult FWriteStateMap::WriteMapEnd()
+{
+	if (State == EState::ExpectKeyOrEnd)
+	{
+		State = EState::Ended;
+
+		if (bNeedsRehash)
+		{
+			FScriptMapHelper MapHelper(MapProperty, MapPtr);
+			MapHelper.Rehash();
+		}
+
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteMapEndFail);
+	}
+}
+
 } // namespace DataConfig
 
 

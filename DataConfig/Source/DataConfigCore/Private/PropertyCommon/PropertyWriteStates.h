@@ -121,6 +121,45 @@ struct FWriteStateClass : public FBaseWriteState
 
 };
 
+struct FWriteStateMap : public FBaseWriteState
+{
+	static const EPropertyWriteType ID = EPropertyWriteType::MapProperty;
+
+	void* MapPtr;
+	UMapProperty* MapProperty;
+	uint16 Index;
+
+	enum class EState : uint8
+	{
+		ExpectRoot,
+		ExpectKeyOrEnd,
+		ExpectValue,
+		Ended
+	};
+	EState State;
+
+	bool bNeedsRehash;
+
+	FWriteStateMap(void* InMapPtr, UMapProperty* InMapProperty)
+	{
+		MapPtr = InMapPtr;
+		MapProperty = InMapProperty;
+		Index = 0;
+		State = EState::ExpectRoot;
+		bNeedsRehash = false;
+	}
+
+	EPropertyWriteType GetType() override;
+	FResult Peek(EDataEntry Next) override;
+	FResult WriteName(const FName& Value) override;
+	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+
+	FResult WriteMapRoot();
+	FResult WriteMapEnd();
+
+};
+
+
 
 template<typename TProperty, typename TValue, EErrorCode ErrCode>
 FResult WriteValue(FBaseWriteState& State, const TValue& Value)

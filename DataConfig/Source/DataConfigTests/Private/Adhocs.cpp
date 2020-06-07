@@ -10,7 +10,7 @@
 
 using namespace DataConfig;
 
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip__ClassObj()
 {
 	UTestObj_Alpha* Obj = NewObject<UTestObj_Alpha>();
 	Obj->AStr = TEXT("A STR");
@@ -43,7 +43,7 @@ void PropertyVisitorRoundtrip()
 
 }
 
-void PropertyVisitorRoundtrip__StructStructMap()
+void PropertyVisitorRoundtrip()
 {
 	FMapOfStruct2 St{};
 	St.StructStructMap.Add(
@@ -56,31 +56,49 @@ void PropertyVisitorRoundtrip__StructStructMap()
 		{ TEXT("Value2"), true, TEXT("Fuck") }
 	);
 
+	FMapOfStruct2 OutSt{};
+
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
 		FPropertyReader Reader(FPropertyDatum(FMapOfStruct2::StaticStruct(), &St));
-		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
+		FPropertyWriter WriteWriter(FPropertyDatum(FMapOfStruct2::StaticStruct(), &OutSt));
+
+		FWeakCompositeWriter Writer;
+		Writer.Writers.Add(&PrettyPrinter);
+		Writer.Writers.Add(&WriteWriter);
+
+		FPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
-			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
 }
 
-void PropertyVisitorRoundtrip__StructContainsMapContainsStruct()
+void PropertyVisitorRoundtrip__StructHasMap()
 {
 	FMapOfStruct1 MapOfStruct{};
 	MapOfStruct.StrStructMap.Add(TEXT("First"), { TEXT("What"), });
 	MapOfStruct.StrStructMap.Add(TEXT("Second"), { TEXT("What"), true, TEXT("Fuck") });
 
+	FMapOfStruct1 Out;
+
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
 		FPropertyReader Reader(FPropertyDatum(FMapOfStruct1::StaticStruct(), &MapOfStruct));
-		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
+		FPropertyWriter WriteWriter(FPropertyDatum(FMapOfStruct1::StaticStruct(), &Out));
+
+		FWeakCompositeWriter Writer;
+		Writer.Writers.Add(&PrettyPrinter);
+		Writer.Writers.Add(&WriteWriter);
+
+		FPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
-			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
 }
 

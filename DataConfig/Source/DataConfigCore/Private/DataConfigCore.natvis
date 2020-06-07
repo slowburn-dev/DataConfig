@@ -6,16 +6,16 @@
   <!-- ref: https://github.com/bitshares/bitshares-fc/blob/master/fc.natvis -->
   <!-- the key is `DisplayName` has {} and `Item` don't -->
   <Type Name="TArray&lt;DataConfig::FPropertyReader::FPropertyState,*&gt;::ElementType">
-    <DisplayString>{*(DataConfig::FBaseState*)(&amp;ImplStorage.Data)}</DisplayString>
+    <DisplayString>{*(DataConfig::FBaseReadState*)(&amp;ImplStorage.Data)}</DisplayString>
     <Expand>
-      <Item Name="ReaderState">*(DataConfig::FBaseState*)(&amp;ImplStorage.Data)</Item>
+      <Item Name="State">*(DataConfig::FBaseReadState*)(&amp;ImplStorage.Data)</Item>
     </Expand>
   </Type>
 
   <Type Name="TArray&lt;DataConfig::FPropertyWriter::FPropertyState,*&gt;::ElementType">
-    <DisplayString>{*(DataConfig::FBaseState*)(&amp;ImplStorage.Data)}</DisplayString>
+    <DisplayString>{*(DataConfig::FBaseWriteState*)(&amp;ImplStorage.Data)}</DisplayString>
     <Expand>
-      <Item Name="Variant">*(DataConfig::FBaseState*)(&amp;ImplStorage.Data)</Item>
+      <Item Name="State">*(DataConfig::FBaseWriteState*)(&amp;ImplStorage.Data)</Item>
     </Expand>
   </Type>
 

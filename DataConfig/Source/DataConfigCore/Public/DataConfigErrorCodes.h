@@ -36,7 +36,10 @@ enum class EErrorCode : uint32
 	WriteClassEndFail,
 
 	WriteMapFail,
+	WriteMapKeyFail,
+	WriteMapValueFail,
 	WriteMapEndFail,
+	WriteMapAfterEnd,
 
 	WriteArrayFail,
 	WriteArrayEndFail,

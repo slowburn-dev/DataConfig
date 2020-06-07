@@ -41,6 +41,12 @@ static FWriteStateStruct& PushStructPropertyState(FPropertyWriter* Writer, void*
 	return Emplace<FWriteStateStruct>(GetTopStorage(Writer), InStructPtr, InStructStruct);
 }
 
+static FWriteStateMap& PushMappingPropertyState(FPropertyWriter* Writer, void* InMapPtr, UMapProperty* InMapProperty)
+{
+	Writer->States.AddDefaulted();
+	return Emplace<FWriteStateMap>(GetTopStorage(Writer), InMapPtr, InMapProperty);
+}
+
 static void PopState(FPropertyWriter* Writer)
 {
 	Writer->States.Pop();
@@ -176,6 +182,43 @@ FResult FPropertyWriter::WriteClassEnd(const FName& Name)
 	else
 	{
 		return Fail(EErrorCode::WriteClassEndFail);
+	}
+}
+
+FResult FPropertyWriter::WriteMapRoot()
+{
+	FBaseWriteState& TopState = GetTopState(this);
+	{
+		FWriteStateMap* MapState = TopState.As<FWriteStateMap>();
+		if (MapState != nullptr
+			&& MapState->State == FWriteStateMap::EState::ExpectRoot)
+		{
+			return MapState->WriteMapRoot();
+		}
+	}
+
+	{
+		FPropertyDatum Datum;
+		TRY(TopState.WriteDataEntry(UMapProperty::StaticClass(), EErrorCode::WriteMapFail, Datum));
+
+		FWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.As<UMapProperty>());
+		TRY(ChildMap.WriteMapRoot());
+	}
+
+	return Ok();
+}
+
+FResult FPropertyWriter::WriteMapEnd()
+{
+	if (FWriteStateMap* MapState = TryGetTopState<FWriteStateMap>(this))
+	{
+		TRY(MapState->WriteMapEnd());
+		PopState<FWriteStateMap>(this);
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteMapEndFail);
 	}
 }
 

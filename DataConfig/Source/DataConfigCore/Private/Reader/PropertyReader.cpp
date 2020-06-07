@@ -180,7 +180,7 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 	}
 }
 
-DataConfig::FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	FBaseReadState& TopState = GetTopState(this);
 	{
@@ -204,7 +204,7 @@ DataConfig::FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextSt
 	return Ok();
 }
 
-DataConfig::FResult FPropertyReader::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FPropertyReader::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
 	{
