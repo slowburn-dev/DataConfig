@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DataConfigTypes.h"
+#include "DcTypes.h"
 
 namespace DataConfig
 {

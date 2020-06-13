@@ -1,6 +1,6 @@
-#include "PropertyWriteStates.h"
-#include "DataConfigTypes.h"
-#include "PropertyUtils.h"
+#include "DcPropertyWriteStates.h"
+#include "DcTypes.h"
+#include "DcPropertyUtils.h"
 
 namespace DataConfig
 {

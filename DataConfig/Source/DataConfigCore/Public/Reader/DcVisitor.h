@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Misc/Optional.h"
-#include "DataConfigTypes.h"
+#include "DcTypes.h"
 
 namespace DataConfig
 {

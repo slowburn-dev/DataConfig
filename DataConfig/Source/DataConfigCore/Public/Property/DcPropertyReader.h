@@ -1,9 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DataConfigTypes.h"
-#include "Property/PropertyDatum.h"
-#include "Reader/Reader.h"
+#include "DcTypes.h"
+#include "Property/DcPropertyDatum.h"
+#include "Reader/DcReader.h"
 
 class UProperty;
 

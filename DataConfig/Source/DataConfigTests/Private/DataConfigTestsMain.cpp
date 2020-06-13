@@ -1,7 +1,7 @@
 #include "CoreMinimal.h"
 #include "Misc/CompilationResult.h"
 #include "Misc/ScopeExit.h"
-#include "DataConfigTypes.h"
+#include "DcTypes.h"
 #include "RequiredProgramMainCPPInclude.h"
 
 #include "Adhocs.h"

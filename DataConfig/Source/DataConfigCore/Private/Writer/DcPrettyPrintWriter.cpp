@@ -1,4 +1,4 @@
-#include "Writer/PrettyPrintWriter.h"
+#include "Writer/DcPrettyPrintWriter.h"
 #include "Misc/OutputDevice.h"
 
 namespace DataConfig

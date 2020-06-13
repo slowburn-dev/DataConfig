@@ -1,5 +1,5 @@
-#include "Property/PropertyWriter.h"
-#include "Property/PropertyWriteStates.h"
+#include "Property/DcPropertyWriter.h"
+#include "Property/DcPropertyWriteStates.h"
 
 namespace DataConfig {
 

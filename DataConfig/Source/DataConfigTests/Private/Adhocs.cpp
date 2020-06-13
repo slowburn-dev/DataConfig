@@ -1,12 +1,12 @@
 #include "Adhocs.h"
-#include "Writer/Writer.h"
-#include "Property/PropertyReader.h"
-#include "Property/PropertyWriter.h"
-#include "Writer/CompositeWriters.h"
-#include "Writer/PrettyPrintWriter.h"
+#include "Writer/DcWriter.h"
+#include "Property/DcPropertyReader.h"
+#include "Property/DcPropertyWriter.h"
+#include "Writer/DcCompositeWriters.h"
+#include "Writer/DcPrettyPrintWriter.h"
 #include "UObject/UnrealType.h"
-#include "DataConfigTypes.h"
-#include "DataConfigErrorCodes.h"
+#include "DcTypes.h"
+#include "DcErrorCodes.h"
 
 using namespace DataConfig;
 

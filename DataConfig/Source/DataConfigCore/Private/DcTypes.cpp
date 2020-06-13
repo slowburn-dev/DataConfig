@@ -1,5 +1,5 @@
-#include "DataConfigTypes.h"
-#include "DataConfigErrorCodes.h"
+#include "DcTypes.h"
+#include "DcErrorCodes.h"
 
 DEFINE_LOG_CATEGORY(LogDataConfigCore);
 

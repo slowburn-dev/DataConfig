@@ -1,9 +1,9 @@
-#include "Property/PropertyReader.h"
+#include "Property/DcPropertyReader.h"
 #include "CoreMinimal.h"
 #include "Templates/Casts.h"
-#include "DataConfigErrorCodes.h"
-#include "Property/PropertyReadStates.h"
-#include "Property/PropertyUtils.h"
+#include "DcErrorCodes.h"
+#include "Property/DcPropertyReadStates.h"
+#include "Property/DcPropertyUtils.h"
 
 namespace DataConfig {
 

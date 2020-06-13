@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Writer/Writer.h"
+#include "Writer/DcWriter.h"
 
 namespace DataConfig
 {

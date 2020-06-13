@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Reader/Reader.h"
-#include "Writer/Writer.h"
+#include "Reader/DcReader.h"
+#include "Writer/DcWriter.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
