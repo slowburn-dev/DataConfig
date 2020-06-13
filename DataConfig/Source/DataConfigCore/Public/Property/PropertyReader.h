@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "DataConfigTypes.h"
-#include "PropertyCommon/PropertyDatum.h"
+#include "Property/PropertyDatum.h"
 #include "Reader/Reader.h"
 
 class UProperty;

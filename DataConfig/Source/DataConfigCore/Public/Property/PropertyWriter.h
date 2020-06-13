@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PropertyCommon/PropertyDatum.h"
+#include "Property/PropertyDatum.h"
 #include "Writer/Writer.h"
 
 namespace DataConfig

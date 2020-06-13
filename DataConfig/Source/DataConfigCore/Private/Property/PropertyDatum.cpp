@@ -1,4 +1,4 @@
-#include "PropertyCommon/PropertyDatum.h"
+#include "Property/PropertyDatum.h"
 
 namespace DataConfig {
 
