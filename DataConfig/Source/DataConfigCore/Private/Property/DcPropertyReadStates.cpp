@@ -39,6 +39,10 @@ EDataEntry FReadStateClass::Peek()
 	{
 		return EDataEntry::ClassEnd;
 	}
+	else if (State == EState::ExpectNil)
+	{
+		return EDataEntry::Nil;
+	}
 	else if (State == EState::ExpectKey)
 	{
 		return EDataEntry::Name;
@@ -137,7 +141,7 @@ FResult FReadStateClass::EndReadValue()
 	}
 }
 
-DataConfig::FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -149,7 +153,7 @@ DataConfig::FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassP
 				OutClassPtr->Reference = EDataReference::NullReference;
 			}
 
-			State = EState::ExpectNull;
+			State = EState::ExpectNil;
 			return Ok();
 		}
 		else
@@ -182,16 +186,18 @@ DataConfig::FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassP
 	}
 }
 
-DataConfig::FResult FReadStateClass::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FResult FReadStateClass::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
-		check(ClassObject);
 
 		if (OutClassPtr)
 		{
-			OutClassPtr->Name = ClassObject->GetClass()->GetFName();
+			OutClassPtr->Name = Class->GetFName();
+			OutClassPtr->Reference = ClassObject == nullptr
+				? EDataReference::NullReference
+				: EDataReference::InlineObject;
 		}
 
 		return Ok();
@@ -199,6 +205,19 @@ DataConfig::FResult FReadStateClass::ReadClassEnd(FClassPropertyStat* OutClassPt
 	else
 	{
 		return Fail(EErrorCode::ReadClassEndFail);
+	}
+}
+
+FResult FReadStateClass::ReadNil(FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectNil)
+	{
+		State = EState::ExpectEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadNilFail);
 	}
 }
 

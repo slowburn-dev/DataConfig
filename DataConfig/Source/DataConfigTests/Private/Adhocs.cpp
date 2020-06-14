@@ -25,6 +25,19 @@ void PropertyVisitorRoundtrip()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPropertyReader Reader(FPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &ObjRef));
+		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		FResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+		}
+	}
+
+	/*
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
 
 		FPropertyReader Reader(FPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &ObjRef));
@@ -39,6 +52,7 @@ void PropertyVisitorRoundtrip()
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
+	*/
 }
 
 void PropertyVisitorRoundtrip__TestObjAlpha()

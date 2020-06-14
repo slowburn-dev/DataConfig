@@ -15,7 +15,12 @@ FResult FPipeVisitor::PipeVisit()
 		EDataEntry PeekEntry = Reader->Peek();
 		TRY(Writer->Peek(PeekEntry));
 
-		if (PeekEntry == EDataEntry::Bool)
+		if (PeekEntry == EDataEntry::Nil)
+		{
+			TRY(Reader->ReadNil(nullptr));
+			TRY(Writer->WriteNil());
+		}
+		else if (PeekEntry == EDataEntry::Bool)
 		{
 			bool Value;
 			TRY(Reader->ReadBool(&Value, nullptr));

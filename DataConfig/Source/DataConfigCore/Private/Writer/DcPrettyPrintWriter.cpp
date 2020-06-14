@@ -95,4 +95,11 @@ FResult FPrettyPrintWriter::WriteArrayEnd()
 	return Ok();
 }
 
+FResult FPrettyPrintWriter::WriteNil()
+{
+	Output.Logf(TEXT("%s- nil"), *Indent);
+	return Ok();
+}
+
+
 }	// namespace DataConfig

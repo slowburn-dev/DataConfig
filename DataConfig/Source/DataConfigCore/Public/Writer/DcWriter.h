@@ -13,6 +13,7 @@ struct DATACONFIGCORE_API FWriter
 
 	virtual FResult Peek(EDataEntry Next);
 
+	virtual FResult WriteNil();
 	virtual FResult WriteBool(bool Value);
 	virtual FResult WriteName(const FName& Value);
 	virtual FResult WriteString(const FString& Value);

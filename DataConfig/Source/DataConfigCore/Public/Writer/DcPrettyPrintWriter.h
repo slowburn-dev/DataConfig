@@ -12,6 +12,8 @@ struct DATACONFIGCORE_API FPrettyPrintWriter : public FWriter
 	~FPrettyPrintWriter();
 
 	FResult Peek(EDataEntry Next) override;
+
+	FResult WriteNil() override;
 	FResult WriteBool(bool Value) override;
 	FResult WriteName(const FName& Value) override;
 	FResult WriteString(const FString& Value) override;

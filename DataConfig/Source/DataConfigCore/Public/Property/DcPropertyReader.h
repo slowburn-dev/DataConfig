@@ -17,6 +17,7 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 
 	EDataEntry Peek() override;
 
+	FResult ReadNil(FContextStorage* CtxPtr) override;
 	FResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
 	FResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
 	FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;

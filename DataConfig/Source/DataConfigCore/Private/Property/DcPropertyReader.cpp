@@ -307,4 +307,17 @@ FResult FPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 }
 
 
+FResult FPropertyReader::ReadNil(FContextStorage* CtxPtr)
+{
+	//	only class property accepts nil
+	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
+	{
+		return ClassState->ReadNil(CtxPtr);
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadNilFail);
+	}
+}
+
 } // namespace DataConfig

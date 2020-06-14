@@ -64,7 +64,7 @@ struct FReadStateClass : public FBaseReadState
 		ExpectKey,
 		ExpectValue,
 		ExpectEnd,
-		ExpectNull,
+		ExpectNil,
 		ExpectReference,
 		Ended,
 	};
@@ -86,6 +86,7 @@ struct FReadStateClass : public FBaseReadState
 	FResult EndReadValue();
 	FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
 	FResult ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
+	FResult ReadNil(FContextStorage* CtxPtr);
 };
 
 struct FReadStateStruct : public FBaseReadState
