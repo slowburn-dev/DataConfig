@@ -8,6 +8,8 @@ namespace DataConfig
 struct DATACONFIGCORE_API FWeakCompositeWriter : public FWriter
 {
 	FResult Peek(EDataEntry Next) override;
+
+	FResult WriteNil() override;
 	FResult WriteBool(bool Value) override;
 	FResult WriteName(const FName& Value) override;
 	FResult WriteString(const FString& Value) override;
@@ -19,9 +21,10 @@ struct DATACONFIGCORE_API FWeakCompositeWriter : public FWriter
 	FResult WriteMapEnd() override;
 	FResult WriteArrayRoot() override;
 	FResult WriteArrayEnd() override;
-
+	FResult WriteReference(UObject* Value) override;
 
 	TArray<FWriter*, TInlineAllocator<4>> Writers;
+
 };
 
 

@@ -29,10 +29,16 @@ static FWriteStateNil& PushNilState(FPropertyWriter* Writer) {
 	return Emplace<FWriteStateNil>(GetTopStorage(Writer));
 }
 
-static FWriteStateClass& PushClassPropertyState(FPropertyWriter* Writer, UObject* InClassObject)
+static FWriteStateClass& PushClassRootState(FPropertyWriter* Writer, UObject* InClassObject, UClass* InClass)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateClass>(GetTopStorage(Writer), InClassObject);
+	return Emplace<FWriteStateClass>(GetTopStorage(Writer), InClassObject, InClass);
+}
+
+static FWriteStateClass& PushClassPropertyState(FPropertyWriter* Writer, void* InDataPtr, UObjectProperty* InObjProperty)
+{
+	Writer->States.AddDefaulted();
+	return Emplace<FWriteStateClass>(GetTopStorage(Writer), InDataPtr, InObjProperty);
 }
 
 static FWriteStateStruct& PushStructPropertyState(FPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct)
@@ -82,7 +88,7 @@ FPropertyWriter::FPropertyWriter(FPropertyDatum Datum)
 	{
 		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassPropertyState(this, Obj);
+		PushClassRootState(this, Obj, Datum.As<UClass>());
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -170,7 +176,9 @@ DataConfig::FResult FPropertyWriter::WriteClassRoot(const FClassPropertyStat& Cl
 		FPropertyDatum Datum;
 		TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
 
-		FWriteStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
+		UObjectProperty* ObjProperty = Datum.As<UObjectProperty>();
+		check(ObjProperty);
+		FWriteStateClass& ChildClass = PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
 		TRY(ChildClass.WriteClassRoot(Class));
 	}
 
@@ -262,6 +270,30 @@ FResult FPropertyWriter::WriteArrayEnd()
 	else
 	{
 		return Fail(EErrorCode::WriteArrayEndFail);
+	}
+}
+
+DataConfig::FResult FPropertyWriter::WriteNil()
+{
+	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
+	{
+		return ClassState->WriteNil();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteNilFail);
+	}
+}
+
+DataConfig::FResult FPropertyWriter::WriteReference(UObject* Value)
+{
+	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
+	{
+		return ClassState->WriteReference(Value);
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteReferenceFail);
 	}
 }
 

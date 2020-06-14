@@ -79,7 +79,7 @@ UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name)
 	return nullptr;
 }
 
-EDataEntry PropertyToDataEntry(UProperty* Property)
+EDataEntry PropertyToDataEntry(UField* Property)
 {
 	check(Property)
 	if (Property->IsA<UBoolProperty>()) return EDataEntry::Bool;

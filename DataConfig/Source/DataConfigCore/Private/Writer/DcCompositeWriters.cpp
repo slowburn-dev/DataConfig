@@ -72,5 +72,14 @@ FResult FWeakCompositeWriter::WriteArrayEnd()
 	return CompositeDispatch(this, &FWriter::WriteArrayEnd);
 }
 
+FResult FWeakCompositeWriter::WriteNil()
+{
+	return CompositeDispatch(this, &FWriter::WriteNil);
+}
+
+FResult FWeakCompositeWriter::WriteReference(UObject* Value)
+{
+	return CompositeDispatch(this, &FWriter::WriteReference, Value);
+}
 
 }	// namespace DataConfig

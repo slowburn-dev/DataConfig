@@ -124,14 +124,23 @@ FResult FWriteStateClass::Peek(EDataEntry Next)
 	{
 		return Expect(Next == EDataEntry::ClassRoot, EErrorCode::WriteClassFail);
 	}
+	else if (State == EState::ExpectNil)
+	{
+		return Expect(Next == EDataEntry::Nil, EErrorCode::WriteNilFail);
+	}
+	else if (State == EState::ExpectReference)
+	{
+		return Expect(Next == EDataEntry::Reference, EErrorCode::WriteReferenceFail);
+	}
 	else if (State == EState::ExpectKeyOrEnd)
 	{
-		return Expect(Next == EDataEntry::ClassEnd || Next == EDataEntry::Name, EErrorCode::WriteClassKeyFail);
+		return Expect(Next == EDataEntry::ClassEnd
+			|| Next == EDataEntry::Name,
+			EErrorCode::WriteClassKeyFail);
 	}
 	else if (State == EState::ExpectValue)
 	{
-		check(Property);
-		return Expect(Next == PropertyToDataEntry(Property), EErrorCode::WriteClassValueFail);
+		return Expect(Next == PropertyToDataEntry(Datum.Property), EErrorCode::WriteClassValueFail);
 	}
 	else if (State == EState::Ended)
 	{
@@ -148,8 +157,8 @@ FResult FWriteStateClass::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
-		Property = NextPropertyByName(ClassObject->GetClass()->PropertyLink, Value);
-		if (Property == nullptr)
+		Datum.Property = NextPropertyByName(Class->PropertyLink, Value);
+		if (Datum.Property == nullptr)
 			return Fail(EErrorCode::WriteClassKeyFail);
 
 		State = EState::ExpectValue;
@@ -171,22 +180,55 @@ FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 	if (State != EState::ExpectValue)
 		return Fail(EErrorCode::WriteClassValueFail);
 
-	if (!Property->IsA(ExpectedPropertyClass))
+	if (!Datum.Property->IsA(ExpectedPropertyClass))
 		return Fail(EErrorCode::WriteClassValueFail);
 
+	UProperty* Property = CastChecked<UProperty>(Datum.Property);
+
 	OutDatum.Property = Property;
-	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(ClassObject);
+	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(Datum.DataPtr);
 
 	State = EState::ExpectKeyOrEnd;
 	return Ok();
 }
 
-DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& Class)
+DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectRoot)
 	{
-		State = EState::ExpectKeyOrEnd;
-		return Expect(Class.Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassFail);
+		TRY(Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassFail));
+
+		if (ClassStat.Reference == EDataReference::NullReference)
+		{
+			State = EState::ExpectNil;
+		}
+		else if (ClassStat.Reference == EDataReference::ExternalReference)
+		{
+			State = EState::ExpectReference;
+		}
+		else if (ClassStat.Reference == EDataReference::InlineObject)
+		{
+			if (Type == EType::PropertyNormalOrInstanced)
+			{
+				UObjectProperty* ObjProperty = Datum.As<UObjectProperty>();
+				Datum.DataPtr = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
+				Datum.Property = ObjProperty->PropertyClass;
+
+				if (!Datum.DataPtr)
+				{
+					//	inline object needs to be created by user
+					return Fail(EErrorCode::WriteClassInlineNotCreated);
+				}
+			}
+
+			State = EState::ExpectKeyOrEnd;
+		}
+		else
+		{
+			checkNoEntry();
+		}
+
+		return Ok();
 	}
 	else
 	{
@@ -194,16 +236,46 @@ DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& C
 	}
 }
 
-DataConfig::FResult FWriteStateClass::WriteClassEnd(const FClassPropertyStat& Class)
+FResult FWriteStateClass::WriteClassEnd(const FClassPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		return Expect(Class.Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassEndFail);
+		return Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassEndFail);
 	}
 	else
 	{
 		return Fail(EErrorCode::WriteClassEndFail);
+	}
+}
+
+FResult FWriteStateClass::WriteNil()
+{
+	if (State == EState::ExpectNil)
+	{
+		Datum.As<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
+
+		State = EState::ExpectKeyOrEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteNilFail);
+	}
+}
+
+FResult FWriteStateClass::WriteReference(UObject* Value)
+{
+	if (State == EState::ExpectReference)
+	{
+		Datum.As<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, Value);
+
+		State = EState::ExpectKeyOrEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::WriteNilFail);
 	}
 }
 

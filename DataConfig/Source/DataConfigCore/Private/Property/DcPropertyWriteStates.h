@@ -92,23 +92,44 @@ struct FWriteStateClass : public FBaseWriteState
 {
 	static const EPropertyWriteType ID = EPropertyWriteType::ClassProperty;
 
-	UObject* ClassObject;
-	UProperty* Property;
+	FPropertyDatum Datum;
+	UClass* Class;
 
-	enum class EState
+	enum class EState : uint16
 	{
 		ExpectRoot,
+		ExpectNil,
+		ExpectReference,
 		ExpectKeyOrEnd,
 		ExpectValue,
 		Ended,
 	};
 	EState State;
 
-	FWriteStateClass(UObject* InClassObject)
+	enum class EType : uint16
 	{
-		ClassObject = InClassObject;
-		Property = nullptr;
+		Root,
+		PropertyNormalOrInstanced,
+		//	TODO soft
+	};
+	EType Type;
+
+	FWriteStateClass(UObject* InClassObject, UClass* InClass)
+	{
+		Datum.DataPtr = InClassObject;
+		Datum.Property = InClass;
+		Class = InClass;
 		State = EState::ExpectRoot;
+		Type = EType::Root;
+	}
+
+	FWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
+	{
+		Datum.DataPtr = DataPtr;
+		Datum.Property = InObjProperty;
+		Class = InObjProperty->PropertyClass;
+		State = EState::ExpectRoot;
+		Type = EType::PropertyNormalOrInstanced;
 	}
 
 	EPropertyWriteType GetType() override;
@@ -116,8 +137,10 @@ struct FWriteStateClass : public FBaseWriteState
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
 
+	FResult WriteNil();
 	FResult WriteClassRoot(const FClassPropertyStat& Class);
 	FResult WriteClassEnd(const FClassPropertyStat& Class);
+	FResult WriteReference(UObject* Value);
 
 };
 
