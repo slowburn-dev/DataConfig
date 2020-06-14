@@ -26,6 +26,7 @@ FResult FWriter::WriteMapRoot() { return Fail(EErrorCode::WriteMapFail); }
 FResult FWriter::WriteMapEnd() { return Fail(EErrorCode::WriteMapEndFail); }
 FResult FWriter::WriteArrayRoot() { return Fail(EErrorCode::WriteArrayFail); }
 FResult FWriter::WriteArrayEnd() { return Fail(EErrorCode::WriteArrayEndFail); }
+FResult FWriter::WriteReference(UObject* Value) { return Fail(EErrorCode::WriteReferenceFail); }
 
 }	// namespace DataConfig
 

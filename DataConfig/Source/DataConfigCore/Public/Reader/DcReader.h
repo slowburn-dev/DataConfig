@@ -32,6 +32,8 @@ struct DATACONFIGCORE_API FReader
 	virtual FResult ReadArrayRoot(FContextStorage* CtxPtr);
 	virtual FResult ReadArrayEnd(FContextStorage* CtxPtr);
 
+	virtual FResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr);
+
 };
 
 

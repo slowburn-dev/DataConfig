@@ -36,10 +36,10 @@ FReadStateNil& PushNilState(FPropertyReader* Reader)
 	return Emplace<FReadStateNil>(GetTopStorage(Reader));
 }
 
-FReadStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject, UClass* InClass)
+FReadStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject, UClass* InClass, FReadStateClass::EType InType)
 {
 	Reader->States.AddDefaulted();
-	return Emplace<FReadStateClass>(GetTopStorage(Reader), InClassObject, InClass);
+	return Emplace<FReadStateClass>(GetTopStorage(Reader), InClassObject, InClass, InType);
 }
 
 FReadStateStruct& PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
@@ -105,7 +105,7 @@ FPropertyReader::FPropertyReader(FPropertyDatum Datum)
 	{
 		UObject* Obj = (UObject*)(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassPropertyState(this, Obj, Datum.As<UClass>());
+		PushClassPropertyState(this, Obj, Datum.As<UClass>(), FReadStateClass::EType::Root);
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -207,7 +207,10 @@ FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 		FReadStateClass& ChildClass = PushClassPropertyState(
 			this,
 			ObjProperty->GetObjectPropertyValue(Datum.DataPtr),
-			ObjProperty->PropertyClass
+			ObjProperty->PropertyClass,
+			ObjProperty->HasAnyPropertyFlags(CPF_InstancedReference)
+				? FReadStateClass::EType::PropertyInstanced
+				: FReadStateClass::EType::PropertyNormal
 		);
 		TRY(ChildClass.ReadClassRoot(OutClassPtr, CtxPtr));
 	}
@@ -306,6 +309,19 @@ FResult FPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 	}
 }
 
+
+DataConfig::FResult FPropertyReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+{
+	//	only class property reads reference
+	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
+	{
+		return ClassState->ReadReference(OutPtr, CtxPtr);
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadReferenceFail);
+	}
+}
 
 FResult FPropertyReader::ReadNil(FContextStorage* CtxPtr)
 {

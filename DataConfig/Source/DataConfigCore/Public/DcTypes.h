@@ -114,7 +114,7 @@ enum class EDataEntry
 	ArrayEnd,
 
 	//	Reference
-	//Reference,
+	Reference,
 
 	//	Meta
 	Ended, // or error or invalid state, 

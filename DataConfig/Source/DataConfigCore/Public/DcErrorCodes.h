@@ -45,6 +45,8 @@ enum class EErrorCode : uint32
 	WriteArrayAfterEnd,
 	WriteArrayEndFail,
 
+	WriteReferenceFail,
+
 	//	Writer
 	WriteEndFail,
 	WriteAfterEnded,
@@ -97,6 +99,9 @@ enum class EErrorCode : uint32
 	WriteStructKeyFail,
 	StructEndWhenStillHasValue,
 	ReadStructAfterEnded,
+
+	//	Reference
+	ReadReferenceFail,
 
 	//	global fallback
 	UnknownError,

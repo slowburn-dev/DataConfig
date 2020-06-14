@@ -82,6 +82,12 @@ FResult FPipeVisitor::PipeVisit()
 			TRY(Reader->ReadArrayEnd(nullptr));
 			TRY(Writer->WriteArrayEnd());
 		}
+		else if (PeekEntry == EDataEntry::Reference)
+		{
+			UObject* Value;
+			TRY(Reader->ReadReference(&Value, nullptr));
+			TRY(Writer->WriteReference(Value));
+		}
 		else if (PeekEntry == EDataEntry::Ended)
 		{
 			return Ok();

@@ -29,6 +29,7 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 	FResult ReadMapEnd(FContextStorage* CtxPtr) override;
 	FResult ReadArrayRoot(FContextStorage* CtxPtr) override;
 	FResult ReadArrayEnd(FContextStorage* CtxPtr) override;
+	FResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) override;
 
 	struct FPropertyState
 	{
@@ -37,6 +38,8 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 	};
 
 	TArray<FPropertyState, TInlineAllocator<8>> States;
+
+
 
 };
 

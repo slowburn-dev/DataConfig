@@ -95,6 +95,13 @@ FResult FPrettyPrintWriter::WriteArrayEnd()
 	return Ok();
 }
 
+DataConfig::FResult FPrettyPrintWriter::WriteReference(UObject* Value)
+{
+	check(Value);
+	Output.Logf(TEXT("%s- ref: %d"), *Indent, Value->GetUniqueID());
+	return Ok();
+}
+
 FResult FPrettyPrintWriter::WriteNil()
 {
 	Output.Logf(TEXT("%s- nil"), *Indent);

@@ -58,7 +58,7 @@ struct FReadStateClass : public FBaseReadState
 	UClass* Class;
 	UProperty* Property;
 
-	enum class EState
+	enum class EState : uint16
 	{
 		ExpectRoot,
 		ExpectKey,
@@ -70,12 +70,22 @@ struct FReadStateClass : public FBaseReadState
 	};
 	EState State;
 
-	FReadStateClass(UObject* InClassObject, UClass* InClass)
+	enum class EType : uint16
+	{
+		Root,
+		PropertyNormal,
+		PropertyInstanced,
+		//	TODO soft
+	};
+	EType Type;
+
+	FReadStateClass(UObject* InClassObject, UClass* InClass, EType InType)
 	{
 		ClassObject = InClassObject;
 		Class = InClass;
 		Property = nullptr;
 		State = EState::ExpectRoot;
+		Type = InType;
 	}
 
 	EPropertyReadType GetType() override;
@@ -87,6 +97,8 @@ struct FReadStateClass : public FBaseReadState
 	FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
 	FResult ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
 	FResult ReadNil(FContextStorage* CtxPtr);
+	FResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr);
+
 };
 
 struct FReadStateStruct : public FBaseReadState

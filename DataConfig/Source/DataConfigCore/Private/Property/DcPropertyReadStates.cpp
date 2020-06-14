@@ -43,6 +43,10 @@ EDataEntry FReadStateClass::Peek()
 	{
 		return EDataEntry::Nil;
 	}
+	else if (State == EState::ExpectReference)
+	{
+		return EDataEntry::Reference;
+	}
 	else if (State == EState::ExpectKey)
 	{
 		return EDataEntry::Name;
@@ -147,6 +151,7 @@ FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 	{
 		if (ClassObject == nullptr)
 		{
+			check(Type == EType::PropertyNormal || Type == EType::PropertyInstanced);
 			if (OutClassPtr)
 			{
 				OutClassPtr->Name = Class->GetFName();
@@ -158,26 +163,44 @@ FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 		}
 		else
 		{
-			check(ClassObject);
-			UClass* Cls = ClassObject->GetClass();
-			if (OutClassPtr)
+			if (Type == EType::PropertyNormal)
 			{
-				OutClassPtr->Name = Cls->GetFName();
-				//	TODO handle reference later
-				OutClassPtr->Reference = EDataReference::InlineObject;
-			}
+				State = EState::ExpectReference;
 
-			Property = FirstEffectiveProperty(Cls->PropertyLink);
-			if (Property == nullptr)
+				if (OutClassPtr)
+				{
+					OutClassPtr->Name = Class->GetFName();
+					OutClassPtr->Reference = EDataReference::ExternalReference;
+				}
+
+				return Ok();
+			}
+			else if (Type == EType::PropertyInstanced)
 			{
-				State = EState::ExpectEnd;
+				check(ClassObject);
+				UClass* Cls = ClassObject->GetClass();
+				if (OutClassPtr)
+				{
+					OutClassPtr->Name = Cls->GetFName();
+					OutClassPtr->Reference = EDataReference::InlineObject;
+				}
+
+				Property = FirstEffectiveProperty(Cls->PropertyLink);
+				if (Property == nullptr)
+				{
+					State = EState::ExpectEnd;
+				}
+				else
+				{
+					State = EState::ExpectKey;
+				}
+				return Ok();
 			}
 			else
 			{
-				State = EState::ExpectKey;
+				checkNoEntry();
+				return Fail(EErrorCode::UnknownError);
 			}
-
-			return Ok();
 		}
 	}
 	else
@@ -218,6 +241,24 @@ FResult FReadStateClass::ReadNil(FContextStorage* CtxPtr)
 	else
 	{
 		return Fail(EErrorCode::ReadNilFail);
+	}
+}
+
+FResult FReadStateClass::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+{
+	if (State == EState::ExpectReference)
+	{
+		if (OutPtr)
+		{
+			*OutPtr = ClassObject;
+		}
+
+		State = EState::ExpectEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::ReadReferenceFail);
 	}
 }
 
