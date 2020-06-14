@@ -55,6 +55,7 @@ struct FReadStateClass : public FBaseReadState
 	static const EPropertyReadType ID = EPropertyReadType::ClassProperty;
 
 	UObject* ClassObject;
+	UClass* Class;
 	UProperty* Property;
 
 	enum class EState
@@ -63,13 +64,16 @@ struct FReadStateClass : public FBaseReadState
 		ExpectKey,
 		ExpectValue,
 		ExpectEnd,
+		ExpectNull,
+		ExpectReference,
 		Ended,
 	};
 	EState State;
 
-	FReadStateClass(UObject* InClassObject)
+	FReadStateClass(UObject* InClassObject, UClass* InClass)
 	{
 		ClassObject = InClassObject;
+		Class = InClass;
 		Property = nullptr;
 		State = EState::ExpectRoot;
 	}

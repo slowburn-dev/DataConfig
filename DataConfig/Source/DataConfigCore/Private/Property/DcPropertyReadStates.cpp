@@ -141,22 +141,40 @@ DataConfig::FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassP
 {
 	if (State == EState::ExpectRoot)
 	{
-		check(ClassObject);
-		UClass* Cls = ClassObject->GetClass();
-		if (OutClassPtr)
-			OutClassPtr->Name = Cls->GetFName();
-
-		Property = FirstEffectiveProperty(Cls->PropertyLink);
-		if (Property == nullptr)
+		if (ClassObject == nullptr)
 		{
-			State = EState::ExpectEnd;
+			if (OutClassPtr)
+			{
+				OutClassPtr->Name = Class->GetFName();
+				OutClassPtr->Reference = EDataReference::NullReference;
+			}
+
+			State = EState::ExpectNull;
+			return Ok();
 		}
 		else
 		{
-			State = EState::ExpectKey;
-		}
+			check(ClassObject);
+			UClass* Cls = ClassObject->GetClass();
+			if (OutClassPtr)
+			{
+				OutClassPtr->Name = Cls->GetFName();
+				//	TODO handle reference later
+				OutClassPtr->Reference = EDataReference::InlineObject;
+			}
 
-		return Ok();
+			Property = FirstEffectiveProperty(Cls->PropertyLink);
+			if (Property == nullptr)
+			{
+				State = EState::ExpectEnd;
+			}
+			else
+			{
+				State = EState::ExpectKey;
+			}
+
+			return Ok();
+		}
 	}
 	else
 	{

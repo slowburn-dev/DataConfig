@@ -168,7 +168,7 @@ DataConfig::FResult FPropertyWriter::WriteClassRoot(const FClassPropertyStat& Cl
 
 	{
 		FPropertyDatum Datum;
-		TRY(TopState.WriteDataEntry(UClassProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
+		TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
 
 		FWriteStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
 		TRY(ChildClass.WriteClassRoot(Class));

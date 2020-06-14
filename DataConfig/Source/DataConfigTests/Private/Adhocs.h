@@ -28,6 +28,16 @@ public:
 };
 
 
+USTRUCT()
+struct FTestStruct_ObjRef
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) UTestObj_Alpha* AlphaRef;
+	UPROPERTY(EditAnywhere) UTestObj_Alpha* BetaRef;
+
+};
+
 
 USTRUCT()
 struct FNestStruct1

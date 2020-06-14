@@ -36,10 +36,10 @@ FReadStateNil& PushNilState(FPropertyReader* Reader)
 	return Emplace<FReadStateNil>(GetTopStorage(Reader));
 }
 
-FReadStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject)
+FReadStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject, UClass* InClass)
 {
 	Reader->States.AddDefaulted();
-	return Emplace<FReadStateClass>(GetTopStorage(Reader), InClassObject);
+	return Emplace<FReadStateClass>(GetTopStorage(Reader), InClassObject, InClass);
 }
 
 FReadStateStruct& PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
@@ -103,9 +103,9 @@ FPropertyReader::FPropertyReader(FPropertyDatum Datum)
 	}
 	else if (Datum.Property->IsA<UClass>()) 
 	{
-		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
+		UObject* Obj = (UObject*)(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassPropertyState(this, Obj);
+		PushClassPropertyState(this, Obj, Datum.As<UClass>());
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -200,10 +200,16 @@ FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 
 	{
 		FPropertyDatum Datum;
-		TRY(TopState.ReadDataEntry(UClassProperty::StaticClass(), EErrorCode::ReadClassFail, CtxPtr, Datum));
+		TRY(TopState.ReadDataEntry(UObjectProperty::StaticClass(), EErrorCode::ReadClassFail, CtxPtr, Datum));
 
-		FReadStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
-		TRY(ChildClass.ReadClassEnd(OutClassPtr, CtxPtr));
+		UObjectProperty* ObjProperty = Datum.As<UObjectProperty>();
+		check(ObjProperty);
+		FReadStateClass& ChildClass = PushClassPropertyState(
+			this,
+			ObjProperty->GetObjectPropertyValue(Datum.DataPtr),
+			ObjProperty->PropertyClass
+		);
+		TRY(ChildClass.ReadClassRoot(OutClassPtr, CtxPtr));
 	}
 
 	return Ok();

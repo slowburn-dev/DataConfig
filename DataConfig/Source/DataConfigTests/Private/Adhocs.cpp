@@ -10,7 +10,38 @@
 
 using namespace DataConfig;
 
+
 void PropertyVisitorRoundtrip()
+{
+	FTestStruct_ObjRef ObjRef;
+
+	ObjRef.AlphaRef = NewObject<UTestObj_Alpha>();
+	ObjRef.BetaRef = nullptr;
+	ObjRef.AlphaRef->AStr = TEXT("Hello");
+	ObjRef.AlphaRef->AStruct.AName = TEXT("InnerName");
+
+	FTestStruct_ObjRef OutObj;
+	OutObj.AlphaRef = NewObject<UTestObj_Alpha>();	// prepared here
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
+		FPropertyReader Reader(FPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &ObjRef));
+		FPropertyWriter WriteWriter(FPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &OutObj));
+
+		FWeakCompositeWriter Writer;
+		Writer.Writers.Add(&PrettyPrinter);
+		Writer.Writers.Add(&WriteWriter);
+
+		FPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FResult Ret = RoundtripVisit.PipeVisit();
+		if (!Ret.Ok())
+			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
+	}
+}
+
+void PropertyVisitorRoundtrip__TestObjAlpha()
 {
 	UTestObj_Alpha* Obj = NewObject<UTestObj_Alpha>();
 	Obj->AStr = TEXT("A STR");
