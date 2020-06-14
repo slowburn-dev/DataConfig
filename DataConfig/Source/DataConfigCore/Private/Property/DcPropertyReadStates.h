@@ -80,8 +80,8 @@ struct FReadStateClass : public FBaseReadState
 	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 
 	FResult EndReadValue();
-	FResult ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
-	FResult ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
+	FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
+	FResult ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
 };
 
 struct FReadStateStruct : public FBaseReadState

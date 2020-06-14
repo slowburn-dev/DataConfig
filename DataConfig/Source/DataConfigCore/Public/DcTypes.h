@@ -78,7 +78,7 @@ struct TAlignedStorage
 enum class EDataEntry
 {
 	//	Data Type
-	Nil,
+	Nil,	 //	!! note that this actually doesn't exist in UE4 property data model
 
 	Bool,
 	Name,
@@ -114,10 +114,23 @@ enum class EDataEntry
 	ArrayEnd,
 
 	//	Reference
-	Reference,
+	//Reference,
 
 	//	Meta
 	Ended, // or error or invalid state, 
+};
+
+enum class EDataReference
+{
+	ExternalReference,
+	InlineObject,
+	NullReference,
+};
+
+struct FClassPropertyStat
+{
+	FName Name;
+	EDataReference Reference;
 };
 
 EErrorCode GetReadErrorCode(EDataEntry DataEntry);

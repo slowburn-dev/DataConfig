@@ -52,17 +52,17 @@ FResult FPrettyPrintWriter::WriteStructEnd(const FName& Name)
 	return Ok();
 }
 
-DataConfig::FResult FPrettyPrintWriter::WriteClassRoot(const FName& Name)
+DataConfig::FResult FPrettyPrintWriter::WriteClassRoot(const FClassPropertyStat& Class)
 {
-	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *Name.ToString());
+	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *Class.Name.ToString());
 	Indent += PER_INDENT;
 	return Ok();
 }
 
-DataConfig::FResult FPrettyPrintWriter::WriteClassEnd(const FName& Name)
+DataConfig::FResult FPrettyPrintWriter::WriteClassEnd(const FClassPropertyStat& Class)
 {
 	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
-	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *Name.ToString());
+	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *Class.Name.ToString());
 	return Ok();
 }
 

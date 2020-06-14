@@ -57,15 +57,15 @@ FResult FPipeVisitor::PipeVisit()
 		}
 		else if (PeekEntry == EDataEntry::ClassRoot)
 		{
-			FName Name;
-			TRY(Reader->ReadClassRoot(&Name, nullptr));
-			TRY(Writer->WriteClassRoot(Name));
+			FClassPropertyStat ClassStat;
+			TRY(Reader->ReadClassRoot(&ClassStat, nullptr));
+			TRY(Writer->WriteClassRoot(ClassStat));
 		}
 		else if (PeekEntry == EDataEntry::ClassEnd)
 		{
-			FName Name;
-			TRY(Reader->ReadClassEnd(&Name, nullptr));
-			TRY(Writer->WriteClassEnd(Name));
+			FClassPropertyStat ClassStat;
+			TRY(Reader->ReadClassEnd(&ClassStat, nullptr));
+			TRY(Writer->WriteClassEnd(ClassStat));
 		}
 		else if (PeekEntry == EDataEntry::ArrayRoot)
 		{

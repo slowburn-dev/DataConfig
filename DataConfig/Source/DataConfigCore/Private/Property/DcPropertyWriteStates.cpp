@@ -181,12 +181,12 @@ FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 	return Ok();
 }
 
-FResult FWriteStateClass::WriteClassRoot(const FName& Name)
+DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& Class)
 {
 	if (State == EState::ExpectRoot)
 	{
 		State = EState::ExpectKeyOrEnd;
-		return Expect(Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassFail);
+		return Expect(Class.Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassFail);
 	}
 	else
 	{
@@ -194,12 +194,12 @@ FResult FWriteStateClass::WriteClassRoot(const FName& Name)
 	}
 }
 
-FResult FWriteStateClass::WriteClassEnd(const FName& Name)
+DataConfig::FResult FWriteStateClass::WriteClassEnd(const FClassPropertyStat& Class)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		return Expect(Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassEndFail);
+		return Expect(Class.Name == ClassObject->GetClass()->GetFName(), EErrorCode::WriteClassEndFail);
 	}
 	else
 	{

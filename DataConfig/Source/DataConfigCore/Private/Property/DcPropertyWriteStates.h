@@ -116,8 +116,8 @@ struct FWriteStateClass : public FBaseWriteState
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
 
-	FResult WriteClassRoot(const FName& Name);
-	FResult WriteClassEnd(const FName& Name);
+	FResult WriteClassRoot(const FClassPropertyStat& Class);
+	FResult WriteClassEnd(const FClassPropertyStat& Class);
 
 };
 

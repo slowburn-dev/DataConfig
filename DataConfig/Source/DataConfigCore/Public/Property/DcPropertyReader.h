@@ -22,8 +22,8 @@ struct DATACONFIGCORE_API FPropertyReader : public FReader, private FNoncopyable
 	FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
 	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
+	FResult ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
 	FResult ReadMapRoot(FContextStorage* CtxPtr) override;
 	FResult ReadMapEnd(FContextStorage* CtxPtr) override;
 	FResult ReadArrayRoot(FContextStorage* CtxPtr) override;

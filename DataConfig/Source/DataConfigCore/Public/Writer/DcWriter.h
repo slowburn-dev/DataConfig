@@ -20,8 +20,8 @@ struct DATACONFIGCORE_API FWriter
 	virtual FResult WriteStructRoot(const FName& Name);
 	virtual FResult WriteStructEnd(const FName& Name);
 
-	virtual FResult WriteClassRoot(const FName& Name);
-	virtual FResult WriteClassEnd(const FName& Name);
+	virtual FResult WriteClassRoot(const FClassPropertyStat& Class);
+	virtual FResult WriteClassEnd(const FClassPropertyStat& Class);
 
 	virtual FResult WriteMapRoot();
 	virtual FResult WriteMapEnd();

@@ -21,8 +21,8 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	FResult WriteStructRoot(const FName& Name) override;
 	FResult WriteStructEnd(const FName& Name) override;
 
-	FResult WriteClassRoot(const FName& Name) override;
-	FResult WriteClassEnd(const FName& Name) override;
+	FResult WriteClassRoot(const FClassPropertyStat& Class) override;
+	FResult WriteClassEnd(const FClassPropertyStat& Class) override;
 
 	FResult WriteMapRoot() override;
 	FResult WriteMapEnd() override;

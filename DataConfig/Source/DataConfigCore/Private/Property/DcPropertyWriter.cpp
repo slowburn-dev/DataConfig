@@ -154,7 +154,7 @@ FResult FPropertyWriter::WriteStructEnd(const FName& Name)
 	}
 }
 
-FResult FPropertyWriter::WriteClassRoot(const FName& Name)
+DataConfig::FResult FPropertyWriter::WriteClassRoot(const FClassPropertyStat& Class)
 {
 	FBaseWriteState& TopState = GetTopState(this);
 	{
@@ -162,7 +162,7 @@ FResult FPropertyWriter::WriteClassRoot(const FName& Name)
 		if (ClassState != nullptr
 			&& ClassState->State == FWriteStateClass::EState::ExpectRoot)
 		{
-			return ClassState->WriteClassRoot(Name);
+			return ClassState->WriteClassRoot(Class);
 		}
 	}
 
@@ -171,17 +171,17 @@ FResult FPropertyWriter::WriteClassRoot(const FName& Name)
 		TRY(TopState.WriteDataEntry(UClassProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
 
 		FWriteStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
-		TRY(ChildClass.WriteClassRoot(Name));
+		TRY(ChildClass.WriteClassRoot(Class));
 	}
 
 	return Ok();
 }
 
-FResult FPropertyWriter::WriteClassEnd(const FName& Name)
+DataConfig::FResult FPropertyWriter::WriteClassEnd(const FClassPropertyStat& Class)
 {
 	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
 	{
-		TRY(ClassState->WriteClassEnd(Name));
+		TRY(ClassState->WriteClassEnd(Class));
 		PopState<FWriteStateClass>(this);
 		return Ok();
 	}

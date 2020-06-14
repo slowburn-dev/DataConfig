@@ -75,6 +75,19 @@ static void PopState(FPropertyReader* Reader)
 }
 
 
+template<typename TProperty, typename TPrimitive, EErrorCode ErrCode>
+FORCEINLINE FResult ReadTopStateProperty(FPropertyReader* Self, TPrimitive* OutPtr, FContextStorage* CtxPtr)
+{
+	FPropertyDatum Datum;
+	TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), ErrCode, CtxPtr, Datum));
+
+	if (OutPtr)
+	{
+		*OutPtr = Datum.As<TProperty>()->GetPropertyValue(Datum.DataPtr);
+	}
+
+	return Ok();
+}
 
 FPropertyReader::FPropertyReader()
 {
@@ -111,15 +124,7 @@ EDataEntry FPropertyReader::Peek()
 
 FResult FPropertyReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
-	FPropertyDatum Datum;
-	TRY(GetTopState(this).ReadDataEntry(UBoolProperty::StaticClass(), EErrorCode::ReadBoolFail, CtxPtr, Datum));
-
-	if (OutPtr)
-	{
-		*OutPtr = Datum.As<UBoolProperty>()->GetPropertyValue(Datum.DataPtr);
-	}
-
-	return Ok();
+	return ReadTopStateProperty<UBoolProperty, bool, EErrorCode::ReadBoolFail>(this, OutPtr, CtxPtr);
 }
 
 FResult FPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
@@ -180,7 +185,7 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 	}
 }
 
-FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	FBaseReadState& TopState = GetTopState(this);
 	{
@@ -188,7 +193,7 @@ FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPt
 		if (ClassState != nullptr
 			&& ClassState->State == FReadStateClass::EState::ExpectRoot)
 		{
-			TRY(ClassState->ReadClassRoot(OutNamePtr, CtxPtr));
+			TRY(ClassState->ReadClassRoot(OutClassPtr, CtxPtr));
 			return Ok();
 		}
 	}
@@ -198,17 +203,17 @@ FResult FPropertyReader::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPt
 		TRY(TopState.ReadDataEntry(UClassProperty::StaticClass(), EErrorCode::ReadClassFail, CtxPtr, Datum));
 
 		FReadStateClass& ChildClass = PushClassPropertyState(this, (UObject*)Datum.DataPtr);
-		TRY(ChildClass.ReadClassEnd(OutNamePtr, CtxPtr));
+		TRY(ChildClass.ReadClassEnd(OutClassPtr, CtxPtr));
 	}
 
 	return Ok();
 }
 
-FResult FPropertyReader::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FResult FPropertyReader::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
 	{
-		TRY(ClassState->ReadClassEnd(OutNamePtr, CtxPtr));
+		TRY(ClassState->ReadClassEnd(OutClassPtr, CtxPtr));
 		PopState<FReadStateClass>(this);
 		return Ok();
 	}
@@ -294,5 +299,6 @@ FResult FPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 		return Fail(EErrorCode::UnknownError);
 	}
 }
+
 
 } // namespace DataConfig

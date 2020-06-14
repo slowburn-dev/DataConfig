@@ -137,14 +137,14 @@ FResult FReadStateClass::EndReadValue()
 	}
 }
 
-FResult FReadStateClass::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+DataConfig::FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
 		check(ClassObject);
 		UClass* Cls = ClassObject->GetClass();
-		if (OutNamePtr)
-			*OutNamePtr = Cls->GetFName();
+		if (OutClassPtr)
+			OutClassPtr->Name = Cls->GetFName();
 
 		Property = FirstEffectiveProperty(Cls->PropertyLink);
 		if (Property == nullptr)
@@ -164,16 +164,16 @@ FResult FReadStateClass::ReadClassRoot(FName* OutNamePtr, FContextStorage* CtxPt
 	}
 }
 
-FResult FReadStateClass::ReadClassEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+DataConfig::FResult FReadStateClass::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
 		check(ClassObject);
 
-		if (OutNamePtr)
+		if (OutClassPtr)
 		{
-			*OutNamePtr = ClassObject->GetClass()->GetFName();
+			OutClassPtr->Name = ClassObject->GetClass()->GetFName();
 		}
 
 		return Ok();
