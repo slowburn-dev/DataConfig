@@ -33,8 +33,8 @@ struct FTestStruct_ObjRef
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) UTestObj_Alpha* AlphaRef;
-	UPROPERTY(EditAnywhere) UTestObj_Alpha* BetaRef;
+	UPROPERTY(EditAnywhere, Instanced) UTestObj_Alpha* AlphaRef;
+	UPROPERTY(EditAnywhere, Instanced) UTestObj_Alpha* BetaRef;
 
 };
 
