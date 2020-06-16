@@ -130,5 +130,6 @@ struct FPipeVisitor
 
 
 void PropertyVisitorRoundtrip();
+void JsonReader1();
 
 

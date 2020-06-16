@@ -9,9 +9,8 @@ IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
 static void Body()
 {
-	PropertyVisitorRoundtrip();
-	//PropertyReaderScaffolding();
-	//PropertyVisitorClassRoundtrip();
+	//PropertyVisitorRoundtrip();
+	JsonReader1();
 
 	return;
 }
