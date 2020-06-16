@@ -41,6 +41,12 @@ EDataEntry FJsonReader::Peek()
 		return EDataEntry::MapEnd;
 	else if (Char == TCharType('"'))
 		return EDataEntry::String;
+	else {
+#if DO_CHECK
+		PLATFORM_BREAK();
+#endif
+		return EDataEntry::Ended;
+	}
 
 	return EDataEntry::Ended;
 }
@@ -254,6 +260,11 @@ FResult FJsonReader::ReadMapEnd(FContextStorage* CtxPtr)
 	TRY(ReadCharExpect(TCharType('}'), EErrorCode::ReadMapEndFail));
 	PopTopState(EParseState::Object);
 
+	//	!!! HACK
+	//	we know it's always at value position due to JSON spec, so just set it
+	bTopObjectAtValue = true;
+
+	EndTopRead();
 	return Ok();
 }
 

@@ -15,6 +15,12 @@ void JsonReader1()
 			"Hello" : "JSON",
 			"Truthy" : true,
 			"Falsy" : false,
+			"Nest1" : {
+				"Nest1" : "yeah",
+			},
+			"Nest2" : {
+				"Nest2" : "wow",
+			},
 		}
 
 	)");
