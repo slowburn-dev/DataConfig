@@ -12,6 +12,8 @@ static void Body()
 	//PropertyVisitorRoundtrip();
 	JsonReader1();
 
+	UEStructSerializer();
+
 	return;
 }
 

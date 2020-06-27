@@ -133,3 +133,9 @@ void PropertyVisitorRoundtrip();
 void JsonReader1();
 
 
+
+void UEStructSerializer();
+
+
+
+

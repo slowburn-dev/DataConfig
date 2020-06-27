@@ -15,6 +15,9 @@ public class DataConfigTests : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Projects",
+				//	try out ue4 serialization
+				"Json",
+				"Serialization",
 			});
 
 		PrivateIncludePathModuleNames.AddRange(
