@@ -9,7 +9,7 @@ namespace DataConfig
 
 struct DATACONFIGCORE_API FDeserializer : public FNoncopyable
 {
-	FResult Deserialize(FReader& Reader, FPropertyDatum Datum, FDeserializeContext& Ctx);
+	FResult Deserialize(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx);
 };
 
 

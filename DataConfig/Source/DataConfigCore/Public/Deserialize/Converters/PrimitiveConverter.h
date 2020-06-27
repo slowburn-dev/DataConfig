@@ -9,11 +9,12 @@ namespace DataConfig
 
 struct DATACONFIGCORE_API FPrimitiveConverter : public IDeserializeConverter
 {
-	bool Prepare(FReader& Reader, FPropertyDatum& Datum, FDeserializeContext& Ctx) override;
-	FResult Deserialize(FReader& Reader, FPropertyDatum& Datum, FDeserializeContext& Ctx) override;
+	bool Prepare(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx) override;
+	FResult Deserialize(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx) override;
+
+	EDataEntry CurRead;
 };
 
-
-
 } // namespace DataConfig
+
 

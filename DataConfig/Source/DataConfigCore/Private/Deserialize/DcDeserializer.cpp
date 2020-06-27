@@ -3,7 +3,7 @@
 namespace DataConfig
 {
 
-FResult FDeserializer::Deserialize(FReader& Reader, FPropertyDatum Datum, FDeserializeContext& Ctx)
+FResult FDeserializer::Deserialize(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx)
 {
 	return Ok();
 }
