@@ -23,6 +23,7 @@ struct FBaseWriteState
 	virtual FResult Peek(EDataEntry Next);
 	virtual FResult WriteName(const FName& Value);
 	virtual FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum);
+	virtual FResult SkipWrite();
 
 	template<typename T>
 	T* As();
@@ -82,6 +83,7 @@ struct FWriteStateStruct : public FBaseWriteState
 	FResult Peek(EDataEntry Next) override;
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+	FResult SkipWrite() override;
 
 	FResult WriteStructRoot(const FName& Name);
 	FResult WriteStructEnd(const FName& Name);
@@ -136,12 +138,12 @@ struct FWriteStateClass : public FBaseWriteState
 	FResult Peek(EDataEntry Next) override;
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+	FResult SkipWrite() override;
 
 	FResult WriteNil();
 	FResult WriteClassRoot(const FClassPropertyStat& Class);
 	FResult WriteClassEnd(const FClassPropertyStat& Class);
 	FResult WriteReference(UObject* Value);
-
 };
 
 struct FWriteStateMap : public FBaseWriteState
@@ -176,6 +178,7 @@ struct FWriteStateMap : public FBaseWriteState
 	FResult Peek(EDataEntry Next) override;
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+	FResult SkipWrite() override;
 
 	FResult WriteMapRoot();
 	FResult WriteMapEnd();
@@ -210,12 +213,11 @@ struct FWriteStateArray : public FBaseWriteState
 	FResult Peek(EDataEntry Next) override;
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
+	FResult SkipWrite() override;
 
 	FResult WriteArrayRoot();
 	FResult WriteArrayEnd();
 };
-
-
 
 template<typename TProperty, typename TValue, EErrorCode ErrCode>
 FResult WriteValue(FBaseWriteState& State, const TValue& Value)

@@ -33,6 +33,9 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 
 	FResult WriteReference(UObject* Value) override;
 
+	//	skip current write at current position
+	FResult SkipWrite();
+
 	struct FPropertyState
 	{
 		using ImplStorageType = TAlignedStorage<64>::Type;

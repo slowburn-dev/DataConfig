@@ -8,6 +8,7 @@ namespace DataConfig
 FResult FBaseWriteState::Peek(EDataEntry Next) { return Fail(EErrorCode::UnknownError); }
 FResult FBaseWriteState::WriteName(const FName& Value){ return Fail(EErrorCode::UnknownError); }
 FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) { return Fail(EErrorCode::UnknownError); }
+FResult FBaseWriteState::SkipWrite() { return Fail(EErrorCode::UnknownError); }
 
 EPropertyWriteType FWriteStateNil::GetType()
 {
@@ -82,6 +83,15 @@ FResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorC
 
 	OutDatum.Property = Property;
 	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(StructPtr);
+
+	State = EState::ExpectKeyOrEnd;
+	return Ok();
+}
+
+FResult FWriteStateStruct::SkipWrite()
+{
+	if (State != EState::ExpectValue)
+		return Fail(EErrorCode::SkipWriteFail);
 
 	State = EState::ExpectKeyOrEnd;
 	return Ok();
@@ -187,6 +197,15 @@ FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 
 	OutDatum.Property = Property;
 	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(Datum.DataPtr);
+
+	State = EState::ExpectKeyOrEnd;
+	return Ok();
+}
+
+DataConfig::FResult FWriteStateClass::SkipWrite()
+{
+	if (State != EState::ExpectValue)
+		return Fail(EErrorCode::WriteClassValueFail);
 
 	State = EState::ExpectKeyOrEnd;
 	return Ok();
@@ -349,6 +368,25 @@ FResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 	}
 }
 
+FResult FWriteStateMap::SkipWrite()
+{
+	if (State == EState::ExpectKeyOrEnd)
+	{
+		State = EState::ExpectValue;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		++Index;
+		State = EState::ExpectKeyOrEnd;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::SkipWriteFail);
+	}
+}
+
 FResult FWriteStateMap::WriteMapRoot()
 {
 	if (State == EState::ExpectRoot)
@@ -422,6 +460,15 @@ FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 	ArrayHelper.AddValue();
 	OutDatum.Property = ArrayProperty->Inner;
 	OutDatum.DataPtr = ArrayHelper.GetRawPtr(Index);
+
+	++Index;
+	return Ok();
+}
+
+DataConfig::FResult FWriteStateArray::SkipWrite()
+{
+	if (State != EState::ExpectItemOrEnd)
+		return Fail(EErrorCode::SkipWriteFail);
 
 	++Index;
 	return Ok();

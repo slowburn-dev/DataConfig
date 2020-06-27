@@ -10,8 +10,7 @@
 
 using namespace DataConfig;
 
-
-void PropertyVisitorRoundtrip()
+void PropertyVisitorRoundtrip_Piped()
 {
 	FTestStruct_ObjRef ObjRef;
 
@@ -289,4 +288,68 @@ void PropertyVisitorRoundtrip_WriteNested()
 
 	return;
 }
+
+void PropertyVisitorRoundtrip()
+{
+	FNestStruct1 NestStruct{};
+	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+
+	//	Root
+	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.WriteStructRoot(FNestStruct1::StaticStruct()->GetFName()).Ok());
+
+	//	Outer Name
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.SkipWrite().Ok());
+
+	//	Nest Struct
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AStruct"))).Ok());
+	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.WriteStructRoot(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
+
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("ALPHA"))).Ok());
+
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("ABool"))).Ok());
+	check(Writer.Peek(EDataEntry::Bool).Ok());
+	check(Writer.WriteBool(true).Ok());
+
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AStr"))).Ok());
+	check(Writer.Peek(EDataEntry::String).Ok());
+	check(Writer.SkipWrite().Ok());
+
+	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end nested
+	check(Writer.WriteStructEnd(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
+
+	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.WriteName(FName(TEXT("AStruct2"))).Ok());
+	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.SkipWrite().Ok());
+
+	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end outer struct
+	check(Writer.WriteStructEnd(FNestStruct1::StaticStruct()->GetFName()).Ok());
+	check(Writer.Peek(EDataEntry::Ended).Ok());
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+		FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&Reader, &PrettyWriter);
+		FResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+		}
+	}
+
+	return;
+}
+
 

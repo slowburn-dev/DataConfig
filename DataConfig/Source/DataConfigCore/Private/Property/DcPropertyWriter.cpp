@@ -297,4 +297,9 @@ DataConfig::FResult FPropertyWriter::WriteReference(UObject* Value)
 	}
 }
 
+FResult FPropertyWriter::SkipWrite()
+{
+	return GetTopState(this).SkipWrite();
+}
+
 } // namespace DataConfig

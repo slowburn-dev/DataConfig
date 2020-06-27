@@ -7,6 +7,8 @@ enum class EErrorCode : uint32
 {
 	Ok = 0,
 
+	SkipWriteFail,
+
 	WriteNilFail,
 	WriteBoolFail,
 	WriteNameFail,
