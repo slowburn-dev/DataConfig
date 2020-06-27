@@ -5,18 +5,18 @@
 namespace DataConfig
 {
 
-bool FPrimitiveConverter::Prepare(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx)
+bool FPrimitiveConverter::Prepare(FReader& Reader, FPropertyWriter& Writer, FDeserializeContext& Ctx)
 {
-	bool bIsPrimitive = Datum.IsA<UBoolProperty>()
-		|| Datum.IsA<UNameProperty>()
-		|| Datum.IsA<UStrProperty>();
+	bool bIsPrimitive = Ctx.Property->IsA<UBoolProperty>()
+		|| Ctx.Property->IsA<UNameProperty>()
+		|| Ctx.Property->IsA<UStrProperty>();
 
 	CurRead = Reader.Peek();
 	bool bPeekPass = Writer.Peek(CurRead).Ok();
 	return bIsPrimitive && bPeekPass;
 }
 
-FResult FPrimitiveConverter::Deserialize(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx)
+FResult FPrimitiveConverter::Deserialize(FReader& Reader, FPropertyWriter& Writer, FDeserializeContext& Ctx)
 {
 	if (CurRead == EDataEntry::Bool)
 	{

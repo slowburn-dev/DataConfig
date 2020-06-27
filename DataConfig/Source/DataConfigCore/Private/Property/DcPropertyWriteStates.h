@@ -24,6 +24,7 @@ struct FBaseWriteState
 	virtual FResult WriteName(const FName& Value);
 	virtual FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum);
 	virtual FResult SkipWrite();
+	virtual FResult GetWriteProperty(UField** OutProperty);
 
 	template<typename T>
 	T* As();
@@ -84,6 +85,7 @@ struct FWriteStateStruct : public FBaseWriteState
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
 	FResult SkipWrite() override;
+	FResult GetWriteProperty(UField** OutProperty) override;
 
 	FResult WriteStructRoot(const FName& Name);
 	FResult WriteStructEnd(const FName& Name);
@@ -139,6 +141,7 @@ struct FWriteStateClass : public FBaseWriteState
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
 	FResult SkipWrite() override;
+	FResult GetWriteProperty(UField** OutProperty) override;
 
 	FResult WriteNil();
 	FResult WriteClassRoot(const FClassPropertyStat& Class);
@@ -179,6 +182,7 @@ struct FWriteStateMap : public FBaseWriteState
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
 	FResult SkipWrite() override;
+	FResult GetWriteProperty(UField** OutProperty) override;
 
 	FResult WriteMapRoot();
 	FResult WriteMapEnd();
@@ -214,6 +218,7 @@ struct FWriteStateArray : public FBaseWriteState
 	FResult WriteName(const FName& Value) override;
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) override;
 	FResult SkipWrite() override;
+	FResult GetWriteProperty(UField** OutProperty) override;
 
 	FResult WriteArrayRoot();
 	FResult WriteArrayEnd();

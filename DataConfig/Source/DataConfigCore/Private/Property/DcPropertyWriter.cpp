@@ -302,4 +302,9 @@ FResult FPropertyWriter::SkipWrite()
 	return GetTopState(this).SkipWrite();
 }
 
+FResult FPropertyWriter::GetWriteProperty(UField** OutProperty)
+{
+	return GetTopState(this).GetWriteProperty(OutProperty);
+}
+
 } // namespace DataConfig

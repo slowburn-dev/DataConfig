@@ -9,7 +9,8 @@ namespace DataConfig
 
 struct DATACONFIGCORE_API FDeserializer : public FNoncopyable
 {
-	FResult Deserialize(FReader& Reader, FPropertyWriter& Writer, FPropertyDatum Datum, FDeserializeContext& Ctx);
+	//	this is the recursvei entrant
+	FResult Deserialize(FReader& Reader, FPropertyWriter& Writer, FDeserializeContext& Ctx);
 };
 
 

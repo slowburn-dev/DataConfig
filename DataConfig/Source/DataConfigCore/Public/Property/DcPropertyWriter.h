@@ -35,6 +35,8 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 
 	//	skip current write at current position
 	FResult SkipWrite();
+	//	get the next write property
+	FResult GetWriteProperty(UField** OutProperty);
 
 	struct FPropertyState
 	{

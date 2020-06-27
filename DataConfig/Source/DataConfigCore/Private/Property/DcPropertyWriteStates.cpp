@@ -9,6 +9,7 @@ FResult FBaseWriteState::Peek(EDataEntry Next) { return Fail(EErrorCode::Unknown
 FResult FBaseWriteState::WriteName(const FName& Value){ return Fail(EErrorCode::UnknownError); }
 FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) { return Fail(EErrorCode::UnknownError); }
 FResult FBaseWriteState::SkipWrite() { return Fail(EErrorCode::UnknownError); }
+FResult FBaseWriteState::GetWriteProperty(UField** OutProperty) { return Fail(EErrorCode::UnknownError); }
 
 EPropertyWriteType FWriteStateNil::GetType()
 {
@@ -94,6 +95,15 @@ FResult FWriteStateStruct::SkipWrite()
 		return Fail(EErrorCode::SkipWriteFail);
 
 	State = EState::ExpectKeyOrEnd;
+	return Ok();
+}
+
+FResult FWriteStateStruct::GetWriteProperty(UField** OutProperty)
+{
+	if (State != EState::ExpectValue)
+		return Fail(EErrorCode::GetPropertyFail);
+
+	*OutProperty = Property;
 	return Ok();
 }
 
@@ -208,6 +218,15 @@ DataConfig::FResult FWriteStateClass::SkipWrite()
 		return Fail(EErrorCode::WriteClassValueFail);
 
 	State = EState::ExpectKeyOrEnd;
+	return Ok();
+}
+
+FResult FWriteStateClass::GetWriteProperty(UField** OutProperty)
+{
+	if (State != EState::ExpectValue)
+		return Fail(EErrorCode::GetPropertyFail);
+
+	*OutProperty = Datum.Property;
 	return Ok();
 }
 
@@ -387,6 +406,24 @@ FResult FWriteStateMap::SkipWrite()
 	}
 }
 
+FResult FWriteStateMap::GetWriteProperty(UField** OutProperty)
+{
+	if (State == EState::ExpectKeyOrEnd)
+	{
+		*OutProperty = MapProperty->KeyProp;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		*OutProperty = MapProperty->ValueProp;
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::GetPropertyFail);
+	}
+}
+
 FResult FWriteStateMap::WriteMapRoot()
 {
 	if (State == EState::ExpectRoot)
@@ -471,6 +508,15 @@ DataConfig::FResult FWriteStateArray::SkipWrite()
 		return Fail(EErrorCode::SkipWriteFail);
 
 	++Index;
+	return Ok();
+}
+
+FResult FWriteStateArray::GetWriteProperty(UField** OutProperty)
+{
+	if (State != EState::ExpectItemOrEnd)
+		return Fail(EErrorCode::GetPropertyFail);
+
+	*OutProperty = ArrayProperty->Inner;
 	return Ok();
 }
 
