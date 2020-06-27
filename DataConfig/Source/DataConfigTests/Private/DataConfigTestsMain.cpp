@@ -9,9 +9,10 @@ IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
 static void Body()
 {
-	PropertyVisitorRoundtrip();
+	//PropertyVisitorRoundtrip();
 	//JsonReader1();
 	//UEStructSerializer();
+	DeserializeSimple();
 
 	return;
 }

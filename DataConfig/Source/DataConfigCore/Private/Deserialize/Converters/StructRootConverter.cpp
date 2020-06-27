@@ -21,6 +21,8 @@ FResult FStructRootConverter::Deserialize(FReader& Reader, FPropertyWriter& Writ
 {
 	if (RootPeek == EDataEntry::MapRoot)
 	{
+		TRY(Writer.GetWriteProperty(&Ctx.Property));
+
 		TRY(Reader.ReadMapRoot(nullptr));
 		TRY(Writer.WriteStructRoot(Ctx.Property->GetFName()));
 
@@ -42,17 +44,23 @@ FResult FStructRootConverter::Deserialize(FReader& Reader, FPropertyWriter& Writ
 				TRY(Writer.WriteName(FName(*Value)));
 			}
 
-			//	process value
+			TRY(Writer.GetWriteProperty(&Ctx.Property));
 			TRY(Ctx.Deserializer->Deserialize(
 				Reader,
 				Writer,
-				//	TODO get the datum from the writer
 				Ctx
 			));
-		}
-	}
 
-	return Ok();
+			CurPeek = Reader.Peek();
+		}
+
+		TRY(Reader.ReadMapEnd(nullptr));
+		return Ok();
+	}
+	else
+	{
+		return Fail(EErrorCode::UnknownError);
+	}
 }
 
 

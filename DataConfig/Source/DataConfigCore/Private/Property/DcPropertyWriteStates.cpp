@@ -100,11 +100,20 @@ FResult FWriteStateStruct::SkipWrite()
 
 FResult FWriteStateStruct::GetWriteProperty(UField** OutProperty)
 {
-	if (State != EState::ExpectValue)
+	if (State == EState::ExpectRoot)
+	{
+		*OutProperty = StructClass;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		*OutProperty = Property;
+		return Ok();
+	}
+	else
+	{
 		return Fail(EErrorCode::GetPropertyFail);
-
-	*OutProperty = Property;
-	return Ok();
+	}
 }
 
 FResult FWriteStateStruct::WriteStructRoot(const FName& Name)
@@ -223,11 +232,20 @@ DataConfig::FResult FWriteStateClass::SkipWrite()
 
 FResult FWriteStateClass::GetWriteProperty(UField** OutProperty)
 {
-	if (State != EState::ExpectValue)
+	if (State == EState::ExpectRoot)
+	{
+		*OutProperty = Class;
+		return Ok();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		*OutProperty = Datum.Property;
+		return Ok();
+	}
+	else
+	{
 		return Fail(EErrorCode::GetPropertyFail);
-
-	*OutProperty = Datum.Property;
-	return Ok();
+	}
 }
 
 DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& ClassStat)

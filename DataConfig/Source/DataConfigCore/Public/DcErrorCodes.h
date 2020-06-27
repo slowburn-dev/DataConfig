@@ -107,6 +107,11 @@ enum class EErrorCode : uint32
 	//	Reference
 	ReadReferenceFail,
 
+
+	//	Deserializer
+	NoMatchingDeserializer,
+
+
 	//	global fallback
 	UnknownError,
 };
