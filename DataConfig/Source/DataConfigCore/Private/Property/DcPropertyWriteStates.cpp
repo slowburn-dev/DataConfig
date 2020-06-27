@@ -210,7 +210,7 @@ DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& C
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
 			{
-				UObjectProperty* ObjProperty = Datum.As<UObjectProperty>();
+				UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 				Datum.DataPtr = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
 				Datum.Property = ObjProperty->PropertyClass;
 
@@ -253,7 +253,7 @@ FResult FWriteStateClass::WriteNil()
 {
 	if (State == EState::ExpectNil)
 	{
-		Datum.As<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
+		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
 
 		State = EState::ExpectKeyOrEnd;
 		return Ok();
@@ -268,7 +268,7 @@ FResult FWriteStateClass::WriteReference(UObject* Value)
 {
 	if (State == EState::ExpectReference)
 	{
-		Datum.As<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, Value);
+		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, Value);
 
 		State = EState::ExpectKeyOrEnd;
 		return Ok();

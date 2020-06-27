@@ -223,7 +223,7 @@ FResult WriteValue(FBaseWriteState& State, const TValue& Value)
 	FPropertyDatum Datum;
 	TRY(State.WriteDataEntry(TProperty::StaticClass(), ErrCode, Datum));
 
-	Datum.As<TProperty>()->SetPropertyValue(Datum.DataPtr, Value);
+	Datum.CastChecked<TProperty>()->SetPropertyValue(Datum.DataPtr, Value);
 	return Ok();
 }
 

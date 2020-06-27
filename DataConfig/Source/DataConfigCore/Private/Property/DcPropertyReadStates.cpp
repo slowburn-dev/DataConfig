@@ -83,7 +83,7 @@ FResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 
 		if (OutNamePtr)
 		{
-			*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+			*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
 		}
 
 		return Ok();
@@ -317,7 +317,7 @@ FResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 
 		if (OutNamePtr)
 		{
-			*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+			*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
 		}
 
 		return Ok();
@@ -464,7 +464,7 @@ FResult FReadStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 
 	if (OutNamePtr)
 	{
-		*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+		*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
 	return Ok();
@@ -604,7 +604,7 @@ FResult FReadStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 
 	if (OutNamePtr)
 	{
-		*OutNamePtr = Datum.As<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
+		*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
 	return Ok();

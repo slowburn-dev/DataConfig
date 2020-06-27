@@ -25,11 +25,23 @@ struct DATACONFIGCORE_API FPropertyDatum
 	}
 
 	template<typename TProperty>
-	FORCEINLINE TProperty* As()
+	FORCEINLINE TProperty* CastChecked()
 	{
-		return CastChecked<TProperty>(Property);
+		return ::CastChecked<TProperty>(Property);
 	}
 
+	template<typename TProperty>
+	FORCEINLINE TProperty* Cast()
+	{
+		return ::Cast<TProperty>(Property);
+	}
+
+	template<typename TProperty>
+	FORCEINLINE bool IsA()
+	{
+		check(Property);
+		return Property->IsA<TProperty>();
+	}
 
 	static const FPropertyDatum NONE;
 };

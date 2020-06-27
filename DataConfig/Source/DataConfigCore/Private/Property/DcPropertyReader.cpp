@@ -83,7 +83,7 @@ FORCEINLINE FResult ReadTopStateProperty(FPropertyReader* Self, TPrimitive* OutP
 
 	if (OutPtr)
 	{
-		*OutPtr = Datum.As<TProperty>()->GetPropertyValue(Datum.DataPtr);
+		*OutPtr = Datum.CastChecked<TProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
 	return Ok();
@@ -105,7 +105,7 @@ FPropertyReader::FPropertyReader(FPropertyDatum Datum)
 	{
 		UObject* Obj = (UObject*)(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassPropertyState(this, Obj, Datum.As<UClass>(), FReadStateClass::EType::Root);
+		PushClassPropertyState(this, Obj, Datum.CastChecked<UClass>(), FReadStateClass::EType::Root);
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -141,7 +141,7 @@ FResult FPropertyReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 
 	if (OutPtr)
 	{
-		*OutPtr = Datum.As<UStrProperty>()->GetPropertyValue(Datum.DataPtr);
+		*OutPtr = Datum.CastChecked<UStrProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
 	return Ok();
@@ -164,7 +164,7 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 		FPropertyDatum Datum;
 		TRY(TopState.ReadDataEntry(UStructProperty::StaticClass(), EErrorCode::ReadStructFail, CtxPtr, Datum));
 
-		FReadStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.As<UStructProperty>()->Struct);
+		FReadStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
 		TRY(ChildStruct.ReadStructRoot(OutNamePtr, CtxPtr));
 	}
 
@@ -202,7 +202,7 @@ FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 		FPropertyDatum Datum;
 		TRY(TopState.ReadDataEntry(UObjectProperty::StaticClass(), EErrorCode::ReadClassFail, CtxPtr, Datum));
 
-		UObjectProperty* ObjProperty = Datum.As<UObjectProperty>();
+		UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 		check(ObjProperty);
 		FReadStateClass& ChildClass = PushClassPropertyState(
 			this,
@@ -249,7 +249,7 @@ FResult FPropertyReader::ReadMapRoot(FContextStorage* CtxPtr)
 		FPropertyDatum Datum;
 		TRY(TopState.ReadDataEntry(UMapProperty::StaticClass(), EErrorCode::ReadMapFail, CtxPtr, Datum));
 
-		FReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.As<UMapProperty>());
+		FReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
 		TRY(ChildMap.ReadMapRoot(CtxPtr));
 	}
 
@@ -288,7 +288,7 @@ FResult FPropertyReader::ReadArrayRoot(FContextStorage* CtxPtr)
 		FPropertyDatum Datum;
 		TRY(TopState.ReadDataEntry(UArrayProperty::StaticClass(), EErrorCode::ReadArrayFail, CtxPtr, Datum));
 
-		FReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.As<UArrayProperty>());
+		FReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
 		TRY(ChildArray.ReadArrayRoot(CtxPtr));
 	}
 

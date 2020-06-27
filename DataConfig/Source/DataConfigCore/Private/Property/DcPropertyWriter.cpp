@@ -88,7 +88,7 @@ FPropertyWriter::FPropertyWriter(FPropertyDatum Datum)
 	{
 		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassRootState(this, Obj, Datum.As<UClass>());
+		PushClassRootState(this, Obj, Datum.CastChecked<UClass>());
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -139,7 +139,7 @@ FResult FPropertyWriter::WriteStructRoot(const FName& Name)
 		FPropertyDatum Datum;
 		TRY(TopState.WriteDataEntry(UStructProperty::StaticClass(), EErrorCode::WriteStructRootFail, Datum));
 			
-		FWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.As<UStructProperty>()->Struct);
+		FWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
 		TRY(ChildStruct.WriteStructRoot(Name));
 	}
 
@@ -176,7 +176,7 @@ DataConfig::FResult FPropertyWriter::WriteClassRoot(const FClassPropertyStat& Cl
 		FPropertyDatum Datum;
 		TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
 
-		UObjectProperty* ObjProperty = Datum.As<UObjectProperty>();
+		UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 		check(ObjProperty);
 		FWriteStateClass& ChildClass = PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
 		TRY(ChildClass.WriteClassRoot(Class));
@@ -215,7 +215,7 @@ FResult FPropertyWriter::WriteMapRoot()
 		FPropertyDatum Datum;
 		TRY(TopState.WriteDataEntry(UMapProperty::StaticClass(), EErrorCode::WriteMapFail, Datum));
 
-		FWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.As<UMapProperty>());
+		FWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
 		TRY(ChildMap.WriteMapRoot());
 	}
 
@@ -252,7 +252,7 @@ FResult FPropertyWriter::WriteArrayRoot()
 		FPropertyDatum Datum;
 		TRY(TopState.WriteDataEntry(UArrayProperty::StaticClass(), EErrorCode::WriteArrayFail, Datum));
 
-		FWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.As<UArrayProperty>());
+		FWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
 		TRY(ChildArray.WriteArrayRoot());
 	}
 

@@ -39,10 +39,7 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 		ImplStorageType ImplStorage;
 	};
 
-	TArray<FPropertyState, TInlineAllocator<8>> States;
-
-
-
+	TArray<FPropertyState, TInlineAllocator<4>> States;
 };
 
 
