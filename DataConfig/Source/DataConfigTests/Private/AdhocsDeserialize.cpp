@@ -1,8 +1,8 @@
 #include "Adhocs.h"
 #include "Deserialize/DcDeserializer.h"
 #include "Deserialize/DcDeserializeTypes.h"
-#include "Deserialize/Converters/StructRootConverter.h"
-#include "Deserialize/Converters/PrimitiveConverter.h"
+#include "Deserialize/Converters/DcPrimitiveDeserializers.h"
+#include "Deserialize/Converters/DcStructDeserializers.h"
 #include "Json/DcJsonReader.h"
 #include "Property/DcPropertyWriter.h"
 
@@ -11,8 +11,12 @@ void DeserializeSimple()
 	using namespace DataConfig;
 
 	FDeserializer Deserializer;
-	Deserializer.AddConverter(MakeShareable(new FStructRootConverter));
-	Deserializer.AddConverter(MakeShareable(new FPrimitiveConverter));
+	//Deserializer.AddConverter(MakeShareable(new FStructRootConverter));
+	//Deserializer.AddConverter(MakeShareable(new FPrimitiveConverter));
+	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(BoolDeserializeHandler));
+	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(NameDeserializeHandler));
+	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StringDeserializeHandler));
+	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
 
 	FJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -28,8 +32,11 @@ void DeserializeSimple()
 	FPropertyWriter Writer(FPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
 
 	FDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
-	Deserializer.Deserialize(Reader, Writer, Ctx);
+	Ctx.Properties.Push(FTestStruct_Alpha::StaticStruct());
+	Deserializer.Deserialize(Ctx);
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);

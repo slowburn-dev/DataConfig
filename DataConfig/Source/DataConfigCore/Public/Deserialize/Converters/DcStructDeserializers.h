@@ -15,6 +15,8 @@ struct DATACONFIGCORE_API FStructRootConverter : public IDeserializeConverter
 	EDataEntry RootPeek;
 };
 
+FResult DATACONFIGCORE_API StructRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+
 
 } // namespace DataConfig
 

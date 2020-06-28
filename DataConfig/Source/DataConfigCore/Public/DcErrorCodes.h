@@ -110,6 +110,7 @@ enum class EErrorCode : uint32
 
 	//	Deserializer
 	NoMatchingDeserializer,
+	DeserializeTypeNotMatch,
 
 
 	//	global fallback
