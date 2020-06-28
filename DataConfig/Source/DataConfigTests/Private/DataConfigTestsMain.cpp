@@ -13,7 +13,8 @@ static void Body()
 	//JsonReader1();
 	//UEStructSerializer();
 	//DeserializeSimple();
-	DeserializeNestedStruct();
+	//DeserializeNestedStruct();
+	DeserializeObjectRoot();
 
 	return;
 }

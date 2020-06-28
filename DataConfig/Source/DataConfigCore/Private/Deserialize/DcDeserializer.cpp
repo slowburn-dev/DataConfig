@@ -20,6 +20,7 @@ FResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
 
 	EDeserializeResult HandlerRet;
 	TRY(HandlerPtr->Execute(Ctx, HandlerRet));
+	check(HandlerRet != EDeserializeResult::Unknown);
 
 	if (HandlerRet == EDeserializeResult::CanNotProcess)
 	{

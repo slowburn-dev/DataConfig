@@ -175,7 +175,8 @@ FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 
 				return Ok();
 			}
-			else if (Type == EType::PropertyInstanced)
+			else if (Type == EType::PropertyInstanced
+				|| Type == EType::Root)
 			{
 				check(ClassObject);
 				UClass* Cls = ClassObject->GetClass();

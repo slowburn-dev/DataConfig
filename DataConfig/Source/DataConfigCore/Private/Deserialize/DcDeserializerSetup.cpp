@@ -5,6 +5,7 @@
 #include "Deserialize/DcDeserializeTypes.h"
 #include "Deserialize/Handlers/DcPrimitiveDeserializers.h"
 #include "Deserialize/Handlers/DcStructDeserializers.h"
+#include "Deserialize/Handlers/DcClassDeserializers.h"
 
 namespace DataConfig
 {
@@ -19,6 +20,10 @@ void SetupDefaultDeserializeHandlers(FDeserializer& Deserializer)
 	//	Struct
 	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
 	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
+
+	//	Class
+	Deserializer.AddDirectHandler(UClass::StaticClass(), FDeserializeDelegate::CreateStatic(ClassRootDeserializeHandler));
+
 }
 
 } // namespace DataConfig

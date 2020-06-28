@@ -123,7 +123,7 @@ enum class EDataEntry
 enum class EDataReference
 {
 	ExternalReference,
-	InlineObject,
+	InlineObject,	// rename this to like `ExpandObject`
 	NullReference,
 };
 

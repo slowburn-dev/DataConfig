@@ -5,6 +5,20 @@
 #include "Json/DcJsonReader.h"
 #include "Property/DcPropertyWriter.h"
 
+static void Dump(FPropertyDatum Datum)
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+	FPropertyReader PropReader(Datum);
+	FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+	FPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
+	FResult Ret = PrettyPrintVisit.PipeVisit();
+	if (!Ret.Ok())
+	{
+		UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+	}
+}
+
+
 void DeserializeSimple()
 {
 	using namespace DataConfig;
@@ -32,17 +46,7 @@ void DeserializeSimple()
 	Ctx.Properties.Push(FTestStruct_Alpha::StaticStruct());
 	Deserializer.Deserialize(Ctx);
 
-	{
-		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPropertyReader PropReader(FPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
-		FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
-		if (!Ret.Ok())
-		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
-		}
-	}
+	Dump(FPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
 }
 
 
@@ -79,19 +83,43 @@ void DeserializeNestedStruct()
 	Ctx.Properties.Push(FNestStruct1::StaticStruct());
 	Deserializer.Deserialize(Ctx);
 
-	{
-		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPropertyReader PropReader(FPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
-		FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
-		if (!Ret.Ok())
-		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
-		}
-	}
+
+	Dump(FPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
 }
 
+void DeserializeObjectRoot()
+{
+	using namespace DataConfig;
+
+	FDeserializer Deserializer;
+	SetupDefaultDeserializeHandlers(Deserializer);
+
+	UTestClass_Alpha* Obj = NewObject<UTestClass_Alpha>();
+	FPropertyWriter Writer(FPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
+
+	FJsonReader Reader;
+	FString Str = TEXT(R"(
+		{
+			"AName" : "FromJson",
+			"ABool" : true,
+			"AStr" : "Wooooooot",
+			"AStruct" : {
+				"ABool" : true,
+				"AStr" : "Nest1",
+			},
+		}
+	)");
+	Reader.SetNewString(&Str);
+
+	FDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Push(UTestClass_Alpha::StaticClass());
+	Deserializer.Deserialize(Ctx);
+
+	Dump(FPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
+}
 
 
 
