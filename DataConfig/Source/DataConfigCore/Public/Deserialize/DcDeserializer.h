@@ -9,18 +9,10 @@ namespace DataConfig
 
 struct DATACONFIGCORE_API FDeserializer : public FNoncopyable
 {
-	FResult Deserialize(FReader& Reader, FPropertyWriter& Writer, FDeserializeContext& Ctx);
-
 	FResult Deserialize(FDeserializeContext& Ctx);
-
-	//	note that this must be const ref so it can be bound to rvalue
-	void AddConverter(const TSharedRef<IDeserializeConverter>& NewConverter);
-
-	TArray<TSharedRef<IDeserializeConverter>> Converters;
 
 	void AddDirectHandler(UClass* PropertyClass, FDeserializeDelegate&& Delegate);
 	TMap<UClass*, FDeserializeDelegate> DirectDeserializersMap;
-
 };
 
 

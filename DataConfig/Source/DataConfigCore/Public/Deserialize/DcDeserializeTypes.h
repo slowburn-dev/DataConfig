@@ -68,18 +68,6 @@ struct FScopedProperty
 
 
 
-struct DATACONFIGCORE_API IDeserializeConverter : public TSharedFromThis<IDeserializeConverter>
-{
-	virtual ~IDeserializeConverter();
-
-	//	rename this to `Prepare` to indicate that this can have side effects
-	//	guarentee that when Prepare returns true, Deserialize will use the same Arguments for processing
-	virtual bool Prepare(FReader& Reader, FPropertyWriter& Writer, FDeserializeContext& Ctx) = 0;
-
-	virtual FResult Deserialize(FReader& Reader, FPropertyWriter& Writer, FDeserializeContext& Ctx) = 0;
-};
-
-
 } // namespace DataConfig
 
 

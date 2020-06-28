@@ -11,8 +11,6 @@ void DeserializeSimple()
 	using namespace DataConfig;
 
 	FDeserializer Deserializer;
-	//Deserializer.AddConverter(MakeShareable(new FStructRootConverter));
-	//Deserializer.AddConverter(MakeShareable(new FPrimitiveConverter));
 	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(BoolDeserializeHandler));
 	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(NameDeserializeHandler));
 	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StringDeserializeHandler));

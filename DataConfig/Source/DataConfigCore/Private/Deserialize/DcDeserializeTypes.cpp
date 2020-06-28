@@ -3,10 +3,6 @@
 
 namespace DataConfig {
 
-
-IDeserializeConverter::~IDeserializeConverter()
-{}
-
 FResult FScopedProperty::PushProperty()
 {
 	TRY(Ctx.Writer->GetWriteProperty(&Property));
