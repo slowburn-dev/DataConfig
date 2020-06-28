@@ -12,7 +12,8 @@ static void Body()
 	//PropertyVisitorRoundtrip();
 	//JsonReader1();
 	//UEStructSerializer();
-	DeserializeSimple();
+	//DeserializeSimple();
+	DeserializeNestedStruct();
 
 	return;
 }

@@ -1,3 +1,5 @@
+#include "Templates/Casts.h"
+#include "UObject/UnrealType.h"
 #include "Deserialize/Converters/DcStructDeserializers.h"
 #include "Deserialize/DcDeserializer.h"
 #include "Reader/DcReader.h"
@@ -5,6 +7,23 @@
 
 namespace DataConfig
 {
+
+
+static FName GetStructName(UField* Property)
+{
+	if (UStructProperty* StructProperty = Cast<UStructProperty>(Property))
+	{
+		return StructProperty->Struct->GetFName();
+	}
+	else if (UScriptStruct* StructClass = Cast<UScriptStruct>(Property))
+	{
+		return StructClass->GetFName();
+	}
+	else
+	{
+		return FName();
+	}
+}
 
 FResult DATACONFIGCORE_API StructRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
@@ -23,7 +42,7 @@ FResult DATACONFIGCORE_API StructRootDeserializeHandler(FDeserializeContext& Ctx
 	if (Next == EDataEntry::MapRoot)
 	{
 		TRY(Ctx.Reader->ReadMapRoot(nullptr));
-		TRY(Ctx.Writer->WriteStructRoot(Ctx.TopProperty()->GetFName()));
+		TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
 
 		EDataEntry CurPeek = Ctx.Reader->Peek();
 		while (CurPeek != EDataEntry::MapEnd)
@@ -57,7 +76,7 @@ FResult DATACONFIGCORE_API StructRootDeserializeHandler(FDeserializeContext& Ctx
 		}
 
 		TRY(Ctx.Reader->ReadMapEnd(nullptr));
-		TRY(Ctx.Writer->WriteStructEnd(Ctx.TopProperty()->GetFName()));
+		TRY(Ctx.Writer->WriteStructEnd(GetStructName(Ctx.TopProperty())));
 
 		return OkWithProcessed(OutRet);
 	}

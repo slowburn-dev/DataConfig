@@ -50,6 +50,57 @@ void DeserializeSimple()
 }
 
 
+void DeserializeNestedStruct()
+{
+	using namespace DataConfig;
+
+	FDeserializer Deserializer;
+	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(BoolDeserializeHandler));
+	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(NameDeserializeHandler));
+	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StringDeserializeHandler));
+	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
+	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
+
+	FJsonReader Reader;
+	FString Str = TEXT(R"(
+		{
+			"AName" : "FromJson",
+			"AStruct" : {
+				"ABool" : true,
+				"AStr" : "Nest1",
+			},
+			"AStruct2" : {
+				"ABool" : false,
+				"AStr" : "Nest2",
+			},
+		}
+	)");
+	Reader.SetNewString(&Str);
+
+	FNestStruct1 OutNest;
+	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
+
+	FDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Push(FNestStruct1::StaticStruct());
+	Deserializer.Deserialize(Ctx);
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FPropertyReader PropReader(FPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
+		FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+		FPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
+		FResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+		}
+	}
+}
+
+
 
 
 
