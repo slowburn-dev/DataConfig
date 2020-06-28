@@ -1,8 +1,7 @@
 #include "Adhocs.h"
 #include "Deserialize/DcDeserializer.h"
 #include "Deserialize/DcDeserializeTypes.h"
-#include "Deserialize/Converters/DcPrimitiveDeserializers.h"
-#include "Deserialize/Converters/DcStructDeserializers.h"
+#include "Deserialize/DcDeserializerSetup.h"
 #include "Json/DcJsonReader.h"
 #include "Property/DcPropertyWriter.h"
 
@@ -11,10 +10,7 @@ void DeserializeSimple()
 	using namespace DataConfig;
 
 	FDeserializer Deserializer;
-	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(BoolDeserializeHandler));
-	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(NameDeserializeHandler));
-	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StringDeserializeHandler));
-	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
+	SetupDefaultDeserializeHandlers(Deserializer);
 
 	FJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -55,11 +51,7 @@ void DeserializeNestedStruct()
 	using namespace DataConfig;
 
 	FDeserializer Deserializer;
-	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(BoolDeserializeHandler));
-	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(NameDeserializeHandler));
-	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StringDeserializeHandler));
-	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
-	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
+	SetupDefaultDeserializeHandlers(Deserializer);
 
 	FJsonReader Reader;
 	FString Str = TEXT(R"(
