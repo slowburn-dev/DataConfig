@@ -12,6 +12,11 @@ namespace DataConfig
 
 FResult DATACONFIGCORE_API ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
 
+FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+
+FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+
+
 
 
 } // namespace DataConfig

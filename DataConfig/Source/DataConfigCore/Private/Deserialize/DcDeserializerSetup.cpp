@@ -23,6 +23,7 @@ void SetupDefaultDeserializeHandlers(FDeserializer& Deserializer)
 
 	//	Class
 	Deserializer.AddDirectHandler(UClass::StaticClass(), FDeserializeDelegate::CreateStatic(ClassRootDeserializeHandler));
+	Deserializer.AddDirectHandler(UObjectProperty::StaticClass(), FDeserializeDelegate::CreateStatic(ObjectReferenceDeserializeHandler));
 
 }
 

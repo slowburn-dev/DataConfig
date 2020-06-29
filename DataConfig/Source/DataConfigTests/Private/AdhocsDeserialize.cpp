@@ -121,6 +121,36 @@ void DeserializeObjectRoot()
 	Dump(FPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
 }
 
+void DeserializeObjectRef()
+{
+	using namespace DataConfig;
+
+	FDeserializer Deserializer;
+	SetupDefaultDeserializeHandlers(Deserializer);
+
+	FObjReference ObjRef{};		// default initialized OR READER WILL THROW
+	FPropertyWriter Writer(FPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
+
+	FJsonReader Reader;
+	//	TODO
+	//	for now we can only get this to work, figure a way to add access raw asset or add something
+	//	in DataConfigTests/Content
+	FString Str = TEXT(R"(
+		{
+			"Obj1" : "Object'/Script/DataConfigTests'",
+		}
+	)");
+	Reader.SetNewString(&Str);
+
+	FDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Push(FObjReference::StaticStruct());
+	Deserializer.Deserialize(Ctx);
+
+	Dump(FPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
+}
 
 
 

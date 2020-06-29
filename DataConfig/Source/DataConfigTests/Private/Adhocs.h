@@ -93,8 +93,6 @@ struct FKeyableStruct
 	{
 		return Lhs != Rhs;
 	}
-
-
 };
 
 USTRUCT()
@@ -117,6 +115,17 @@ class UTestClass_Alpha : public UObject
 	UPROPERTY(EditAnywhere) FTestStruct_Alpha AStruct;
 };
 
+USTRUCT()
+struct FObjReference
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) UObject* Obj1;
+	UPROPERTY(EditAnywhere) UObject* Obj2;
+	UPROPERTY(EditAnywhere) UObject* Obj3;
+};
+
+
 using namespace DataConfig;
 struct FPipeVisitor
 {
@@ -127,6 +136,7 @@ struct FPipeVisitor
 
 	FResult PipeVisit();
 };
+
 
 
 void PropertyVisitorRoundtrip();

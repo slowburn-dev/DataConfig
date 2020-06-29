@@ -2,6 +2,7 @@
 #include "Deserialize/DcDeserializer.h"
 #include "Reader/DcReader.h"
 #include "Property/DcPropertyWriter.h"
+#include "UObject/Package.h"
 
 namespace DataConfig
 {
@@ -9,9 +10,7 @@ namespace DataConfig
 FResult DATACONFIGCORE_API DataConfig::ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
-	bool bRootPeekPass = Next == EDataEntry::StructRoot
-		|| Next == EDataEntry::ClassRoot
-		|| Next == EDataEntry::MapRoot;
+	bool bRootPeekPass = Next == EDataEntry::MapRoot;
 
 	bool bWritePass = Ctx.Writer->Peek(EDataEntry::ClassRoot).Ok();
 	bool bPropertyPass = Ctx.TopProperty()->IsA<UClass>();
@@ -67,9 +66,144 @@ FResult DATACONFIGCORE_API DataConfig::ClassRootDeserializeHandler(FDeserializeC
 	{
 		return Fail(EErrorCode::UnknownError);
 	}
+}
 
+static FResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDeserializeContext& Ctx, UObject*& OutLoaded)
+{
+	TRY(Expect(LoadClass != nullptr, EErrorCode::UnknownError));
+	TRY(Expect(LoadClass->IsChildOf(ObjectProperty->PropertyClass), EErrorCode::UnknownError));
+	UObject* Loaded = StaticLoadObject(LoadClass, nullptr, *LoadPath, nullptr);
+	TRY(Expect(Loaded != nullptr, EErrorCode::UnknownError));
+
+	OutLoaded = Loaded;
 	return Ok();
 }
 
+
+FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+{
+	EDataEntry Next = Ctx.Reader->Peek();
+	bool bRootPeekPass = Next == EDataEntry::String
+		|| Next == EDataEntry::Nil
+		|| Next == EDataEntry::MapRoot;
+
+	bool bWritePass = Ctx.Writer->Peek(EDataEntry::ClassRoot).Ok();
+	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
+	bool bPropertyPass = Ctx.TopProperty()->IsA<UObjectProperty>();
+
+	if (!(bRootPeekPass && bWritePass && bPropertyPass))
+	{
+		return OkWithCanNotProcess(OutRet);
+	}
+
+	FClassPropertyStat RefStat {
+		ObjectProperty->PropertyClass->GetFName(), EDataReference::ExternalReference
+	};
+	FClassPropertyStat NullStat {
+		ObjectProperty->PropertyClass->GetFName(), EDataReference::NullReference
+	};
+
+	if (Next == EDataEntry::String)
+	{
+		FString Value;
+		TRY(Ctx.Reader->ReadString(&Value, nullptr));
+
+		if (Value.EndsWith(TEXT("'")))
+		{
+			//	UE4 copied reference style
+			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
+			//	ref: FPropertyHandleObject::SetValueFromFormattedString
+			UObject* Loaded = nullptr;
+			const TCHAR* ValueBuffer = *Value;
+			if (UObjectPropertyBase::ParseObjectPropertyValue(
+				ObjectProperty,
+				nullptr,	// see PropertyHandleImpl.cpp it's using nullptr
+				ObjectProperty->PropertyClass,
+				0,
+				ValueBuffer,
+				Loaded))
+			{
+				if (Loaded)
+				{
+					TRY(Ctx.Writer->WriteClassRoot(RefStat));
+					TRY(Ctx.Writer->WriteReference(Loaded));
+					TRY(Ctx.Writer->WriteClassEnd(RefStat));
+
+					return OkWithProcessed(OutRet);
+				}
+			}
+
+			return Fail(EErrorCode::UnknownError);
+		}
+		else if (Value.StartsWith(TEXT("/")))
+		{
+			//	"Game/Path/To/Object"
+			UObject* Loaded;
+			TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
+
+			TRY(Ctx.Writer->WriteClassRoot(RefStat));
+			TRY(Ctx.Writer->WriteReference(Loaded));
+			TRY(Ctx.Writer->WriteClassEnd(RefStat));
+
+			return OkWithProcessed(OutRet);
+		}
+		else
+		{
+			return Fail(EErrorCode::UnknownError);
+		}
+	}
+	else if (Next == EDataEntry::MapRoot)
+	{
+		//	{
+		//		['$type'] = 'FooType',
+		//		['$path'] = '/Game/Path/To/Object'
+		//	}
+		//	note that this requires JSON member order
+
+		TRY(Ctx.Reader->ReadMapRoot(nullptr));
+		FString KeyValue;
+		TRY(Ctx.Reader->ReadString(&KeyValue, nullptr));
+		TRY(Expect(KeyValue == TEXT("$type"), EErrorCode::UnknownError));
+
+		FString LoadClassName;
+		TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
+
+		TRY(Ctx.Reader->ReadString(&KeyValue, nullptr));
+		TRY(Expect(KeyValue == TEXT("$path"), EErrorCode::UnknownError));
+
+		FString LoadPath;
+		TRY(Ctx.Reader->ReadString(&LoadPath, nullptr));
+		TRY(Ctx.Reader->ReadMapEnd(nullptr));
+
+		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *LoadClassName, true);
+		TRY(Expect(LoadClass != nullptr, EErrorCode::UnknownError));
+
+		UObject* Loaded;
+		TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
+
+		TRY(Ctx.Writer->WriteClassRoot(RefStat));
+		TRY(Ctx.Writer->WriteReference(Loaded));
+		TRY(Ctx.Writer->WriteClassEnd(RefStat));
+
+		return OkWithProcessed(OutRet);
+	}
+	else if (Next == EDataEntry::Nil)
+	{
+		TRY(Ctx.Writer->WriteClassRoot(NullStat));
+		TRY(Ctx.Writer->WriteNil());
+		TRY(Ctx.Writer->WriteClassEnd(NullStat));
+
+		return OkWithProcessed(OutRet);
+	}
+	else
+	{
+		return Fail(EErrorCode::UnknownError);
+	}
+}
+
+FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+{
+	return Fail(EErrorCode::UnknownError);
+}
 
 } // namespace DataConfig

@@ -14,7 +14,8 @@ static void Body()
 	//UEStructSerializer();
 	//DeserializeSimple();
 	//DeserializeNestedStruct();
-	DeserializeObjectRoot();
+	//DeserializeObjectRoot();
+	DeserializeObjectRef();
 
 	return;
 }

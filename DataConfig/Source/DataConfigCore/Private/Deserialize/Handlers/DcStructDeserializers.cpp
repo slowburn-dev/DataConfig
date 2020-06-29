@@ -28,9 +28,7 @@ static FName GetStructName(UField* Property)
 FResult DATACONFIGCORE_API StructRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
-	bool bRootPeekPass = Next == EDataEntry::StructRoot
-		|| Next == EDataEntry::ClassRoot
-		|| Next == EDataEntry::MapRoot;
+	bool bRootPeekPass = Next == EDataEntry::MapRoot;
 
 	bool bWritePass = Ctx.Writer->Peek(EDataEntry::StructRoot).Ok();
 	if (!bRootPeekPass
