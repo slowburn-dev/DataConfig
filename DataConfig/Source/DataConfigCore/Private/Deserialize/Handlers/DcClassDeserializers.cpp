@@ -138,7 +138,7 @@ FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext
 		else if (Value.StartsWith(TEXT("/")))
 		{
 			//	"Game/Path/To/Object"
-			UObject* Loaded;
+			UObject* Loaded = nullptr;
 			TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
 
 			TRY(Ctx.Writer->WriteClassRoot(RefStat));
@@ -178,7 +178,7 @@ FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext
 		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *LoadClassName, true);
 		TRY(Expect(LoadClass != nullptr, EErrorCode::UnknownError));
 
-		UObject* Loaded;
+		UObject* Loaded = nullptr;
 		TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
 
 		TRY(Ctx.Writer->WriteClassRoot(RefStat));

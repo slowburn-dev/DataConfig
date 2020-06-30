@@ -1,6 +1,9 @@
-#include "Adhocs.h"
+#include "Misc/DcPipeVisitor.h"
+#include "Reader/DcReader.h"
+#include "Writer/DcWriter.h"
 
-using namespace DataConfig;
+namespace DataConfig
+{
 
 FPipeVisitor::FPipeVisitor(FReader* InReader, FWriter* InWriter)
 {
@@ -98,6 +101,11 @@ FResult FPipeVisitor::PipeVisit()
 		}
 	}
 }
+
+
+}	// namespace DataConfig
+
+
 
 
 

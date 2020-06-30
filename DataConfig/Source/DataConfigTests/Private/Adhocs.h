@@ -2,6 +2,7 @@
 
 #include "Reader/DcReader.h"
 #include "Writer/DcWriter.h"
+#include "Misc/DcPipeVisitor.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
@@ -127,17 +128,6 @@ struct FObjReference
 
 
 using namespace DataConfig;
-struct FPipeVisitor
-{
-	FReader* Reader;
-	FWriter* Writer;
-
-	FPipeVisitor(FReader* InReader, FWriter* InWriter);
-
-	FResult PipeVisit();
-};
-
-
 
 void PropertyVisitorRoundtrip();
 void JsonReader1();
