@@ -4,6 +4,8 @@
 #include "Deserialize/DcDeserializerSetup.h"
 #include "Json/DcJsonReader.h"
 #include "Property/DcPropertyWriter.h"
+#include "UObject/Package.h"
+#include "Misc/PackageName.h"
 
 static void Dump(FPropertyDatum Datum)
 {
@@ -135,6 +137,9 @@ void DeserializeObjectRef()
 	//	TODO
 	//	for now we can only get this to work, figure a way to add access raw asset or add something
 	//	in DataConfigTests/Content
+
+	//	TODO get a fixture uasset working with Program target, shoudn't be that hard
+	//		"Obj2" : "/Fixture/DataLayer",
 	FString Str = TEXT(R"(
 		{
 			"Obj1" : "Object'/Script/DataConfigTests'",
@@ -150,6 +155,27 @@ void DeserializeObjectRef()
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
+}
+
+void WriteFixtureAsset()
+{
+	//	TODO still not working due to some weird assertions
+	//	pass for now, and we'll only need to create the package somehow
+
+	//	ref: `UAssetToolsImpl::CreateAsset`
+	FString OutPath(TEXT("/Fixture/SimpleObject"));
+	UPackage* Package = CreatePackage(nullptr, *OutPath);
+	Package->FullyLoad();
+	EObjectFlags Flags = RF_Public | RF_Standalone | RF_Transactional;
+	//	note that it will check Abstractness, so use the one with this binary
+	UObject* NewObj = NewObject<UObject>(Package, UEmptyObject::StaticClass(), TEXT("SimpleObject"), Flags);
+
+	//	ref: UNGUnrealEditorStatics::ImportFBXAsCurveContainer
+	Package->MarkPackageDirty();
+	Package->GetMetaData(); // touch metadata to create it
+	FString PackageFileName = FPackageName::LongPackageNameToFilename(OutPath, FPackageName::GetAssetPackageExtension());
+	bool bSaved = UPackage::SavePackage(Package, NewObj, RF_Public | RF_Standalone, *PackageFileName);
+	check(bSaved);
 }
 
 

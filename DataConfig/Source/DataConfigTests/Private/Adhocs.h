@@ -126,6 +126,12 @@ struct FObjReference
 	UPROPERTY(EditAnywhere) UObject* Obj3;
 };
 
+UCLASS()
+class UEmptyObject : public UObject
+{
+
+	GENERATED_BODY()
+};
 
 using namespace DataConfig;
 

@@ -3,12 +3,34 @@
 #include "Misc/ScopeExit.h"
 #include "DcTypes.h"
 #include "RequiredProgramMainCPPInclude.h"
+#include "Interfaces/IPluginManager.h"
 
 #include "Adhocs.h"
 IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
 static void Body()
 {
+	//	Pre Init
+	//	Seesm plugin is disable for Exe build types
+	/*
+	TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin("DataConfig");
+	if (!Plugin
+		|| !Plugin->IsEnabled())
+	{
+		checkNoEntry();
+		return;
+	}
+	*/
+
+	//	this is adhoc anyway, figure this out later
+	FPackageName::RegisterMountPoint(
+		TEXT("/Fixture/"),
+		TEXT("C:/DevUE/projects/DataConfig/DataConfig/DataConfig/Content/Fixture")
+	);
+
+	//	TODO this doesn't work yet
+	//WriteFixtureAsset();
+
 	//PropertyVisitorRoundtrip();
 	//JsonReader1();
 	//UEStructSerializer();
@@ -54,6 +76,7 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		UE_LOG(LogDataConfigCore, Error, TEXT("Failed to initialize the engine (PreInit failed)."));
 		return ECompilationResult::CrashOrAssert;
 	}
+
 
 	Body();
 
