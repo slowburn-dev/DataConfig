@@ -5,7 +5,7 @@ namespace DataConfig {
 
 FResult FScopedProperty::PushProperty()
 {
-	TRY(Ctx.Writer->GetWriteProperty(&Property));
+	TRY(Ctx.Writer->PeekWriteProperty(&Property));
 	Ctx.Properties.Push(Property);
 	return Ok();
 }

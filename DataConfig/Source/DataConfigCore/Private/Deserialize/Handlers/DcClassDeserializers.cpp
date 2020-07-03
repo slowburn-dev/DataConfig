@@ -201,8 +201,54 @@ FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext
 	}
 }
 
+static bool IsSubObjectProperty(UObjectProperty* ObjectProperty)
+{
+	//	check `UPROPERTY(Instanced)`
+	return ObjectProperty->HasAnyPropertyFlags(CPF_InstancedReference)
+	//	check UCLASS(DefaultToInstanced, EditInlineNew)
+		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
+}
+
 FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
+	EDataEntry Next = Ctx.Reader->Peek();
+	bool bRootPeekPass = Next == EDataEntry::MapRoot;
+	bool bWritePass = Ctx.Writer->Peek(EDataEntry::ClassRoot).Ok();
+
+	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
+	bool bPropertyPass = ObjectProperty != nullptr;
+
+	if (!(bRootPeekPass && bWritePass && bPropertyPass))
+	{
+		return OkWithCanNotProcess(OutRet);
+	}
+
+	if (!IsSubObjectProperty(ObjectProperty))
+	{
+		return Fail(EErrorCode::UnknownError);
+	}
+
+	TRY(Ctx.Reader->ReadMapRoot(nullptr));
+	FName TypeStr;
+	TRY(Ctx.Reader->ReadName(&TypeStr, nullptr));
+	TRY(Expect(TypeStr == FName(TEXT("$type")), EErrorCode::UnknownError));
+
+	//	what we need to do here is to .. construct the object Out of the writer
+	//FPropertyDatum ObjectRefDatum;
+	//TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
+
+
+
+
+	FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::InlineObject };
+	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
+
+
+
+
+
+
+
 	return Fail(EErrorCode::UnknownError);
 }
 

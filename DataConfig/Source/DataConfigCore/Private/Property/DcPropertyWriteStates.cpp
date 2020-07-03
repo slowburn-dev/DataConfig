@@ -9,7 +9,7 @@ FResult FBaseWriteState::Peek(EDataEntry Next) { return Fail(EErrorCode::Unknown
 FResult FBaseWriteState::WriteName(const FName& Value){ return Fail(EErrorCode::UnknownError); }
 FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) { return Fail(EErrorCode::UnknownError); }
 FResult FBaseWriteState::SkipWrite() { return Fail(EErrorCode::UnknownError); }
-FResult FBaseWriteState::GetWriteProperty(UField** OutProperty) { return Fail(EErrorCode::UnknownError); }
+FResult FBaseWriteState::PeekWriteProperty(UField** OutProperty) { return Fail(EErrorCode::UnknownError); }
 
 EPropertyWriteType FWriteStateNil::GetType()
 {
@@ -98,7 +98,7 @@ FResult FWriteStateStruct::SkipWrite()
 	return Ok();
 }
 
-FResult FWriteStateStruct::GetWriteProperty(UField** OutProperty)
+FResult FWriteStateStruct::PeekWriteProperty(UField** OutProperty)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -230,7 +230,7 @@ DataConfig::FResult FWriteStateClass::SkipWrite()
 	return Ok();
 }
 
-FResult FWriteStateClass::GetWriteProperty(UField** OutProperty)
+FResult FWriteStateClass::PeekWriteProperty(UField** OutProperty)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -424,7 +424,7 @@ FResult FWriteStateMap::SkipWrite()
 	}
 }
 
-FResult FWriteStateMap::GetWriteProperty(UField** OutProperty)
+FResult FWriteStateMap::PeekWriteProperty(UField** OutProperty)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -529,7 +529,7 @@ DataConfig::FResult FWriteStateArray::SkipWrite()
 	return Ok();
 }
 
-FResult FWriteStateArray::GetWriteProperty(UField** OutProperty)
+FResult FWriteStateArray::PeekWriteProperty(UField** OutProperty)
 {
 	if (State != EState::ExpectItemOrEnd)
 		return Fail(EErrorCode::GetPropertyFail);
