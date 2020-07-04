@@ -183,7 +183,7 @@ FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 				if (OutClassPtr)
 				{
 					OutClassPtr->Name = Cls->GetFName();
-					OutClassPtr->Reference = EDataReference::InlineObject;
+					OutClassPtr->Reference = EDataReference::ExpandObject;
 				}
 
 				Property = FirstEffectiveProperty(Cls->PropertyLink);
@@ -221,7 +221,7 @@ FResult FReadStateClass::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextS
 			OutClassPtr->Name = Class->GetFName();
 			OutClassPtr->Reference = ClassObject == nullptr
 				? EDataReference::NullReference
-				: EDataReference::InlineObject;
+				: EDataReference::ExpandObject;
 		}
 
 		return Ok();

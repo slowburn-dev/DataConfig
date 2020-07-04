@@ -37,6 +37,8 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	FResult SkipWrite();
 	//	get the next write property
 	FResult PeekWriteProperty(UField** OutProperty);
+	//	manual writing
+	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum);
 
 	struct FPropertyState
 	{

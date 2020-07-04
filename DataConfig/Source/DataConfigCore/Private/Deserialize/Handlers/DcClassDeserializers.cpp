@@ -23,7 +23,7 @@ FResult DATACONFIGCORE_API DataConfig::ClassRootDeserializeHandler(FDeserializeC
 	if (Next == EDataEntry::MapRoot)
 	{
 		TRY(Ctx.Reader->ReadMapRoot(nullptr));
-		FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::InlineObject };
+		FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::ExpandObject };
 		TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDataEntry CurPeek = Ctx.Reader->Peek();
@@ -110,8 +110,8 @@ FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext
 
 		if (Value.EndsWith(TEXT("'")))
 		{
-			//	UE4 copied reference style
 			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
+			//	UE4 copied reference style
 			//	ref: FPropertyHandleObject::SetValueFromFormattedString
 			UObject* Loaded = nullptr;
 			const TCHAR* ValueBuffer = *Value;
@@ -137,7 +137,8 @@ FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext
 		}
 		else if (Value.StartsWith(TEXT("/")))
 		{
-			//	"Game/Path/To/Object"
+			//	/Game/Path/To/Object
+			//	`Game` is a Mount Point
 			UObject* Loaded = nullptr;
 			TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
 
@@ -155,21 +156,22 @@ FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext
 	else if (Next == EDataEntry::MapRoot)
 	{
 		//	{
-		//		['$type'] = 'FooType',
-		//		['$path'] = '/Game/Path/To/Object'
+		//		"$type" : "FooType",
+		//		"$path" : "/Game/Path/To/Object",
 		//	}
-		//	note that this requires JSON member order
+		//
+		//	note that this is ordred and type and path needs to be first 2 items
 
 		TRY(Ctx.Reader->ReadMapRoot(nullptr));
-		FString KeyValue;
-		TRY(Ctx.Reader->ReadString(&KeyValue, nullptr));
-		TRY(Expect(KeyValue == TEXT("$type"), EErrorCode::UnknownError));
+		FString MetaKey;
+		TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+		TRY(Expect(MetaKey == TEXT("$type"), EErrorCode::UnknownError));
 
 		FString LoadClassName;
 		TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
 
-		TRY(Ctx.Reader->ReadString(&KeyValue, nullptr));
-		TRY(Expect(KeyValue == TEXT("$path"), EErrorCode::UnknownError));
+		TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+		TRY(Expect(MetaKey == TEXT("$path"), EErrorCode::UnknownError));
 
 		FString LoadPath;
 		TRY(Ctx.Reader->ReadString(&LoadPath, nullptr));
@@ -229,18 +231,43 @@ FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeCont
 	}
 
 	TRY(Ctx.Reader->ReadMapRoot(nullptr));
-	FName TypeStr;
-	TRY(Ctx.Reader->ReadName(&TypeStr, nullptr));
-	TRY(Expect(TypeStr == FName(TEXT("$type")), EErrorCode::UnknownError));
+	FString MetaKey;
+	TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+	TRY(Expect(MetaKey == TEXT("$type"), EErrorCode::UnknownError));
 
-	//	what we need to do here is to .. construct the object Out of the writer
-	//FPropertyDatum ObjectRefDatum;
-	//TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
+	FString TypeStr;
+	TRY(Ctx.Reader->ReadString(&TypeStr, nullptr));
 
+	UClass* SubClassType = nullptr;
+	//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
+	/*
+	if (TypeStr.StartsWith(TEXT("/")))
+	{
+		//	"/Game/Path/To/Blueprint"
+		//	It's a path, try load blueprint and use `GeneratedClass`
+		UObject* Loaded = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *TypeStr, nullptr);
+		if (!Loaded)
+			return Fail(EErrorCode::UnknownError);
+		UBlueprint* BP = Cast<UBlueprint>(Loaded);
+		if (!BP)
+			return Fail(EErrorCode::UnknownError);
 
+		SubClassType = BP->GeneratedClass;
+	}
+	else
+	*/
 
+	//	"Character"
+	//	Plain class name, note that 'U' is automatically stripped
+	SubClassType = FindObject<UClass>(ANY_PACKAGE, *TypeStr, true);
 
-	FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::InlineObject };
+	if (!SubClassType)
+		return Fail(EErrorCode::UnknownError);
+
+	if (SubClassType->IsChildOf(ObjectProperty->PropertyClass))
+		return Fail();
+
+	FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::ExpandObject };
 	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 

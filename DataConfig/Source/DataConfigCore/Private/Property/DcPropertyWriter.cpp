@@ -307,4 +307,9 @@ FResult FPropertyWriter::PeekWriteProperty(UField** OutProperty)
 	return GetTopState(this).PeekWriteProperty(OutProperty);
 }
 
+DataConfig::FResult FPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+{
+	return GetTopState(this).WriteDataEntry(ExpectedPropertyClass, FailCode, OutDatum);
+}
+
 } // namespace DataConfig

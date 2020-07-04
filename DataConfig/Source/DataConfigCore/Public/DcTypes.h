@@ -38,6 +38,8 @@ FORCEINLINE FResult Fail(EErrorCode Status) {
 	return FResult{ (uint32)Status, 0 };
 }
 
+FORCEINLINE FResult Fail() { return Fail((EErrorCode)1); }
+
 FORCEINLINE FResult Expect(bool CondToBeTrue, EErrorCode Status) {
 	check((uint32)Status != 0);
 	if (CondToBeTrue)
@@ -122,9 +124,9 @@ enum class EDataEntry
 
 enum class EDataReference
 {
-	ExternalReference,
-	InlineObject,	// rename this to like `ExpandObject`
 	NullReference,
+	ExternalReference,
+	ExpandObject,
 };
 
 struct FClassPropertyStat

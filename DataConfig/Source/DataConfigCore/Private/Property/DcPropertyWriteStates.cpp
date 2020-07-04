@@ -262,7 +262,7 @@ DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& C
 		{
 			State = EState::ExpectReference;
 		}
-		else if (ClassStat.Reference == EDataReference::InlineObject)
+		else if (ClassStat.Reference == EDataReference::ExpandObject)
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
 			{

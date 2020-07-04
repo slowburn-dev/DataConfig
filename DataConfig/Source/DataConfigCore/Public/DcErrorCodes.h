@@ -6,6 +6,7 @@ namespace DataConfig
 enum class EErrorCode : uint32
 {
 	Ok = 0,
+	UnknownError = 1,
 
 	SkipWriteFail,
 	GetPropertyFail,
@@ -113,8 +114,6 @@ enum class EErrorCode : uint32
 	DeserializeTypeNotMatch,
 
 
-	//	global fallback
-	UnknownError,
 };
 
 } // namespace DataConfig
