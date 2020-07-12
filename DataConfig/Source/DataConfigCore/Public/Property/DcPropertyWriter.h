@@ -40,6 +40,9 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	//	manual writing
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum);
 
+	//	manual writing supporting
+	FResult PushTopClassProperty(const FClassPropertyStat& Class, FPropertyDatum& Datum);
+
 	struct FPropertyState
 	{
 		using ImplStorageType = TAlignedStorage<64>::Type;

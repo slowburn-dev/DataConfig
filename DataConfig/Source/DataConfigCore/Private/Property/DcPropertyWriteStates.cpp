@@ -252,7 +252,8 @@ DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& C
 {
 	if (State == EState::ExpectRoot)
 	{
-		TRY(Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassFail));
+		//	TODO may pass in derived class already
+		//TRY(Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassFail));
 
 		if (ClassStat.Reference == EDataReference::NullReference)
 		{
@@ -297,7 +298,9 @@ FResult FWriteStateClass::WriteClassEnd(const FClassPropertyStat& ClassStat)
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		return Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassEndFail);
+		//	TODO now may pass in derived class
+		//return Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassEndFail);
+		return Ok();
 	}
 	else
 	{

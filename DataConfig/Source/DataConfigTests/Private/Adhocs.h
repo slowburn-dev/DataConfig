@@ -148,8 +148,8 @@ class UShapeBox : public UBaseShape
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) float Height;
-	UPROPERTY(EditAnywhere) float Width;
+	UPROPERTY(EditAnywhere) FName Height;
+	UPROPERTY(EditAnywhere) FName Width;
 };
 
 UCLASS()
@@ -157,7 +157,7 @@ class UShapeSquare : public UBaseShape
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) float Radius;
+	UPROPERTY(EditAnywhere) FName Radius;
 };
 
 USTRUCT()
