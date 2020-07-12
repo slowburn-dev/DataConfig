@@ -160,12 +160,11 @@ FResult FPropertyWriter::WriteStructEnd(const FName& Name)
 	}
 }
 
-FResult FPropertyWriter::PushTopClassProperty(const FClassPropertyStat& Class, FPropertyDatum& Datum)
+void FPropertyWriter::PushTopClassPropertyState(FPropertyDatum& Datum)
 {
 	UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 	check(ObjProperty);
-	FWriteStateClass& ChildClass = PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
-	return ChildClass.WriteClassRoot(Class);
+	PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
 }
 
 
@@ -184,7 +183,9 @@ FResult FPropertyWriter::WriteClassRoot(const FClassPropertyStat& Class)
 	{
 		FPropertyDatum Datum;
 		TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
-		TRY(PushTopClassProperty(Class, Datum));
+
+		PushTopClassPropertyState(Datum);
+		TRY(GetTopState(this).As<FWriteStateClass>()->WriteClassRoot(Class));
 	}
 
 	return Ok();

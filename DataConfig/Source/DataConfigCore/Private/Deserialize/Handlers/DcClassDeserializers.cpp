@@ -301,10 +301,11 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 		return Fail();
 
 	ObjectProperty->SetPropertyValue(Datum.DataPtr, SubObject);
+	//	manually setting class state
+	Ctx.Writer->PushTopClassPropertyState(Datum);
 
-	//	TODO still a bit hacky as we're only setting a subobject manually here
 	FClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDataReference::ExpandObject };
-	TRY(Ctx.Writer->PushTopClassProperty(WriteClassStat, Datum));
+	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 	EDataEntry CurPeek = Ctx.Reader->Peek();
 	while (CurPeek != EDataEntry::MapEnd)

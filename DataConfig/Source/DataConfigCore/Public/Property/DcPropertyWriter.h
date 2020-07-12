@@ -41,7 +41,7 @@ struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
 	FResult WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum);
 
 	//	manual writing supporting
-	FResult PushTopClassProperty(const FClassPropertyStat& Class, FPropertyDatum& Datum);
+	void PushTopClassPropertyState(FPropertyDatum& Datum);
 
 	struct FPropertyState
 	{
