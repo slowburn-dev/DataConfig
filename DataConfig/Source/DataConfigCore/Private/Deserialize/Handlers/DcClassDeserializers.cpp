@@ -7,7 +7,7 @@
 namespace DataConfig
 {
 
-FResult DATACONFIGCORE_API DataConfig::ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult DataConfig::ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -80,7 +80,7 @@ static FResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadCla
 }
 
 
-FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult ObjectReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::String
@@ -211,7 +211,15 @@ static bool IsSubObjectProperty(UObjectProperty* ObjectProperty)
 		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
 }
 
-FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+EDeserializePredicateResult IsSubObjectPropertyPredicate(FDeserializeContext& Ctx)
+{
+	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
+	return ObjectProperty && IsSubObjectProperty(ObjectProperty)
+		? EDeserializePredicateResult::Process
+		: EDeserializePredicateResult::Pass;
+}
+
+FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -230,6 +238,7 @@ FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeCont
 		return Fail(EErrorCode::UnknownError);
 	}
 
+	//	TODO make the first key Optional, might need a helper
 	TRY(Ctx.Reader->ReadMapRoot(nullptr));
 	FString MetaKey;
 	TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
@@ -240,6 +249,7 @@ FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeCont
 
 	UClass* SubClassType = nullptr;
 	//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
+	//		console Program linking Engine just doesn't work
 	/*
 	if (TypeStr.StartsWith(TEXT("/")))
 	{
@@ -264,19 +274,74 @@ FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeCont
 	if (!SubClassType)
 		return Fail(EErrorCode::UnknownError);
 
-	if (SubClassType->IsChildOf(ObjectProperty->PropertyClass))
+	if (!SubClassType->IsChildOf(ObjectProperty->PropertyClass))
 		return Fail();
 
-	FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::ExpandObject };
+	//	construct the item
+	FPropertyDatum Datum;
+	TRY(Ctx.Writer->WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::UnknownError, Datum));
+
+	UObjectProperty* SubObjectProperty = Datum.Cast<UObjectProperty>();
+	if (!SubObjectProperty)
+		return Fail();
+
+	UObject* SubObject = SubObjectProperty->GetPropertyValue(Datum.DataPtr);
+	if (SubObject != nullptr
+		&& SubObject->GetClass() != SubClassType)
+	{
+		//	existing subobject class mistmatch, destroy existing one and create new one
+		SubObject->ConditionalBeginDestroy();
+		SubObject = nullptr;
+	}
+
+	if (SubObject == nullptr)
+		SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
+
+	if (SubObject == nullptr)
+		return Fail();
+
+	ObjectProperty->SetPropertyValue(Datum.DataPtr, SubObject);
+
+	//	TODO just ... can't get this working
+	//	continue on class
+	FClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDataReference::ExpandObject };
 	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
+	EDataEntry CurPeek = Ctx.Reader->Peek();
+	while (CurPeek != EDataEntry::MapEnd)
+	{
+		if (CurPeek == EDataEntry::Name)
+		{
+			TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
+			FName Value;
+			TRY(Ctx.Reader->ReadName(&Value, nullptr));
+			TRY(Ctx.Writer->WriteName(Value));
+		}
+		else if (CurPeek == EDataEntry::String)
+		{
+			TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
+			FString Value;
+			TRY(Ctx.Reader->ReadString(&Value, nullptr));
+			TRY(Ctx.Writer->WriteName(FName(*Value)));
+		}
+		else
+		{
+			return Fail(EErrorCode::DeserializeTypeNotMatch);
+		}
 
+		FScopedProperty ScopedValueProperty(Ctx);
+		TRY(ScopedValueProperty.PushProperty());
+		TRY(Ctx.Deserializer->Deserialize(Ctx));
 
+		CurPeek = Ctx.Reader->Peek();
+	}
 
+	TRY(Ctx.Reader->ReadMapEnd(nullptr));
+	TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
-	return Fail(EErrorCode::UnknownError);
+	return OkWithProcessed(OutRet);
 }
 
 } // namespace DataConfig

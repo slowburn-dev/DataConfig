@@ -133,6 +133,42 @@ class UEmptyObject : public UObject
 	GENERATED_BODY()
 };
 
+UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced, Abstract)
+class UBaseShape : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere) FName ShapeName;
+};
+
+UCLASS()
+class UShapeBox : public UBaseShape
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) float Height;
+	UPROPERTY(EditAnywhere) float Width;
+};
+
+UCLASS()
+class UShapeSquare : public UBaseShape
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) float Radius;
+};
+
+USTRUCT()
+struct FShapeContainer
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) UBaseShape* ShapeAlpha;
+	UPROPERTY(EditAnywhere) UBaseShape* ShapeBeta;
+};
+
 using namespace DataConfig;
 
 void PropertyVisitorRoundtrip();

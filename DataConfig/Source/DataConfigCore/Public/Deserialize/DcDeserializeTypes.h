@@ -14,17 +14,16 @@ struct FDeserializer;
 struct DATACONFIGCORE_API FDeserializeContext
 {
 	FString Name;
-	TArray<FName> Pathes;
-	TArray<UField*> Properties;
+	TArray<FName, TInlineAllocator<4>> Pathes;
+	TArray<UObject*, TInlineAllocator<4>> Objects;
+	TArray<UField*, TInlineAllocator<8>> Properties;
 
 	FDeserializer* Deserializer;
 	FReader* Reader;
 	FPropertyWriter* Writer;
 
-	FORCEINLINE UField* TopProperty()
-	{
-		return Properties.Top();
-	}
+	FORCEINLINE UField* TopProperty() { return Properties.Top(); }
+	FORCEINLINE UObject* TopObject() { return Objects.Top(); }
 };
 
 enum class EDeserializeResult
@@ -51,6 +50,14 @@ FORCEINLINE FResult OkWithProcessed(EDeserializeResult& OutResult)
 using FDeserializeDelegateSignature = FResult(*)(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
 DECLARE_DELEGATE_RetVal_TwoParams(FResult, FDeserializeDelegate, FDeserializeContext&, EDeserializeResult&);
 
+enum class EDeserializePredicateResult
+{
+	Pass,
+	Process,
+};
+
+using FDeserializePredicateSignature = EDeserializePredicateResult(*)(FDeserializeContext& Ctx);
+DECLARE_DELEGATE_RetVal_OneParam(EDeserializePredicateResult, FDeserializePredicate, FDeserializeContext&);
 
 struct FScopedProperty
 {
@@ -63,6 +70,15 @@ struct FScopedProperty
 	~FScopedProperty();
 
 	UField* Property;
+	FDeserializeContext& Ctx;
+};
+
+struct FScopedObject
+{
+	FScopedObject(FDeserializeContext& InCtx, UObject* InObject);
+	~FScopedObject();
+
+	UObject* Object;
 	FDeserializeContext& Ctx;
 };
 

@@ -19,5 +19,19 @@ FScopedProperty::~FScopedProperty()
 	}
 }
 
+FScopedObject::FScopedObject(FDeserializeContext& InCtx, UObject* InObject)
+	: Object(InObject)
+	, Ctx(InCtx)
+{
+	check(Object);
+	Ctx.Objects.Push(Object);
+}
+
+FScopedObject::~FScopedObject()
+{
+	UObject* Popped = Ctx.Objects.Pop();
+	check(Popped == Object);
+}
+
 } // namespace DataConfig
 

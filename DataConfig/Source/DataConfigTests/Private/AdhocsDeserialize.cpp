@@ -118,6 +118,7 @@ void DeserializeObjectRoot()
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(UTestClass_Alpha::StaticClass());
+	Ctx.Objects.Push(Obj);
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
@@ -155,6 +156,42 @@ void DeserializeObjectRef()
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
+}
+
+void DeserializeSubObject()
+{
+	using namespace DataConfig;
+
+	FDeserializer Deserializer;
+	SetupDefaultDeserializeHandlers(Deserializer);
+
+	FShapeContainer Obj{};
+	FPropertyWriter Writer(FPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
+
+	FJsonReader Reader;
+	FString Str = TEXT(R"(
+		{
+			"ShapeAlpha" :  {
+				"$type" : "ShapeBox",
+				"ShapeName" : "Box1"
+			},
+			"ShapeBeta" : {
+				"$type" : "ShapeSquare",
+				"ShapeName" : "Square1"
+			}
+		}
+	)");
+	Reader.SetNewString(&Str);
+
+	FDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Objects.Push(GetTransientPackage());	// need this as base
+	Ctx.Properties.Push(FShapeContainer::StaticStruct());
+	Deserializer.Deserialize(Ctx);
+
+	Dump(FPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
 }
 
 void WriteFixtureAsset()

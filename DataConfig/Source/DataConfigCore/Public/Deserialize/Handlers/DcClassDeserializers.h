@@ -14,7 +14,9 @@ FResult DATACONFIGCORE_API ClassRootDeserializeHandler(FDeserializeContext& Ctx,
 
 FResult DATACONFIGCORE_API ObjectReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
 
+EDeserializePredicateResult DATACONFIGCORE_API IsSubObjectPropertyPredicate(FDeserializeContext& Ctx);
 FResult DATACONFIGCORE_API InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+
 
 
 
