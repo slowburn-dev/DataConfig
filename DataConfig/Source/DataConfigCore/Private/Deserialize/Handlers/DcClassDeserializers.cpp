@@ -238,40 +238,52 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 		return Fail(EErrorCode::UnknownError);
 	}
 
-	//	TODO make the first key Optional, might need a helper
 	TRY(Ctx.Reader->ReadMapRoot(nullptr));
-	FString MetaKey;
-	TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
-	TRY(Expect(MetaKey == TEXT("$type"), EErrorCode::UnknownError));
-
-	FString TypeStr;
-	TRY(Ctx.Reader->ReadString(&TypeStr, nullptr));
 
 	UClass* SubClassType = nullptr;
-	//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
-	//		console Program linking Engine just doesn't work
-	/*
-	if (TypeStr.StartsWith(TEXT("/")))
-	{
-		//	"/Game/Path/To/Blueprint"
-		//	It's a path, try load blueprint and use `GeneratedClass`
-		UObject* Loaded = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *TypeStr, nullptr);
-		if (!Loaded)
-			return Fail(EErrorCode::UnknownError);
-		UBlueprint* BP = Cast<UBlueprint>(Loaded);
-		if (!BP)
-			return Fail(EErrorCode::UnknownError);
 
-		SubClassType = BP->GeneratedClass;
+	FString MetaKey;
+	TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+	if (MetaKey == TEXT("$type"))
+	{
+		//	has `$type`
+		FString TypeStr;
+		TRY(Ctx.Reader->ReadString(&TypeStr, nullptr));
+
+		//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
+		//		console Program linking Engine just doesn't work
+		/*
+		if (TypeStr.StartsWith(TEXT("/")))
+		{
+			//	"/Game/Path/To/Blueprint"
+			//	It's a path, try load blueprint and use `GeneratedClass`
+			UObject* Loaded = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *TypeStr, nullptr);
+			if (!Loaded)
+				return Fail(EErrorCode::UnknownError);
+			UBlueprint* BP = Cast<UBlueprint>(Loaded);
+			if (!BP)
+				return Fail(EErrorCode::UnknownError);
+
+			SubClassType = BP->GeneratedClass;
+		}
+		else
+		*/
+
+		//	"Character"
+		//	Plain class name, note that 'U' is automatically stripped
+		SubClassType = FindObject<UClass>(ANY_PACKAGE, *TypeStr, true);
 	}
 	else
-	*/
-
-	//	"Character"
-	//	Plain class name, note that 'U' is automatically stripped
-	SubClassType = FindObject<UClass>(ANY_PACKAGE, *TypeStr, true);
+	{
+		//	it has not `$type`, use object property's class
+		SubClassType = ObjectProperty->PropertyClass;
+	}
 
 	if (!SubClassType)
+		return Fail(EErrorCode::UnknownError);
+
+	//	can't be abstract
+	if (SubClassType->HasAnyClassFlags(CLASS_Abstract))
 		return Fail(EErrorCode::UnknownError);
 
 	if (!SubClassType->IsChildOf(ObjectProperty->PropertyClass))
@@ -307,6 +319,7 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 	FClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDataReference::ExpandObject };
 	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
+	//	usual read coroutine
 	EDataEntry CurPeek = Ctx.Reader->Peek();
 	while (CurPeek != EDataEntry::MapEnd)
 	{

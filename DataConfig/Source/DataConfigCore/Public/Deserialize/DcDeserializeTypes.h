@@ -59,7 +59,7 @@ enum class EDeserializePredicateResult
 using FDeserializePredicateSignature = EDeserializePredicateResult(*)(FDeserializeContext& Ctx);
 DECLARE_DELEGATE_RetVal_OneParam(EDeserializePredicateResult, FDeserializePredicate, FDeserializeContext&);
 
-struct FScopedProperty
+struct DATACONFIGCORE_API FScopedProperty
 {
 	FScopedProperty(FDeserializeContext& InCtx)
 		: Property(nullptr)
@@ -73,7 +73,7 @@ struct FScopedProperty
 	FDeserializeContext& Ctx;
 };
 
-struct FScopedObject
+struct DATACONFIGCORE_API FScopedObject
 {
 	FScopedObject(FDeserializeContext& InCtx, UObject* InObject);
 	~FScopedObject();
@@ -81,7 +81,6 @@ struct FScopedObject
 	UObject* Object;
 	FDeserializeContext& Ctx;
 };
-
 
 
 } // namespace DataConfig

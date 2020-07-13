@@ -38,7 +38,9 @@ static void Body()
 	//DeserializeNestedStruct();
 	//DeserializeObjectRoot();
 	//DeserializeObjectRef();
-	DeserializeSubObject();
+	//DeserializeSubObject();
+	TryOutVariant();
+
 
 	return;
 }

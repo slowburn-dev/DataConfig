@@ -8,6 +8,8 @@
 #include "DcTypes.h"
 #include "DcErrorCodes.h"
 
+#include "Misc/DcDataVariant.h"
+
 using namespace DataConfig;
 
 void PropertyVisitorRoundtrip_Piped()
@@ -352,4 +354,25 @@ void PropertyVisitorRoundtrip()
 	return;
 }
 
+
+void TryOutVariant()
+{
+	{
+		FDataVariant DV = false;
+		check(DV.DataType == EDataEntry::Bool);
+	}
+
+	{
+		FDataVariant DV = FName(TEXT("Wha"));
+		check(DV.DataType == EDataEntry::Name);
+		check(DV.GetValue<FName>() == FName(("Wha")));
+	}
+
+	{
+		FDataVariant DV = TEXT("Str");
+		check(DV.DataType == EDataEntry::String);
+		check(DV.GetValue<FString>() == FString(("Str")));
+	}
+
+}
 
