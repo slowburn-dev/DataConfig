@@ -31,7 +31,6 @@ struct FDataVariant
 	FDataVariant(FDataVariant&&) = default;
 	FDataVariant& operator=(FDataVariant&&) = default;
 
-
 	template<typename T>
 	FDataVariant(T&& InValue)
 	{
@@ -71,6 +70,14 @@ struct FDataVariant
 		Reader << Result;
 
 		return Result;
+	}
+
+	//	specialize for null as archive doesn't support this
+	template<>
+	nullptr_t GetValue<nullptr_t>() const
+	{
+		check(DataType == EDataEntry::Nil);
+		return nullptr;
 	}
 
 	EDataEntry DataType;

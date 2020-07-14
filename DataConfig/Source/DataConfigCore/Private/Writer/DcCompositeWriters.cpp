@@ -42,12 +42,12 @@ FResult FWeakCompositeWriter::WriteStructEnd(const FName& Name)
 	return CompositeDispatch(this, &FWriter::WriteStructEnd, Name);
 }
 
-DataConfig::FResult FWeakCompositeWriter::WriteClassRoot(const FClassPropertyStat& Class)
+FResult FWeakCompositeWriter::WriteClassRoot(const FClassPropertyStat& Class)
 {
 	return CompositeDispatch(this, &FWriter::WriteClassRoot, Class);
 }
 
-DataConfig::FResult FWeakCompositeWriter::WriteClassEnd(const FClassPropertyStat& Class)
+FResult FWeakCompositeWriter::WriteClassEnd(const FClassPropertyStat& Class)
 {
 	return CompositeDispatch(this, &FWriter::WriteClassEnd, Class);
 }

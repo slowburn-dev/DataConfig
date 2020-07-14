@@ -9,6 +9,7 @@
 #include "DcErrorCodes.h"
 
 #include "Misc/DcDataVariant.h"
+#include "Reader/DcPutbackReader.h"
 
 using namespace DataConfig;
 
@@ -354,7 +355,6 @@ void PropertyVisitorRoundtrip()
 	return;
 }
 
-
 void TryOutVariant()
 {
 	{
@@ -375,4 +375,35 @@ void TryOutVariant()
 	}
 
 }
+
+void TryOutPutback()
+{
+	FEmptyStruct EmptyObj;
+
+	FPropertyReader RawReader(FPropertyDatum(FEmptyStruct::StaticStruct(), &EmptyObj));
+	FPutbackReader Reader(&RawReader);
+
+	check(Reader.Peek() == EDataEntry::StructRoot);
+	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
+
+	Reader.Putback(FName(TEXT("Foo")));
+	Reader.Putback(FName(TEXT("Bar")));
+
+	check(Reader.Peek() == EDataEntry::Name);
+	FName Name1;
+	check(Reader.ReadName(&Name1, nullptr).Ok());
+	check(Name1 == FName(TEXT("Foo")));
+
+	check(Reader.Peek() == EDataEntry::Name);
+	FName Name2;
+	check(Reader.ReadName(&Name2, nullptr).Ok());
+	check(Name2 == FName(TEXT("Bar")));
+
+	check(Reader.Peek() == EDataEntry::StructEnd);
+	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
+
+	check(Reader.Peek() == EDataEntry::Ended);
+}
+
+
 

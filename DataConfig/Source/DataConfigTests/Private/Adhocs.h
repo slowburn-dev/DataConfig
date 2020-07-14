@@ -129,7 +129,12 @@ struct FObjReference
 UCLASS()
 class UEmptyObject : public UObject
 {
+	GENERATED_BODY()
+};
 
+USTRUCT()
+struct FEmptyStruct
+{
 	GENERATED_BODY()
 };
 
@@ -168,6 +173,8 @@ struct FShapeContainer
 	UPROPERTY(EditAnywhere) UBaseShape* ShapeAlpha;
 	UPROPERTY(EditAnywhere) UBaseShape* ShapeBeta;
 };
+
+
 
 using namespace DataConfig;
 
