@@ -25,7 +25,7 @@ static FName GetStructName(UField* Property)
 	}
 }
 
-FResult DATACONFIGCORE_API StructRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;

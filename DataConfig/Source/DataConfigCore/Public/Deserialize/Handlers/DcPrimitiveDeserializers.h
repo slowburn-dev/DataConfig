@@ -7,9 +7,9 @@
 namespace DataConfig
 {
 
-FResult DATACONFIGCORE_API BoolDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-FResult DATACONFIGCORE_API NameDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-FResult DATACONFIGCORE_API StringDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+FResult DATACONFIGCORE_API HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+FResult DATACONFIGCORE_API HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+FResult DATACONFIGCORE_API HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
 
 
 } // namespace DataConfig

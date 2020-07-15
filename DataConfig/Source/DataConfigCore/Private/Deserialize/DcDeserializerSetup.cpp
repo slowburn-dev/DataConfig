@@ -13,21 +13,21 @@ namespace DataConfig
 void SetupDefaultDeserializeHandlers(FDeserializer& Deserializer)
 {
 	//	Primitives
-	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(BoolDeserializeHandler));
-	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(NameDeserializeHandler));
-	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StringDeserializeHandler));
+	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
+	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
+	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerStringDeserialize));
 
 	//	Struct
-	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
-	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDeserializeDelegate::CreateStatic(StructRootDeserializeHandler));
+	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));
+	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));
 
 	//	Class
-	Deserializer.AddDirectHandler(UClass::StaticClass(), FDeserializeDelegate::CreateStatic(ClassRootDeserializeHandler));
+	Deserializer.AddDirectHandler(UClass::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerClassRootDeserialize));
 	Deserializer.AddPredicatedHandler(
-		FDeserializePredicate::CreateStatic(IsSubObjectPropertyPredicate), 
-		FDeserializeDelegate::CreateStatic(InstancedSubObjectDeserializeHandler)
+		FDeserializePredicate::CreateStatic(PredicateIsSubObjectProperty), 
+		FDeserializeDelegate::CreateStatic(HandlerInstancedSubObjectDeserialize)
 	);
-	Deserializer.AddDirectHandler(UObjectProperty::StaticClass(), FDeserializeDelegate::CreateStatic(ObjectReferenceDeserializeHandler));
+	Deserializer.AddDirectHandler(UObjectProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 
 }
 

@@ -5,7 +5,7 @@
 namespace DataConfig
 {
 
-FResult BoolDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UBoolProperty>())
 	{
@@ -22,7 +22,7 @@ FResult BoolDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& Out
 	return OkWithProcessed(OutRet);
 }
 
-FResult NameDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UNameProperty>())
 	{
@@ -52,7 +52,7 @@ FResult NameDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& Out
 	}
 }
 
-FResult StringDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UStrProperty>())
 	{

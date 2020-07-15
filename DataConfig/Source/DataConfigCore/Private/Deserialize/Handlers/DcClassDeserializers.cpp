@@ -8,7 +8,7 @@
 namespace DataConfig
 {
 
-FResult ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -81,7 +81,7 @@ static FResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadCla
 }
 
 
-FResult ObjectReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::String
@@ -212,7 +212,7 @@ static bool IsSubObjectProperty(UObjectProperty* ObjectProperty)
 		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
 }
 
-EDeserializePredicateResult IsSubObjectPropertyPredicate(FDeserializeContext& Ctx)
+EDeserializePredicateResult PredicateIsSubObjectProperty(FDeserializeContext& Ctx)
 {
 	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
 	return ObjectProperty && IsSubObjectProperty(ObjectProperty)
@@ -220,7 +220,7 @@ EDeserializePredicateResult IsSubObjectPropertyPredicate(FDeserializeContext& Ct
 		: EDeserializePredicateResult::Pass;
 }
 
-FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	FPutbackReader PutbackReader(Ctx.Reader);
 
@@ -358,6 +358,7 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 	TRY(PutbackReader.ReadMapEnd(nullptr));
 	TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
+	check(PutbackReader.Cached.Num() == 0);
 	return OkWithProcessed(OutRet);
 }
 
