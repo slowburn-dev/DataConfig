@@ -1,31 +1,24 @@
 using UnrealBuildTool;
 
-public class DataConfigEditor : ModuleRules
+public class DataConfigRuntime : ModuleRules
 {
-	public DataConfigEditor(ReadOnlyTargetRules Target) : base(Target)
+	public DataConfigRuntime(ReadOnlyTargetRules Target) : base(Target)
 	{
 		// PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				// "DataConfigEditor/Private",
+				// "DataConfigRuntime/Private",
 			});
 
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
 				"Core",
 				"CoreUObject",
-				"EditorStyle",
 				"Engine",
-				"UnrealEd",
-				"EngineSettings",	// for auto complete
-				"MessageLog",		// for MessageLog window category
-				//	Data Config
-				"DataConfigCore",
-				"DataConfigRuntime",
 			});
 
-		/*
+/*
 #if WITH_FORWARDED_MODULE_RULES_CTOR
         if (Target.bBuildEditor)
 #else
@@ -36,8 +29,9 @@ public class DataConfigEditor : ModuleRules
         	OptimizeCode = CodeOptimization.Never;
         	bFasterWithoutUnity = true;
         	//	pch ONLY when iterating as it doesn't make sense in release anyway
-			PrivatePCHHeaderFile = "Private/DataConfigEditorPCH.h";
+			PrivatePCHHeaderFile = "Private/NGLuaConfigRuntimePCH.h";
         }
-        */
+*/
+
 	}
 }
