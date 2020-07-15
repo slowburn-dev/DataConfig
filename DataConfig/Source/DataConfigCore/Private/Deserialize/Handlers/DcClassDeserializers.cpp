@@ -1,13 +1,14 @@
 #include "Deserialize/Handlers/DcClassDeserializers.h"
 #include "Deserialize/DcDeserializer.h"
 #include "Reader/DcReader.h"
+#include "Reader/DcPutbackReader.h"
 #include "Property/DcPropertyWriter.h"
 #include "UObject/Package.h"
 
 namespace DataConfig
 {
 
-FResult DataConfig::ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FResult ClassRootDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -221,7 +222,9 @@ EDeserializePredicateResult IsSubObjectPropertyPredicate(FDeserializeContext& Ct
 
 FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
-	EDataEntry Next = Ctx.Reader->Peek();
+	FPutbackReader PutbackReader(Ctx.Reader);
+
+	EDataEntry Next = PutbackReader.Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
 	bool bWritePass = Ctx.Writer->Peek(EDataEntry::ClassRoot).Ok();
 
@@ -238,17 +241,17 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 		return Fail(EErrorCode::UnknownError);
 	}
 
-	TRY(Ctx.Reader->ReadMapRoot(nullptr));
+	TRY(PutbackReader.ReadMapRoot(nullptr));
 
 	UClass* SubClassType = nullptr;
 
 	FString MetaKey;
-	TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+	TRY(PutbackReader.ReadString(&MetaKey, nullptr));
 	if (MetaKey == TEXT("$type"))
 	{
 		//	has `$type`
 		FString TypeStr;
-		TRY(Ctx.Reader->ReadString(&TypeStr, nullptr));
+		TRY(PutbackReader.ReadString(&TypeStr, nullptr));
 
 		//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
 		//		console Program linking Engine just doesn't work
@@ -277,6 +280,7 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 	{
 		//	it has not `$type`, use object property's class
 		SubClassType = ObjectProperty->PropertyClass;
+		PutbackReader.Putback(MetaKey);
 	}
 
 	if (!SubClassType)
@@ -320,7 +324,7 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 	//	usual read coroutine
-	EDataEntry CurPeek = Ctx.Reader->Peek();
+	EDataEntry CurPeek = PutbackReader.Peek();
 	while (CurPeek != EDataEntry::MapEnd)
 	{
 		if (CurPeek == EDataEntry::Name)
@@ -328,7 +332,7 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 			TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 			FName Value;
-			TRY(Ctx.Reader->ReadName(&Value, nullptr));
+			TRY(PutbackReader.ReadName(&Value, nullptr));
 			TRY(Ctx.Writer->WriteName(Value));
 		}
 		else if (CurPeek == EDataEntry::String)
@@ -336,7 +340,7 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 			TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 			FString Value;
-			TRY(Ctx.Reader->ReadString(&Value, nullptr));
+			TRY(PutbackReader.ReadString(&Value, nullptr));
 			TRY(Ctx.Writer->WriteName(FName(*Value)));
 		}
 		else
@@ -348,10 +352,10 @@ FResult InstancedSubObjectDeserializeHandler(FDeserializeContext& Ctx, EDeserial
 		TRY(ScopedValueProperty.PushProperty());
 		TRY(Ctx.Deserializer->Deserialize(Ctx));
 
-		CurPeek = Ctx.Reader->Peek();
+		CurPeek = PutbackReader.Peek();
 	}
 
-	TRY(Ctx.Reader->ReadMapEnd(nullptr));
+	TRY(PutbackReader.ReadMapEnd(nullptr));
 	TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 	return OkWithProcessed(OutRet);

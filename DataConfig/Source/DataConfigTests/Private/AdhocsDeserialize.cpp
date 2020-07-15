@@ -178,6 +178,9 @@ void DeserializeSubObject()
 			"ShapeBeta" : {
 				"$type" : "ShapeSquare",
 				"ShapeName" : "Square1"
+			},
+			"ShapeGamma" : {
+				"ShapeName" : "BaseShape"
 			}
 		}
 	)");

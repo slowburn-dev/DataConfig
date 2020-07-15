@@ -138,7 +138,7 @@ struct FEmptyStruct
 	GENERATED_BODY()
 };
 
-UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced, Abstract)
+UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
 class UBaseShape : public UObject
 {
 	GENERATED_BODY()
@@ -172,6 +172,7 @@ struct FShapeContainer
 
 	UPROPERTY(EditAnywhere) UBaseShape* ShapeAlpha;
 	UPROPERTY(EditAnywhere) UBaseShape* ShapeBeta;
+	UPROPERTY(EditAnywhere) UBaseShape* ShapeGamma;
 };
 
 
