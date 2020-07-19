@@ -8,6 +8,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "Misc/FileHelper.h"
 
 #define LOCTEXT_NAMESPACE "DataConfigImportFactory"
 
@@ -157,6 +158,15 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 		return nullptr;
 	}
 
+	//	finalizing
+	IImportedInterface* Imported = CastChecked<IImportedInterface>(NewObj);
+	check(Imported);
+	Imported->SetAssetImportData(NewObject<UAssetImportData>(NewObj, TEXT("AssetImportData")));
+	Imported->GetAssetImportData()->Update(CurrentFilename);
+
+	//FEditorDelegates::OnAssetPostImport.Broadcast(this, NewObj);
+	GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPostImport(this, NewObj);
+
 	return NewObj;
 }
 
@@ -197,7 +207,51 @@ void UDataConfigImportFactory::SetReimportPaths(UObject* Obj, const TArray<FStri
 
 EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 {
-	return EReimportResult::Failed;
+	IImportedInterface* Imported = Cast<IImportedInterface>(Obj);
+	if (!Imported)
+	{
+		return EReimportResult::Failed;
+	}
+
+	if (!Imported->GetAssetImportData())
+	{
+		return EReimportResult::Failed;
+	}
+
+	FString SourceFileName = Imported->GetAssetImportData()->GetFirstFilename();
+	TArray<uint8> FileBuf;
+	if (!FFileHelper::LoadFileToArray(FileBuf, *SourceFileName))
+	{
+		return EReimportResult::Failed;
+	}
+
+
+	FString JSONStr((int32)(FileBuf.Num()), (char*)(FileBuf.GetData()));
+	UClass* DataClass = nullptr;
+
+	{
+		FJsonReader TypeReader(&JSONStr);
+		FResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
+		if (!Ret.Ok())
+		{
+			return EReimportResult::Failed;
+		}
+	}
+
+	if (DataClass != Obj->GetClass())
+	{
+		//	class mismatch
+		return EReimportResult::Failed;
+	}
+
+	//	reimport into existing object
+	FResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj);
+	if (!Ret.Ok())
+	{
+		return EReimportResult::Failed;
+	}
+
+	return EReimportResult::Succeeded;
 }
 
 int32 UDataConfigImportFactory::GetPriority() const
