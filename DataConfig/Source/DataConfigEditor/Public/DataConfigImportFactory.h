@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/Optional.h"
 #include "Factories/Factory.h"
 #include "EditorReimportHandler.h"
 #include "DataConfigImportFactory.generated.h"
@@ -24,6 +25,11 @@ class DATACONFIGEDITOR_API UDataConfigImportFactory : public UFactory, public FR
 	void SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths) override;
 	EReimportResult::Type Reimport(UObject* Obj) override;
 	int32 GetPriority() const override;
+
+	//	TODO factories should share the deserializer, it's most likely not threaded
+	void LazyInitializeDeserializer();
+
+	bool TryLoadJSONAsset(const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn, UClass*& OutImportDataClass, UObject* OutObject);
 
 };
 

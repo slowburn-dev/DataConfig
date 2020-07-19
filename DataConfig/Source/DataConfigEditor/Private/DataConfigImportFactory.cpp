@@ -2,6 +2,9 @@
 #include "ImportedInterface.h"
 #include "EditorFramework/AssetImportData.h"
 
+#include "Json/DcJsonReader.h"
+#include "Deserialize/DcDeserializer.h"
+
 #define LOCTEXT_NAMESPACE "SLuaImportFactory"
 
 UDataConfigImportFactory::UDataConfigImportFactory()
@@ -45,6 +48,12 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 			return nullptr;
 		}
 	}
+
+	FString JSONStr = FString::FromBlob(Buffer, BufferEnd - Buffer);
+	using namespace DataConfig;
+	FJsonReader Reader(&JSONStr);
+
+
 
 	//UClass* ImportDataClass;
 	//	TODO do the deserialization here
@@ -96,6 +105,16 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 int32 UDataConfigImportFactory::GetPriority() const
 {
 	return ImportPriority;
+}
+
+void UDataConfigImportFactory::LazyInitializeDeserializer()
+{
+
+}
+
+bool UDataConfigImportFactory::TryLoadJSONAsset(const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn, UClass*& OutImportDataClass, UObject* OutObject)
+{
+
 }
 
 #undef LOCTEXT_NAMESPACE
