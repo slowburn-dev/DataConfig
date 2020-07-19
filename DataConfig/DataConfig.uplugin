@@ -23,7 +23,17 @@
 		{
 			"Name": "DataConfigTests",
 			"Type": "Program",
-	    	"LoadingPhase": "PostConfigInit"
+	    	"LoadingPhase": "None"
+		},
+		{
+			"Name": "DataConfigEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DataConfigRuntime",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	]
 }

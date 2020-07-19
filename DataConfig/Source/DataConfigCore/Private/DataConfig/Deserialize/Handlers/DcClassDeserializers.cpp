@@ -3,6 +3,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "UObject/Package.h"
 
 namespace DataConfig
@@ -30,13 +31,22 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 		EDataEntry CurPeek = Ctx.Reader->Peek();
 		while (CurPeek != EDataEntry::MapEnd)
 		{
+			//	read key
 			if (CurPeek == EDataEntry::Name)
 			{
 				TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 				FName Value;
 				TRY(Ctx.Reader->ReadName(&Value, nullptr));
-				TRY(Ctx.Writer->WriteName(Value));
+				if (IsMeta(Value))
+				{
+					TRY(Ctx.Reader->ReadName(nullptr, nullptr));
+					continue;
+				}
+				else
+				{
+					TRY(Ctx.Writer->WriteName(Value));
+				}
 			}
 			else if (CurPeek == EDataEntry::String)
 			{
@@ -44,7 +54,15 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 
 				FString Value;
 				TRY(Ctx.Reader->ReadString(&Value, nullptr));
-				TRY(Ctx.Writer->WriteName(FName(*Value)));
+				if (IsMeta(Value))
+				{
+					TRY(Ctx.Reader->ReadString(nullptr, nullptr));
+					continue;
+				}
+				else
+				{
+					TRY(Ctx.Writer->WriteName(FName(*Value)));
+				}
 			}
 			else
 			{

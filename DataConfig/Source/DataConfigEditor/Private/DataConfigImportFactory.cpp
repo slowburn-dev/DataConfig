@@ -2,10 +2,89 @@
 #include "ImportedInterface.h"
 #include "EditorFramework/AssetImportData.h"
 
-#include "Json/DcJsonReader.h"
-#include "Deserialize/DcDeserializer.h"
+#include "DataConfig/DcTypes.h"
+#include "DataConfig/DcErrorCodes.h"
+#include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Deserialize/DcDeserializer.h"
+#include "DataConfig/Deserialize/DcDeserializerSetup.h"
+#include "DataConfig/Property/DcPropertyWriter.h"
 
-#define LOCTEXT_NAMESPACE "SLuaImportFactory"
+#define LOCTEXT_NAMESPACE "DataConfigImportFactory"
+
+namespace
+{
+
+using namespace DataConfig;
+
+static FResult ReadRootTypeFromMapping(FReader& Reader, UClass*& OutDataClass)
+{
+	TRY(Reader.ReadMapRoot(nullptr));
+
+	FString Value;
+	TRY(Reader.ReadString(&Value, nullptr));
+
+	if (Value != TEXT("$type"))
+		return Fail(EErrorCode::UnknownError);
+
+	TRY(Reader.ReadString(&Value, nullptr));
+
+	//	TODO support path and other things, for now just use FindObject<UClass>
+	OutDataClass = FindObject<UClass>(ANY_PACKAGE, *Value, true);
+	return OutDataClass ? Ok() : Fail(EErrorCode::UnknownError);
+}
+
+static TOptional<DataConfig::FDeserializer> DcDeserializer;
+static int32 LoadJSONAssetCount;
+
+template<typename T>
+struct TScopedCheckSingleUse : private FNoncopyable
+{
+	using TVolatile = volatile T;
+
+	TScopedCheckSingleUse(T& InCounter)
+		: Counter(InCounter)
+	{
+		T Count = FPlatformAtomics::InterlockedIncrement(((TVolatile*)&Counter));
+		check(Count == 1);
+	}
+
+	~TScopedCheckSingleUse()
+	{
+		T Count = FPlatformAtomics::InterlockedDecrement(((TVolatile*)&Counter));
+		check(Count == 0);
+	}
+
+	T& Counter;
+};
+
+static void LazyInitializeDeserializer()
+{
+	if (!DcDeserializer.IsSet())
+	{
+		DcDeserializer.Emplace();
+		SetupDefaultDeserializeHandlers(DcDeserializer.GetValue());
+	}
+}
+
+static FResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* NewObj)
+{
+	TScopedCheckSingleUse<int32> LockDeserailizer(LoadJSONAssetCount);
+
+	LazyInitializeDeserializer();
+
+	FJsonReader Reader(&JSONStr);
+	FPropertyWriter Writer(FPropertyDatum(DataClass, NewObj));
+
+	FDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &DcDeserializer.GetValue();
+	Ctx.Properties.Push(DataClass);
+
+	return DcDeserializer->Deserialize(Ctx);
+}
+
+}	// end of namespace
 
 UDataConfigImportFactory::UDataConfigImportFactory()
 {
@@ -25,6 +104,7 @@ FText UDataConfigImportFactory::GetDisplayName() const
 {
 	return LOCTEXT("DataConfigImportFactoryDescription", "DataConfig Importer");
 }
+
 
 UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn)
 {
@@ -49,17 +129,35 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 		}
 	}
 
-	FString JSONStr = FString::FromBlob(Buffer, BufferEnd - Buffer);
+	FString JSONStr((int32)(BufferEnd - Buffer), (char*)Buffer);
+	UClass* DataClass = nullptr;
+
 	using namespace DataConfig;
-	FJsonReader Reader(&JSONStr);
 
+	{
+		FJsonReader TypeReader(&JSONStr);
+		FResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
+		if (!Ret.Ok())
+		{
+			return nullptr;
+		}
+	}
 
+	if (!DoesSupportClass(DataClass))
+	{
+		return nullptr;
+	}
 
-	//UClass* ImportDataClass;
-	//	TODO do the deserialization here
-	//	peek $type and create the class here dude, because we don't know the type yet, it's self contained.
+	UDataAsset* NewObj = NewObject<UDataAsset>(InParent, DataClass, InName, Flags);
+	FResult Ret = TryLoadJSONAsset(JSONStr, DataClass, NewObj);
+	if (!Ret.Ok())
+	{
+		//	TODO proper destroy the object if import failed
+		NewObj->ConditionalBeginDestroy();
+		return nullptr;
+	}
 
-	return nullptr;
+	return NewObj;
 }
 
 bool UDataConfigImportFactory::DoesSupportClass(UClass* Class)
@@ -107,15 +205,6 @@ int32 UDataConfigImportFactory::GetPriority() const
 	return ImportPriority;
 }
 
-void UDataConfigImportFactory::LazyInitializeDeserializer()
-{
-
-}
-
-bool UDataConfigImportFactory::TryLoadJSONAsset(const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn, UClass*& OutImportDataClass, UObject* OutObject)
-{
-
-}
 
 #undef LOCTEXT_NAMESPACE
 
