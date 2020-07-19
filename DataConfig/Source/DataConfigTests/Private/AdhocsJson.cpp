@@ -1,8 +1,8 @@
 #include "Adhocs.h"
 #include "UObject/UnrealType.h"
-#include "DcTypes.h"
-#include "DcErrorCodes.h"
-#include "Json/DcJsonReader.h"
+#include "DataConfig/DcTypes.h"
+#include "DataConfig/DcErrorCodes.h"
+#include "DataConfig/Json/DcJsonReader.h"
 
 using namespace DataConfig;
 

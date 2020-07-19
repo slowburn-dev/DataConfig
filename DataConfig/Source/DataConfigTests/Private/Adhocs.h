@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Reader/DcReader.h"
-#include "Writer/DcWriter.h"
-#include "Misc/DcPipeVisitor.h"
+#include "DataConfig/Reader/DcReader.h"
+#include "DataConfig/Writer/DcWriter.h"
+#include "DataConfig/Misc/DcPipeVisitor.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
