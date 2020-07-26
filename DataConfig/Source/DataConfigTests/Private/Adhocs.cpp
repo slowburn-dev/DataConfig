@@ -410,9 +410,19 @@ void TryDiags()
 {
 	PushEnv();
 
-	Env().Diag(0) << TEXT("WTF");
-	Env().Diag(1) << true;
+	Env().Diag({0, 0}) << TEXT("WTF");
+	Env().Diag({1, 1}) << true;
+
+	//	if this works i think it's pretty ok now
+	auto What = []() -> FResult {
+		return Env().Diag({1, 2}) << TEXT("Fuck My Life");
+	};
+
+	check(!What().Ok());
 }
+
+
+
 
 
 

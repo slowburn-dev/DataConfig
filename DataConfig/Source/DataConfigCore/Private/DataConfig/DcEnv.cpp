@@ -45,9 +45,9 @@ FScopedEnv::~FScopedEnv()
 }
 
 
-FDiagnostic& FEnv::Diag(uint32 InDiagID)
+FDiagnostic& FEnv::Diag(FErrorCode InErr)
 {
-	return Diagnostics[Diagnostics.Emplace(InDiagID)];
+	return Diagnostics[Diagnostics.Emplace(InErr)];
 }
 
 } // namespace DataConfig

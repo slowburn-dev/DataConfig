@@ -9,23 +9,39 @@ namespace DataConfig
 
 enum class EErrorCode : uint32;
 
+struct DATACONFIGCORE_API FErrorCode
+{
+	uint16 CategoryID;
+	uint16 ErrorID;
+};
+
 struct DATACONFIGCORE_API FResult
 {
-	uint32 Status : 31;
-	uint32 bHasData : 1;
+	//	TODO when benchmark is setup, try figure out whether
+	//		 changing this to uint32 affects anything
+	enum class EStatus : uint8
+	{
+		Ok,
+		Error
+	};
 
-	//	TODO aligned data of 3*4bytes, make it a 16bytes data structure
+	EStatus Status;
 
 	FORCEINLINE bool Ok()
 	{
-		return Status == 0;
+		return Status == EStatus::Ok;
 	}
 };
 
 FORCEINLINE FResult Ok() {
-	return FResult{0, 0};
+	return FResult{ FResult::EStatus::Ok };
 }
 
+FORCEINLINE FResult Fail() {
+	return FResult{ FResult::EStatus::Error };
+}
+
+//	TODO this is compat for now, status is completely dropped
 FORCEINLINE FResult Fail(EErrorCode Status) {
 	check((uint32)Status != 0);
 
@@ -33,10 +49,9 @@ FORCEINLINE FResult Fail(EErrorCode Status) {
 	PLATFORM_BREAK();
 #endif
 
-	return FResult{ (uint32)Status, 0 };
+	return Fail();
 }
 
-FORCEINLINE FResult Fail() { return Fail((EErrorCode)1); }
 
 FORCEINLINE FResult Expect(bool CondToBeTrue, EErrorCode Status) {
 	check((uint32)Status != 0);

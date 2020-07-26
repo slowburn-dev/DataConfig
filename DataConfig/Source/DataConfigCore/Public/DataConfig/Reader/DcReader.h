@@ -37,7 +37,6 @@ struct DATACONFIGCORE_API FReader
 };
 
 
-
 } // namespace DataConfig
 
 

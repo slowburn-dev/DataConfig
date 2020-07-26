@@ -10,7 +10,7 @@ struct DATACONFIGCORE_API FEnv
 {
 	TArray<FDiagnostic> Diagnostics;
 
-	FDiagnostic& Diag(uint32 DiagID);
+	FDiagnostic& Diag(FErrorCode InErr);
 };
 
 DATACONFIGCORE_API FEnv& Env();
@@ -23,6 +23,12 @@ struct DATACONFIGCORE_API FScopedEnv
 	~FScopedEnv();
 };
 
+FORCEINLINE FResult Fail(FErrorCode InErr) {
+	return Env().Diag(InErr);
+}
+FORCEINLINE FResult Fail(uint16 InCategory, uint16 InCode) {
+	return Env().Diag({InCategory, InCode});
+}
 
 } // namespace DataConfig
 
