@@ -31,7 +31,6 @@ struct DATACONFIGCORE_API FWriter
 	virtual FResult WriteArrayEnd();
 
 	virtual FResult WriteReference(UObject* Value);
-
 };
 
 

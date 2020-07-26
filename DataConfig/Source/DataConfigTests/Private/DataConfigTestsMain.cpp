@@ -5,6 +5,7 @@
 #include "RequiredProgramMainCPPInclude.h"
 #include "Interfaces/IPluginManager.h"
 
+
 #include "Adhocs.h"
 IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
@@ -38,9 +39,10 @@ static void Body()
 	//DeserializeNestedStruct();
 	//DeserializeObjectRoot();
 	//DeserializeObjectRef();
-	DeserializeSubObject();
+	//DeserializeSubObject();
 	//TryOutVariant();
 	//TryOutPutback();
+	TryDiags();
 
 	return;
 }

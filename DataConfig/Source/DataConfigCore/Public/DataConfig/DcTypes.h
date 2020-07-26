@@ -7,8 +7,6 @@ DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All)
 namespace DataConfig
 {
 
-DATACONFIGCORE_API uint8* GetZeroBitPattern128();
-
 enum class EErrorCode : uint32;
 
 struct DATACONFIGCORE_API FResult

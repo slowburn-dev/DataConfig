@@ -10,6 +10,7 @@
 
 #include "DataConfig/Misc/DcDataVariant.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
+#include "DataConfig/DcEnv.h"
 
 using namespace DataConfig;
 
@@ -403,6 +404,14 @@ void TryOutPutback()
 	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
 
 	check(Reader.Peek() == EDataEntry::Ended);
+}
+
+void TryDiags()
+{
+	PushEnv();
+
+	Env().Diag(0) << TEXT("WTF");
+	Env().Diag(1) << true;
 }
 
 
