@@ -5,8 +5,8 @@ namespace DataConfig
 {
 
 static FDiagnosticDetail _CommonDetails[] = {
-	{ DCommon::NotImplemented, TEXT("Calling into methods that are not implemented.") },
-	{ DCommon::Fun, TEXT("Try Args {0} {1} {2}") },
+	{ DCommon::NotImplemented, TEXT("Calling into methods that are not implemented") },
+	{ DCommon::Unreachable, TEXT("Calling into unreachable code") },
 };
 
 FDiagnosticGroup DCommonDetails = { DimOf(_CommonDetails), _CommonDetails };

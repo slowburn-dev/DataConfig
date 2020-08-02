@@ -92,7 +92,8 @@ FResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadNameFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateNoExpect)
+			<< (int)State;
 	}
 }
 
@@ -101,8 +102,7 @@ FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 	if (State == EState::ExpectKey)
 	{
 		checkNoEntry();	// should've be already handled in `ReadName`
-		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidState)
-			<< (int)EState::ExpectKey << (int)State;
+		return Fail(DCommon::Category, DCommon::Unreachable);
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -118,12 +118,14 @@ FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 		}
 		else
 		{
-			return Fail(FailCode);
+			return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::PropertyMismatch)
+				<< ExpectedPropertyClass->ClassConfigName << Property->GetName() << Property->GetClass()->ClassConfigName;
 		}
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadClassKeyFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectValue << (int)State;
 	}
 }
 
@@ -144,7 +146,8 @@ FResult FReadStateClass::EndReadValue()
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadClassNextFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectValue << (int)State;
 	}
 }
 
@@ -203,13 +206,14 @@ FResult FReadStateClass::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 			else
 			{
 				checkNoEntry();
-				return Fail(EErrorCode::UnknownError);
+				return Fail(DCommon::Category, DCommon::Unreachable);
 			}
 		}
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadClassFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
 
@@ -231,7 +235,8 @@ FResult FReadStateClass::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextS
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadClassEndFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
 
@@ -244,7 +249,8 @@ FResult FReadStateClass::ReadNil(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadNilFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectNil << (int)State;
 	}
 }
 
@@ -262,7 +268,8 @@ FResult FReadStateClass::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadReferenceFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectReference << (int)State;
 	}
 }
 
@@ -328,7 +335,8 @@ FResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadStructKeyFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateNoExpect)
+			<< (int)State;
 	}
 }
 
@@ -337,7 +345,7 @@ FResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCod
 	if (State == EState::ExpectKey)
 	{
 		checkNoEntry();	// shouldn't be hanndled in `ReadName`
-		return Fail(EErrorCode::ReadStructKeyFail);
+		return Fail(DCommon::Category, DCommon::Unreachable);
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -353,12 +361,14 @@ FResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCod
 		}
 		else
 		{
-			return Fail(FailCode);
+			return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::PropertyMismatch)
+				<< ExpectedPropertyClass->ClassConfigName << Property->GetName() << Property->GetClass()->ClassConfigName;
 		}
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadStructKeyFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectValue << (int)State;
 	}
 }
 
@@ -379,7 +389,8 @@ FResult FReadStateStruct::EndReadValue()
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadStructNextFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectValue << (int)State;
 	}
 }
 
@@ -404,7 +415,8 @@ FResult FReadStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* Ctx
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadStructFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
 
@@ -425,7 +437,8 @@ FResult FReadStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxP
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadStructEndFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
 
@@ -524,7 +537,8 @@ FResult FReadStateMap::EndReadValue()
 	}
 	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateNoExpect)
+			<< (int)State;
 	}
 }
 
@@ -553,7 +567,8 @@ FResult FReadStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadMapFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
 
@@ -566,7 +581,8 @@ FResult FReadStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadMapEndFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
 
@@ -619,7 +635,8 @@ FResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
 		|| State == EState::ExpectEnd)
-		return Fail(FailCode);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateNoExpect)
+			<< (int)State;
 
 	check(State == EState::ExpectItem);
 	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
@@ -648,7 +665,8 @@ FResult FReadStateArray::EndReadValue()
 	}
 	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectItem << (int)State;
 	}
 }
 
@@ -675,7 +693,8 @@ FResult FReadStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadArrayFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
 
@@ -688,7 +707,8 @@ FResult FReadStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadArrayEndFail);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
 

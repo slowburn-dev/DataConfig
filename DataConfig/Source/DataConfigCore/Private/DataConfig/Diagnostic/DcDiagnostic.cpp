@@ -23,6 +23,8 @@ const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError)
 {
 	if (InError.CategoryID == DCommon::Category)
 		return SearchDetails(InError.ErrorID, DCommonDetails);
+	if (InError.CategoryID == DPropertyReadWrite::Category)
+		return SearchDetails(InError.ErrorID, DPropertyReadWriteDetails);
 
 	return nullptr;
 }
@@ -50,6 +52,10 @@ static FStringFormatArg ConvertArg(FDataVariant& Var)
 	else if (Var.DataType == EDataEntry::String)
 	{
 		return FStringFormatArg(Var.GetValue<FString>());
+	}
+	else if (Var.DataType == EDataEntry::Name)
+	{
+		return FStringFormatArg(Var.GetValue<FName>().ToString());
 	}
 	else
 	{

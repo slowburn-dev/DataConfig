@@ -12,7 +12,9 @@ namespace DPropertyReadWrite
 	enum Type : uint16
 	{
 		Unknown = 0,
-		InvalidState,
+		InvalidStateNoExpect,
+		InvalidStateWithExpect,
+		PropertyMismatch,
 	};
 
 } // namespace DataConfig::DPropertyReadWrite
