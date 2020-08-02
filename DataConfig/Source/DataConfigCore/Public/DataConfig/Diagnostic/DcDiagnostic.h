@@ -56,21 +56,17 @@ DATACONFIGCORE_API const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InEr
 
 static const uint16 DETAIL_END = MAX_uint16;
 
-namespace DCommon
+struct DATACONFIGCORE_API FDiagnosticGroup
 {
-
-static const uint16 Category = 0x1;
-
-enum Type : uint16
-{
-	Unknown = 0,
-	NotImplemented = 1,
-
-	Fun = 253,
+	size_t Count;
+	FDiagnosticDetail* Details;
 };
 
-} // namespace DataConfig::DCommon
-
+template <typename T, size_t N>
+size_t DimOf(T(&)[N])
+{
+	return N;
+}
 
 } // namespace DataConfig
 

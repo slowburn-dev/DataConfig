@@ -1,19 +1,19 @@
-#include "DataConfig/Misc/DcDiagnostic.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
+
+#include "DataConfig/Diagnostic/DcDiagnosticAll.inl"
 
 namespace DataConfig
 {
 
-extern FDiagnosticDetail DCommonDetails[];
-
-static const FDiagnosticDetail* SearchDetails(uint16 InID, const FDiagnosticDetail* Arr)
+static const FDiagnosticDetail* SearchDetails(uint16 InID, const FDiagnosticGroup& Group)
 {
-	while (true)
+	for (int Ix = 0; Ix < Group.Count; Ix++)
 	{
-		if (Arr->ID == DETAIL_END)
-			break;
-
-		if (Arr->ID == InID)
-			return Arr;
+		const FDiagnosticDetail& Detail = Group.Details[Ix];
+		if (Detail.ID == InID)
+		{
+			return &Detail;
+		}
 	}
 
 	return nullptr;
@@ -47,7 +47,7 @@ static FStringFormatArg ConvertArg(FDataVariant& Var)
 	{
 		return FStringFormatArg(TEXT("<null>"));
 	}
-	else if (Var.DataType == EDataEntry::Nil)
+	else if (Var.DataType == EDataEntry::String)
 	{
 		return FStringFormatArg(Var.GetValue<FString>());
 	}

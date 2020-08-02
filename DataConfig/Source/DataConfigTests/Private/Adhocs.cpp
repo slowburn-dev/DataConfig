@@ -11,6 +11,7 @@
 #include "DataConfig/Misc/DcDataVariant.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 
 using namespace DataConfig;
 

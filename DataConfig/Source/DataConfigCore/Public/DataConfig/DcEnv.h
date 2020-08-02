@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DataConfig/Misc/DcDiagnostic.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 namespace DataConfig
 {
