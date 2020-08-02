@@ -10,7 +10,11 @@ struct DATACONFIGCORE_API FEnv
 {
 	TArray<FDiagnostic> Diagnostics;
 
+	TSharedPtr<IDiagnosticConsumer> DiagConsumer;
+
 	FDiagnostic& Diag(FErrorCode InErr);
+
+	void FlushDiags();
 };
 
 DATACONFIGCORE_API FEnv& Env();

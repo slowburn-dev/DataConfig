@@ -26,6 +26,17 @@ FORCEINLINE FDiagnostic& operator<<(FDiagnostic& Diag, T&& InValue)
 	return Diag;
 }
 
+struct IDiagnosticConsumer : public TSharedFromThis<IDiagnosticConsumer>
+{
+	virtual void HandleDiagnostic(FDiagnostic& Diag) = 0;
+	virtual ~IDiagnosticConsumer() = default;
+};
+
+struct FNullConsumer : public IDiagnosticConsumer
+{
+	void HandleDiagnostic(FDiagnostic& Diag) override;
+};
+
 struct DATACONFIGCORE_API FDiagnosticDetail
 {
 	uint16 ID;
@@ -34,7 +45,7 @@ struct DATACONFIGCORE_API FDiagnosticDetail
 
 DATACONFIGCORE_API const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError);
 
-static const uint16 DETAIL_END = 0;
+static const uint16 DETAIL_END = MAX_uint16;
 
 namespace DCommon
 {
@@ -43,12 +54,11 @@ static const uint16 Category = 0x1;
 
 enum Type : uint16
 {
-	Ok = 0,
+	Unknown = 0,
 	NotImplemented = 1,
 };
 
-
-}
+} // namespace DataConfig::DCommon
 
 
 } // namespace DataConfig

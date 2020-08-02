@@ -6,6 +6,11 @@ DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All)
 
 namespace DataConfig
 {
+	
+//	global initializer and shutdown
+DATACONFIGCORE_API void StartUp();
+DATACONFIGCORE_API void ShutDown();
+DATACONFIGCORE_API bool IsInitialized();
 
 enum class EErrorCode : uint32;
 

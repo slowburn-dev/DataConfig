@@ -27,4 +27,10 @@ const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError)
 	return nullptr;
 }
 
+void FNullConsumer::HandleDiagnostic(FDiagnostic& Diag)
+{
+	// pass
+	return;
+}
+
 } // namespace DataConfig

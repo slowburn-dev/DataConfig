@@ -1,36 +1,25 @@
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/DcTypes.h"
 #include "Containers/BasicArray.h"
 
 namespace DataConfig
 {
 
-//	TODO thread_local
-static TBasicArray<FEnv>& GetStaticEnvs()
-{
-	static TBasicArray<FEnv> Envs;
-	if (Envs.Num() == 0)
-	{
-		Envs.Emplace();
-	}
-
-	return Envs;
-}
+TBasicArray<FEnv> Envs;
 
 FEnv& DataConfig::Env()
 {
-	auto& Envs = GetStaticEnvs();
+	check(IsInitialized());
 	return Envs[Envs.Num() - 1];
 }
 
 FEnv& DataConfig::PushEnv()
 {
-	auto& Envs = GetStaticEnvs();
 	return Envs[Envs.Emplace()];
 }
 
 void DataConfig::PopEnv()
 {
-	auto& Envs = GetStaticEnvs();
 	Envs.RemoveAt(Envs.Num() - 1);
 }
 
@@ -48,6 +37,17 @@ FScopedEnv::~FScopedEnv()
 FDiagnostic& FEnv::Diag(FErrorCode InErr)
 {
 	return Diagnostics[Diagnostics.Emplace(InErr)];
+}
+
+void FEnv::FlushDiags()
+{
+	if (DiagConsumer.IsValid())
+	{
+		for (FDiagnostic& Diag : Diagnostics)
+			DiagConsumer->HandleDiagnostic(Diag);
+	}
+
+	Diagnostics.Empty();
 }
 
 } // namespace DataConfig

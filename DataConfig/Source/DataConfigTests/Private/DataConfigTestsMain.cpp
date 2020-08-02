@@ -82,8 +82,9 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		return ECompilationResult::CrashOrAssert;
 	}
 
-
+	DataConfig::StartUp();
 	Body();
+	DataConfig::ShutDown();
 
 	ON_SCOPE_EXIT
 	{

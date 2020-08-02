@@ -1,5 +1,6 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/DcErrorCodes.h"
+#include "DataConfig/DcEnv.h"
 
 DEFINE_LOG_CATEGORY(LogDataConfigCore);
 
@@ -64,6 +65,23 @@ EErrorCode GetWriteErrorCode(EDataEntry DataEntry)
 	return EErrorCode::UnknownError;
 }
 
+bool bInitialized = false;
 
+void StartUp()
+{
+	bInitialized = true;
+	PushEnv();
+}
+
+void ShutDown()
+{
+	PopEnv();
+	bInitialized = false;
+}
+
+DATACONFIGCORE_API bool IsInitialized()
+{
+	return bInitialized;
+}
 
 } // namespace DataConfig

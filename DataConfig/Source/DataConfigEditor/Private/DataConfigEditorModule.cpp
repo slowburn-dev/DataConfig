@@ -79,6 +79,8 @@ void FAssetTypeActions_PrimaryImportedDataAsset::GetResolvedSourceFilePaths(cons
 
 void FDataConfigEditorModule::StartupModule()
 {
+	DataConfig::StartUp();
+
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	ImportedDataAssetActions.Emplace(MakeShareable(new FAssetTypeActions_ImportedDataAsset()));
 	ImportedDataAssetActions.Emplace(MakeShareable(new FAssetTypeActions_PrimaryImportedDataAsset()));
@@ -109,6 +111,7 @@ void FDataConfigEditorModule::ShutdownModule()
 		ImportedDataAssetActions.Empty();
 	}
 
+	DataConfig::ShutDown();
 }
 
 bool FDataConfigEditorModule::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)
