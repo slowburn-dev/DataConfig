@@ -4,7 +4,7 @@
 namespace DataConfig
 {
 
-static FDiagnosticDetail _PropertyReadWriteDetails[] = {
+static FDiagnosticDetail _ReadWriteDetails[] = {
 	{ DReadWrite::InvalidStateNoExpect, TEXT("Invalid internal state. Actual {0}."), },
 	{ DReadWrite::InvalidStateWithExpect, TEXT("Invalid internal state. Expect {0}, Actual {1}."), },
 	{ DReadWrite::InvalidStateWithExpect2, TEXT("Invalid internal state. Expect {0} {1}, Actual {2}."), },
@@ -16,7 +16,7 @@ static FDiagnosticDetail _PropertyReadWriteDetails[] = {
 	{ DReadWrite::WriteClassInlineNotCreated, TEXT("Expand class write need the object to already exist. Property {0} {1}") },
 };
 
-FDiagnosticGroup DPropertyReadWriteDetails = { DimOf(_PropertyReadWriteDetails), _PropertyReadWriteDetails };
+FDiagnosticGroup DPropertyReadWriteDetails = { DimOf(_ReadWriteDetails), _ReadWriteDetails };
 
 } // namespace DataConfig
 

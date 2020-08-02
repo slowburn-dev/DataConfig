@@ -25,6 +25,8 @@ const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError)
 		return SearchDetails(InError.ErrorID, DCommonDetails);
 	if (InError.CategoryID == DReadWrite::Category)
 		return SearchDetails(InError.ErrorID, DPropertyReadWriteDetails);
+	if (InError.CategoryID == DJSON::Category)
+		return SearchDetails(InError.ErrorID, DJSONDetails);
 
 	return nullptr;
 }

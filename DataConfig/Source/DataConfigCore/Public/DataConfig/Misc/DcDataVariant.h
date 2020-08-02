@@ -79,6 +79,11 @@ struct FDataVariant
 		*this = FString(InString);
 	}
 
+	FDataVariant(TCHAR InTChar)
+	{
+		*this = FString(1, &InTChar);
+	}
+
 	template<typename T>
 	T GetValue() const
 	{

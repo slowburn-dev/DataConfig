@@ -429,6 +429,12 @@ void TryConsoleDiagnosticReports()
 	Writer.WriteBool(true);
 
 	Env().Diag(DIAG(DCommon, Unreachable));
+
+	TCHAR Ch = TCHAR('t');
+	FString Str(1, &Ch);
+
+	Env().Diag(DIAG(DCommon, Unexpected1)) << Str;
+
 }
 
 

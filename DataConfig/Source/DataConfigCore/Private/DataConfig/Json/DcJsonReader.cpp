@@ -1,4 +1,6 @@
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 
 namespace DataConfig
 {
@@ -54,8 +56,10 @@ EDataEntry FJsonReader::Peek()
 FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
 	ReadWhiteSpace();
+	//	TODO end check
 
-	if (PeekChar() == TCharType('t'))
+	TCharType Next = PeekChar();
+	if (Next == TCharType('t'))
 	{
 		TRY(ReadWordExpect(TEXT("true"), EErrorCode::ReadBoolFail));
 
@@ -67,7 +71,7 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 		EndTopRead();
 		return Ok();
 	}
-	else if (PeekChar() == 'f')
+	else if (Next == 'f')
 	{
 		TRY(ReadWordExpect(TEXT("false"), EErrorCode::ReadBoolFail));
 
@@ -81,15 +85,17 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadBoolFail);
+		return Fail(DIAG(DJSON, UnexpectedChar1)) << Next;
 	}
 }
 
 FResult FJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 {
 	ReadWhiteSpace();
+	//	TODO end check
 
-	if (PeekChar() == TCharType('"'))
+	TCharType Next = PeekChar();
+	if (Next == TCharType('"'))
 	{
 		FString Str;
 		TRY(ReadString(Str));
@@ -104,7 +110,7 @@ FResult FJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadNameFail);
+		return Fail(DIAG(DJSON, UnexpectedChar1)) << Next;
 	}
 }
 
@@ -112,7 +118,8 @@ FResult FJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 {
 	ReadWhiteSpace();
 
-	if (PeekChar() == TCharType('"'))
+	TCharType Next = PeekChar();
+	if (Next == TCharType('"'))
 	{
 		FString Str;
 		TRY(ReadString(Str));
@@ -127,7 +134,7 @@ FResult FJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadStringFail);
+		return Fail(DIAG(DJSON, UnexpectedChar1)) << Next;
 	}
 }
 
@@ -140,7 +147,7 @@ DataConfig::FResult FJsonReader::ReadString(FString& OutStr)
 	while (true)
 	{
 		if (IsAtEnd())
-			return Fail(EErrorCode::ReadStringFail);
+			return Fail(DIAG(DJSON, UnexpectedEnd));
 
 		TCharType Char = ReadChar();
 		check(Char != TCharType('\0'));	// should be handled in IsAtEnd();
@@ -155,7 +162,7 @@ DataConfig::FResult FJsonReader::ReadString(FString& OutStr)
 	}
 
 	checkNoEntry();
-	return Fail(EErrorCode::UnknownError);
+	return Fail(DIAG(DCommon, Unreachable));
 }
 
 void FJsonReader::ReadWhiteSpace()
@@ -211,7 +218,7 @@ DataConfig::FResult FJsonReader::EndTopRead()
 			}
 			else
 			{
-				return Fail(EErrorCode::ReadMapFail);
+				return Fail(DIAG(DJSON, UnexpectedChar1)) << Char;
 			}
 		}
 	}
@@ -232,7 +239,7 @@ DataConfig::FResult FJsonReader::EndTopRead()
 		}
 		else
 		{
-			return Fail(EErrorCode::ReadArrayFail);
+			return Fail(DIAG(DJSON, UnexpectedChar1)) << Char;
 		}
 	}
 	else if (TopState == EParseState::Nil)
@@ -242,7 +249,7 @@ DataConfig::FResult FJsonReader::EndTopRead()
 	else
 	{
 		checkNoEntry();
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DIAG(DCommon, Unreachable));
 	}
 }
 
@@ -264,7 +271,7 @@ FResult FJsonReader::ReadMapEnd(FContextStorage* CtxPtr)
 	//	we know it's always at value position due to JSON spec, so just set it
 	bTopObjectAtValue = true;
 
-	EndTopRead();
+	TRY(EndTopRead());
 	return Ok();
 }
 
@@ -296,7 +303,7 @@ TCharType FJsonReader::PeekChar()
 FResult FJsonReader::PeekChar(TCharType& OutChar, EErrorCode ErrCode)
 {
 	if (IsAtEnd())
-		return Fail(ErrCode);
+		return Fail(DIAG(DJSON, UnexpectedEnd));
 
 	OutChar = PeekChar();
 	return Ok();
@@ -306,22 +313,27 @@ FResult FJsonReader::ReadWordExpect(const TCharType* Word, EErrorCode ErrCode)
 {
 	while (true)
 	{
-		if (IsAtEnd()) return Fail(ErrCode);
-		if (*Word == TCharType('\0')) return Ok();
-		if (*Word != ReadChar()) return Fail(ErrCode);
+		if (IsAtEnd())
+			return Fail(DIAG(DJSON, AlreadyEndedButExpect)) << Word;
+		if (*Word == TCharType('\0'))
+			return Ok();	// !!! note that this is end of `Word`
+		if (*Word != ReadChar())
+			return Fail(DIAG(DJSON, ExpectWordButNotFound)) << Word;
 
 		++Word;
 	}
 
 	checkNoEntry();
-	return Fail(EErrorCode::UnknownError);
+	return Fail(DIAG(DCommon, Unreachable));
 }
 
 FResult FJsonReader::ReadCharExpect(TCharType Expect, EErrorCode ErrCode)
 {
 	if (IsAtEnd())
 		return Fail(ErrCode);
-	return ReadChar() == Expect ? Ok() : Fail(ErrCode);
+	return ReadChar() == Expect 
+		? Ok()
+		: Fail(DIAG(DJSON, ExpectCharButNotFound)) << Expect;
 }
 
 } // namespace DataConfig

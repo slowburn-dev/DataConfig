@@ -15,6 +15,7 @@ enum Type : uint16
 	Unknown = 0,
 	NotImplemented,
 	Unreachable,
+	Unexpected1,
 };
 
 } // namespace DataConfig::DCommon
