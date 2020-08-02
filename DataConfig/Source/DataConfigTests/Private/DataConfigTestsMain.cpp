@@ -32,17 +32,19 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
-	//PropertyVisitorRoundtrip();
-	//JsonReader1();
-	//UEStructSerializer();
-	//DeserializeSimple();
-	//DeserializeNestedStruct();
-	//DeserializeObjectRoot();
-	//DeserializeObjectRef();
-	//DeserializeSubObject();
+	/*
+	PropertyVisitorRoundtrip();
+	JsonReader1();
+	UEStructSerializer();
+	DeserializeSimple();
+	DeserializeNestedStruct();
+	DeserializeObjectRoot();
+	DeserializeObjectRef();
+	DeserializeSubObject();
 	//TryOutVariant();
 	//TryOutPutback();
 	//TryDiags();
+	*/
 	TryConsoleDiagnosticReports();
 
 	return;

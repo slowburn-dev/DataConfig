@@ -14,8 +14,13 @@ namespace DPropertyReadWrite
 		Unknown = 0,
 		InvalidStateNoExpect,
 		InvalidStateWithExpect,
+		InvalidStateWithExpect2,
+		DataTypeMismatch,
+		DataTypeMismatch2,
 		PropertyMismatch,
 		AlreadyEnded,
+		CantFindPropertyByName,
+		WriteClassInlineNotCreated,
 	};
 
 } // namespace DataConfig::DPropertyReadWrite

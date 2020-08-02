@@ -119,7 +119,7 @@ FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 		else
 		{
 			return Fail(DIAG(DPropertyReadWrite, PropertyMismatch))
-				<< ExpectedPropertyClass->ClassConfigName << Property->GetName() << Property->GetClass()->ClassConfigName;
+				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName();
 		}
 	}
 	else
@@ -362,7 +362,7 @@ FResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCod
 		else
 		{
 			return Fail(DIAG(DPropertyReadWrite, PropertyMismatch))
-				<< ExpectedPropertyClass->ClassConfigName << Property->GetName() << Property->GetClass()->ClassConfigName;
+				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName();
 		}
 	}
 	else
