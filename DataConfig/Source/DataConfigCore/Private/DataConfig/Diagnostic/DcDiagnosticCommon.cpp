@@ -1,3 +1,4 @@
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 namespace DataConfig

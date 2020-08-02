@@ -1,6 +1,8 @@
 #include "DataConfig/Property/DcPropertyReadStates.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Diagnostic/DcDiagnosticPropertyReadWrite.h"
 
 namespace DataConfig {
 
@@ -11,12 +13,12 @@ EDataEntry FBaseReadState::Peek()
 
 FResult FBaseReadState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
-	return Fail(EErrorCode::UnknownError);
+	return Fail(DCommon::Category, DCommon::NotImplemented);
 }
 
 FResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
-	return Fail(EErrorCode::UnknownError);
+	return Fail(DCommon::Category, DCommon::NotImplemented);
 }
 
 EPropertyReadType FReadStateNil::GetType()
@@ -98,8 +100,9 @@ FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 {
 	if (State == EState::ExpectKey)
 	{
-		checkNoEntry();	// should've bee already handled in `ReadName`
-		return Fail(EErrorCode::ReadClassKeyFail);
+		checkNoEntry();	// should've be already handled in `ReadName`
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidState)
+			<< (int)EState::ExpectKey << (int)State;
 	}
 	else if (State == EState::ExpectValue)
 	{

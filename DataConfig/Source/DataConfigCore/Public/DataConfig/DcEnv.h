@@ -29,10 +29,11 @@ struct DATACONFIGCORE_API FScopedEnv
 	~FScopedEnv();
 };
 
-FORCEINLINE FResult Fail(FErrorCode InErr) {
+FORCEINLINE FDiagnostic& Fail(FErrorCode InErr) {
 	return Env().Diag(InErr);
 }
-FORCEINLINE FResult Fail(uint16 InCategory, uint16 InCode) {
+
+FORCEINLINE FDiagnostic& Fail(uint16 InCategory, uint16 InCode) {
 	return Env().Diag({InCategory, InCode});
 }
 

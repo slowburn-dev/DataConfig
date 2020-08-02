@@ -19,6 +19,20 @@ template<> struct TDataEntryType<bool> { static constexpr EDataEntry Value = EDa
 template<> struct TDataEntryType<FName> { static constexpr EDataEntry Value = EDataEntry::Name; };
 template<> struct TDataEntryType<FString> { static constexpr EDataEntry Value = EDataEntry::String; };
 
+template<> struct TDataEntryType<float> { static constexpr EDataEntry Value = EDataEntry::Float; };
+template<> struct TDataEntryType<double> { static constexpr EDataEntry Value = EDataEntry::Double; };
+
+template<> struct TDataEntryType<int8> { static constexpr EDataEntry Value = EDataEntry::Int8; };
+template<> struct TDataEntryType<int16> { static constexpr EDataEntry Value = EDataEntry::Int16; };
+template<> struct TDataEntryType<int32> { static constexpr EDataEntry Value = EDataEntry::Int; };
+template<> struct TDataEntryType<int64> { static constexpr EDataEntry Value = EDataEntry::Int64; };
+
+template<> struct TDataEntryType<uint8> { static constexpr EDataEntry Value = EDataEntry::Byte; };
+template<> struct TDataEntryType<uint16> { static constexpr EDataEntry Value = EDataEntry::UInt16; };
+template<> struct TDataEntryType<uint32> { static constexpr EDataEntry Value = EDataEntry::UInt32; };
+template<> struct TDataEntryType<uint64> { static constexpr EDataEntry Value = EDataEntry::UInt64; };
+
+
 struct FDataVariant
 {
 	FDataVariant()
