@@ -50,5 +50,10 @@ void FEnv::FlushDiags()
 	Diagnostics.Empty();
 }
 
+FEnv::~FEnv()
+{
+	FlushDiags();
+}
+
 } // namespace DataConfig
 

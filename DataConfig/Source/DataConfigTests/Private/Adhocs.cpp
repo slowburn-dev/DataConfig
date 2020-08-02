@@ -421,8 +421,15 @@ void TryDiags()
 	check(!What().Ok());
 }
 
+void TryConsoleDiagnosticReports()
+{
+	FWriter Writer{};
 
+	Writer.WriteBool(true);
 
+	Env().Diag({ DCommon::Category, DCommon::Fun }) << true << TEXT("Fuck Me") << nullptr;
+
+}
 
 
 

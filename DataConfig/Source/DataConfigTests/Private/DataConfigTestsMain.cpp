@@ -42,7 +42,8 @@ static void Body()
 	//DeserializeSubObject();
 	//TryOutVariant();
 	//TryOutPutback();
-	TryDiags();
+	//TryDiags();
+	TryConsoleDiagnosticReports();
 
 	return;
 }
@@ -82,7 +83,7 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		return ECompilationResult::CrashOrAssert;
 	}
 
-	DataConfig::StartUp();
+	DataConfig::StartUp(EInitializeAction::SetAsConsole);
 	Body();
 	DataConfig::ShutDown();
 

@@ -15,6 +15,8 @@ struct DATACONFIGCORE_API FEnv
 	FDiagnostic& Diag(FErrorCode InErr);
 
 	void FlushDiags();
+
+	~FEnv();
 };
 
 DATACONFIGCORE_API FEnv& Env();

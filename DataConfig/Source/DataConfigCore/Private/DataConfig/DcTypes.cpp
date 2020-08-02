@@ -67,10 +67,15 @@ EErrorCode GetWriteErrorCode(EDataEntry DataEntry)
 
 bool bInitialized = false;
 
-void StartUp()
+void StartUp(EInitializeAction InAction)
 {
 	bInitialized = true;
 	PushEnv();
+
+	if (InAction == EInitializeAction::SetAsConsole)
+	{
+		Env().DiagConsumer = MakeShareable(new FDefaultLogDiagnosticConsumer());
+	}
 }
 
 void ShutDown()

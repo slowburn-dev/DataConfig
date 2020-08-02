@@ -8,10 +8,10 @@ namespace DataConfig
 
 struct DATACONFIGCORE_API FDiagnostic
 {
-	FErrorCode ID;
+	FErrorCode Code;
 	TArray<FDataVariant> Args;
 
-	FDiagnostic(FErrorCode InID) : ID(InID)
+	FDiagnostic(FErrorCode InID) : Code(InID)
 	{}
 
 	operator FResult() const {
@@ -32,9 +32,18 @@ struct IDiagnosticConsumer : public TSharedFromThis<IDiagnosticConsumer>
 	virtual ~IDiagnosticConsumer() = default;
 };
 
-struct FNullConsumer : public IDiagnosticConsumer
+struct FNullDiagnosticConsumer : public IDiagnosticConsumer
 {
 	void HandleDiagnostic(FDiagnostic& Diag) override;
+};
+
+struct FDefaultLogDiagnosticConsumer : public IDiagnosticConsumer
+{
+	FDefaultLogDiagnosticConsumer();
+
+	void HandleDiagnostic(FDiagnostic& Diag) override;
+
+	FLogScopedCategoryAndVerbosityOverride Override;
 };
 
 struct DATACONFIGCORE_API FDiagnosticDetail
@@ -56,6 +65,8 @@ enum Type : uint16
 {
 	Unknown = 0,
 	NotImplemented = 1,
+
+	Fun = 253,
 };
 
 } // namespace DataConfig::DCommon

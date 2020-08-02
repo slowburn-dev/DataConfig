@@ -8,7 +8,13 @@ namespace DataConfig
 {
 	
 //	global initializer and shutdown
-DATACONFIGCORE_API void StartUp();
+enum class EInitializeAction
+{
+	Minimal,
+	SetAsConsole,
+};
+
+DATACONFIGCORE_API void StartUp(EInitializeAction InAction = EInitializeAction::Minimal);
 DATACONFIGCORE_API void ShutDown();
 DATACONFIGCORE_API bool IsInitialized();
 

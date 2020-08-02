@@ -54,6 +54,12 @@ struct FDataVariant
 		MemWriter << InValue;
 	}
 
+	template<>
+	FORCEINLINE void Initialize<nullptr_t>(nullptr_t InValue)
+	{
+		DataType = EDataEntry::Nil;
+	}
+
 	FDataVariant(const TCHAR* InString)
 	{
 		*this = FString(InString);
