@@ -1,15 +1,17 @@
 #include "DataConfig/Property/DcPropertyWriteStates.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Diagnostic/DcDiagnosticPropertyReadWrite.h"
 
 namespace DataConfig
 {
 
-FResult FBaseWriteState::Peek(EDataEntry Next) { return Fail(EErrorCode::UnknownError); }
-FResult FBaseWriteState::WriteName(const FName& Value){ return Fail(EErrorCode::UnknownError); }
-FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) { return Fail(EErrorCode::UnknownError); }
-FResult FBaseWriteState::SkipWrite() { return Fail(EErrorCode::UnknownError); }
-FResult FBaseWriteState::PeekWriteProperty(UField** OutProperty) { return Fail(EErrorCode::UnknownError); }
+FResult FBaseWriteState::Peek(EDataEntry Next) { return Fail(DCommon::Category, DCommon::NotImplemented); }
+FResult FBaseWriteState::WriteName(const FName& Value){ return Fail(DCommon::Category, DCommon::NotImplemented); }
+FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) { return Fail(DCommon::Category, DCommon::NotImplemented); }
+FResult FBaseWriteState::SkipWrite() { return Fail(DCommon::Category, DCommon::NotImplemented); }
+FResult FBaseWriteState::PeekWriteProperty(UField** OutProperty) { return Fail(DCommon::Category, DCommon::NotImplemented); }
 
 EPropertyWriteType FWriteStateNil::GetType()
 {
@@ -30,25 +32,34 @@ FResult FWriteStateStruct::Peek(EDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return Expect(Next == EDataEntry::StructRoot, EErrorCode::WriteStructRootFail);
+		return Expect(Next == EDataEntry::StructRoot, [=]{
+			return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+				<< (int)EState::ExpectRoot << (int)State;
+		});
 	}
 	else if (State == EState::ExpectKeyOrEnd)
 	{
-		return Expect(Next == EDataEntry::StructEnd || Next == EDataEntry::Name, EErrorCode::WriteStructKeyFail);
+		return Expect(Next == EDataEntry::StructEnd || Next == EDataEntry::Name, [=]{
+			return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateNoExpect)
+				<< (int)State;
+		});
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		return Expect(Next == PropertyToDataEntry(Property), EErrorCode::WriteStructRootFail);
+		return Expect(Next == PropertyToDataEntry(Property), [=]{
+			return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::InvalidStateWithExpect)
+				<< (int)EState::ExpectValue << (int)State;
+		});
 	}
 	else if (State == EState::Ended)
 	{
-		return Fail(EErrorCode::WriteStructAfterEnd);
+		return Fail(DPropertyReadWrite::Category, DPropertyReadWrite::AlreadyEnded);
 	}
 	else
 	{
 		checkNoEntry();
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DCommon::Category, DCommon::Unreachable);
 	}
 }
 

@@ -15,6 +15,7 @@ namespace DPropertyReadWrite
 		InvalidStateNoExpect,
 		InvalidStateWithExpect,
 		PropertyMismatch,
+		AlreadyEnded,
 	};
 
 } // namespace DataConfig::DPropertyReadWrite

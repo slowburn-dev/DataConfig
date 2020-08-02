@@ -8,6 +8,7 @@ static FDiagnosticDetail _PropertyReadWriteDetails[] = {
 	{ DPropertyReadWrite::InvalidStateNoExpect, TEXT("Invalid internal state. Actual {0}."), },
 	{ DPropertyReadWrite::InvalidStateWithExpect, TEXT("Invalid internal state. Expect {0}, Actual {1}."), },
 	{ DPropertyReadWrite::PropertyMismatch, TEXT("Unexpected Property type. Expected type {0}, Property {0} {1}") },
+	{ DPropertyReadWrite::AlreadyEnded, TEXT("Invalid access after already ended.") },
 };
 
 FDiagnosticGroup DPropertyReadWriteDetails = { DimOf(_PropertyReadWriteDetails), _PropertyReadWriteDetails };

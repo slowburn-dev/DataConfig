@@ -29,6 +29,8 @@ struct DATACONFIGCORE_API FScopedEnv
 	~FScopedEnv();
 };
 
+#define DIAG(DiagNamespace, DiagID) (FErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
+
 FORCEINLINE FDiagnostic& Fail(FErrorCode InErr) {
 	return Env().Diag(InErr);
 }
@@ -37,6 +39,14 @@ FORCEINLINE FDiagnostic& Fail(uint16 InCategory, uint16 InCode) {
 	return Env().Diag({InCategory, InCode});
 }
 
+template<typename TThunk>
+FORCEINLINE FResult Expect(bool CondToBeTrue, const TThunk& ErrFunc)
+{
+	if (CondToBeTrue)
+		return Ok();
+	else
+		return ErrFunc();
+}
 } // namespace DataConfig
 
 

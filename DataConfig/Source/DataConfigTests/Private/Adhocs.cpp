@@ -428,8 +428,7 @@ void TryConsoleDiagnosticReports()
 
 	Writer.WriteBool(true);
 
-	//Env().Diag({ DCommon::Category, DCommon::Fun }) << true << TEXT("Fuck Me") << nullptr;
-
+	Env().Diag(DIAG(DCommon, Unreachable));
 }
 
 
