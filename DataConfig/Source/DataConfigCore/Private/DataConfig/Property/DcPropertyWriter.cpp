@@ -156,7 +156,8 @@ FResult FPropertyWriter::WriteStructEnd(const FName& Name)
 	}
 	else
 	{
-		return Fail(EErrorCode::WriteStructEndFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FWriteStateStruct::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -201,7 +202,8 @@ FResult FPropertyWriter::WriteClassEnd(const FClassPropertyStat& Class)
 	}
 	else
 	{
-		return Fail(EErrorCode::WriteClassEndFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -238,7 +240,8 @@ FResult FPropertyWriter::WriteMapEnd()
 	}
 	else
 	{
-		return Fail(EErrorCode::WriteMapEndFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FWriteStateMap::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -275,7 +278,8 @@ FResult FPropertyWriter::WriteArrayEnd()
 	}
 	else
 	{
-		return Fail(EErrorCode::WriteArrayEndFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FWriteStateArray::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -287,7 +291,8 @@ DataConfig::FResult FPropertyWriter::WriteNil()
 	}
 	else
 	{
-		return Fail(EErrorCode::WriteNilFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -299,7 +304,8 @@ DataConfig::FResult FPropertyWriter::WriteReference(UObject* Value)
 	}
 	else
 	{
-		return Fail(EErrorCode::WriteReferenceFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 

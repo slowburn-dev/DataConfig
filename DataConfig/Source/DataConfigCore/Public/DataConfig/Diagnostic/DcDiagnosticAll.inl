@@ -1,5 +1,5 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
-#include "DataConfig/Diagnostic/DcDiagnosticPropertyReadWrite.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 namespace DataConfig
 {

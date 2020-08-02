@@ -5,7 +5,7 @@
 namespace DataConfig
 {
 
-namespace DPropertyReadWrite
+namespace DReadWrite
 {
 	static const uint16 Category = 0x2;
 

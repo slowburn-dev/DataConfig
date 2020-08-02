@@ -9,8 +9,10 @@ FORCEINLINE_DEBUGGABLE FResult TryUseCachedValue(FPutbackReader* Self, TData* Ou
 	check(Self->Cached.Num() > 0);
 
 	FDataVariant Value = Self->Cached.Pop();
-	if (Value.DataType != TDataEntryType<TData>::Value)
-		return Fail(EErrorCode::UnknownError);
+	EDataEntry Expected = TDataEntryType<TData>::Value;
+	if (Value.DataType != Expected)
+		return Fail(DIAG(DReadWrite, DataTypeMismatch))
+			<< (int)Expected << (int)Value.DataType;
 
 	if (OutPtr)
 		*OutPtr = Value.GetValue<TData>();

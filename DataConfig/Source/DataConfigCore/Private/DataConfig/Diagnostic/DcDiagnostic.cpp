@@ -23,7 +23,7 @@ const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError)
 {
 	if (InError.CategoryID == DCommon::Category)
 		return SearchDetails(InError.ErrorID, DCommonDetails);
-	if (InError.CategoryID == DPropertyReadWrite::Category)
+	if (InError.CategoryID == DReadWrite::Category)
 		return SearchDetails(InError.ErrorID, DPropertyReadWriteDetails);
 
 	return nullptr;

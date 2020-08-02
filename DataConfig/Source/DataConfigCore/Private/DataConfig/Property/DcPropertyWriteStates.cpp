@@ -2,7 +2,7 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
-#include "DataConfig/Diagnostic/DcDiagnosticPropertyReadWrite.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 namespace DataConfig
 {
@@ -21,7 +21,7 @@ EPropertyWriteType FWriteStateNil::GetType()
 FResult FWriteStateNil::Peek(EDataEntry Next)
 {
 	return Expect(Next == EDataEntry::Ended, [=]{
-		return Fail(DIAG(DPropertyReadWrite, AlreadyEnded));
+		return Fail(DIAG(DReadWrite, AlreadyEnded));
 	});
 }
 
@@ -35,14 +35,14 @@ FResult FWriteStateStruct::Peek(EDataEntry Next)
 	if (State == EState::ExpectRoot)
 	{
 		return Expect(Next == EDataEntry::StructRoot, [=]{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)EDataEntry::StructRoot << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectKeyOrEnd)
 	{
 		return Expect(Next == EDataEntry::StructEnd || Next == EDataEntry::Name, [=]{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch2))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch2))
 				<< (int)EDataEntry::StructEnd << (int) EDataEntry::Name << (int)Next;
 		});
 	}
@@ -56,13 +56,13 @@ FResult FWriteStateStruct::Peek(EDataEntry Next)
 		}
 		else
 		{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)Actual << (int)Next;
 		}
 	}
 	else if (State == EState::Ended)
 	{
-		return Fail(DIAG(DPropertyReadWrite, AlreadyEnded));
+		return Fail(DIAG(DReadWrite, AlreadyEnded));
 	}
 	else
 	{
@@ -77,7 +77,7 @@ FResult FWriteStateStruct::WriteName(const FName& Value)
 	{
 		Property = NextPropertyByName(StructClass->PropertyLink, Value);
 		if (Property == nullptr)
-			return Fail(DIAG(DPropertyReadWrite, CantFindPropertyByName))
+			return Fail(DIAG(DReadWrite, CantFindPropertyByName))
 				<< Value;
 
 		State = EState::ExpectValue;
@@ -90,7 +90,7 @@ FResult FWriteStateStruct::WriteName(const FName& Value)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateNoExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -98,11 +98,11 @@ FResult FWriteStateStruct::WriteName(const FName& Value)
 FResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectValue)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 
 	if (!Property->IsA(ExpectedPropertyClass))
-		return Fail(DIAG(DPropertyReadWrite, PropertyMismatch))
+		return Fail(DIAG(DReadWrite, PropertyMismatch))
 			<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->ClassConfigName;
 
 	OutDatum.Property = Property;
@@ -115,7 +115,7 @@ FResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorC
 FResult FWriteStateStruct::SkipWrite()
 {
 	if (State != EState::ExpectValue)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 
 	State = EState::ExpectKeyOrEnd;
@@ -136,7 +136,7 @@ FResult FWriteStateStruct::PeekWriteProperty(UField** OutProperty)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateNoExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -150,7 +150,7 @@ FResult FWriteStateStruct::WriteStructRoot(const FName& Name)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -164,7 +164,7 @@ FResult FWriteStateStruct::WriteStructEnd(const FName& Name)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectKeyOrEnd << (int)State;
 	}
 }
@@ -179,21 +179,21 @@ FResult FWriteStateClass::Peek(EDataEntry Next)
 	if (State == EState::ExpectRoot)
 	{
 		return Expect(Next == EDataEntry::ClassRoot, [=]{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)EDataEntry::ClassRoot << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectNil)
 	{
 		return Expect(Next == EDataEntry::Nil, [=] {
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)EDataEntry::Nil << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectReference)
 	{
 		return Expect(Next == EDataEntry::Reference, [=] {
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)EDataEntry::Reference << (int)Next;
 		});
 	}
@@ -201,7 +201,7 @@ FResult FWriteStateClass::Peek(EDataEntry Next)
 	{
 		return Expect(Next == EDataEntry::ClassEnd || Next == EDataEntry::Name,
 			[=] {
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch2))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch2))
 				<< (int)EDataEntry::ClassEnd << (int)EDataEntry::Name << (int)Next;
 		});
 	}
@@ -215,13 +215,13 @@ FResult FWriteStateClass::Peek(EDataEntry Next)
 		}
 		else
 		{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)Actual << (int)Next;
 		}
 	}
 	else if (State == EState::Ended)
 	{
-		return Fail(DIAG(DPropertyReadWrite, AlreadyEnded));
+		return Fail(DIAG(DReadWrite, AlreadyEnded));
 	}
 	else
 	{
@@ -236,7 +236,7 @@ FResult FWriteStateClass::WriteName(const FName& Value)
 	{
 		Datum.Property = NextPropertyByName(Class->PropertyLink, Value);
 		if (Datum.Property == nullptr)
-			return Fail(DIAG(DPropertyReadWrite, CantFindPropertyByName))
+			return Fail(DIAG(DReadWrite, CantFindPropertyByName))
 				<< Value.ToString();
 
 		State = EState::ExpectValue;
@@ -249,7 +249,7 @@ FResult FWriteStateClass::WriteName(const FName& Value)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateNoExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -257,11 +257,11 @@ FResult FWriteStateClass::WriteName(const FName& Value)
 FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectValue)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 
 	if (!Datum.Property->IsA(ExpectedPropertyClass))
-		return Fail(DIAG(DPropertyReadWrite, PropertyMismatch))
+		return Fail(DIAG(DReadWrite, PropertyMismatch))
 			<< ExpectedPropertyClass->ClassConfigName << Datum.Property->GetFName() << Datum.Property->GetClass()->GetFName();
 
 	UProperty* Property = CastChecked<UProperty>(Datum.Property);
@@ -276,7 +276,7 @@ FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 DataConfig::FResult FWriteStateClass::SkipWrite()
 {
 	if (State != EState::ExpectValue)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 
 	State = EState::ExpectKeyOrEnd;
@@ -297,7 +297,7 @@ FResult FWriteStateClass::PeekWriteProperty(UField** OutProperty)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateNoExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -327,7 +327,7 @@ DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& C
 				if (!Datum.DataPtr)
 				{
 					//	inline object needs to be created by user
-					return Fail(DIAG(DPropertyReadWrite, WriteClassInlineNotCreated))
+					return Fail(DIAG(DReadWrite, WriteClassInlineNotCreated))
 						<< ObjProperty->GetFName() << ObjProperty->GetClass()->GetFName();
 				}
 			}
@@ -343,7 +343,7 @@ DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& C
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -359,7 +359,7 @@ FResult FWriteStateClass::WriteClassEnd(const FClassPropertyStat& ClassStat)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectKeyOrEnd << (int)State;
 	}
 }
@@ -375,7 +375,7 @@ FResult FWriteStateClass::WriteNil()
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectNil << (int)State;
 	}
 }
@@ -391,7 +391,7 @@ FResult FWriteStateClass::WriteReference(UObject* Value)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectReference << (int)State;
 	}
 }
@@ -406,7 +406,7 @@ FResult FWriteStateMap::Peek(EDataEntry Next)
 	if (State == EState::ExpectRoot)
 	{
 		return Expect(Next == EDataEntry::MapRoot, [=] {
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)EDataEntry::MapRoot << (int)Next;
 		});
 	}
@@ -415,7 +415,7 @@ FResult FWriteStateMap::Peek(EDataEntry Next)
 		check(MapProperty);
 		return Expect(Next == EDataEntry::MapEnd || Next == PropertyToDataEntry(MapProperty->KeyProp), 
 			[=] {
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch2))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch2))
 				<< (int)EDataEntry::ClassEnd << (int)EDataEntry::Name << (int)Next;
 		});
 	}
@@ -429,13 +429,13 @@ FResult FWriteStateMap::Peek(EDataEntry Next)
 		}
 		else
 		{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)Actual << (int)Next;
 		}
 	}
 	else if (State == EState::Ended)
 	{
-		return Fail(DIAG(DPropertyReadWrite, AlreadyEnded));
+		return Fail(DIAG(DReadWrite, AlreadyEnded));
 	}
 	else
 	{
@@ -478,7 +478,7 @@ FResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect2))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect2))
 			<< (int)EState::ExpectKeyOrEnd << (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -498,7 +498,7 @@ FResult FWriteStateMap::SkipWrite()
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect2))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect2))
 			<< (int)EState::ExpectKeyOrEnd << (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -517,7 +517,7 @@ FResult FWriteStateMap::PeekWriteProperty(UField** OutProperty)
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect2))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect2))
 			<< (int)EState::ExpectKeyOrEnd << (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -531,7 +531,7 @@ FResult FWriteStateMap::WriteMapRoot()
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -552,7 +552,7 @@ FResult FWriteStateMap::WriteMapEnd()
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectKeyOrEnd << (int)State;
 	}
 }
@@ -567,7 +567,7 @@ FResult FWriteStateArray::Peek(EDataEntry Next)
 	if (State == EState::ExpectRoot)
 	{
 		return Expect(Next == EDataEntry::ArrayRoot, [=]{
-			return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+			return Fail(DIAG(DReadWrite, DataTypeMismatch))
 				<< (int)EDataEntry::ArrayRoot << (int)Next;
 		});
 	}
@@ -586,14 +586,14 @@ FResult FWriteStateArray::Peek(EDataEntry Next)
 			}
 			else
 			{
-				return Fail(DIAG(DPropertyReadWrite, DataTypeMismatch))
+				return Fail(DIAG(DReadWrite, DataTypeMismatch))
 					<< (int)Actual << (int)Next;
 			}
 		}
 	}
 	else if (State == EState::Ended)
 	{
-		return Fail(DIAG(DPropertyReadWrite, AlreadyEnded));
+		return Fail(DIAG(DReadWrite, AlreadyEnded));
 	}
 	else
 	{
@@ -610,7 +610,7 @@ FResult FWriteStateArray::WriteName(const FName& Value)
 FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectItemOrEnd)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectItemOrEnd << (int)State;
 
 	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
@@ -625,7 +625,7 @@ FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 DataConfig::FResult FWriteStateArray::SkipWrite()
 {
 	if (State != EState::ExpectItemOrEnd)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectItemOrEnd << (int)State;
 
 	++Index;
@@ -635,7 +635,7 @@ DataConfig::FResult FWriteStateArray::SkipWrite()
 FResult FWriteStateArray::PeekWriteProperty(UField** OutProperty)
 {
 	if (State != EState::ExpectItemOrEnd)
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectItemOrEnd << (int)State;
 
 	*OutProperty = ArrayProperty->Inner;
@@ -651,7 +651,7 @@ FResult FWriteStateArray::WriteArrayRoot()
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -665,7 +665,7 @@ FResult FWriteStateArray::WriteArrayEnd()
 	}
 	else
 	{
-		return Fail(DIAG(DPropertyReadWrite, InvalidStateWithExpect))
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectItemOrEnd << (int)State;
 	}
 }

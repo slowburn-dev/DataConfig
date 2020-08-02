@@ -181,7 +181,8 @@ FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPt
 	}
 	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FReadStateStruct::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -228,7 +229,8 @@ FResult FPropertyReader::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextS
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadClassEndFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -266,7 +268,8 @@ FResult FPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadMapFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FReadStateMap::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -305,7 +308,9 @@ FResult FPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FReadStateArray::ID << (int)GetTopState(this).GetType();
+
 	}
 }
 
@@ -319,7 +324,9 @@ DataConfig::FResult FPropertyReader::ReadReference(UObject** OutPtr, FContextSto
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadReferenceFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
+
 	}
 }
 
@@ -332,7 +339,8 @@ FResult FPropertyReader::ReadNil(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(EErrorCode::ReadNilFail);
+		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
