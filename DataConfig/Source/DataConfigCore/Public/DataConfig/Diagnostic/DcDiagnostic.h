@@ -22,29 +22,21 @@ struct DATACONFIGCORE_API FDiagnostic
 };
 
 template<typename T>
-FORCEINLINE FDiagnostic& operator<<(FDiagnostic& Diag, T&& InValue)
+FORCEINLINE typename TEnableIf<!TIsEnumClass<T>::Value, FDiagnostic&>::Type
+operator<<(FDiagnostic& Diag, T&& InValue)
 {
 	Diag.Args.Emplace(Forward<T>(InValue));
 	return Diag;
 }
 
-/*
-template<typename T>
-FORCEINLINE typename TEnableIf<TIsDataVariantCompatible<T>::Value, FDiagnostic&>::Type
-operator<<(FDiagnostic& Diag, T&& InEnum)
-{
-	Diag.Args.Emplace(Forward<T>(InValue));
-	return Diag;
-}
-
+//	TODO UENUM -> FName conversion
 template<typename T>
 FORCEINLINE typename TEnableIf<TIsEnumClass<T>::Value, FDiagnostic&>::Type
-operator<<(FDiagnostic& Diag, T InEnum)
+operator<<(FDiagnostic& Diag, T&& InValue)
 {
 	Diag.Args.Emplace((int)(InValue));
 	return Diag;
 }
-*/
 
 struct IDiagnosticConsumer : public TSharedFromThis<IDiagnosticConsumer>
 {

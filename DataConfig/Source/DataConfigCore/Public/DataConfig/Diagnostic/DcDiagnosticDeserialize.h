@@ -15,6 +15,7 @@ namespace DDeserialize
 		NoMatchingHandler,
 		DataEntryMismatch,
 		DataEntryMismatch2,
+		DataEntryMismatch3,
 	};
 
 	} // namespace DataConfig::DPropertyReadWrite

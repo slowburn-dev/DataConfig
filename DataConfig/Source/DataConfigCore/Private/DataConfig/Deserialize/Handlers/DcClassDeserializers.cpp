@@ -66,7 +66,8 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 			}
 			else
 			{
-				return Fail(EErrorCode::DeserializeTypeNotMatch);
+				return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
 			FScopedProperty ScopedValueProperty(Ctx);
@@ -83,7 +84,8 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 	}
 	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DIAG(DDeserialize, DataEntryMismatch))
+			<< EDataEntry::MapRoot << Next;
 	}
 }
 
@@ -152,7 +154,7 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 				}
 			}
 
-			return Fail(EErrorCode::UnknownError);
+			return Fail();
 		}
 		else if (Value.StartsWith(TEXT("/")))
 		{
@@ -169,7 +171,7 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 		}
 		else
 		{
-			return Fail(EErrorCode::UnknownError);
+			return Fail();
 		}
 	}
 	else if (Next == EDataEntry::MapRoot)
@@ -218,7 +220,8 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 	}
 	else
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail(DIAG(DDeserialize, DataEntryMismatch3))
+			<< EDataEntry::MapRoot << EDataEntry::String << EDataEntry::String << Next;
 	}
 }
 
@@ -256,7 +259,7 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 
 	if (!IsSubObjectProperty(ObjectProperty))
 	{
-		return Fail(EErrorCode::UnknownError);
+		return Fail();
 	}
 
 	TRY(PutbackReader.ReadMapRoot(nullptr));
@@ -302,11 +305,11 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 	}
 
 	if (!SubClassType)
-		return Fail(EErrorCode::UnknownError);
+		return Fail();
 
 	//	can't be abstract
 	if (SubClassType->HasAnyClassFlags(CLASS_Abstract))
-		return Fail(EErrorCode::UnknownError);
+		return Fail();
 
 	if (!SubClassType->IsChildOf(ObjectProperty->PropertyClass))
 		return Fail();
@@ -363,7 +366,8 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 		}
 		else
 		{
-			return Fail(EErrorCode::DeserializeTypeNotMatch);
+			return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+				<< EDataEntry::Name << EDataEntry::String << CurPeek;
 		}
 
 		FScopedProperty ScopedValueProperty(Ctx);

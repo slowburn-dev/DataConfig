@@ -48,7 +48,8 @@ FResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& Out
 	}
 	else
 	{
-		return Fail(EErrorCode::DeserializeTypeNotMatch);
+		return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }
 
@@ -78,7 +79,8 @@ FResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& O
 	}
 	else
 	{
-		return Fail(EErrorCode::DeserializeTypeNotMatch);
+		return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }
 

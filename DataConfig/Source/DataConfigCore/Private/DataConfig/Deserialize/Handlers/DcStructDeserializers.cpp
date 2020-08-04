@@ -64,7 +64,7 @@ FResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx
 			else
 			{
 				return Fail(DIAG(DDeserialize, DataEntryMismatch2))
-					<< (int)EDataEntry::Name << (int)EDataEntry::String << (int)CurPeek;
+					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
 			FScopedProperty ScopedValueProperty(Ctx);
@@ -82,7 +82,7 @@ FResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx
 	else
 	{
 		return Fail(DIAG(DDeserialize, DataEntryMismatch))
-			<< (int)EDataEntry::MapRoot << (int)Next;
+			<< EDataEntry::MapRoot << Next;
 	}
 }
 

@@ -11,7 +11,7 @@ namespace DataConfig
 template<typename T>
 struct TDataEntryType
 {
-	static constexpr EDataEntry Value;
+	static constexpr EDataEntry Value = EDataEntry::Ended;
 };
 
 template<> struct TDataEntryType<nullptr_t> { static constexpr EDataEntry Value = EDataEntry::Nil; };
@@ -33,26 +33,14 @@ template<> struct TDataEntryType<uint32> { static constexpr EDataEntry Value = E
 template<> struct TDataEntryType<uint64> { static constexpr EDataEntry Value = EDataEntry::UInt64; };
 
 
-/*
 template<typename T>
 struct TIsDataVariantCompatible
 {
-	enum { Value = true };
+	enum { Value = TDataEntryType<T>::Value != EDataEntry::Ended };
 };
-*/
 
-/*
-template<typename T>
-struct TIsDataVariantCompatible
-{
-private:
-	template <typename C> uint8  Test(...);
-	template <typename C> uint16 Test(decltype(TDataEntryType<T>::Value));
-
-public:
-	enum { Value = sizeof(Test<T>(EDataEntry)) - 1 };
-};
-*/
+static_assert(TIsDataVariantCompatible<int>::Value, "yes");
+static_assert(!TIsDataVariantCompatible<EDataEntry>::Value, "no");
 
 
 struct FDataVariant
