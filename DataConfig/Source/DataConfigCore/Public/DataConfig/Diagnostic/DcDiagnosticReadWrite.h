@@ -21,6 +21,7 @@ namespace DReadWrite
 		AlreadyEnded,
 		CantFindPropertyByName,
 		WriteClassInlineNotCreated,
+		StructNameMismatch,
 	};
 
 } // namespace DataConfig::DPropertyReadWrite

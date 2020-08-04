@@ -41,9 +41,9 @@ struct DATACONFIGCORE_API FJsonReader : public FReader, private FNoncopyable
 	TCharType ReadChar();
 	TCharType PeekChar();
 
-	FResult PeekChar(TCharType& OutChar, EErrorCode ErrCode);
-	FResult ReadWordExpect(const TCharType* Word, EErrorCode ErrCode);
-	FResult ReadCharExpect(TCharType Expect, EErrorCode ErrCode);
+	FResult TryPeekChar(TCharType& OutChar);
+	FResult ReadWordExpect(const TCharType* Word);
+	FResult ReadCharExpect(TCharType Expect);
 	FResult ReadString(FString& OutStr);
 
 	void ReadWhiteSpace();

@@ -32,7 +32,6 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
-	/*
 	PropertyVisitorRoundtrip();
 	JsonReader1();
 	UEStructSerializer();
@@ -44,7 +43,6 @@ static void Body()
 	//TryOutVariant();
 	//TryOutPutback();
 	//TryDiags();
-	*/
 	TryConsoleDiagnosticReports();
 
 	return;

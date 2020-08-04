@@ -16,6 +16,9 @@ enum Type : uint16
 	NotImplemented,
 	Unreachable,
 	Unexpected1,
+
+
+	PlaceHoldError,
 };
 
 } // namespace DataConfig::DCommon

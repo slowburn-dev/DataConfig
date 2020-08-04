@@ -22,7 +22,7 @@ struct FBaseReadState
 
 	virtual EDataEntry Peek();
 	virtual FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr);
-	virtual FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum);
+	virtual FResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum);
 
 	//	!!!  intentionally ommitting virtual destructor, keep these state trivia
 	template<typename T>
@@ -91,7 +91,7 @@ struct FReadStateClass : public FBaseReadState
 	EPropertyReadType GetType() override;
 	EDataEntry Peek() override;
 	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 
 	FResult EndReadValue();
 	FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
@@ -131,7 +131,7 @@ struct FReadStateStruct : public FBaseReadState
 	EPropertyReadType GetType() override;
 	EDataEntry Peek() override;
 	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 
 	FResult EndReadValue();
 	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
@@ -168,7 +168,7 @@ struct FReadStateMap : public FBaseReadState
 	EPropertyReadType GetType() override;
 	EDataEntry Peek() override;
 	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 
 	FResult EndReadValue();
 	FResult ReadMapRoot(FContextStorage* CtxPtr);
@@ -203,7 +203,7 @@ struct FReadStateArray : public FBaseReadState
 	EPropertyReadType GetType() override;
 	EDataEntry Peek() override;
 	FResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
+	FResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum) override;
 
 	FResult EndReadValue();
 	FResult ReadArrayRoot(FContextStorage* CtxPtr);

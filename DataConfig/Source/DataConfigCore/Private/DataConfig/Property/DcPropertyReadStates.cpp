@@ -16,7 +16,7 @@ FResult FBaseReadState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return Fail(DIAG(DCommon, NotImplemented));
 }
 
-FResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	return Fail(DIAG(DCommon, NotImplemented));
 }
@@ -81,7 +81,7 @@ FResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	else if (State == EState::ExpectValue)
 	{
 		FPropertyDatum Datum;
-		TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+		TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
 
 		if (OutNamePtr)
 		{
@@ -97,7 +97,7 @@ FResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -324,7 +324,7 @@ FResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	else if (State == EState::ExpectValue)
 	{
 		FPropertyDatum Datum;
-		TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+		TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
 
 		if (OutNamePtr)
 		{
@@ -340,7 +340,7 @@ FResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -477,7 +477,7 @@ EDataEntry FReadStateMap::Peek()
 FResult FReadStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	FPropertyDatum Datum;
-	TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+	TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
 
 	if (OutNamePtr)
 	{
@@ -487,7 +487,7 @@ FResult FReadStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return Ok();
 }
 
-FResult FReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -621,7 +621,7 @@ EDataEntry FReadStateArray::Peek()
 FResult FReadStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	FPropertyDatum Datum;
-	TRY(ReadDataEntry(UNameProperty::StaticClass(), EErrorCode::ReadNameFail, CtxPtr, Datum));
+	TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
 
 	if (OutNamePtr)
 	{
@@ -631,7 +631,7 @@ FResult FReadStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return Ok();
 }
 
-FResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
+FResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot

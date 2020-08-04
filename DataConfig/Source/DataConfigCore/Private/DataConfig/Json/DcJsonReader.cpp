@@ -61,7 +61,7 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	TCharType Next = PeekChar();
 	if (Next == TCharType('t'))
 	{
-		TRY(ReadWordExpect(TEXT("true"), EErrorCode::ReadBoolFail));
+		TRY(ReadWordExpect(TEXT("true")));
 
 		if (OutPtr)
 		{
@@ -73,7 +73,7 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	}
 	else if (Next == 'f')
 	{
-		TRY(ReadWordExpect(TEXT("false"), EErrorCode::ReadBoolFail));
+		TRY(ReadWordExpect(TEXT("false")));
 
 		if (OutPtr)
 		{
@@ -142,7 +142,7 @@ DataConfig::FResult FJsonReader::ReadString(FString& OutStr)
 {
 	ReadWhiteSpace();
 
-	TRY(ReadCharExpect(TCharType('"'), EErrorCode::ReadStringFail));
+	TRY(ReadCharExpect(TCharType('"')));
 
 	while (true)
 	{
@@ -197,14 +197,14 @@ DataConfig::FResult FJsonReader::EndTopRead()
 		if (!bTopObjectAtValue)
 		{
 			bTopObjectAtValue = true;
-			TRY(ReadCharExpect(TCharType(':'), EErrorCode::ReadMapFail));
+			TRY(ReadCharExpect(TCharType(':')));
 			return Ok();
 		}
 		else
 		{
 			bTopObjectAtValue = false;
 			TCharType Char;
-			TRY(PeekChar(Char, EErrorCode::ReadMapFail));
+			TRY(TryPeekChar(Char));
 
 			if (Char == TCharType(','))
 			{
@@ -225,7 +225,7 @@ DataConfig::FResult FJsonReader::EndTopRead()
 	else if (TopState == EParseState::Array)
 	{
 		TCharType Char;
-		TRY(PeekChar(Char, EErrorCode::ReadArrayFail));
+		TRY(TryPeekChar(Char));
 
 		if (Char == TCharType(','))
 		{
@@ -255,7 +255,7 @@ DataConfig::FResult FJsonReader::EndTopRead()
 
 FResult FJsonReader::ReadMapRoot(FContextStorage* CtxPtr)
 {
-	TRY(ReadCharExpect(TCharType('{'), EErrorCode::ReadMapFail));
+	TRY(ReadCharExpect(TCharType('{')));
 	PushTopState(EParseState::Object);
 	bTopObjectAtValue = false;
 
@@ -264,7 +264,7 @@ FResult FJsonReader::ReadMapRoot(FContextStorage* CtxPtr)
 
 FResult FJsonReader::ReadMapEnd(FContextStorage* CtxPtr)
 {
-	TRY(ReadCharExpect(TCharType('}'), EErrorCode::ReadMapEndFail));
+	TRY(ReadCharExpect(TCharType('}')));
 	PopTopState(EParseState::Object);
 
 	//	!!! HACK
@@ -300,7 +300,7 @@ TCharType FJsonReader::PeekChar()
 	return (*StrPtr)[Cur];
 }
 
-FResult FJsonReader::PeekChar(TCharType& OutChar, EErrorCode ErrCode)
+DataConfig::FResult FJsonReader::TryPeekChar(TCharType& OutChar)
 {
 	if (IsAtEnd())
 		return Fail(DIAG(DJSON, UnexpectedEnd));
@@ -309,7 +309,7 @@ FResult FJsonReader::PeekChar(TCharType& OutChar, EErrorCode ErrCode)
 	return Ok();
 }
 
-FResult FJsonReader::ReadWordExpect(const TCharType* Word, EErrorCode ErrCode)
+DataConfig::FResult FJsonReader::ReadWordExpect(const TCharType* Word)
 {
 	while (true)
 	{
@@ -327,10 +327,10 @@ FResult FJsonReader::ReadWordExpect(const TCharType* Word, EErrorCode ErrCode)
 	return Fail(DIAG(DCommon, Unreachable));
 }
 
-FResult FJsonReader::ReadCharExpect(TCharType Expect, EErrorCode ErrCode)
+DataConfig::FResult FJsonReader::ReadCharExpect(TCharType Expect)
 {
 	if (IsAtEnd())
-		return Fail(ErrCode);
+		return Fail();
 	return ReadChar() == Expect 
 		? Ok()
 		: Fail(DIAG(DJSON, ExpectCharButNotFound)) << Expect;

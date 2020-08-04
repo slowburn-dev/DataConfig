@@ -18,8 +18,6 @@ DATACONFIGCORE_API void StartUp(EInitializeAction InAction = EInitializeAction::
 DATACONFIGCORE_API void ShutDown();
 DATACONFIGCORE_API bool IsInitialized();
 
-enum class EErrorCode : uint32;
-
 struct DATACONFIGCORE_API FErrorCode
 {
 	uint16 CategoryID;
@@ -50,34 +48,6 @@ FORCEINLINE FResult Ok() {
 
 FORCEINLINE FResult Fail() {
 	return FResult{ FResult::EStatus::Error };
-}
-
-//	TODO this is compat for now, status is completely dropped
-FORCEINLINE FResult Fail(EErrorCode Status) {
-	check((uint32)Status != 0);
-
-#if DO_CHECK
-	PLATFORM_BREAK();
-#endif
-
-	return Fail();
-}
-
-
-FORCEINLINE FResult Expect(bool CondToBeTrue, EErrorCode Status) {
-	check((uint32)Status != 0);
-	if (CondToBeTrue)
-		return Ok();
-	else
-		return Fail(Status);
-}
-
-FORCEINLINE FResult FailIf(bool CondToBeFalse, EErrorCode Status) {
-	check((uint32)Status != 0);
-	if (CondToBeFalse)
-		return Fail(Status);
-	else
-		return Ok();
 }
 
 #define TRY(expr)							\
@@ -158,9 +128,6 @@ struct FClassPropertyStat
 	FName Name;
 	EDataReference Reference;
 };
-
-EErrorCode GetReadErrorCode(EDataEntry DataEntry);
-EErrorCode GetWriteErrorCode(EDataEntry DataEntry);
 
 struct DATACONFIGCORE_API FContextStorage : private FNoncopyable
 {

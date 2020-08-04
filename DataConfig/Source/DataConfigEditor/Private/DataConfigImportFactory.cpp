@@ -3,7 +3,6 @@
 #include "EditorFramework/AssetImportData.h"
 
 #include "DataConfig/DcTypes.h"
-#include "DataConfig/DcErrorCodes.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
@@ -25,13 +24,13 @@ static FResult ReadRootTypeFromMapping(FReader& Reader, UClass*& OutDataClass)
 	TRY(Reader.ReadString(&Value, nullptr));
 
 	if (Value != TEXT("$type"))
-		return Fail(EErrorCode::UnknownError);
+		return Fail();
 
 	TRY(Reader.ReadString(&Value, nullptr));
 
 	//	TODO support path and other things, for now just use FindObject<UClass>
 	OutDataClass = FindObject<UClass>(ANY_PACKAGE, *Value, true);
-	return OutDataClass ? Ok() : Fail(EErrorCode::UnknownError);
+	return OutDataClass ? Ok() : Fail();
 }
 
 static TOptional<DataConfig::FDeserializer> DcDeserializer;

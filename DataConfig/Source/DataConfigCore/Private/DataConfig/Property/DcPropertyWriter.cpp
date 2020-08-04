@@ -110,7 +110,7 @@ FResult FPropertyWriter::Peek(EDataEntry Next)
 
 FResult FPropertyWriter::WriteBool(bool Value)
 {
-	return WriteValue<UBoolProperty, bool, EErrorCode::WriteBoolFail>(GetTopState(this), Value);
+	return WriteValue<UBoolProperty, bool>(GetTopState(this), Value);
 }
 
 FResult FPropertyWriter::WriteName(const FName& Value)
@@ -120,7 +120,7 @@ FResult FPropertyWriter::WriteName(const FName& Value)
 
 FResult FPropertyWriter::WriteString(const FString& Value)
 {
-	return WriteValue<UStrProperty, FString, EErrorCode::WriteStringFail>(GetTopState(this), Value);
+	return WriteValue<UStrProperty, FString>(GetTopState(this), Value);
 }
 
 FResult FPropertyWriter::WriteStructRoot(const FName& Name)
@@ -137,7 +137,7 @@ FResult FPropertyWriter::WriteStructRoot(const FName& Name)
 
 	{
 		FPropertyDatum Datum;
-		TRY(TopState.WriteDataEntry(UStructProperty::StaticClass(), EErrorCode::WriteStructRootFail, Datum));
+		TRY(TopState.WriteDataEntry(UStructProperty::StaticClass(), Datum));
 
 		FWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
 		TRY(ChildStruct.WriteStructRoot(Name));
@@ -183,7 +183,7 @@ FResult FPropertyWriter::WriteClassRoot(const FClassPropertyStat& Class)
 
 	{
 		FPropertyDatum Datum;
-		TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::WriteClassFail, Datum));
+		TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), Datum));
 
 		PushTopClassPropertyState(Datum);
 		TRY(GetTopState(this).As<FWriteStateClass>()->WriteClassRoot(Class));
@@ -221,7 +221,7 @@ FResult FPropertyWriter::WriteMapRoot()
 
 	{
 		FPropertyDatum Datum;
-		TRY(TopState.WriteDataEntry(UMapProperty::StaticClass(), EErrorCode::WriteMapFail, Datum));
+		TRY(TopState.WriteDataEntry(UMapProperty::StaticClass(), Datum));
 
 		FWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
 		TRY(ChildMap.WriteMapRoot());
@@ -259,7 +259,7 @@ FResult FPropertyWriter::WriteArrayRoot()
 
 	{
 		FPropertyDatum Datum;
-		TRY(TopState.WriteDataEntry(UArrayProperty::StaticClass(), EErrorCode::WriteArrayFail, Datum));
+		TRY(TopState.WriteDataEntry(UArrayProperty::StaticClass(), Datum));
 
 		FWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
 		TRY(ChildArray.WriteArrayRoot());
@@ -319,9 +319,9 @@ FResult FPropertyWriter::PeekWriteProperty(UField** OutProperty)
 	return GetTopState(this).PeekWriteProperty(OutProperty);
 }
 
-DataConfig::FResult FPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+DataConfig::FResult FPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum)
 {
-	return GetTopState(this).WriteDataEntry(ExpectedPropertyClass, FailCode, OutDatum);
+	return GetTopState(this).WriteDataEntry(ExpectedPropertyClass, OutDatum);
 }
 
 } // namespace DataConfig

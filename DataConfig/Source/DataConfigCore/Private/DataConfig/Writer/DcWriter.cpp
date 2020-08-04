@@ -10,11 +10,7 @@ FWriter::FWriter()
 FWriter::~FWriter()
 {}
 
-DataConfig::FResult FWriter::Peek(EDataEntry Next)
-{
-	return Fail(EErrorCode::UnknownError);
-}
-
+FResult FWriter::Peek(EDataEntry Next) { return Fail(DIAG(DCommon, NotImplemented)); }
 FResult FWriter::WriteNil(){ return Fail(DIAG(DCommon, NotImplemented)); }
 FResult FWriter::WriteBool(bool Value) { return Fail(DIAG(DCommon, NotImplemented)); }
 FResult FWriter::WriteName(const FName& Value) { return Fail(DIAG(DCommon, NotImplemented)); }

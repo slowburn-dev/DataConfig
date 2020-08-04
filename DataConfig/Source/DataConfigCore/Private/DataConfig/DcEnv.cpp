@@ -1,5 +1,6 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "Containers/BasicArray.h"
 
 namespace DataConfig
@@ -53,6 +54,14 @@ void FEnv::FlushDiags()
 FEnv::~FEnv()
 {
 	FlushDiags();
+}
+
+
+FResult Expect(bool CondToBeTrue) {
+	if (CondToBeTrue)
+		return Ok();
+	else
+		return Fail(DIAG(DCommon, PlaceHoldError));
 }
 
 } // namespace DataConfig

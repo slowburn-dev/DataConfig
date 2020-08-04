@@ -9,7 +9,7 @@ namespace DataConfig
 
 FResult FBaseWriteState::Peek(EDataEntry Next) { return Fail(DIAG(DCommon, NotImplemented)); }
 FResult FBaseWriteState::WriteName(const FName& Value){ return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum) { return Fail(DIAG(DCommon, NotImplemented)); }
+FResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum) { return Fail(DIAG(DCommon, NotImplemented)); }
 FResult FBaseWriteState::SkipWrite() { return Fail(DIAG(DCommon, NotImplemented)); }
 FResult FBaseWriteState::PeekWriteProperty(UField** OutProperty) { return Fail(DIAG(DCommon, NotImplemented)); }
 
@@ -85,7 +85,7 @@ FResult FWriteStateStruct::WriteName(const FName& Value)
 	}
 	else if (State == EState::ExpectValue)
 	{
-		TRY((WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value)));
+		TRY((WriteValue<UNameProperty, FName>(*this, Value)));
 		return Ok();
 	}
 	else
@@ -95,7 +95,7 @@ FResult FWriteStateStruct::WriteName(const FName& Value)
 	}
 }
 
-FResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+FResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectValue)
 		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
@@ -146,7 +146,10 @@ FResult FWriteStateStruct::WriteStructRoot(const FName& Name)
 	if (State == EState::ExpectRoot)
 	{
 		State = EState::ExpectKeyOrEnd;
-		return Expect(Name == StructClass->GetFName(), EErrorCode::WriteStructRootFail);
+		return Expect(Name == StructClass->GetFName(), [=] {
+			return Fail(DIAG(DReadWrite, StructNameMismatch))
+				<< StructClass->GetFName() << Name;
+		});
 	}
 	else
 	{
@@ -160,7 +163,10 @@ FResult FWriteStateStruct::WriteStructEnd(const FName& Name)
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		return Expect(Name == StructClass->GetFName(), EErrorCode::WriteStructEndFail);
+		return Expect(Name == StructClass->GetFName(), [=] {
+			return Fail(DIAG(DReadWrite, StructNameMismatch))
+				<< StructClass->GetFName() << Name;
+		});
 	}
 	else
 	{
@@ -244,7 +250,7 @@ FResult FWriteStateClass::WriteName(const FName& Value)
 	}
 	else if (State == EState::ExpectValue)
 	{
-		TRY((WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value)));
+		TRY((WriteValue<UNameProperty, FName>(*this, Value)));
 		return Ok();
 	}
 	else
@@ -254,7 +260,7 @@ FResult FWriteStateClass::WriteName(const FName& Value)
 	}
 }
 
-FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+FResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectValue)
 		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
@@ -302,12 +308,12 @@ FResult FWriteStateClass::PeekWriteProperty(UField** OutProperty)
 	}
 }
 
-DataConfig::FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& ClassStat)
+FResult FWriteStateClass::WriteClassRoot(const FClassPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectRoot)
 	{
 		//	TODO may pass in derived class already
-		//TRY(Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassFail));
+		//TRY(Expect(ClassStat.Name == Class->GetFName()));
 		if (ClassStat.Reference == EDataReference::NullReference)
 		{
 			State = EState::ExpectNil;
@@ -354,7 +360,7 @@ FResult FWriteStateClass::WriteClassEnd(const FClassPropertyStat& ClassStat)
 	{
 		State = EState::Ended;
 		//	TODO now may pass in derived class
-		//return Expect(ClassStat.Name == Class->GetFName(), EErrorCode::WriteClassEndFail);
+		//return Expect(ClassStat.Name == Class->GetFName());
 		return Ok();
 	}
 	else
@@ -446,10 +452,10 @@ FResult FWriteStateMap::Peek(EDataEntry Next)
 
 FResult FWriteStateMap::WriteName(const FName& Value)
 {
-	return WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value);
+	return WriteValue<UNameProperty, FName>(*this, Value);
 }
 
-FResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+FResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -604,10 +610,10 @@ FResult FWriteStateArray::Peek(EDataEntry Next)
 
 FResult FWriteStateArray::WriteName(const FName& Value)
 {
-	return WriteValue<UNameProperty, FName, EErrorCode::WriteNameFail>(*this, Value);
+	return WriteValue<UNameProperty, FName>(*this, Value);
 }
 
-FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCode FailCode, FPropertyDatum& OutDatum)
+FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectItemOrEnd)
 		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
@@ -622,7 +628,7 @@ FResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, EErrorCo
 	return Ok();
 }
 
-DataConfig::FResult FWriteStateArray::SkipWrite()
+FResult FWriteStateArray::SkipWrite()
 {
 	if (State != EState::ExpectItemOrEnd)
 		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))

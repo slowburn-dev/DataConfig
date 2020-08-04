@@ -91,10 +91,10 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 
 static FResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDeserializeContext& Ctx, UObject*& OutLoaded)
 {
-	TRY(Expect(LoadClass != nullptr, EErrorCode::UnknownError));
-	TRY(Expect(LoadClass->IsChildOf(ObjectProperty->PropertyClass), EErrorCode::UnknownError));
+	TRY(Expect(LoadClass != nullptr));
+	TRY(Expect(LoadClass->IsChildOf(ObjectProperty->PropertyClass)));
 	UObject* Loaded = StaticLoadObject(LoadClass, nullptr, *LoadPath, nullptr);
-	TRY(Expect(Loaded != nullptr, EErrorCode::UnknownError));
+	TRY(Expect(Loaded != nullptr));
 
 	OutLoaded = Loaded;
 	return Ok();
@@ -186,20 +186,20 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 		TRY(Ctx.Reader->ReadMapRoot(nullptr));
 		FString MetaKey;
 		TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
-		TRY(Expect(MetaKey == TEXT("$type"), EErrorCode::UnknownError));
+		TRY(Expect(MetaKey == TEXT("$type")));
 
 		FString LoadClassName;
 		TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
 
 		TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
-		TRY(Expect(MetaKey == TEXT("$path"), EErrorCode::UnknownError));
+		TRY(Expect(MetaKey == TEXT("$path")));
 
 		FString LoadPath;
 		TRY(Ctx.Reader->ReadString(&LoadPath, nullptr));
 		TRY(Ctx.Reader->ReadMapEnd(nullptr));
 
 		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *LoadClassName, true);
-		TRY(Expect(LoadClass != nullptr, EErrorCode::UnknownError));
+		TRY(Expect(LoadClass != nullptr));
 
 		UObject* Loaded = nullptr;
 		TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
@@ -283,10 +283,10 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 			//	It's a path, try load blueprint and use `GeneratedClass`
 			UObject* Loaded = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *TypeStr, nullptr);
 			if (!Loaded)
-				return Fail(EErrorCode::UnknownError);
+				return Fail();
 			UBlueprint* BP = Cast<UBlueprint>(Loaded);
 			if (!BP)
-				return Fail(EErrorCode::UnknownError);
+				return Fail();
 
 			SubClassType = BP->GeneratedClass;
 		}
@@ -316,7 +316,7 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 
 	//	construct the item
 	FPropertyDatum Datum;
-	TRY(Ctx.Writer->WriteDataEntry(UObjectProperty::StaticClass(), EErrorCode::UnknownError, Datum));
+	TRY(Ctx.Writer->WriteDataEntry(UObjectProperty::StaticClass(), Datum));
 
 	UObjectProperty* SubObjectProperty = Datum.Cast<UObjectProperty>();
 	if (!SubObjectProperty)
