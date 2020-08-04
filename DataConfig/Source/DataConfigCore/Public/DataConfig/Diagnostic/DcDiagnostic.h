@@ -3,6 +3,8 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Misc/DcDataVariant.h"
 
+#include "Templates/IsEnumClass.h"
+
 namespace DataConfig
 {
 
@@ -25,6 +27,24 @@ FORCEINLINE FDiagnostic& operator<<(FDiagnostic& Diag, T&& InValue)
 	Diag.Args.Emplace(Forward<T>(InValue));
 	return Diag;
 }
+
+/*
+template<typename T>
+FORCEINLINE typename TEnableIf<TIsDataVariantCompatible<T>::Value, FDiagnostic&>::Type
+operator<<(FDiagnostic& Diag, T&& InEnum)
+{
+	Diag.Args.Emplace(Forward<T>(InValue));
+	return Diag;
+}
+
+template<typename T>
+FORCEINLINE typename TEnableIf<TIsEnumClass<T>::Value, FDiagnostic&>::Type
+operator<<(FDiagnostic& Diag, T InEnum)
+{
+	Diag.Args.Emplace((int)(InValue));
+	return Diag;
+}
+*/
 
 struct IDiagnosticConsumer : public TSharedFromThis<IDiagnosticConsumer>
 {

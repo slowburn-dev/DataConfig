@@ -3,6 +3,7 @@
 namespace DataConfig
 {
 
+//	TODO move statics to StartUp
 FString STR_META_TYPE = FString(TEXT("$type"));
 FString STR_META_PATH = FString(TEXT("$path"));
 

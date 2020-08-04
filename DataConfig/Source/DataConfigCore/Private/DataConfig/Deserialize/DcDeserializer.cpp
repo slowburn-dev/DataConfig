@@ -1,5 +1,6 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/DcErrorCodes.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 
 namespace DataConfig
 {
@@ -12,7 +13,8 @@ static FResult ExecuteDeserializeHandler(FDeserializeContext& Ctx, FDeserializeD
 
 	if (HandlerRet == EDeserializeResult::CanNotProcess)
 	{
-		return Fail(EErrorCode::NoMatchingDeserializer);
+		return Fail(DIAG(DDeserialize, NoMatchingHandler))
+			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 	else
 	{
@@ -40,7 +42,8 @@ FResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
 	FDeserializeDelegate* HandlerPtr = DirectDeserializersMap.Find(Property->GetClass());
 	if (HandlerPtr == nullptr)
 	{
-		return Fail(EErrorCode::NoMatchingDeserializer);
+		return Fail(DIAG(DDeserialize, NoMatchingHandler))
+			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 
 	return ExecuteDeserializeHandler(Ctx, *HandlerPtr);

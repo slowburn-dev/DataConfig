@@ -26,7 +26,6 @@ struct DATACONFIGCORE_API FErrorCode
 	uint16 ErrorID;
 };
 
-//	TODO try NO_DISCARD this
 struct DATACONFIGCORE_API FResult
 {
 	//	TODO when benchmark is setup, try figure out whether
