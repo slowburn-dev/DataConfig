@@ -3,9 +3,40 @@
 #include "AssetTypeActions_Base.h"
 #include "EditorFramework/AssetImportData.h"
 #include "MessageLogModule.h"
+#include "Logging/MessageLog.h"
 
+#include "DataConfig/DcTypes.h"
+#include "DataConfig/DcEnv.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 IMPLEMENT_MODULE(FDataConfigEditorModule, DataConfigEditor);
+
+
+struct FMessageLogDiagnosticConsumer : public DataConfig::IDiagnosticConsumer
+{
+	void HandleDiagnostic(DataConfig::FDiagnostic& Diag) override;
+};
+
+void FMessageLogDiagnosticConsumer::HandleDiagnostic(DataConfig::FDiagnostic& Diag)
+{
+	using namespace DataConfig;
+	const FDiagnosticDetail* Detail = FindDiagnosticDetail(Diag.Code);
+	if (Detail)
+	{
+		check(Detail->ID == Diag.Code.ErrorID);
+		TArray<FStringFormatArg> FormatArgs;
+		for (FDataVariant& Var : Diag.Args)
+			FormatArgs.Add(ConvertArg(Var));
+
+		FMessageLog MessageLog("AssetReimport");
+		MessageLog.Message(EMessageSeverity::Error, FText::FromString(FString::Format(Detail->Msg, FormatArgs)));
+	}
+	else
+	{
+		FMessageLog MessageLog("AssetReimport");
+		MessageLog.Message(EMessageSeverity::Error, FText::FromString(TEXT("Unknown DataConfig Diagnostic")));
+	}
+}
 
 class FAssetTypeActions_ImportedDataAsset : public FAssetTypeActions_Base
 {
@@ -80,6 +111,8 @@ void FAssetTypeActions_PrimaryImportedDataAsset::GetResolvedSourceFilePaths(cons
 void FDataConfigEditorModule::StartupModule()
 {
 	DataConfig::StartUp();
+
+	DataConfig::Env().DiagConsumer = MakeShareable(new FMessageLogDiagnosticConsumer());
 
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	ImportedDataAssetActions.Emplace(MakeShareable(new FAssetTypeActions_ImportedDataAsset()));

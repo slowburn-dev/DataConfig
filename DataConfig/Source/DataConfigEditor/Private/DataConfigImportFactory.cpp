@@ -3,6 +3,7 @@
 #include "EditorFramework/AssetImportData.h"
 
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
@@ -11,6 +12,7 @@
 
 #define LOCTEXT_NAMESPACE "DataConfigImportFactory"
 
+//	TODO note that this breaks unity build, get rid of it or do it as namespace FOO_Private
 namespace
 {
 
@@ -154,6 +156,7 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	{
 		//	TODO proper destroy the object if import failed
 		NewObj->ConditionalBeginDestroy();
+		DataConfig::Env().FlushDiags();
 		return nullptr;
 	}
 
@@ -247,6 +250,7 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 	FResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj);
 	if (!Ret.Ok())
 	{
+		DataConfig::Env().FlushDiags();
 		return EReimportResult::Failed;
 	}
 

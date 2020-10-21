@@ -44,7 +44,7 @@ FDefaultLogDiagnosticConsumer::FDefaultLogDiagnosticConsumer()
 {
 }
 
-static FStringFormatArg ConvertArg(FDataVariant& Var)
+FStringFormatArg ConvertArg(FDataVariant& Var)
 {
 	if (Var.DataType == EDataEntry::Bool)
 	{
@@ -61,6 +61,10 @@ static FStringFormatArg ConvertArg(FDataVariant& Var)
 	else if (Var.DataType == EDataEntry::Name)
 	{
 		return FStringFormatArg(Var.GetValue<FName>().ToString());
+	}
+	else if (Var.DataType == EDataEntry::Int)
+	{
+		return FStringFormatArg(Var.GetValue<int32>());
 	}
 	else
 	{

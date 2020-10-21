@@ -38,6 +38,12 @@ operator<<(FDiagnostic& Diag, T&& InValue)
 	return Diag;
 }
 
+FORCEINLINE FDiagnostic& operator<<(FDiagnostic& Diag, EDataEntry Entry)
+{
+	Diag.Args.Emplace(FName(TEXT("<DataEntry>")));
+	return Diag;
+}
+
 struct IDiagnosticConsumer : public TSharedFromThis<IDiagnosticConsumer>
 {
 	virtual void HandleDiagnostic(FDiagnostic& Diag) = 0;
@@ -65,6 +71,7 @@ struct DATACONFIGCORE_API FDiagnosticDetail
 };
 
 DATACONFIGCORE_API const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError);
+DATACONFIGCORE_API FStringFormatArg ConvertArg(FDataVariant& Var);
 
 static const uint16 DETAIL_END = MAX_uint16;
 

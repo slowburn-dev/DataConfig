@@ -424,7 +424,6 @@ void TryDiags()
 void TryConsoleDiagnosticReports()
 {
 	FWriter Writer{};
-
 	Writer.WriteBool(true);
 
 	Env().Diag(DIAG(DCommon, Unreachable));
@@ -433,7 +432,7 @@ void TryConsoleDiagnosticReports()
 	FString Str(1, &Ch);
 
 	Env().Diag(DIAG(DCommon, Unexpected1)) << Str;
-
+	Env().Diag(DIAG(DCommon, Unexpected1)) << EDataEntry::Bool;
 }
 
 
