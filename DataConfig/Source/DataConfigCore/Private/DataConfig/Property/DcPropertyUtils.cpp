@@ -76,21 +76,21 @@ UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name)
 	return nullptr;
 }
 
-EDataEntry PropertyToDataEntry(UField* Property)
+EDcDataEntry PropertyToDataEntry(UField* Property)
 {
 	check(Property)
-	if (Property->IsA<UBoolProperty>()) return EDataEntry::Bool;
-	if (Property->IsA<UFloatProperty>()) return EDataEntry::Float;
-	if (Property->IsA<UDoubleProperty>()) return EDataEntry::Double;
-	if (Property->IsA<UIntProperty>()) return EDataEntry::Int;
-	if (Property->IsA<UUInt32Property>()) return EDataEntry::UInt32;
-	if (Property->IsA<UStrProperty>()) return EDataEntry::String;
-	if (Property->IsA<UNameProperty>()) return EDataEntry::Name;
-	if (Property->IsA<UStructProperty>()) return EDataEntry::StructRoot;
-	if (Property->IsA<UObjectProperty>()) return EDataEntry::ClassRoot;
-	if (Property->IsA<UMapProperty>()) return EDataEntry::MapRoot;
-	if (Property->IsA<UArrayProperty>()) return EDataEntry::ArrayRoot;
+	if (Property->IsA<UBoolProperty>()) return EDcDataEntry::Bool;
+	if (Property->IsA<UFloatProperty>()) return EDcDataEntry::Float;
+	if (Property->IsA<UDoubleProperty>()) return EDcDataEntry::Double;
+	if (Property->IsA<UIntProperty>()) return EDcDataEntry::Int;
+	if (Property->IsA<UUInt32Property>()) return EDcDataEntry::UInt32;
+	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
+	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;
+	if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
+	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
+	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
+	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
 	checkNoEntry();
-	return EDataEntry::Ended;
+	return EDcDataEntry::Ended;
 }
 

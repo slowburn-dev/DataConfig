@@ -9,7 +9,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcPropertyWriter();
 	FDcPropertyWriter(FDcPropertyDatum Datum);
 
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 
 	FDcResult WriteNil() override;
 	FDcResult WriteBool(bool Value) override;

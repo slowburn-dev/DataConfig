@@ -2,7 +2,7 @@
 #include "DataConfig/DcEnv.h"
 
 FDcReader::~FDcReader() {}
-EDataEntry FDcReader::Peek() { return EDataEntry::Ended; }
+EDcDataEntry FDcReader::Peek() { return EDcDataEntry::Ended; }
 
 FDcResult FDcReader::ReadNil(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
 FDcResult FDcReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }

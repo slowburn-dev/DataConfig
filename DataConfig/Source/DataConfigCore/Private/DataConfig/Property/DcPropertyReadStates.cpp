@@ -4,9 +4,9 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-EDataEntry FBaseReadState::Peek()
+EDcDataEntry FBaseReadState::Peek()
 {
-	return EDataEntry::Ended;
+	return EDcDataEntry::Ended;
 }
 
 FDcResult FBaseReadState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
@@ -29,27 +29,27 @@ EPropertyReadType FReadStateClass::GetType()
 	return EPropertyReadType::ClassProperty;
 }
 
-EDataEntry FReadStateClass::Peek()
+EDcDataEntry FReadStateClass::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDataEntry::ClassRoot;
+		return EDcDataEntry::ClassRoot;
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDataEntry::ClassEnd;
+		return EDcDataEntry::ClassEnd;
 	}
 	else if (State == EState::ExpectNil)
 	{
-		return EDataEntry::Nil;
+		return EDcDataEntry::Nil;
 	}
 	else if (State == EState::ExpectReference)
 	{
-		return EDataEntry::Reference;
+		return EDcDataEntry::Reference;
 	}
 	else if (State == EState::ExpectKey)
 	{
-		return EDataEntry::Name;
+		return EDcDataEntry::Name;
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -59,7 +59,7 @@ EDataEntry FReadStateClass::Peek()
 	else
 	{
 		checkNoEntry();
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 }
 
@@ -276,19 +276,19 @@ EPropertyReadType FReadStateStruct::GetType()
 	return EPropertyReadType::StructProperty;
 }
 
-EDataEntry FReadStateStruct::Peek()
+EDcDataEntry FReadStateStruct::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDataEntry::StructRoot;
+		return EDcDataEntry::StructRoot;
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDataEntry::StructEnd;
+		return EDcDataEntry::StructEnd;
 	}
 	else if (State == EState::ExpectKey)
 	{
-		return EDataEntry::Name;
+		return EDcDataEntry::Name;
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -297,12 +297,12 @@ EDataEntry FReadStateStruct::Peek()
 	}
 	else if (State == EState::Ended)
 	{
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 	else
 	{
 		checkNoEntry();
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 }
 
@@ -445,15 +445,15 @@ EPropertyReadType FReadStateMap::GetType()
 	return EPropertyReadType::MapProperty;
 }
 
-EDataEntry FReadStateMap::Peek()
+EDcDataEntry FReadStateMap::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDataEntry::MapRoot;
+		return EDcDataEntry::MapRoot;
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDataEntry::MapEnd;
+		return EDcDataEntry::MapEnd;
 	}
 	else if (State == EState::ExpectKey)
 	{
@@ -468,7 +468,7 @@ EDataEntry FReadStateMap::Peek()
 	else
 	{
 		checkNoEntry();
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 }
 
@@ -590,15 +590,15 @@ EPropertyReadType FReadStateArray::GetType()
 	return EPropertyReadType::ArrayProperty;
 }
 
-EDataEntry FReadStateArray::Peek()
+EDcDataEntry FReadStateArray::Peek()
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDataEntry::ArrayRoot;
+		return EDcDataEntry::ArrayRoot;
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDataEntry::ArrayEnd;
+		return EDcDataEntry::ArrayEnd;
 	}
 	else if (State == EState::ExpectItem)
 	{
@@ -607,12 +607,12 @@ EDataEntry FReadStateArray::Peek()
 	}
 	else if (State == EState::Ended)
 	{
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 	else
 	{
 		checkNoEntry();
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 }
 

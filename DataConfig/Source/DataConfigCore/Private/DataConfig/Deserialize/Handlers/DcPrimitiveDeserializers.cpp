@@ -11,7 +11,7 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	DC_TRY(Ctx.Writer->Peek(EDataEntry::Bool));
+	DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Bool));
 
 	bool Value;
 	DC_TRY(Ctx.Reader->ReadBool(&Value, nullptr));
@@ -28,17 +28,17 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
+	DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
-	EDataEntry Next = Ctx.Reader->Peek();
-	if (Next == EDataEntry::Name)
+	EDcDataEntry Next = Ctx.Reader->Peek();
+	if (Next == EDcDataEntry::Name)
 	{
 		FName Value;
 		DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
 		DC_TRY(Ctx.Writer->WriteName(Value));
 		return DcOkWithProcessed(OutRet);
 	}
-	else if (Next == EDataEntry::String)
+	else if (Next == EDcDataEntry::String)
 	{
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
@@ -48,7 +48,7 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	else
 	{
 		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
-			<< EDataEntry::Name << EDataEntry::String << Next;
+			<< EDcDataEntry::Name << EDcDataEntry::String << Next;
 	}
 }
 
@@ -59,17 +59,17 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	DC_TRY(Ctx.Writer->Peek(EDataEntry::String));
+	DC_TRY(Ctx.Writer->Peek(EDcDataEntry::String));
 
-	EDataEntry Next = Ctx.Reader->Peek();
-	if (Next == EDataEntry::Name)
+	EDcDataEntry Next = Ctx.Reader->Peek();
+	if (Next == EDcDataEntry::Name)
 	{
 		FName Value;
 		DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
 		DC_TRY(Ctx.Writer->WriteString(Value.ToString()));
 		return DcOkWithProcessed(OutRet);
 	}
-	else if (Next == EDataEntry::String)
+	else if (Next == EDcDataEntry::String)
 	{
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
@@ -79,7 +79,7 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 	else
 	{
 		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
-			<< EDataEntry::Name << EDataEntry::String << Next;
+			<< EDcDataEntry::Name << EDcDataEntry::String << Next;
 	}
 }
 

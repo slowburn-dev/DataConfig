@@ -35,7 +35,7 @@ operator<<(FDcDiagnostic& Diag, T&& InValue)
 	return Diag;
 }
 
-FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDataEntry Entry)
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
 {
 	Diag.Args.Emplace(FName(TEXT("<DataEntry>")));
 	return Diag;

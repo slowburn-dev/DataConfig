@@ -12,7 +12,7 @@ FDcPrettyPrintWriter::~FDcPrettyPrintWriter()
 	Output.Flush();
 }
 
-FDcResult FDcPrettyPrintWriter::Peek(EDataEntry Next)
+FDcResult FDcPrettyPrintWriter::Peek(EDcDataEntry Next)
 {
 	return DcOk();	// accepts anything
 }

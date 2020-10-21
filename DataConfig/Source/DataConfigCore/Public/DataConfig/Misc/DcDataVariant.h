@@ -8,42 +8,42 @@
 template<typename T>
 struct TDcDataEntryType
 {
-	static constexpr EDataEntry Value = EDataEntry::Ended;
+	static constexpr EDcDataEntry Value = EDcDataEntry::Ended;
 };
 
-template<> struct TDcDataEntryType<nullptr_t> { static constexpr EDataEntry Value = EDataEntry::Nil; };
-template<> struct TDcDataEntryType<bool> { static constexpr EDataEntry Value = EDataEntry::Bool; };
-template<> struct TDcDataEntryType<FName> { static constexpr EDataEntry Value = EDataEntry::Name; };
-template<> struct TDcDataEntryType<FString> { static constexpr EDataEntry Value = EDataEntry::String; };
+template<> struct TDcDataEntryType<nullptr_t> { static constexpr EDcDataEntry Value = EDcDataEntry::Nil; };
+template<> struct TDcDataEntryType<bool> { static constexpr EDcDataEntry Value = EDcDataEntry::Bool; };
+template<> struct TDcDataEntryType<FName> { static constexpr EDcDataEntry Value = EDcDataEntry::Name; };
+template<> struct TDcDataEntryType<FString> { static constexpr EDcDataEntry Value = EDcDataEntry::String; };
 
-template<> struct TDcDataEntryType<float> { static constexpr EDataEntry Value = EDataEntry::Float; };
-template<> struct TDcDataEntryType<double> { static constexpr EDataEntry Value = EDataEntry::Double; };
+template<> struct TDcDataEntryType<float> { static constexpr EDcDataEntry Value = EDcDataEntry::Float; };
+template<> struct TDcDataEntryType<double> { static constexpr EDcDataEntry Value = EDcDataEntry::Double; };
 
-template<> struct TDcDataEntryType<int8> { static constexpr EDataEntry Value = EDataEntry::Int8; };
-template<> struct TDcDataEntryType<int16> { static constexpr EDataEntry Value = EDataEntry::Int16; };
-template<> struct TDcDataEntryType<int32> { static constexpr EDataEntry Value = EDataEntry::Int; };
-template<> struct TDcDataEntryType<int64> { static constexpr EDataEntry Value = EDataEntry::Int64; };
+template<> struct TDcDataEntryType<int8> { static constexpr EDcDataEntry Value = EDcDataEntry::Int8; };
+template<> struct TDcDataEntryType<int16> { static constexpr EDcDataEntry Value = EDcDataEntry::Int16; };
+template<> struct TDcDataEntryType<int32> { static constexpr EDcDataEntry Value = EDcDataEntry::Int; };
+template<> struct TDcDataEntryType<int64> { static constexpr EDcDataEntry Value = EDcDataEntry::Int64; };
 
-template<> struct TDcDataEntryType<uint8> { static constexpr EDataEntry Value = EDataEntry::Byte; };
-template<> struct TDcDataEntryType<uint16> { static constexpr EDataEntry Value = EDataEntry::UInt16; };
-template<> struct TDcDataEntryType<uint32> { static constexpr EDataEntry Value = EDataEntry::UInt32; };
-template<> struct TDcDataEntryType<uint64> { static constexpr EDataEntry Value = EDataEntry::UInt64; };
+template<> struct TDcDataEntryType<uint8> { static constexpr EDcDataEntry Value = EDcDataEntry::Byte; };
+template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt16; };
+template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
+template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
 
 
 template<typename T>
 struct TDcIsDataVariantCompatible
 {
-	enum { Value = TDcDataEntryType<T>::Value != EDataEntry::Ended };
+	enum { Value = TDcDataEntryType<T>::Value != EDcDataEntry::Ended };
 };
 
 static_assert(TDcIsDataVariantCompatible<int>::Value, "yes");
-static_assert(!TDcIsDataVariantCompatible<EDataEntry>::Value, "no");
+static_assert(!TDcIsDataVariantCompatible<EDcDataEntry>::Value, "no");
 
 
 struct FDcDataVariant
 {
 	FDcDataVariant()
-		: DataType(EDataEntry::Nil)
+		: DataType(EDcDataEntry::Nil)
 	{}
 
 	FDcDataVariant(const FDcDataVariant&) = default;
@@ -78,7 +78,7 @@ struct FDcDataVariant
 	template<>
 	FORCEINLINE void Initialize<nullptr_t>(nullptr_t InValue)
 	{
-		DataType = EDataEntry::Nil;
+		DataType = EDcDataEntry::Nil;
 	}
 
 	FDcDataVariant(const TCHAR* InString)
@@ -108,11 +108,11 @@ struct FDcDataVariant
 	template<>
 	nullptr_t GetValue<nullptr_t>() const
 	{
-		check(DataType == EDataEntry::Nil);
+		check(DataType == EDcDataEntry::Nil);
 		return nullptr;
 	}
 
-	EDataEntry DataType;
+	EDcDataEntry DataType;
 	TArray<uint8> Value;
 };
 

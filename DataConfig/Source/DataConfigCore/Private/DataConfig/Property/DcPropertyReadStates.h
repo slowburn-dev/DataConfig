@@ -11,14 +11,14 @@ enum class EPropertyReadType
 	ArrayProperty,
 };
 
-enum class EDataEntry;
+enum class EDcDataEntry;
 struct FContextStorage;
 
 struct FBaseReadState
 {
 	virtual EPropertyReadType GetType() = 0;
 
-	virtual EDataEntry Peek();
+	virtual EDcDataEntry Peek();
 	virtual FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr);
 	virtual FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum);
 
@@ -87,7 +87,7 @@ struct FReadStateClass : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDataEntry Peek() override;
+	EDcDataEntry Peek() override;
 	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
 
@@ -127,7 +127,7 @@ struct FReadStateStruct : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDataEntry Peek() override;
+	EDcDataEntry Peek() override;
 	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
 
@@ -164,7 +164,7 @@ struct FReadStateMap : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDataEntry Peek() override;
+	EDcDataEntry Peek() override;
 	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
 
@@ -199,7 +199,7 @@ struct FReadStateArray : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDataEntry Peek() override;
+	EDcDataEntry Peek() override;
 	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
 

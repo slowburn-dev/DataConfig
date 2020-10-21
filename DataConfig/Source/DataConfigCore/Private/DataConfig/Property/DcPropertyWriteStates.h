@@ -12,13 +12,13 @@ enum class EPropertyWriteType
 };
 
 
-enum class EDataEntry;
+enum class EDcDataEntry;
 
 struct FBaseWriteState
 {
 	virtual EPropertyWriteType GetType() = 0;
 
-	virtual FDcResult Peek(EDataEntry Next);
+	virtual FDcResult Peek(EDcDataEntry Next);
 	virtual FDcResult WriteName(const FName& Value);
 	virtual FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 	virtual FDcResult SkipWrite();
@@ -49,7 +49,7 @@ struct FWriteStateNil : public FBaseWriteState
 	FWriteStateNil() = default;
 
 	EPropertyWriteType GetType() override;
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 
 };
 
@@ -79,7 +79,7 @@ struct FWriteStateStruct : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
@@ -135,7 +135,7 @@ struct FWriteStateClass : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
@@ -176,7 +176,7 @@ struct FWriteStateMap : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
@@ -212,7 +212,7 @@ struct FWriteStateArray : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;

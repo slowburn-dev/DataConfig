@@ -9,7 +9,7 @@ FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Me
 	return DcOk();
 }
 
-FDcResult FDcWeakCompositeWriter::Peek(EDataEntry Next)
+FDcResult FDcWeakCompositeWriter::Peek(EDcDataEntry Next)
 {
 	return CompositeDispatch(this, &FDcWriter::Peek, Next);
 }

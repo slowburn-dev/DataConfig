@@ -23,31 +23,31 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 	Cur = 0;
 }
 
-EDataEntry FDcJsonReader::Peek()
+EDcDataEntry FDcJsonReader::Peek()
 {
 	ReadWhiteSpace();
 	if (IsAtEnd())
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 
 	TCharType Char = PeekChar();
 	if (Char == TCharType('t'))	// true
-		return EDataEntry::Bool;
+		return EDcDataEntry::Bool;
 	else if (Char == TCharType('f')) // false
-		return EDataEntry::Bool;
+		return EDcDataEntry::Bool;
 	else if (Char == TCharType('{'))
-		return EDataEntry::MapRoot;
+		return EDcDataEntry::MapRoot;
 	else if (Char == TCharType('}'))
-		return EDataEntry::MapEnd;
+		return EDcDataEntry::MapEnd;
 	else if (Char == TCharType('"'))
-		return EDataEntry::String;
+		return EDcDataEntry::String;
 	else {
 #if DO_CHECK
 		PLATFORM_BREAK();
 #endif
-		return EDataEntry::Ended;
+		return EDcDataEntry::Ended;
 	}
 
-	return EDataEntry::Ended;
+	return EDcDataEntry::Ended;
 }
 
 FDcResult FDcJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)

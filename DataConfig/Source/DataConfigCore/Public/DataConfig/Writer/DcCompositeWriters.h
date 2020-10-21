@@ -4,7 +4,7 @@
 
 struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 {
-	FDcResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDcDataEntry Next) override;
 
 	FDcResult WriteNil() override;
 	FDcResult WriteBool(bool Value) override;

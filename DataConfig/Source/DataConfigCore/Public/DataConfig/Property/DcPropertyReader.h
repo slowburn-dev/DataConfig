@@ -12,7 +12,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcPropertyReader();
 	FDcPropertyReader(FDcPropertyDatum Datum);
 
-	EDataEntry Peek() override;
+	EDcDataEntry Peek() override;
 
 	FDcResult ReadNil(FContextStorage* CtxPtr) override;
 	FDcResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;

@@ -9,7 +9,7 @@ struct DATACONFIGCORE_API FDcReader
 {
 	virtual ~FDcReader();
 
-	virtual EDataEntry Peek();
+	virtual EDcDataEntry Peek();
 
 	virtual FDcResult ReadNil(FContextStorage* CtxPtr);
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DcTypes.generated.h"
 
 DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All);
 
@@ -67,7 +68,8 @@ struct TDcAlignedStorage
 	};
 };
 
-enum class EDataEntry
+UENUM()
+enum class EDcDataEntry
 {
 	//	Data Type
 	Nil,	 //	!! note that this actually doesn't exist in UE4 property data model

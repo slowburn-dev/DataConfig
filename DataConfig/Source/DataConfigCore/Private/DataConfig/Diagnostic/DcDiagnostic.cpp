@@ -43,23 +43,23 @@ FDcDefaultLogDiagnosticConsumer::FDcDefaultLogDiagnosticConsumer()
 
 FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 {
-	if (Var.DataType == EDataEntry::Bool)
+	if (Var.DataType == EDcDataEntry::Bool)
 	{
 		return FStringFormatArg(Var.GetValue<bool>());
 	}
-	else if (Var.DataType == EDataEntry::Nil)
+	else if (Var.DataType == EDcDataEntry::Nil)
 	{
 		return FStringFormatArg(TEXT("<null>"));
 	}
-	else if (Var.DataType == EDataEntry::String)
+	else if (Var.DataType == EDcDataEntry::String)
 	{
 		return FStringFormatArg(Var.GetValue<FString>());
 	}
-	else if (Var.DataType == EDataEntry::Name)
+	else if (Var.DataType == EDcDataEntry::Name)
 	{
 		return FStringFormatArg(Var.GetValue<FName>().ToString());
 	}
-	else if (Var.DataType == EDataEntry::Int)
+	else if (Var.DataType == EDcDataEntry::Int)
 	{
 		return FStringFormatArg(Var.GetValue<int32>());
 	}

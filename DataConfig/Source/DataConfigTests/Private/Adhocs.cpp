@@ -198,45 +198,45 @@ void PropertyVisitorRoundtrip_ReadNested()
 	FDcPropertyReader Reader(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
 	//	Root
-	check(Reader.Peek() == EDataEntry::StructRoot);
+	check(Reader.Peek() == EDcDataEntry::StructRoot);
 	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
 
 	//	AName
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
 
 	//	Nest Struct
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
-	check(Reader.Peek() == EDataEntry::StructRoot);
+	check(Reader.Peek() == EDcDataEntry::StructRoot);
 	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
 
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
 
 
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
-	check(Reader.Peek() == EDataEntry::Bool);
+	check(Reader.Peek() == EDcDataEntry::Bool);
 	check(Reader.ReadBool(nullptr, nullptr).Ok());
 
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	check(Reader.ReadName(nullptr, nullptr).Ok());
-	check(Reader.Peek() == EDataEntry::String);
+	check(Reader.Peek() == EDcDataEntry::String);
 	check(Reader.ReadString(nullptr, nullptr).Ok());
 
-	check(Reader.Peek() == EDataEntry::StructEnd);
+	check(Reader.Peek() == EDcDataEntry::StructEnd);
 	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
 
 	//	Pop 1 Level
-	check(Reader.Peek() == EDataEntry::StructEnd);
+	check(Reader.Peek() == EDcDataEntry::StructEnd);
 	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
 
-	check(Reader.Peek() == EDataEntry::Ended);
+	check(Reader.Peek() == EDcDataEntry::Ended);
 }
 
 
@@ -246,42 +246,42 @@ void PropertyVisitorRoundtrip_WriteNested()
 	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
 	//	Root
-	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.Peek(EDcDataEntry::StructRoot).Ok());
 	check(Writer.WriteStructRoot(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
 	//	Outer Name
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("OUTER"))).Ok());
 
 	//	Nest Struct
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AStruct"))).Ok());
-	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.Peek(EDcDataEntry::StructRoot).Ok());
 	check(Writer.WriteStructRoot(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("ALPHA"))).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("ABool"))).Ok());
-	check(Writer.Peek(EDataEntry::Bool).Ok());
+	check(Writer.Peek(EDcDataEntry::Bool).Ok());
 	check(Writer.WriteBool(true).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AStr"))).Ok());
-	check(Writer.Peek(EDataEntry::String).Ok());
+	check(Writer.Peek(EDcDataEntry::String).Ok());
 	check(Writer.WriteString(TEXT("A L P H A O N E")).Ok());
 
-	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end nested
+	check(Writer.Peek(EDcDataEntry::StructEnd).Ok());	//	end nested
 	check(Writer.WriteStructEnd(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
-	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end outer struct
+	check(Writer.Peek(EDcDataEntry::StructEnd).Ok());	//	end outer struct
 	check(Writer.WriteStructEnd(FNestStruct1::StaticStruct()->GetFName()).Ok());
-	check(Writer.Peek(EDataEntry::Ended).Ok());
+	check(Writer.Peek(EDcDataEntry::Ended).Ok());
 
 	UE_LOG(LogDataConfigCore, Display, TEXT("name: %s"), *NestStruct.AName.ToString());
 	UE_LOG(LogDataConfigCore, Display, TEXT("bool: %d"), NestStruct.AStruct.ABool);
@@ -297,47 +297,47 @@ void PropertyVisitorRoundtrip()
 	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
 	//	Root
-	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.Peek(EDcDataEntry::StructRoot).Ok());
 	check(Writer.WriteStructRoot(FNestStruct1::StaticStruct()->GetFName()).Ok());
 
 	//	Outer Name
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.SkipWrite().Ok());
 
 	//	Nest Struct
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AStruct"))).Ok());
-	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.Peek(EDcDataEntry::StructRoot).Ok());
 	check(Writer.WriteStructRoot(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("ALPHA"))).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("ABool"))).Ok());
-	check(Writer.Peek(EDataEntry::Bool).Ok());
+	check(Writer.Peek(EDcDataEntry::Bool).Ok());
 	check(Writer.WriteBool(true).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AStr"))).Ok());
-	check(Writer.Peek(EDataEntry::String).Ok());
+	check(Writer.Peek(EDcDataEntry::String).Ok());
 	check(Writer.SkipWrite().Ok());
 
-	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end nested
+	check(Writer.Peek(EDcDataEntry::StructEnd).Ok());	//	end nested
 	check(Writer.WriteStructEnd(FTestStruct_Alpha::StaticStruct()->GetFName()).Ok());
 
-	check(Writer.Peek(EDataEntry::Name).Ok());
+	check(Writer.Peek(EDcDataEntry::Name).Ok());
 	check(Writer.WriteName(FName(TEXT("AStruct2"))).Ok());
-	check(Writer.Peek(EDataEntry::StructRoot).Ok());
+	check(Writer.Peek(EDcDataEntry::StructRoot).Ok());
 	check(Writer.SkipWrite().Ok());
 
-	check(Writer.Peek(EDataEntry::StructEnd).Ok());	//	end outer struct
+	check(Writer.Peek(EDcDataEntry::StructEnd).Ok());	//	end outer struct
 	check(Writer.WriteStructEnd(FNestStruct1::StaticStruct()->GetFName()).Ok());
-	check(Writer.Peek(EDataEntry::Ended).Ok());
+	check(Writer.Peek(EDcDataEntry::Ended).Ok());
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
@@ -358,18 +358,18 @@ void TryOutVariant()
 {
 	{
 		FDcDataVariant DV = false;
-		check(DV.DataType == EDataEntry::Bool);
+		check(DV.DataType == EDcDataEntry::Bool);
 	}
 
 	{
 		FDcDataVariant DV = FName(TEXT("Wha"));
-		check(DV.DataType == EDataEntry::Name);
+		check(DV.DataType == EDcDataEntry::Name);
 		check(DV.GetValue<FName>() == FName(("Wha")));
 	}
 
 	{
 		FDcDataVariant DV = TEXT("Str");
-		check(DV.DataType == EDataEntry::String);
+		check(DV.DataType == EDcDataEntry::String);
 		check(DV.GetValue<FString>() == FString(("Str")));
 	}
 
@@ -382,26 +382,26 @@ void TryOutPutback()
 	FDcPropertyReader RawReader(FDcPropertyDatum(FEmptyStruct::StaticStruct(), &EmptyObj));
 	FDcPutbackReader Reader(&RawReader);
 
-	check(Reader.Peek() == EDataEntry::StructRoot);
+	check(Reader.Peek() == EDcDataEntry::StructRoot);
 	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
 
 	Reader.Putback(FName(TEXT("Foo")));
 	Reader.Putback(FName(TEXT("Bar")));
 
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	FName Name1;
 	check(Reader.ReadName(&Name1, nullptr).Ok());
 	check(Name1 == FName(TEXT("Foo")));
 
-	check(Reader.Peek() == EDataEntry::Name);
+	check(Reader.Peek() == EDcDataEntry::Name);
 	FName Name2;
 	check(Reader.ReadName(&Name2, nullptr).Ok());
 	check(Name2 == FName(TEXT("Bar")));
 
-	check(Reader.Peek() == EDataEntry::StructEnd);
+	check(Reader.Peek() == EDcDataEntry::StructEnd);
 	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
 
-	check(Reader.Peek() == EDataEntry::Ended);
+	check(Reader.Peek() == EDcDataEntry::Ended);
 }
 
 void TryDiags()
@@ -430,7 +430,7 @@ void TryConsoleDiagnosticReports()
 	FString Str(1, &Ch);
 
 	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << Str;
-	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << EDataEntry::Bool;
+	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << EDcDataEntry::Bool;
 }
 
 

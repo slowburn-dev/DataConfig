@@ -6,7 +6,7 @@ FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData
 	check(Self->Cached.Num() > 0);
 
 	FDcDataVariant Value = Self->Cached.Pop();
-	EDataEntry Expected = TDcDataEntryType<TData>::Value;
+	EDcDataEntry Expected = TDcDataEntryType<TData>::Value;
 	if (Value.DataType != Expected)
 		return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
 			<< (int)Expected << (int)Value.DataType;
@@ -17,7 +17,7 @@ FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData
 	return DcOk();
 }
 
-EDataEntry FDcPutbackReader::Peek()
+EDcDataEntry FDcPutbackReader::Peek()
 {
 	if (Cached.Num() > 0)
 	{

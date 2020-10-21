@@ -4,7 +4,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-FDcResult FBaseWriteState::Peek(EDataEntry Next) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
+FDcResult FBaseWriteState::Peek(EDcDataEntry Next) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
 FDcResult FBaseWriteState::WriteName(const FName& Value){ return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
 FDcResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
 FDcResult FBaseWriteState::SkipWrite() { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
@@ -15,9 +15,9 @@ EPropertyWriteType FWriteStateNil::GetType()
 	return EPropertyWriteType::Nil;
 }
 
-FDcResult FWriteStateNil::Peek(EDataEntry Next)
+FDcResult FWriteStateNil::Peek(EDcDataEntry Next)
 {
-	return DcExpect(Next == EDataEntry::Ended, [=]{
+	return DcExpect(Next == EDcDataEntry::Ended, [=]{
 		return DcFail(DC_DIAG(DcDReadWrite, AlreadyEnded));
 	});
 }
@@ -27,26 +27,26 @@ EPropertyWriteType FWriteStateStruct::GetType()
 	return EPropertyWriteType::StructProperty;
 }
 
-FDcResult FWriteStateStruct::Peek(EDataEntry Next)
+FDcResult FWriteStateStruct::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return DcExpect(Next == EDataEntry::StructRoot, [=]{
+		return DcExpect(Next == EDcDataEntry::StructRoot, [=]{
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
-				<< (int)EDataEntry::StructRoot << (int)Next;
+				<< (int)EDcDataEntry::StructRoot << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectKeyOrEnd)
 	{
-		return DcExpect(Next == EDataEntry::StructEnd || Next == EDataEntry::Name, [=]{
+		return DcExpect(Next == EDcDataEntry::StructEnd || Next == EDcDataEntry::Name, [=]{
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch2))
-				<< (int)EDataEntry::StructEnd << (int) EDataEntry::Name << (int)Next;
+				<< (int)EDcDataEntry::StructEnd << (int) EDcDataEntry::Name << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		EDataEntry Actual = PropertyToDataEntry(Property);
+		EDcDataEntry Actual = PropertyToDataEntry(Property);
 		if (Next == Actual)
 		{
 			return DcOk();
@@ -177,41 +177,41 @@ EPropertyWriteType FWriteStateClass::GetType()
 	return EPropertyWriteType::ClassProperty;
 }
 
-FDcResult FWriteStateClass::Peek(EDataEntry Next)
+FDcResult FWriteStateClass::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return DcExpect(Next == EDataEntry::ClassRoot, [=]{
+		return DcExpect(Next == EDcDataEntry::ClassRoot, [=]{
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
-				<< (int)EDataEntry::ClassRoot << (int)Next;
+				<< (int)EDcDataEntry::ClassRoot << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectNil)
 	{
-		return DcExpect(Next == EDataEntry::Nil, [=] {
+		return DcExpect(Next == EDcDataEntry::Nil, [=] {
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
-				<< (int)EDataEntry::Nil << (int)Next;
+				<< (int)EDcDataEntry::Nil << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectReference)
 	{
-		return DcExpect(Next == EDataEntry::Reference, [=] {
+		return DcExpect(Next == EDcDataEntry::Reference, [=] {
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
-				<< (int)EDataEntry::Reference << (int)Next;
+				<< (int)EDcDataEntry::Reference << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectKeyOrEnd)
 	{
-		return DcExpect(Next == EDataEntry::ClassEnd || Next == EDataEntry::Name,
+		return DcExpect(Next == EDcDataEntry::ClassEnd || Next == EDcDataEntry::Name,
 			[=] {
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch2))
-				<< (int)EDataEntry::ClassEnd << (int)EDataEntry::Name << (int)Next;
+				<< (int)EDcDataEntry::ClassEnd << (int)EDcDataEntry::Name << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(!Datum.IsNone());
-		EDataEntry Actual = PropertyToDataEntry(Datum.Property);
+		EDcDataEntry Actual = PropertyToDataEntry(Datum.Property);
 		if (Next == Actual)
 		{
 			return DcOk();
@@ -404,28 +404,28 @@ EPropertyWriteType FWriteStateMap::GetType()
 	return EPropertyWriteType::MapProperty;
 }
 
-FDcResult FWriteStateMap::Peek(EDataEntry Next)
+FDcResult FWriteStateMap::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return DcExpect(Next == EDataEntry::MapRoot, [=] {
+		return DcExpect(Next == EDcDataEntry::MapRoot, [=] {
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
-				<< (int)EDataEntry::MapRoot << (int)Next;
+				<< (int)EDcDataEntry::MapRoot << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectKeyOrEnd)
 	{
 		check(MapProperty);
-		return DcExpect(Next == EDataEntry::MapEnd || Next == PropertyToDataEntry(MapProperty->KeyProp), 
+		return DcExpect(Next == EDcDataEntry::MapEnd || Next == PropertyToDataEntry(MapProperty->KeyProp), 
 			[=] {
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch2))
-				<< (int)EDataEntry::ClassEnd << (int)EDataEntry::Name << (int)Next;
+				<< (int)EDcDataEntry::ClassEnd << (int)EDcDataEntry::Name << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(MapProperty);
-		EDataEntry Actual = PropertyToDataEntry(MapProperty->ValueProp);
+		EDcDataEntry Actual = PropertyToDataEntry(MapProperty->ValueProp);
 		if (Next == Actual)
 		{
 			return DcOk();
@@ -565,24 +565,24 @@ EPropertyWriteType FWriteStateArray::GetType()
 	return EPropertyWriteType::ArrayProperty;
 }
 
-FDcResult FWriteStateArray::Peek(EDataEntry Next)
+FDcResult FWriteStateArray::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return DcExpect(Next == EDataEntry::ArrayRoot, [=]{
+		return DcExpect(Next == EDcDataEntry::ArrayRoot, [=]{
 			return DcFail(DC_DIAG(DcDReadWrite, DataTypeMismatch))
-				<< (int)EDataEntry::ArrayRoot << (int)Next;
+				<< (int)EDcDataEntry::ArrayRoot << (int)Next;
 		});
 	}
 	else if (State == EState::ExpectItemOrEnd)
 	{
-		if (Next == EDataEntry::ArrayEnd)
+		if (Next == EDcDataEntry::ArrayEnd)
 		{
 			return DcOk();
 		}
 		else
 		{
-			EDataEntry Actual = PropertyToDataEntry(ArrayProperty->Inner);
+			EDcDataEntry Actual = PropertyToDataEntry(ArrayProperty->Inner);
 			if (Next == Actual)
 			{
 				return DcOk();

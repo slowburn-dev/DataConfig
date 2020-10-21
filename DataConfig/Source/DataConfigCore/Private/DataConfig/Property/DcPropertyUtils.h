@@ -11,8 +11,8 @@ UProperty* NextEffectiveProperty(UProperty* Property);
 UProperty* FirstEffectiveProperty(UProperty* Property);
 UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name);
 
-enum class EDataEntry;
-EDataEntry PropertyToDataEntry(UField* Property);
+enum class EDcDataEntry;
+EDcDataEntry PropertyToDataEntry(UField* Property);
 
 template<typename TState, typename TStorage, typename... TArgs>
 TState& Emplace(TStorage* Storage, TArgs&&... Args)

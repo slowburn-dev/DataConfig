@@ -25,35 +25,35 @@ static FName GetStructName(UField* Property)
 
 FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	EDataEntry Next = Ctx.Reader->Peek();
-	bool bRootPeekPass = Next == EDataEntry::MapRoot;
+	EDcDataEntry Next = Ctx.Reader->Peek();
+	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->Peek(EDataEntry::StructRoot).Ok();
+	bool bWritePass = Ctx.Writer->Peek(EDcDataEntry::StructRoot).Ok();
 	if (!bRootPeekPass
 		|| !bWritePass)
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	if (Next == EDataEntry::MapRoot)
+	if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot(nullptr));
 		DC_TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
 
-		EDataEntry CurPeek = Ctx.Reader->Peek();
-		while (CurPeek != EDataEntry::MapEnd)
+		EDcDataEntry CurPeek = Ctx.Reader->Peek();
+		while (CurPeek != EDcDataEntry::MapEnd)
 		{
-			if (CurPeek == EDataEntry::Name)
+			if (CurPeek == EDcDataEntry::Name)
 			{
-				DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
+				DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
 				FName Value;
 				DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
 				DC_TRY(Ctx.Writer->WriteName(Value));
 			}
-			else if (CurPeek == EDataEntry::String)
+			else if (CurPeek == EDcDataEntry::String)
 			{
-				DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
+				DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
 				FString Value;
 				DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
@@ -62,7 +62,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			else
 			{
 				return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
-					<< EDataEntry::Name << EDataEntry::String << CurPeek;
+					<< EDcDataEntry::Name << EDcDataEntry::String << CurPeek;
 			}
 
 			FDcScopedProperty ScopedValueProperty(Ctx);
@@ -80,7 +80,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 	else
 	{
 		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch))
-			<< EDataEntry::MapRoot << Next;
+			<< EDcDataEntry::MapRoot << Next;
 	}
 }
 

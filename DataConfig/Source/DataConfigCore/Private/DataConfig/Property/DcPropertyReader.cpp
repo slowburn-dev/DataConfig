@@ -114,7 +114,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	}
 }
 
-EDataEntry FDcPropertyReader::Peek()
+EDcDataEntry FDcPropertyReader::Peek()
 {
 	return GetTopState(this).Peek();
 }
