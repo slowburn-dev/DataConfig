@@ -7,12 +7,12 @@
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FJsonReader : public FReader, private FNoncopyable
+struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 {
 	using TCharType = TCHAR;
 
-	FJsonReader();
-	FJsonReader(const FString* InStrPtr);
+	FDcJsonReader();
+	FDcJsonReader(const FString* InStrPtr);
 
 	void SetNewString(const FString* InStrPtr);
 
@@ -30,21 +30,21 @@ struct DATACONFIGCORE_API FJsonReader : public FReader, private FNoncopyable
 
 	EDataEntry Peek() override;
 
-	FResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
-	FResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
-	FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
-	FResult ReadMapRoot(FContextStorage* CtxPtr) override;
-	FResult ReadMapEnd(FContextStorage* CtxPtr) override;
+	FDcResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadMapRoot(FContextStorage* CtxPtr) override;
+	FDcResult ReadMapEnd(FContextStorage* CtxPtr) override;
 
 	bool IsAtEnd();
 	void Advance();
 	TCharType ReadChar();
 	TCharType PeekChar();
 
-	FResult TryPeekChar(TCharType& OutChar);
-	FResult ReadWordExpect(const TCharType* Word);
-	FResult ReadCharExpect(TCharType Expect);
-	FResult ReadString(FString& OutStr);
+	FDcResult TryPeekChar(TCharType& OutChar);
+	FDcResult ReadWordExpect(const TCharType* Word);
+	FDcResult ReadCharExpect(TCharType Expect);
+	FDcResult ReadString(FString& OutStr);
 
 	void ReadWhiteSpace();
 
@@ -63,32 +63,32 @@ struct DATACONFIGCORE_API FJsonReader : public FReader, private FNoncopyable
 	FORCEINLINE bool IsWhitespace(const TCharType& Char);
 
 	bool bTopObjectAtValue = false;
-	FResult EndTopRead();
+	FDcResult EndTopRead();
 };
 
 //	actually these can be moved into .inl
-FJsonReader::EParseState FJsonReader::GetTopState()
+FDcJsonReader::EParseState FDcJsonReader::GetTopState()
 {
 	return States.Top();
 }
 
-void FJsonReader::PushTopState(EParseState InState)
+void FDcJsonReader::PushTopState(EParseState InState)
 {
 	States.Push(InState);
 }
 
-void FJsonReader::PopTopState(EParseState InState)
+void FDcJsonReader::PopTopState(EParseState InState)
 {
 	check(GetTopState() == InState);
 	States.Pop();
 }
 
-bool FJsonReader::IsLineBreak(const TCharType& Char)
+bool FDcJsonReader::IsLineBreak(const TCharType& Char)
 {
 	return Char == TCharType('\n');
 }
 
-bool FJsonReader::IsWhitespace(const TCharType& Char)
+bool FDcJsonReader::IsWhitespace(const TCharType& Char)
 {
 	return Char == TCharType(' ')
 		|| Char == TCharType('\t')

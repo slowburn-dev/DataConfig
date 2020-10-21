@@ -20,11 +20,11 @@ struct FBaseWriteState
 {
 	virtual EPropertyWriteType GetType() = 0;
 
-	virtual FResult Peek(EDataEntry Next);
-	virtual FResult WriteName(const FName& Value);
-	virtual FResult WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum);
-	virtual FResult SkipWrite();
-	virtual FResult PeekWriteProperty(UField** OutProperty);
+	virtual FDcResult Peek(EDataEntry Next);
+	virtual FDcResult WriteName(const FName& Value);
+	virtual FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FDcResult SkipWrite();
+	virtual FDcResult PeekWriteProperty(UField** OutProperty);
 
 	template<typename T>
 	T* As();
@@ -51,7 +51,7 @@ struct FWriteStateNil : public FBaseWriteState
 	FWriteStateNil() = default;
 
 	EPropertyWriteType GetType() override;
-	FResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDataEntry Next) override;
 
 };
 
@@ -81,14 +81,14 @@ struct FWriteStateStruct : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FResult Peek(EDataEntry Next) override;
-	FResult WriteName(const FName& Value) override;
-	FResult WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum) override;
-	FResult SkipWrite() override;
-	FResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult Peek(EDataEntry Next) override;
+	FDcResult WriteName(const FName& Value) override;
+	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite() override;
+	FDcResult PeekWriteProperty(UField** OutProperty) override;
 
-	FResult WriteStructRoot(const FName& Name);
-	FResult WriteStructEnd(const FName& Name);
+	FDcResult WriteStructRoot(const FName& Name);
+	FDcResult WriteStructEnd(const FName& Name);
 
 };
 
@@ -96,7 +96,7 @@ struct FWriteStateClass : public FBaseWriteState
 {
 	static const EPropertyWriteType ID = EPropertyWriteType::ClassProperty;
 
-	FPropertyDatum Datum;
+	FDcPropertyDatum Datum;
 	UClass* Class;
 
 	enum class EState : uint16
@@ -137,16 +137,16 @@ struct FWriteStateClass : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FResult Peek(EDataEntry Next) override;
-	FResult WriteName(const FName& Value) override;
-	FResult WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum) override;
-	FResult SkipWrite() override;
-	FResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult Peek(EDataEntry Next) override;
+	FDcResult WriteName(const FName& Value) override;
+	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite() override;
+	FDcResult PeekWriteProperty(UField** OutProperty) override;
 
-	FResult WriteNil();
-	FResult WriteClassRoot(const FClassPropertyStat& Class);
-	FResult WriteClassEnd(const FClassPropertyStat& Class);
-	FResult WriteReference(UObject* Value);
+	FDcResult WriteNil();
+	FDcResult WriteClassRoot(const FDcClassPropertyStat& Class);
+	FDcResult WriteClassEnd(const FDcClassPropertyStat& Class);
+	FDcResult WriteReference(UObject* Value);
 };
 
 struct FWriteStateMap : public FBaseWriteState
@@ -178,14 +178,14 @@ struct FWriteStateMap : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FResult Peek(EDataEntry Next) override;
-	FResult WriteName(const FName& Value) override;
-	FResult WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum) override;
-	FResult SkipWrite() override;
-	FResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult Peek(EDataEntry Next) override;
+	FDcResult WriteName(const FName& Value) override;
+	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite() override;
+	FDcResult PeekWriteProperty(UField** OutProperty) override;
 
-	FResult WriteMapRoot();
-	FResult WriteMapEnd();
+	FDcResult WriteMapRoot();
+	FDcResult WriteMapEnd();
 
 };
 
@@ -214,24 +214,24 @@ struct FWriteStateArray : public FBaseWriteState
 	}
 
 	EPropertyWriteType GetType() override;
-	FResult Peek(EDataEntry Next) override;
-	FResult WriteName(const FName& Value) override;
-	FResult WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum) override;
-	FResult SkipWrite() override;
-	FResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult Peek(EDataEntry Next) override;
+	FDcResult WriteName(const FName& Value) override;
+	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite() override;
+	FDcResult PeekWriteProperty(UField** OutProperty) override;
 
-	FResult WriteArrayRoot();
-	FResult WriteArrayEnd();
+	FDcResult WriteArrayRoot();
+	FDcResult WriteArrayEnd();
 };
 
 template<typename TProperty, typename TValue>
-FResult WriteValue(FBaseWriteState& State, const TValue& Value)
+FDcResult WriteValue(FBaseWriteState& State, const TValue& Value)
 {
-	FPropertyDatum Datum;
-	TRY(State.WriteDataEntry(TProperty::StaticClass(), Datum));
+	FDcPropertyDatum Datum;
+	DC_TRY(State.WriteDataEntry(TProperty::StaticClass(), Datum));
 
 	Datum.CastChecked<TProperty>()->SetPropertyValue(Datum.DataPtr, Value);
-	return Ok();
+	return DcOk();
 }
 
 

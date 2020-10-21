@@ -25,7 +25,7 @@ static FName GetStructName(UField* Property)
 	}
 }
 
-FResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -39,49 +39,49 @@ FResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx
 
 	if (Next == EDataEntry::MapRoot)
 	{
-		TRY(Ctx.Reader->ReadMapRoot(nullptr));
-		TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
+		DC_TRY(Ctx.Reader->ReadMapRoot(nullptr));
+		DC_TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
 
 		EDataEntry CurPeek = Ctx.Reader->Peek();
 		while (CurPeek != EDataEntry::MapEnd)
 		{
 			if (CurPeek == EDataEntry::Name)
 			{
-				TRY(Ctx.Writer->Peek(EDataEntry::Name));
+				DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 				FName Value;
-				TRY(Ctx.Reader->ReadName(&Value, nullptr));
-				TRY(Ctx.Writer->WriteName(Value));
+				DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
+				DC_TRY(Ctx.Writer->WriteName(Value));
 			}
 			else if (CurPeek == EDataEntry::String)
 			{
-				TRY(Ctx.Writer->Peek(EDataEntry::Name));
+				DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 				FString Value;
-				TRY(Ctx.Reader->ReadString(&Value, nullptr));
-				TRY(Ctx.Writer->WriteName(FName(*Value)));
+				DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
+				DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
 			}
 			else
 			{
-				return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+				return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
 					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
 			FScopedProperty ScopedValueProperty(Ctx);
-			TRY(ScopedValueProperty.PushProperty());
-			TRY(Ctx.Deserializer->Deserialize(Ctx));
+			DC_TRY(ScopedValueProperty.PushProperty());
+			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
 			CurPeek = Ctx.Reader->Peek();
 		}
 
-		TRY(Ctx.Reader->ReadMapEnd(nullptr));
-		TRY(Ctx.Writer->WriteStructEnd(GetStructName(Ctx.TopProperty())));
+		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
+		DC_TRY(Ctx.Writer->WriteStructEnd(GetStructName(Ctx.TopProperty())));
 
 		return OkWithProcessed(OutRet);
 	}
 	else
 	{
-		return Fail(DIAG(DDeserialize, DataEntryMismatch))
+		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch))
 			<< EDataEntry::MapRoot << Next;
 	}
 }

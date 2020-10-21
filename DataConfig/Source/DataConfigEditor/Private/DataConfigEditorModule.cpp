@@ -12,21 +12,21 @@
 IMPLEMENT_MODULE(FDataConfigEditorModule, DataConfigEditor);
 
 
-struct FMessageLogDiagnosticConsumer : public DataConfig::IDiagnosticConsumer
+struct FMessageLogDiagnosticConsumer : public DataConfig::IDcDiagnosticConsumer
 {
-	void HandleDiagnostic(DataConfig::FDiagnostic& Diag) override;
+	void HandleDiagnostic(DataConfig::FDcDiagnostic& Diag) override;
 };
 
-void FMessageLogDiagnosticConsumer::HandleDiagnostic(DataConfig::FDiagnostic& Diag)
+void FMessageLogDiagnosticConsumer::HandleDiagnostic(DataConfig::FDcDiagnostic& Diag)
 {
 	using namespace DataConfig;
-	const FDiagnosticDetail* Detail = FindDiagnosticDetail(Diag.Code);
+	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
 	if (Detail)
 	{
 		check(Detail->ID == Diag.Code.ErrorID);
 		TArray<FStringFormatArg> FormatArgs;
-		for (FDataVariant& Var : Diag.Args)
-			FormatArgs.Add(ConvertArg(Var));
+		for (FDcDataVariant& Var : Diag.Args)
+			FormatArgs.Add(DcConvertArg(Var));
 
 		FMessageLog MessageLog("AssetReimport");
 		MessageLog.Message(EMessageSeverity::Error, FText::FromString(FString::Format(Detail->Msg, FormatArgs)));
@@ -110,9 +110,9 @@ void FAssetTypeActions_PrimaryImportedDataAsset::GetResolvedSourceFilePaths(cons
 
 void FDataConfigEditorModule::StartupModule()
 {
-	DataConfig::StartUp();
+	DataConfig::DcStartUp();
 
-	DataConfig::Env().DiagConsumer = MakeShareable(new FMessageLogDiagnosticConsumer());
+	DataConfig::DcEnv().DiagConsumer = MakeShareable(new FMessageLogDiagnosticConsumer());
 
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	ImportedDataAssetActions.Emplace(MakeShareable(new FAssetTypeActions_ImportedDataAsset()));
@@ -144,7 +144,7 @@ void FDataConfigEditorModule::ShutdownModule()
 		ImportedDataAssetActions.Empty();
 	}
 
-	DataConfig::ShutDown();
+	DataConfig::DcShutDown();
 }
 
 bool FDataConfigEditorModule::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)

@@ -6,9 +6,9 @@
 namespace DataConfig
 {
 
-extern FDiagnosticGroup DCommonDetails;
-extern FDiagnosticGroup DPropertyReadWriteDetails;
-extern FDiagnosticGroup DJSONDetails;
-extern FDiagnosticGroup DDeserializeDetails;;
+extern FDcDiagnosticGroup DCommonDetails;
+extern FDcDiagnosticGroup DPropertyReadWriteDetails;
+extern FDcDiagnosticGroup DJSONDetails;
+extern FDcDiagnosticGroup DDeserializeDetails;;
 
 }

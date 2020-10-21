@@ -5,14 +5,14 @@
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FPipeVisitor
+struct DATACONFIGCORE_API FDcPipeVisitor
 {
-	FReader* Reader;
-	FWriter* Writer;
+	FDcReader* Reader;
+	FDcWriter* Writer;
 
-	FPipeVisitor(FReader* InReader, FWriter* InWriter);
+	FDcPipeVisitor(FDcReader* InReader, FDcWriter* InWriter);
 
-	FResult PipeVisit();
+	FDcResult PipeVisit();
 };
 
 }	// namespace DataConfig

@@ -4,38 +4,38 @@ namespace DataConfig
 {
 
 //	TODO move statics to StartUp
-FString STR_META_TYPE = FString(TEXT("$type"));
-FString STR_META_PATH = FString(TEXT("$path"));
+FString DC_STR_META_TYPE = FString(TEXT("$type"));
+FString DC_STR_META_PATH = FString(TEXT("$path"));
 
-FName NAME_META_TYPE = FName(TEXT("$type"));
-FName NAME_META_PATH = FName(TEXT("$path"));
+FName DC_NAME_META_TYPE = FName(TEXT("$type"));
+FName DC_NAME_META_PATH = FName(TEXT("$path"));
 
-const TBasicArray<FName>& GetAllNameMetas()
+const TBasicArray<FName>& DcGetAllNameMetas()
 {
 	static TBasicArray<FName> ALL_NAME_METAS;
 	if (ALL_NAME_METAS.Num() == 0)
 	{
-		ALL_NAME_METAS.Emplace(NAME_META_TYPE);
-		ALL_NAME_METAS.Emplace(NAME_META_PATH);
+		ALL_NAME_METAS.Emplace(DC_NAME_META_TYPE);
+		ALL_NAME_METAS.Emplace(DC_NAME_META_PATH);
 	}
 	return ALL_NAME_METAS;
 }
 
 
-const TBasicArray<FString>& GetAllStringMetas()
+const TBasicArray<FString>& DcGetAllStringMetas()
 {
 	static TBasicArray<FString> ALL_STR_METAS;
 	if (ALL_STR_METAS.Num() == 0)
 	{
-		ALL_STR_METAS.Emplace(STR_META_TYPE);
-		ALL_STR_METAS.Emplace(STR_META_PATH);
+		ALL_STR_METAS.Emplace(DC_STR_META_TYPE);
+		ALL_STR_METAS.Emplace(DC_STR_META_PATH);
 	}
 	return ALL_STR_METAS;
 }
 
-bool IsMeta(const FName& Name)
+bool DcIsMeta(const FName& Name)
 {
-	for (const FName& Cur : GetAllNameMetas())
+	for (const FName& Cur : DcGetAllNameMetas())
 	{
 		if (Name == Cur)
 			return true;
@@ -44,9 +44,9 @@ bool IsMeta(const FName& Name)
 	return false;
 }
 
-bool IsMeta(const FString& Str)
+bool DcIsMeta(const FString& Str)
 {
-	for (const FString& Cur : GetAllStringMetas())
+	for (const FString& Cur : DcGetAllStringMetas())
 	{
 		if (Str == Cur)
 			return true;

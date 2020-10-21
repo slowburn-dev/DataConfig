@@ -10,7 +10,7 @@ namespace DataConfig
 
 struct DATACONFIGCORE_API FDeserializer : public FNoncopyable
 {
-	FResult Deserialize(FDeserializeContext& Ctx);
+	FDcResult Deserialize(FDeserializeContext& Ctx);
 
 	void AddDirectHandler(UClass* PropertyClass, FDeserializeDelegate&& Delegate);
 	void AddPredicatedHandler(FDeserializePredicate&& Predicate, FDeserializeDelegate&& Delegate);

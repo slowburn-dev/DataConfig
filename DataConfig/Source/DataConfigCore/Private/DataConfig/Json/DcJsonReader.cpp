@@ -5,20 +5,20 @@
 namespace DataConfig
 {
 
-using TCharType = FJsonReader::TCharType;
+using TCharType = FDcJsonReader::TCharType;
 
-FJsonReader::FJsonReader(const FString* InStrPtr)
-	: FJsonReader()
+FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
+	: FDcJsonReader()
 {
 	SetNewString(InStrPtr);
 }
 
-FJsonReader::FJsonReader()
+FDcJsonReader::FDcJsonReader()
 {
 	States.Add(EParseState::Nil);
 }
 
-void FJsonReader::SetNewString(const FString* InStrPtr)
+void FDcJsonReader::SetNewString(const FString* InStrPtr)
 {
 	check(State == EState::Unitialized || State == EState::FinishedStr);
 	StrPtr = InStrPtr;
@@ -26,7 +26,7 @@ void FJsonReader::SetNewString(const FString* InStrPtr)
 	Cur = 0;
 }
 
-EDataEntry FJsonReader::Peek()
+EDataEntry FDcJsonReader::Peek()
 {
 	ReadWhiteSpace();
 	if (IsAtEnd())
@@ -53,7 +53,7 @@ EDataEntry FJsonReader::Peek()
 	return EDataEntry::Ended;
 }
 
-FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
 	ReadWhiteSpace();
 	//	TODO end check
@@ -61,7 +61,7 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	TCharType Next = PeekChar();
 	if (Next == TCharType('t'))
 	{
-		TRY(ReadWordExpect(TEXT("true")));
+		DC_TRY(ReadWordExpect(TEXT("true")));
 
 		if (OutPtr)
 		{
@@ -69,11 +69,11 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 		}
 
 		EndTopRead();
-		return Ok();
+		return DcOk();
 	}
 	else if (Next == 'f')
 	{
-		TRY(ReadWordExpect(TEXT("false")));
+		DC_TRY(ReadWordExpect(TEXT("false")));
 
 		if (OutPtr)
 		{
@@ -81,15 +81,15 @@ FResult FJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 		}
 
 		EndTopRead();
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DJSON, UnexpectedChar1)) << Next;
+		return DcFail(DC_DIAG(DJSON, UnexpectedChar1)) << Next;
 	}
 }
 
-FResult FJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 {
 	ReadWhiteSpace();
 	//	TODO end check
@@ -98,7 +98,7 @@ FResult FJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 	if (Next == TCharType('"'))
 	{
 		FString Str;
-		TRY(ReadString(Str));
+		DC_TRY(ReadString(Str));
 
 		if (OutPtr)
 		{
@@ -106,15 +106,15 @@ FResult FJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 		}
 
 		EndTopRead();
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DJSON, UnexpectedChar1)) << Next;
+		return DcFail(DC_DIAG(DJSON, UnexpectedChar1)) << Next;
 	}
 }
 
-FResult FJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 {
 	ReadWhiteSpace();
 
@@ -122,7 +122,7 @@ FResult FJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 	if (Next == TCharType('"'))
 	{
 		FString Str;
-		TRY(ReadString(Str));
+		DC_TRY(ReadString(Str));
 
 		if (OutPtr)
 		{
@@ -130,30 +130,30 @@ FResult FJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 		}
 
 		EndTopRead();
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DJSON, UnexpectedChar1)) << Next;
+		return DcFail(DC_DIAG(DJSON, UnexpectedChar1)) << Next;
 	}
 }
 
-DataConfig::FResult FJsonReader::ReadString(FString& OutStr)
+DataConfig::FDcResult FDcJsonReader::ReadString(FString& OutStr)
 {
 	ReadWhiteSpace();
 
-	TRY(ReadCharExpect(TCharType('"')));
+	DC_TRY(ReadCharExpect(TCharType('"')));
 
 	while (true)
 	{
 		if (IsAtEnd())
-			return Fail(DIAG(DJSON, UnexpectedEnd));
+			return DcFail(DC_DIAG(DJSON, UnexpectedEnd));
 
 		TCharType Char = ReadChar();
 		check(Char != TCharType('\0'));	// should be handled in IsAtEnd();
 		if (Char == TCharType('"'))
 		{
-			return Ok();
+			return DcOk();
 		}
 		else
 		{
@@ -162,10 +162,10 @@ DataConfig::FResult FJsonReader::ReadString(FString& OutStr)
 	}
 
 	checkNoEntry();
-	return Fail(DIAG(DCommon, Unreachable));
+	return DcFail(DC_DIAG(DCommon, Unreachable));
 }
 
-void FJsonReader::ReadWhiteSpace()
+void FDcJsonReader::ReadWhiteSpace()
 {
 	//	TODO actually can add a dirty flag to save duplicated read white space
 	while (!IsAtEnd())
@@ -187,7 +187,7 @@ void FJsonReader::ReadWhiteSpace()
 	}
 }
 
-DataConfig::FResult FJsonReader::EndTopRead()
+DataConfig::FDcResult FDcJsonReader::EndTopRead()
 {
 	EParseState TopState = GetTopState();
 	if (TopState == EParseState::Object)
@@ -197,143 +197,143 @@ DataConfig::FResult FJsonReader::EndTopRead()
 		if (!bTopObjectAtValue)
 		{
 			bTopObjectAtValue = true;
-			TRY(ReadCharExpect(TCharType(':')));
-			return Ok();
+			DC_TRY(ReadCharExpect(TCharType(':')));
+			return DcOk();
 		}
 		else
 		{
 			bTopObjectAtValue = false;
 			TCharType Char;
-			TRY(TryPeekChar(Char));
+			DC_TRY(TryPeekChar(Char));
 
 			if (Char == TCharType(','))
 			{
 				Advance();
-				return Ok();
+				return DcOk();
 			}
 			else if (Char == TCharType('}'))
 			{
 				//	pass
-				return Ok();
+				return DcOk();
 			}
 			else
 			{
-				return Fail(DIAG(DJSON, UnexpectedChar1)) << Char;
+				return DcFail(DC_DIAG(DJSON, UnexpectedChar1)) << Char;
 			}
 		}
 	}
 	else if (TopState == EParseState::Array)
 	{
 		TCharType Char;
-		TRY(TryPeekChar(Char));
+		DC_TRY(TryPeekChar(Char));
 
 		if (Char == TCharType(','))
 		{
 			Advance();
-			return Ok();
+			return DcOk();
 		}
 		else if (Char == TCharType(']'))
 		{
 			//	pass
-			return Ok();
+			return DcOk();
 		}
 		else
 		{
-			return Fail(DIAG(DJSON, UnexpectedChar1)) << Char;
+			return DcFail(DC_DIAG(DJSON, UnexpectedChar1)) << Char;
 		}
 	}
 	else if (TopState == EParseState::Nil)
 	{
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
 		checkNoEntry();
-		return Fail(DIAG(DCommon, Unreachable));
+		return DcFail(DC_DIAG(DCommon, Unreachable));
 	}
 }
 
-FResult FJsonReader::ReadMapRoot(FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadMapRoot(FContextStorage* CtxPtr)
 {
-	TRY(ReadCharExpect(TCharType('{')));
+	DC_TRY(ReadCharExpect(TCharType('{')));
 	PushTopState(EParseState::Object);
 	bTopObjectAtValue = false;
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FJsonReader::ReadMapEnd(FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadMapEnd(FContextStorage* CtxPtr)
 {
-	TRY(ReadCharExpect(TCharType('}')));
+	DC_TRY(ReadCharExpect(TCharType('}')));
 	PopTopState(EParseState::Object);
 
 	//	!!! HACK
 	//	we know it's always at value position due to JSON spec, so just set it
 	bTopObjectAtValue = true;
 
-	TRY(EndTopRead());
-	return Ok();
+	DC_TRY(EndTopRead());
+	return DcOk();
 }
 
-bool FJsonReader::IsAtEnd()
+bool FDcJsonReader::IsAtEnd()
 {
 	check(State != EState::Unitialized && State != EState::Invalid);
 	check(Cur >= 0);
 	return Cur >= StrPtr->Len();
 }
 
-void FJsonReader::Advance()
+void FDcJsonReader::Advance()
 {
 	check(!IsAtEnd());
 	++Cur;
 }
 
-TCharType FJsonReader::ReadChar()
+TCharType FDcJsonReader::ReadChar()
 {
 	check(!IsAtEnd());
 	return (*StrPtr)[Cur++];
 }
 
-TCharType FJsonReader::PeekChar()
+TCharType FDcJsonReader::PeekChar()
 {
 	check(!IsAtEnd());
 	return (*StrPtr)[Cur];
 }
 
-DataConfig::FResult FJsonReader::TryPeekChar(TCharType& OutChar)
+DataConfig::FDcResult FDcJsonReader::TryPeekChar(TCharType& OutChar)
 {
 	if (IsAtEnd())
-		return Fail(DIAG(DJSON, UnexpectedEnd));
+		return DcFail(DC_DIAG(DJSON, UnexpectedEnd));
 
 	OutChar = PeekChar();
-	return Ok();
+	return DcOk();
 }
 
-DataConfig::FResult FJsonReader::ReadWordExpect(const TCharType* Word)
+DataConfig::FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 {
 	while (true)
 	{
 		if (IsAtEnd())
-			return Fail(DIAG(DJSON, AlreadyEndedButExpect)) << Word;
+			return DcFail(DC_DIAG(DJSON, AlreadyEndedButExpect)) << Word;
 		if (*Word == TCharType('\0'))
-			return Ok();	// !!! note that this is end of `Word`
+			return DcOk();	// !!! note that this is end of `Word`
 		if (*Word != ReadChar())
-			return Fail(DIAG(DJSON, ExpectWordButNotFound)) << Word;
+			return DcFail(DC_DIAG(DJSON, ExpectWordButNotFound)) << Word;
 
 		++Word;
 	}
 
 	checkNoEntry();
-	return Fail(DIAG(DCommon, Unreachable));
+	return DcFail(DC_DIAG(DCommon, Unreachable));
 }
 
-DataConfig::FResult FJsonReader::ReadCharExpect(TCharType Expect)
+DataConfig::FDcResult FDcJsonReader::ReadCharExpect(TCharType Expect)
 {
 	if (IsAtEnd())
-		return Fail();
+		return DcFail();
 	return ReadChar() == Expect 
-		? Ok()
-		: Fail(DIAG(DJSON, ExpectCharButNotFound)) << Expect;
+		? DcOk()
+		: DcFail(DC_DIAG(DJSON, ExpectCharButNotFound)) << Expect;
 }
 
 } // namespace DataConfig

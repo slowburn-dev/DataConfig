@@ -5,81 +5,81 @@
 namespace DataConfig
 {
 
-FResult HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UBoolProperty>())
 	{
 		return OkWithCanNotProcess(OutRet);
 	}
 
-	TRY(Ctx.Writer->Peek(EDataEntry::Bool));
+	DC_TRY(Ctx.Writer->Peek(EDataEntry::Bool));
 
 	bool Value;
-	TRY(Ctx.Reader->ReadBool(&Value, nullptr));
-	TRY(Ctx.Writer->WriteBool(Value));
+	DC_TRY(Ctx.Reader->ReadBool(&Value, nullptr));
+	DC_TRY(Ctx.Writer->WriteBool(Value));
 
 	OutRet = EDeserializeResult::Processed;
 	return OkWithProcessed(OutRet);
 }
 
-FResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UNameProperty>())
 	{
 		return OkWithCanNotProcess(OutRet);
 	}
 
-	TRY(Ctx.Writer->Peek(EDataEntry::Name));
+	DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 	EDataEntry Next = Ctx.Reader->Peek();
 	if (Next == EDataEntry::Name)
 	{
 		FName Value;
-		TRY(Ctx.Reader->ReadName(&Value, nullptr));
-		TRY(Ctx.Writer->WriteName(Value));
+		DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
+		DC_TRY(Ctx.Writer->WriteName(Value));
 		return OkWithProcessed(OutRet);
 	}
 	else if (Next == EDataEntry::String)
 	{
 		FString Value;
-		TRY(Ctx.Reader->ReadString(&Value, nullptr));
-		TRY(Ctx.Writer->WriteName(FName(*Value)));
+		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
+		DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
 		return OkWithProcessed(OutRet);
 	}
 	else
 	{
-		return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
 			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }
 
-FResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UStrProperty>())
 	{
 		return OkWithCanNotProcess(OutRet);
 	}
 
-	TRY(Ctx.Writer->Peek(EDataEntry::String));
+	DC_TRY(Ctx.Writer->Peek(EDataEntry::String));
 
 	EDataEntry Next = Ctx.Reader->Peek();
 	if (Next == EDataEntry::Name)
 	{
 		FName Value;
-		TRY(Ctx.Reader->ReadName(&Value, nullptr));
-		TRY(Ctx.Writer->WriteString(Value.ToString()));
+		DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
+		DC_TRY(Ctx.Writer->WriteString(Value.ToString()));
 		return OkWithProcessed(OutRet);
 	}
 	else if (Next == EDataEntry::String)
 	{
 		FString Value;
-		TRY(Ctx.Reader->ReadString(&Value, nullptr));
-		TRY(Ctx.Writer->WriteString(Value));
+		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
+		DC_TRY(Ctx.Writer->WriteString(Value));
 		return OkWithProcessed(OutRet);
 	}
 	else
 	{
-		return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
 			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }

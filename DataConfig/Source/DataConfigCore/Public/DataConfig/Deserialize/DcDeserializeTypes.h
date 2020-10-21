@@ -7,8 +7,8 @@
 namespace DataConfig
 {
 
-struct FReader;
-struct FPropertyWriter;
+struct FDcReader;
+struct FDcPropertyWriter;
 struct FDeserializer;
 
 struct DATACONFIGCORE_API FDeserializeContext
@@ -19,8 +19,8 @@ struct DATACONFIGCORE_API FDeserializeContext
 	TArray<UField*, TInlineAllocator<8>> Properties;
 
 	FDeserializer* Deserializer;
-	FReader* Reader;
-	FPropertyWriter* Writer;
+	FDcReader* Reader;
+	FDcPropertyWriter* Writer;
 
 	FORCEINLINE UField* TopProperty() { return Properties.Top(); }
 	FORCEINLINE UObject* TopObject() { return Objects.Top(); }
@@ -34,21 +34,21 @@ enum class EDeserializeResult
 	//	failed is implicit as it returns fail
 };
 
-FORCEINLINE FResult OkWithCanNotProcess(EDeserializeResult& OutResult)
+FORCEINLINE FDcResult OkWithCanNotProcess(EDeserializeResult& OutResult)
 {
 	OutResult = EDeserializeResult::CanNotProcess;
-	return Ok();
+	return DcOk();
 }
 
-FORCEINLINE FResult OkWithProcessed(EDeserializeResult& OutResult)
+FORCEINLINE FDcResult OkWithProcessed(EDeserializeResult& OutResult)
 {
 	OutResult = EDeserializeResult::Processed;
-	return Ok();
+	return DcOk();
 }
 
 
-using FDeserializeDelegateSignature = FResult(*)(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-DECLARE_DELEGATE_RetVal_TwoParams(FResult, FDeserializeDelegate, FDeserializeContext&, EDeserializeResult&);
+using FDeserializeDelegateSignature = FDcResult(*)(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+DECLARE_DELEGATE_RetVal_TwoParams(FDcResult, FDeserializeDelegate, FDeserializeContext&, EDeserializeResult&);
 
 enum class EDeserializePredicateResult
 {
@@ -66,7 +66,7 @@ struct DATACONFIGCORE_API FScopedProperty
 		, Ctx(InCtx)
 	{}
 
-	FResult PushProperty();
+	FDcResult PushProperty();
 	~FScopedProperty();
 
 	UField* Property;

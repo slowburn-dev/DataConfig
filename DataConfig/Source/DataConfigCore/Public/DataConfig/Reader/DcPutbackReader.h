@@ -6,37 +6,37 @@
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FPutbackReader : public FReader
+struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 {
-	FPutbackReader(FReader* InReader)
+	FDcPutbackReader(FDcReader* InReader)
 		: Reader(InReader)
 	{}
 
 	EDataEntry Peek() override;
 
-	FResult ReadNil(FContextStorage* CtxPtr) override;
-	FResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
-	FResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
-	FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
-	FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
-	FResult ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
-	FResult ReadMapRoot(FContextStorage* CtxPtr) override;
-	FResult ReadMapEnd(FContextStorage* CtxPtr) override;
-	FResult ReadArrayRoot(FContextStorage* CtxPtr) override;
-	FResult ReadArrayEnd(FContextStorage* CtxPtr) override;
-	FResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadNil(FContextStorage* CtxPtr) override;
+	FDcResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadMapRoot(FContextStorage* CtxPtr) override;
+	FDcResult ReadMapEnd(FContextStorage* CtxPtr) override;
+	FDcResult ReadArrayRoot(FContextStorage* CtxPtr) override;
+	FDcResult ReadArrayEnd(FContextStorage* CtxPtr) override;
+	FDcResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) override;
 
 	template<typename T>
 	void Putback(T&& InValue);
 
-	TArray<FDataVariant> Cached;
-	FReader* Reader;
+	TArray<FDcDataVariant> Cached;
+	FDcReader* Reader;
 };
 
 template<typename T>
-void FPutbackReader::Putback(T&& InValue)
+void FDcPutbackReader::Putback(T&& InValue)
 {
 	Cached.Insert(Forward<T>(InValue), 0);
 }

@@ -4,25 +4,25 @@
 namespace DataConfig
 {
 
-static FResult ExecuteDeserializeHandler(FDeserializeContext& Ctx, FDeserializeDelegate& Handler)
+static FDcResult ExecuteDeserializeHandler(FDeserializeContext& Ctx, FDeserializeDelegate& Handler)
 {
 	EDeserializeResult HandlerRet;
-	TRY(Handler.Execute(Ctx, HandlerRet));
+	DC_TRY(Handler.Execute(Ctx, HandlerRet));
 	check(HandlerRet != EDeserializeResult::Unknown);
 
 	if (HandlerRet == EDeserializeResult::CanNotProcess)
 	{
-		return Fail(DIAG(DDeserialize, NoMatchingHandler))
+		return DcFail(DC_DIAG(DDeserialize, NoMatchingHandler))
 			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 	else
 	{
-		return Ok();
+		return DcOk();
 	}
 }
 
 
-FResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
+FDcResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
 {
 	check(Ctx.Deserializer == this);
 	check(Ctx.Reader != nullptr);
@@ -41,7 +41,7 @@ FResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
 	FDeserializeDelegate* HandlerPtr = DirectDeserializersMap.Find(Property->GetClass());
 	if (HandlerPtr == nullptr)
 	{
-		return Fail(DIAG(DDeserialize, NoMatchingHandler))
+		return DcFail(DC_DIAG(DDeserialize, NoMatchingHandler))
 			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 

@@ -6,59 +6,59 @@
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FEnv
+struct DATACONFIGCORE_API FDcEnv
 {
-	TArray<FDiagnostic> Diagnostics;
+	TArray<FDcDiagnostic> Diagnostics;
 
-	TSharedPtr<IDiagnosticConsumer> DiagConsumer;
+	TSharedPtr<IDcDiagnosticConsumer> DiagConsumer;
 
-	FDiagnostic& Diag(FErrorCode InErr);
+	FDcDiagnostic& Diag(FDcErrorCode InErr);
 
 	void FlushDiags();
 
-	~FEnv();
+	~FDcEnv();
 };
 
-DATACONFIGCORE_API FEnv& Env();
-DATACONFIGCORE_API FEnv& PushEnv();
-DATACONFIGCORE_API void PopEnv();
+DATACONFIGCORE_API FDcEnv& DcEnv();
+DATACONFIGCORE_API FDcEnv& DcPushEnv();
+DATACONFIGCORE_API void DcPopEnv();
 
-struct DATACONFIGCORE_API FScopedEnv
+struct DATACONFIGCORE_API FDcScopedEnv
 {
-	FScopedEnv();
-	~FScopedEnv();
+	FDcScopedEnv();
+	~FDcScopedEnv();
 };
 
-#define DIAG(DiagNamespace, DiagID) (FErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
+#define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
 
-FORCEINLINE FDiagnostic& Fail(FErrorCode InErr) {
+FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr) {
 
 #if DO_CHECK
 	UE_DEBUG_BREAK();
 #endif
 
-	return Env().Diag(InErr);
+	return DcEnv().Diag(InErr);
 }
 
-FORCEINLINE FDiagnostic& Fail(uint16 InCategory, uint16 InCode) {
+FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
 
 #if DO_CHECK
 	UE_DEBUG_BREAK();
 #endif
 
-	return Env().Diag({InCategory, InCode});
+	return DcEnv().Diag({InCategory, InCode});
 }
 
 template<typename TThunk>
-FORCEINLINE FResult Expect(bool CondToBeTrue, const TThunk& ErrFunc)
+FORCEINLINE FDcResult DcExpect(bool CondToBeTrue, const TThunk& ErrFunc)
 {
 	if (CondToBeTrue)
-		return Ok();
+		return DcOk();
 	else
 		return ErrFunc();
 }
 
-FResult Expect(bool CondToBeTrue);	// placeholder expect
+FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
 
 } // namespace DataConfig
 

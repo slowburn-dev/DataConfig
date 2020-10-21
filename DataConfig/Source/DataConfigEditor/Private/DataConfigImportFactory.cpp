@@ -18,21 +18,21 @@ namespace
 
 using namespace DataConfig;
 
-static FResult ReadRootTypeFromMapping(FReader& Reader, UClass*& OutDataClass)
+static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClass)
 {
-	TRY(Reader.ReadMapRoot(nullptr));
+	DC_TRY(Reader.ReadMapRoot(nullptr));
 
 	FString Value;
-	TRY(Reader.ReadString(&Value, nullptr));
+	DC_TRY(Reader.ReadString(&Value, nullptr));
 
 	if (Value != TEXT("$type"))
-		return Fail();
+		return DcFail();
 
-	TRY(Reader.ReadString(&Value, nullptr));
+	DC_TRY(Reader.ReadString(&Value, nullptr));
 
 	//	TODO support path and other things, for now just use FindObject<UClass>
 	OutDataClass = FindObject<UClass>(ANY_PACKAGE, *Value, true);
-	return OutDataClass ? Ok() : Fail();
+	return OutDataClass ? DcOk() : DcFail();
 }
 
 static TOptional<DataConfig::FDeserializer> DcDeserializer;
@@ -68,14 +68,14 @@ static void LazyInitializeDeserializer()
 	}
 }
 
-static FResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* NewObj)
+static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* NewObj)
 {
 	TScopedCheckSingleUse<int32> LockDeserailizer(LoadJSONAssetCount);
 
 	LazyInitializeDeserializer();
 
-	FJsonReader Reader(&JSONStr);
-	FPropertyWriter Writer(FPropertyDatum(DataClass, NewObj));
+	FDcJsonReader Reader(&JSONStr);
+	FDcPropertyWriter Writer(FDcPropertyDatum(DataClass, NewObj));
 
 	FDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
@@ -137,8 +137,8 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	using namespace DataConfig;
 
 	{
-		FJsonReader TypeReader(&JSONStr);
-		FResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
+		FDcJsonReader TypeReader(&JSONStr);
+		FDcResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
 		if (!Ret.Ok())
 		{
 			return nullptr;
@@ -151,12 +151,12 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	}
 
 	UDataAsset* NewObj = NewObject<UDataAsset>(InParent, DataClass, InName, Flags);
-	FResult Ret = TryLoadJSONAsset(JSONStr, DataClass, NewObj);
+	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, NewObj);
 	if (!Ret.Ok())
 	{
 		//	TODO proper destroy the object if import failed
 		NewObj->ConditionalBeginDestroy();
-		DataConfig::Env().FlushDiags();
+		DataConfig::DcEnv().FlushDiags();
 		return nullptr;
 	}
 
@@ -232,8 +232,8 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 	UClass* DataClass = nullptr;
 
 	{
-		FJsonReader TypeReader(&JSONStr);
-		FResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
+		FDcJsonReader TypeReader(&JSONStr);
+		FDcResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
 		if (!Ret.Ok())
 		{
 			return EReimportResult::Failed;
@@ -247,10 +247,10 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 	}
 
 	//	reimport into existing object
-	FResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj);
+	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj);
 	if (!Ret.Ok())
 	{
-		DataConfig::Env().FlushDiags();
+		DataConfig::DcEnv().FlushDiags();
 		return EReimportResult::Failed;
 	}
 

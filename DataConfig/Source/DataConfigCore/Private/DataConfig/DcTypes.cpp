@@ -7,24 +7,24 @@ namespace DataConfig {
 
 bool bInitialized = false;
 
-void StartUp(EInitializeAction InAction)
+void DcStartUp(EDcInitializeAction InAction)
 {
 	bInitialized = true;
-	PushEnv();
+	DcPushEnv();
 
-	if (InAction == EInitializeAction::SetAsConsole)
+	if (InAction == EDcInitializeAction::SetAsConsole)
 	{
-		Env().DiagConsumer = MakeShareable(new FDefaultLogDiagnosticConsumer());
+		DcEnv().DiagConsumer = MakeShareable(new FDcDefaultLogDiagnosticConsumer());
 	}
 }
 
-void ShutDown()
+void DcShutDown()
 {
-	PopEnv();
+	DcPopEnv();
 	bInitialized = false;
 }
 
-DATACONFIGCORE_API bool IsInitialized()
+DATACONFIGCORE_API bool DcIsInitialized()
 {
 	return bInitialized;
 }

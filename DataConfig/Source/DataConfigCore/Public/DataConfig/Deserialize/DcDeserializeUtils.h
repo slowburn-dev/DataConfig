@@ -6,17 +6,17 @@
 namespace DataConfig
 {
 
-extern FString STR_META_TYPE;
-extern FString STR_META_PATH;
+extern FString DC_STR_META_TYPE;
+extern FString DC_STR_META_PATH;
 
-extern FName NAME_META_TYPE;
-extern FName NAME_META_PATH;
+extern FName DC_NAME_META_TYPE;
+extern FName DC_NAME_META_PATH;
 
-const TBasicArray<FName>& GetAllNameMetas();
-const TBasicArray<FString>& GetAllStringMetas();
+const TBasicArray<FName>& DcGetAllNameMetas();
+const TBasicArray<FString>& DcGetAllStringMetas();
 
-bool IsMeta(const FName& Name);
-bool IsMeta(const FString& Str);
+bool DcIsMeta(const FName& Name);
+bool DcIsMeta(const FString& Str);
 
 }; // namespace DataConfig
 

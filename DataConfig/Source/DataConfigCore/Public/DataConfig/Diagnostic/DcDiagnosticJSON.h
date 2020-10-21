@@ -5,21 +5,21 @@
 namespace DataConfig
 {
 
-	namespace DJSON
+namespace DJSON
+{
+	static const uint16 Category = 0x3;
+
+	enum Type : uint16
 	{
-		static const uint16 Category = 0x3;
+		Unknown = 0,
+		UnexpectedEnd,
+		AlreadyEndedButExpect,
+		ExpectWordButNotFound,
+		ExpectCharButNotFound,
+		UnexpectedChar1,
+	};
 
-		enum Type : uint16
-		{
-			Unknown = 0,
-			UnexpectedEnd,
-			AlreadyEndedButExpect,
-			ExpectWordButNotFound,
-			ExpectCharButNotFound,
-			UnexpectedChar1,
-		};
-
-	} // namespace DataConfig::DJSON
+} // namespace DataConfig::DJSON
 
 
 } // namespace DataConfig

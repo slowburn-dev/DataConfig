@@ -6,31 +6,31 @@
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FWriter
+struct DATACONFIGCORE_API FDcWriter
 {
-	FWriter();
-	virtual ~FWriter();
+	FDcWriter();
+	virtual ~FDcWriter();
 
-	virtual FResult Peek(EDataEntry Next);
+	virtual FDcResult Peek(EDataEntry Next);
 
-	virtual FResult WriteNil();
-	virtual FResult WriteBool(bool Value);
-	virtual FResult WriteName(const FName& Value);
-	virtual FResult WriteString(const FString& Value);
+	virtual FDcResult WriteNil();
+	virtual FDcResult WriteBool(bool Value);
+	virtual FDcResult WriteName(const FName& Value);
+	virtual FDcResult WriteString(const FString& Value);
 
-	virtual FResult WriteStructRoot(const FName& Name);
-	virtual FResult WriteStructEnd(const FName& Name);
+	virtual FDcResult WriteStructRoot(const FName& Name);
+	virtual FDcResult WriteStructEnd(const FName& Name);
 
-	virtual FResult WriteClassRoot(const FClassPropertyStat& Class);
-	virtual FResult WriteClassEnd(const FClassPropertyStat& Class);
+	virtual FDcResult WriteClassRoot(const FDcClassPropertyStat& Class);
+	virtual FDcResult WriteClassEnd(const FDcClassPropertyStat& Class);
 
-	virtual FResult WriteMapRoot();
-	virtual FResult WriteMapEnd();
+	virtual FDcResult WriteMapRoot();
+	virtual FDcResult WriteMapEnd();
 
-	virtual FResult WriteArrayRoot();
-	virtual FResult WriteArrayEnd();
+	virtual FDcResult WriteArrayRoot();
+	virtual FDcResult WriteArrayEnd();
 
-	virtual FResult WriteReference(UObject* Value);
+	virtual FDcResult WriteReference(UObject* Value);
 };
 
 

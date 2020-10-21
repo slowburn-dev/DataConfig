@@ -8,31 +8,31 @@ namespace DataConfig
 
 struct FContextStorage;
 
-struct DATACONFIGCORE_API FReader
+struct DATACONFIGCORE_API FDcReader
 {
-	virtual ~FReader();
+	virtual ~FDcReader();
 
 	virtual EDataEntry Peek();
 
-	virtual FResult ReadNil(FContextStorage* CtxPtr);
+	virtual FDcResult ReadNil(FContextStorage* CtxPtr);
 
-	virtual FResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr);
-	virtual FResult ReadName(FName* OutPtr, FContextStorage* CtxPtr);
-	virtual FResult ReadString(FString* OutPtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadName(FName* OutPtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadString(FString* OutPtr, FContextStorage* CtxPtr);
 
-	virtual FResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
-	virtual FResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
 
-	virtual FResult ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
-	virtual FResult ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
 
-	virtual FResult ReadMapRoot(FContextStorage* CtxPtr);
-	virtual FResult ReadMapEnd(FContextStorage* CtxPtr);
+	virtual FDcResult ReadMapRoot(FContextStorage* CtxPtr);
+	virtual FDcResult ReadMapEnd(FContextStorage* CtxPtr);
 
-	virtual FResult ReadArrayRoot(FContextStorage* CtxPtr);
-	virtual FResult ReadArrayEnd(FContextStorage* CtxPtr);
+	virtual FDcResult ReadArrayRoot(FContextStorage* CtxPtr);
+	virtual FDcResult ReadArrayEnd(FContextStorage* CtxPtr);
 
-	virtual FResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr);
+	virtual FDcResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr);
 
 };
 

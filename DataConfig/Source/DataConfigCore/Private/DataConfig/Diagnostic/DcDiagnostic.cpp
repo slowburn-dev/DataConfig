@@ -5,11 +5,11 @@
 namespace DataConfig
 {
 
-static const FDiagnosticDetail* SearchDetails(uint16 InID, const FDiagnosticGroup& Group)
+static const FDcDiagnosticDetail* SearchDetails(uint16 InID, const FDcDiagnosticGroup& Group)
 {
 	for (int Ix = 0; Ix < Group.Count; Ix++)
 	{
-		const FDiagnosticDetail& Detail = Group.Details[Ix];
+		const FDcDiagnosticDetail& Detail = Group.Details[Ix];
 		if (Detail.ID == InID)
 		{
 			return &Detail;
@@ -19,7 +19,7 @@ static const FDiagnosticDetail* SearchDetails(uint16 InID, const FDiagnosticGrou
 	return nullptr;
 }
 
-const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError)
+const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError)
 {
 	//	TODO make this a jump table
 	if (InError.CategoryID == DCommon::Category)
@@ -34,17 +34,17 @@ const FDiagnosticDetail* FindDiagnosticDetail(FErrorCode InError)
 	return nullptr;
 }
 
-void FNullDiagnosticConsumer::HandleDiagnostic(FDiagnostic& Diag)
+void FDcNullDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 {
 	return;
 }
 
-FDefaultLogDiagnosticConsumer::FDefaultLogDiagnosticConsumer()
+FDcDefaultLogDiagnosticConsumer::FDcDefaultLogDiagnosticConsumer()
 	: Override(TEXT("LogDataConfigCore"), ELogVerbosity::Display)
 {
 }
 
-FStringFormatArg ConvertArg(FDataVariant& Var)
+FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 {
 	if (Var.DataType == EDataEntry::Bool)
 	{
@@ -73,15 +73,15 @@ FStringFormatArg ConvertArg(FDataVariant& Var)
 }
 
 
-void FDefaultLogDiagnosticConsumer::HandleDiagnostic(FDiagnostic& Diag)
+void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 {
-	const FDiagnosticDetail* Detail = FindDiagnosticDetail(Diag.Code);
+	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
 	if (Detail)
 	{
 		check(Detail->ID == Diag.Code.ErrorID);
 		TArray<FStringFormatArg> FormatArgs;
-		for (FDataVariant& Var : Diag.Args)
-			FormatArgs.Add(ConvertArg(Var));
+		for (FDcDataVariant& Var : Diag.Args)
+			FormatArgs.Add(DcConvertArg(Var));
 		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *FString::Format(Detail->Msg, FormatArgs));
 	}
 	else

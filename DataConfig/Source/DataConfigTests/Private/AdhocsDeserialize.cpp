@@ -7,13 +7,13 @@
 #include "UObject/Package.h"
 #include "Misc/PackageName.h"
 
-static void Dump(FPropertyDatum Datum)
+static void Dump(FDcPropertyDatum Datum)
 {
 	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-	FPropertyReader PropReader(Datum);
-	FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
-	FPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
-	FResult Ret = PrettyPrintVisit.PipeVisit();
+	FDcPropertyReader PropReader(Datum);
+	FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+	FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
+	FDcResult Ret = PrettyPrintVisit.PipeVisit();
 	if (!Ret.Ok())
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
@@ -28,7 +28,7 @@ void DeserializeSimple()
 	FDeserializer Deserializer;
 	SetupDefaultDeserializeHandlers(Deserializer);
 
-	FJsonReader Reader;
+	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
 			"AName" : "FromJson",
@@ -39,7 +39,7 @@ void DeserializeSimple()
 	Reader.SetNewString(&Str);
 
 	FTestStruct_Alpha OutAlpha;
-	FPropertyWriter Writer(FPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
 
 	FDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
@@ -48,7 +48,7 @@ void DeserializeSimple()
 	Ctx.Properties.Push(FTestStruct_Alpha::StaticStruct());
 	Deserializer.Deserialize(Ctx);
 
-	Dump(FPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
+	Dump(FDcPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
 }
 
 
@@ -59,7 +59,7 @@ void DeserializeNestedStruct()
 	FDeserializer Deserializer;
 	SetupDefaultDeserializeHandlers(Deserializer);
 
-	FJsonReader Reader;
+	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
 			"AName" : "FromJson",
@@ -76,7 +76,7 @@ void DeserializeNestedStruct()
 	Reader.SetNewString(&Str);
 
 	FNestStruct1 OutNest;
-	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
 
 	FDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
@@ -86,7 +86,7 @@ void DeserializeNestedStruct()
 	Deserializer.Deserialize(Ctx);
 
 
-	Dump(FPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
+	Dump(FDcPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
 }
 
 void DeserializeObjectRoot()
@@ -97,9 +97,9 @@ void DeserializeObjectRoot()
 	SetupDefaultDeserializeHandlers(Deserializer);
 
 	UTestClass_Alpha* Obj = NewObject<UTestClass_Alpha>();
-	FPropertyWriter Writer(FPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
+	FDcPropertyWriter Writer(FDcPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
 
-	FJsonReader Reader;
+	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
 			"AName" : "FromJson",
@@ -121,7 +121,7 @@ void DeserializeObjectRoot()
 	Ctx.Objects.Push(Obj);
 	Deserializer.Deserialize(Ctx);
 
-	Dump(FPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
+	Dump(FDcPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
 }
 
 void DeserializeObjectRef()
@@ -132,9 +132,9 @@ void DeserializeObjectRef()
 	SetupDefaultDeserializeHandlers(Deserializer);
 
 	FObjReference ObjRef{};		// default initialized OR READER WILL THROW
-	FPropertyWriter Writer(FPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
 
-	FJsonReader Reader;
+	FDcJsonReader Reader;
 	//	TODO
 	//	for now we can only get this to work, figure a way to add access raw asset or add something
 	//	in DataConfigTests/Content
@@ -155,7 +155,7 @@ void DeserializeObjectRef()
 	Ctx.Properties.Push(FObjReference::StaticStruct());
 	Deserializer.Deserialize(Ctx);
 
-	Dump(FPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
+	Dump(FDcPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
 }
 
 void DeserializeSubObject()
@@ -166,9 +166,9 @@ void DeserializeSubObject()
 	SetupDefaultDeserializeHandlers(Deserializer);
 
 	FShapeContainer Obj{};
-	FPropertyWriter Writer(FPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
 
-	FJsonReader Reader;
+	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
 			"ShapeAlpha" :  {
@@ -194,7 +194,7 @@ void DeserializeSubObject()
 	Ctx.Properties.Push(FShapeContainer::StaticStruct());
 	Deserializer.Deserialize(Ctx);
 
-	Dump(FPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
+	Dump(FDcPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
 }
 
 void WriteFixtureAsset()

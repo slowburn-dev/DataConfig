@@ -7,7 +7,7 @@ using namespace DataConfig;
 
 void JsonReader1()
 {
-	FJsonReader Reader;
+	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -28,9 +28,9 @@ void JsonReader1()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
+		FDcPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FDcPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		FDcResult Ret = PrettyPrintVisit.PipeVisit();
 		if (!Ret.Ok())
 		{
 			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));

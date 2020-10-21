@@ -7,16 +7,16 @@ class UField;
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FPropertyDatum
+struct DATACONFIGCORE_API FDcPropertyDatum
 {
 	UField* Property;
 	void* DataPtr;
 
-	FPropertyDatum();
-	FPropertyDatum(UField* InProperty, void* InDataPtr);
+	FDcPropertyDatum();
+	FDcPropertyDatum(UField* InProperty, void* InDataPtr);
 
-	FPropertyDatum(UObject* ClassObject);
-	FPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
+	FDcPropertyDatum(UObject* ClassObject);
+	FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
 
 	FORCEINLINE bool IsNone()
 	{
@@ -43,7 +43,7 @@ struct DATACONFIGCORE_API FPropertyDatum
 		return Property->IsA<TProperty>();
 	}
 
-	static const FPropertyDatum NONE;
+	static const FDcPropertyDatum NONE;
 };
 
 

@@ -4,13 +4,13 @@
 namespace DataConfig
 {
 
-static FDiagnosticDetail _CommonDetails[] = {
+static FDcDiagnosticDetail _CommonDetails[] = {
 	{ DCommon::NotImplemented, TEXT("Calling into methods that are not implemented") },
 	{ DCommon::Unreachable, TEXT("Calling into unreachable code") },
 	{ DCommon::Unexpected1, TEXT("Unexpected: {0}") },
 	{ DCommon::PlaceHoldError, TEXT("<<<placeholder error>>>") },
 };
 
-FDiagnosticGroup DCommonDetails = { DimOf(_CommonDetails), _CommonDetails };
+FDcDiagnosticGroup DCommonDetails = { DcDimOf(_CommonDetails), _CommonDetails };
 
 } // namespace DataConfig

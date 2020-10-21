@@ -4,82 +4,82 @@ namespace DataConfig
 {
 
 template<typename TMethod, typename... TArgs>
-FORCEINLINE FResult CompositeDispatch(FWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)
+FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)
 {
-	for (FWriter* Writer : Self->Writers)
-		TRY((Writer->*Method)(Forward<TArgs>(Args)...));
+	for (FDcWriter* Writer : Self->Writers)
+		DC_TRY((Writer->*Method)(Forward<TArgs>(Args)...));
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FWeakCompositeWriter::Peek(EDataEntry Next)
+FDcResult FDcWeakCompositeWriter::Peek(EDataEntry Next)
 {
-	return CompositeDispatch(this, &FWriter::Peek, Next);
+	return CompositeDispatch(this, &FDcWriter::Peek, Next);
 }
 
-FResult FWeakCompositeWriter::WriteBool(bool Value)
+FDcResult FDcWeakCompositeWriter::WriteBool(bool Value)
 {
-	return CompositeDispatch(this, &FWriter::WriteBool, Value);
+	return CompositeDispatch(this, &FDcWriter::WriteBool, Value);
 }
 
-FResult FWeakCompositeWriter::WriteName(const FName& Value)
+FDcResult FDcWeakCompositeWriter::WriteName(const FName& Value)
 {
-	return CompositeDispatch(this, &FWriter::WriteName, Value);
+	return CompositeDispatch(this, &FDcWriter::WriteName, Value);
 }
 
-FResult FWeakCompositeWriter::WriteString(const FString& Value)
+FDcResult FDcWeakCompositeWriter::WriteString(const FString& Value)
 {
-	return CompositeDispatch(this, &FWriter::WriteString, Value);
+	return CompositeDispatch(this, &FDcWriter::WriteString, Value);
 }
 
-FResult FWeakCompositeWriter::WriteStructRoot(const FName& Name)
+FDcResult FDcWeakCompositeWriter::WriteStructRoot(const FName& Name)
 {
-	return CompositeDispatch(this, &FWriter::WriteStructRoot, Name);
+	return CompositeDispatch(this, &FDcWriter::WriteStructRoot, Name);
 }
 
-FResult FWeakCompositeWriter::WriteStructEnd(const FName& Name)
+FDcResult FDcWeakCompositeWriter::WriteStructEnd(const FName& Name)
 {
-	return CompositeDispatch(this, &FWriter::WriteStructEnd, Name);
+	return CompositeDispatch(this, &FDcWriter::WriteStructEnd, Name);
 }
 
-FResult FWeakCompositeWriter::WriteClassRoot(const FClassPropertyStat& Class)
+FDcResult FDcWeakCompositeWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 {
-	return CompositeDispatch(this, &FWriter::WriteClassRoot, Class);
+	return CompositeDispatch(this, &FDcWriter::WriteClassRoot, Class);
 }
 
-FResult FWeakCompositeWriter::WriteClassEnd(const FClassPropertyStat& Class)
+FDcResult FDcWeakCompositeWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
 {
-	return CompositeDispatch(this, &FWriter::WriteClassEnd, Class);
+	return CompositeDispatch(this, &FDcWriter::WriteClassEnd, Class);
 }
 
-FResult FWeakCompositeWriter::WriteMapRoot()
+FDcResult FDcWeakCompositeWriter::WriteMapRoot()
 {
-	return CompositeDispatch(this, &FWriter::WriteMapRoot);
+	return CompositeDispatch(this, &FDcWriter::WriteMapRoot);
 }
 
-FResult FWeakCompositeWriter::WriteMapEnd()
+FDcResult FDcWeakCompositeWriter::WriteMapEnd()
 {
-	return CompositeDispatch(this, &FWriter::WriteMapEnd);
+	return CompositeDispatch(this, &FDcWriter::WriteMapEnd);
 }
 
-FResult FWeakCompositeWriter::WriteArrayRoot()
+FDcResult FDcWeakCompositeWriter::WriteArrayRoot()
 {
-	return CompositeDispatch(this, &FWriter::WriteArrayRoot);
+	return CompositeDispatch(this, &FDcWriter::WriteArrayRoot);
 }
 
-FResult FWeakCompositeWriter::WriteArrayEnd()
+FDcResult FDcWeakCompositeWriter::WriteArrayEnd()
 {
-	return CompositeDispatch(this, &FWriter::WriteArrayEnd);
+	return CompositeDispatch(this, &FDcWriter::WriteArrayEnd);
 }
 
-FResult FWeakCompositeWriter::WriteNil()
+FDcResult FDcWeakCompositeWriter::WriteNil()
 {
-	return CompositeDispatch(this, &FWriter::WriteNil);
+	return CompositeDispatch(this, &FDcWriter::WriteNil);
 }
 
-FResult FWeakCompositeWriter::WriteReference(UObject* Value)
+FDcResult FDcWeakCompositeWriter::WriteReference(UObject* Value)
 {
-	return CompositeDispatch(this, &FWriter::WriteReference, Value);
+	return CompositeDispatch(this, &FDcWriter::WriteReference, Value);
 }
 
 }	// namespace DataConfig

@@ -8,23 +8,23 @@ namespace DataConfig
 {
 	
 //	global initializer and shutdown
-enum class EInitializeAction
+enum class EDcInitializeAction
 {
 	Minimal,
 	SetAsConsole,
 };
 
-DATACONFIGCORE_API void StartUp(EInitializeAction InAction = EInitializeAction::Minimal);
-DATACONFIGCORE_API void ShutDown();
-DATACONFIGCORE_API bool IsInitialized();
+DATACONFIGCORE_API void DcStartUp(EDcInitializeAction InAction = EDcInitializeAction::Minimal);
+DATACONFIGCORE_API void DcShutDown();
+DATACONFIGCORE_API bool DcIsInitialized();
 
-struct DATACONFIGCORE_API FErrorCode
+struct DATACONFIGCORE_API FDcErrorCode
 {
 	uint16 CategoryID;
 	uint16 ErrorID;
 };
 
-struct DATACONFIGCORE_API FResult
+struct DATACONFIGCORE_API FDcResult
 {
 	//	TODO when benchmark is setup, try figure out whether
 	//		 changing this to uint32 affects anything
@@ -42,28 +42,27 @@ struct DATACONFIGCORE_API FResult
 	}
 };
 
-FORCEINLINE FResult Ok() {
-	return FResult{ FResult::EStatus::Ok };
+FORCEINLINE FDcResult DcOk() {
+	return FDcResult{ FDcResult::EStatus::Ok };
 }
 
-FORCEINLINE FResult Fail() {
-	return FResult{ FResult::EStatus::Error };
+FORCEINLINE FDcResult DcFail() {
+	return FDcResult{ FDcResult::EStatus::Error };
 }
 
-#define TRY(expr)							\
+#define DC_TRY(expr)							\
 	do {									\
-		::DataConfig::FResult Ret = (expr);	\
+		::DataConfig::FDcResult Ret = (expr);	\
 		if (!Ret.Ok()) {					\
 			return Ret;						\
 		}									\
 	} while (0)
 
 
-
 //	std::aligned_storage stub
 //	https://devdocs.io/cpp/types/aligned_storage
 template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
-struct TAlignedStorage
+struct TDcAlignedStorage
 {
 	struct Type
 	{
@@ -116,22 +115,23 @@ enum class EDataEntry
 	Ended, // or error or invalid state, 
 };
 
-enum class EDataReference
+enum class EDcDataReference
 {
 	NullReference,
 	ExternalReference,
 	ExpandObject,
 };
 
-struct FClassPropertyStat
+struct FDcClassPropertyStat
 {
 	FName Name;
-	EDataReference Reference;
+	EDcDataReference Reference;
 };
 
+//	TODO delete this
 struct DATACONFIGCORE_API FContextStorage : private FNoncopyable
 {
-	using ImplStorageType = TAlignedStorage<64>::Type;
+	using ImplStorageType = TDcAlignedStorage<64>::Type;
 	ImplStorageType ImplStorage;
 
 	template<typename TContext, typename... TArgs>

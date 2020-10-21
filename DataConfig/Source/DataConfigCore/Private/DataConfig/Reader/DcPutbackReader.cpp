@@ -4,23 +4,23 @@ namespace DataConfig
 {
 
 template<typename TData>
-FORCEINLINE_DEBUGGABLE FResult TryUseCachedValue(FPutbackReader* Self, TData* OutPtr)
+FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData* OutPtr)
 {
 	check(Self->Cached.Num() > 0);
 
-	FDataVariant Value = Self->Cached.Pop();
-	EDataEntry Expected = TDataEntryType<TData>::Value;
+	FDcDataVariant Value = Self->Cached.Pop();
+	EDataEntry Expected = TDcDataEntryType<TData>::Value;
 	if (Value.DataType != Expected)
-		return Fail(DIAG(DReadWrite, DataTypeMismatch))
+		return DcFail(DC_DIAG(DReadWrite, DataTypeMismatch))
 			<< (int)Expected << (int)Value.DataType;
 
 	if (OutPtr)
 		*OutPtr = Value.GetValue<TData>();
 
-	return Ok();
+	return DcOk();
 }
 
-EDataEntry FPutbackReader::Peek()
+EDataEntry FDcPutbackReader::Peek()
 {
 	if (Cached.Num() > 0)
 	{
@@ -32,7 +32,7 @@ EDataEntry FPutbackReader::Peek()
 	}
 }
 
-FResult FPutbackReader::ReadNil(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadNil(FContextStorage* CtxPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -44,7 +44,7 @@ FResult FPutbackReader::ReadNil(FContextStorage* CtxPtr)
 	}
 }
 
-FResult FPutbackReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -56,7 +56,7 @@ FResult FPutbackReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FPutbackReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -68,7 +68,7 @@ FResult FPutbackReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FPutbackReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -80,47 +80,47 @@ FResult FPutbackReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 	}
 }
 
-FResult FPutbackReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	return Reader->ReadStructRoot(OutNamePtr, CtxPtr);
 }
 
-FResult FPutbackReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	return Reader->ReadStructEnd(OutNamePtr, CtxPtr);
 }
 
-FResult FPutbackReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	return Reader->ReadClassRoot(OutClassPtr, CtxPtr);
 }
 
-FResult FPutbackReader::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	return Reader->ReadClassEnd(OutClassPtr, CtxPtr);
 }
 
-FResult FPutbackReader::ReadMapRoot(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadMapRoot(FContextStorage* CtxPtr)
 {
 	return Reader->ReadMapRoot(CtxPtr);
 }
 
-FResult FPutbackReader::ReadMapEnd(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadMapEnd(FContextStorage* CtxPtr)
 {
 	return Reader->ReadMapEnd(CtxPtr);
 }
 
-FResult FPutbackReader::ReadArrayRoot(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadArrayRoot(FContextStorage* CtxPtr)
 {
 	return Reader->ReadArrayRoot(CtxPtr);
 }
 
-FResult FPutbackReader::ReadArrayEnd(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadArrayEnd(FContextStorage* CtxPtr)
 {
 	return Reader->ReadArrayEnd(CtxPtr);
 }
 
-FResult FPutbackReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
 {
 	return Reader->ReadReference(OutPtr, CtxPtr);
 }

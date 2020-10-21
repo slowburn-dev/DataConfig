@@ -7,7 +7,7 @@
 namespace DataConfig
 {
 
-FResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
 
 
 } // namespace DataConfig

@@ -6,62 +6,62 @@
 namespace DataConfig
 {
 
-TBasicArray<FEnv> Envs;
+TBasicArray<FDcEnv> Envs;
 
-FEnv& DataConfig::Env()
+FDcEnv& DataConfig::DcEnv()
 {
-	check(IsInitialized());
+	check(DcIsInitialized());
 	return Envs[Envs.Num() - 1];
 }
 
-FEnv& DataConfig::PushEnv()
+FDcEnv& DataConfig::DcPushEnv()
 {
 	return Envs[Envs.Emplace()];
 }
 
-void DataConfig::PopEnv()
+void DataConfig::DcPopEnv()
 {
 	Envs.RemoveAt(Envs.Num() - 1);
 }
 
-FScopedEnv::FScopedEnv()
+FDcScopedEnv::FDcScopedEnv()
 {
-	PushEnv();
+	DcPushEnv();
 }
 
-FScopedEnv::~FScopedEnv()
+FDcScopedEnv::~FDcScopedEnv()
 {
-	PopEnv();
+	DcPopEnv();
 }
 
 
-FDiagnostic& FEnv::Diag(FErrorCode InErr)
+FDcDiagnostic& FDcEnv::Diag(FDcErrorCode InErr)
 {
 	return Diagnostics[Diagnostics.Emplace(InErr)];
 }
 
-void FEnv::FlushDiags()
+void FDcEnv::FlushDiags()
 {
 	if (DiagConsumer.IsValid())
 	{
-		for (FDiagnostic& Diag : Diagnostics)
+		for (FDcDiagnostic& Diag : Diagnostics)
 			DiagConsumer->HandleDiagnostic(Diag);
 	}
 
 	Diagnostics.Empty();
 }
 
-FEnv::~FEnv()
+FDcEnv::~FDcEnv()
 {
 	FlushDiags();
 }
 
 
-FResult Expect(bool CondToBeTrue) {
+FDcResult DcExpect(bool CondToBeTrue) {
 	if (CondToBeTrue)
-		return Ok();
+		return DcOk();
 	else
-		return Fail(DIAG(DCommon, PlaceHoldError));
+		return DcFail(DC_DIAG(DCommon, PlaceHoldError));
 }
 
 } // namespace DataConfig

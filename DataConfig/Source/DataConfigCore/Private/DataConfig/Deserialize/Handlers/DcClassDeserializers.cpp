@@ -9,7 +9,7 @@
 namespace DataConfig
 {
 
-FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -24,9 +24,9 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 
 	if (Next == EDataEntry::MapRoot)
 	{
-		TRY(Ctx.Reader->ReadMapRoot(nullptr));
-		FClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDataReference::ExpandObject };
-		TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
+		DC_TRY(Ctx.Reader->ReadMapRoot(nullptr));
+		FDcClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDcDataReference::ExpandObject };
+		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDataEntry CurPeek = Ctx.Reader->Peek();
 		while (CurPeek != EDataEntry::MapEnd)
@@ -34,74 +34,74 @@ FResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult
 			//	read key
 			if (CurPeek == EDataEntry::Name)
 			{
-				TRY(Ctx.Writer->Peek(EDataEntry::Name));
+				DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 				FName Value;
-				TRY(Ctx.Reader->ReadName(&Value, nullptr));
-				if (IsMeta(Value))
+				DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
+				if (DcIsMeta(Value))
 				{
-					TRY(Ctx.Reader->ReadName(nullptr, nullptr));
+					DC_TRY(Ctx.Reader->ReadName(nullptr, nullptr));
 					continue;
 				}
 				else
 				{
-					TRY(Ctx.Writer->WriteName(Value));
+					DC_TRY(Ctx.Writer->WriteName(Value));
 				}
 			}
 			else if (CurPeek == EDataEntry::String)
 			{
-				TRY(Ctx.Writer->Peek(EDataEntry::Name));
+				DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 				FString Value;
-				TRY(Ctx.Reader->ReadString(&Value, nullptr));
-				if (IsMeta(Value))
+				DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
+				if (DcIsMeta(Value))
 				{
-					TRY(Ctx.Reader->ReadString(nullptr, nullptr));
+					DC_TRY(Ctx.Reader->ReadString(nullptr, nullptr));
 					continue;
 				}
 				else
 				{
-					TRY(Ctx.Writer->WriteName(FName(*Value)));
+					DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
 				}
 			}
 			else
 			{
-				return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+				return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
 					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
 			FScopedProperty ScopedValueProperty(Ctx);
-			TRY(ScopedValueProperty.PushProperty());
-			TRY(Ctx.Deserializer->Deserialize(Ctx));
+			DC_TRY(ScopedValueProperty.PushProperty());
+			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
 			CurPeek = Ctx.Reader->Peek();
 		}
 
-		TRY(Ctx.Reader->ReadMapEnd(nullptr));
-		TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
+		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
+		DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 		return OkWithProcessed(OutRet);
 	}
 	else
 	{
-		return Fail(DIAG(DDeserialize, DataEntryMismatch))
+		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch))
 			<< EDataEntry::MapRoot << Next;
 	}
 }
 
-static FResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDeserializeContext& Ctx, UObject*& OutLoaded)
+static FDcResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDeserializeContext& Ctx, UObject*& OutLoaded)
 {
-	TRY(Expect(LoadClass != nullptr));
-	TRY(Expect(LoadClass->IsChildOf(ObjectProperty->PropertyClass)));
+	DC_TRY(DcExpect(LoadClass != nullptr));
+	DC_TRY(DcExpect(LoadClass->IsChildOf(ObjectProperty->PropertyClass)));
 	UObject* Loaded = StaticLoadObject(LoadClass, nullptr, *LoadPath, nullptr);
-	TRY(Expect(Loaded != nullptr));
+	DC_TRY(DcExpect(Loaded != nullptr));
 
 	OutLoaded = Loaded;
-	return Ok();
+	return DcOk();
 }
 
 
-FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::String
@@ -117,17 +117,17 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 		return OkWithCanNotProcess(OutRet);
 	}
 
-	FClassPropertyStat RefStat {
-		ObjectProperty->PropertyClass->GetFName(), EDataReference::ExternalReference
+	FDcClassPropertyStat RefStat {
+		ObjectProperty->PropertyClass->GetFName(), EDcDataReference::ExternalReference
 	};
-	FClassPropertyStat NullStat {
-		ObjectProperty->PropertyClass->GetFName(), EDataReference::NullReference
+	FDcClassPropertyStat NullStat {
+		ObjectProperty->PropertyClass->GetFName(), EDcDataReference::NullReference
 	};
 
 	if (Next == EDataEntry::String)
 	{
 		FString Value;
-		TRY(Ctx.Reader->ReadString(&Value, nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
 
 		if (Value.EndsWith(TEXT("'")))
 		{
@@ -146,32 +146,32 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 			{
 				if (Loaded)
 				{
-					TRY(Ctx.Writer->WriteClassRoot(RefStat));
-					TRY(Ctx.Writer->WriteReference(Loaded));
-					TRY(Ctx.Writer->WriteClassEnd(RefStat));
+					DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
+					DC_TRY(Ctx.Writer->WriteReference(Loaded));
+					DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 					return OkWithProcessed(OutRet);
 				}
 			}
 
-			return Fail();
+			return DcFail();
 		}
 		else if (Value.StartsWith(TEXT("/")))
 		{
 			//	/Game/Path/To/Object
 			//	`Game` is a Mount Point
 			UObject* Loaded = nullptr;
-			TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
+			DC_TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
 
-			TRY(Ctx.Writer->WriteClassRoot(RefStat));
-			TRY(Ctx.Writer->WriteReference(Loaded));
-			TRY(Ctx.Writer->WriteClassEnd(RefStat));
+			DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
+			DC_TRY(Ctx.Writer->WriteReference(Loaded));
+			DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 			return OkWithProcessed(OutRet);
 		}
 		else
 		{
-			return Fail();
+			return DcFail();
 		}
 	}
 	else if (Next == EDataEntry::MapRoot)
@@ -183,44 +183,44 @@ FResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserialize
 		//
 		//	note that this is ordred and type and path needs to be first 2 items
 
-		TRY(Ctx.Reader->ReadMapRoot(nullptr));
+		DC_TRY(Ctx.Reader->ReadMapRoot(nullptr));
 		FString MetaKey;
-		TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
-		TRY(Expect(MetaKey == TEXT("$type")));
+		DC_TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+		DC_TRY(DcExpect(MetaKey == TEXT("$type")));
 
 		FString LoadClassName;
-		TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
 
-		TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
-		TRY(Expect(MetaKey == TEXT("$path")));
+		DC_TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+		DC_TRY(DcExpect(MetaKey == TEXT("$path")));
 
 		FString LoadPath;
-		TRY(Ctx.Reader->ReadString(&LoadPath, nullptr));
-		TRY(Ctx.Reader->ReadMapEnd(nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&LoadPath, nullptr));
+		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
 
 		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *LoadClassName, true);
-		TRY(Expect(LoadClass != nullptr));
+		DC_TRY(DcExpect(LoadClass != nullptr));
 
 		UObject* Loaded = nullptr;
-		TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
+		DC_TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
 
-		TRY(Ctx.Writer->WriteClassRoot(RefStat));
-		TRY(Ctx.Writer->WriteReference(Loaded));
-		TRY(Ctx.Writer->WriteClassEnd(RefStat));
+		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
+		DC_TRY(Ctx.Writer->WriteReference(Loaded));
+		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 		return OkWithProcessed(OutRet);
 	}
 	else if (Next == EDataEntry::Nil)
 	{
-		TRY(Ctx.Writer->WriteClassRoot(NullStat));
-		TRY(Ctx.Writer->WriteNil());
-		TRY(Ctx.Writer->WriteClassEnd(NullStat));
+		DC_TRY(Ctx.Writer->WriteClassRoot(NullStat));
+		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteClassEnd(NullStat));
 
 		return OkWithProcessed(OutRet);
 	}
 	else
 	{
-		return Fail(DIAG(DDeserialize, DataEntryMismatch3))
+		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch3))
 			<< EDataEntry::MapRoot << EDataEntry::String << EDataEntry::String << Next;
 	}
 }
@@ -241,9 +241,9 @@ EDeserializePredicateResult PredicateIsSubObjectProperty(FDeserializeContext& Ct
 		: EDeserializePredicateResult::Pass;
 }
 
-FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
 {
-	FPutbackReader PutbackReader(Ctx.Reader);
+	FDcPutbackReader PutbackReader(Ctx.Reader);
 
 	EDataEntry Next = PutbackReader.Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -259,20 +259,20 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 
 	if (!IsSubObjectProperty(ObjectProperty))
 	{
-		return Fail();
+		return DcFail();
 	}
 
-	TRY(PutbackReader.ReadMapRoot(nullptr));
+	DC_TRY(PutbackReader.ReadMapRoot(nullptr));
 
 	UClass* SubClassType = nullptr;
 
 	FString MetaKey;
-	TRY(PutbackReader.ReadString(&MetaKey, nullptr));
+	DC_TRY(PutbackReader.ReadString(&MetaKey, nullptr));
 	if (MetaKey == TEXT("$type"))
 	{
 		//	has `$type`
 		FString TypeStr;
-		TRY(PutbackReader.ReadString(&TypeStr, nullptr));
+		DC_TRY(PutbackReader.ReadString(&TypeStr, nullptr));
 
 		//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
 		//		console Program linking Engine just doesn't work
@@ -305,22 +305,22 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 	}
 
 	if (!SubClassType)
-		return Fail();
+		return DcFail();
 
 	//	can't be abstract
 	if (SubClassType->HasAnyClassFlags(CLASS_Abstract))
-		return Fail();
+		return DcFail();
 
 	if (!SubClassType->IsChildOf(ObjectProperty->PropertyClass))
-		return Fail();
+		return DcFail();
 
 	//	construct the item
-	FPropertyDatum Datum;
-	TRY(Ctx.Writer->WriteDataEntry(UObjectProperty::StaticClass(), Datum));
+	FDcPropertyDatum Datum;
+	DC_TRY(Ctx.Writer->WriteDataEntry(UObjectProperty::StaticClass(), Datum));
 
 	UObjectProperty* SubObjectProperty = Datum.Cast<UObjectProperty>();
 	if (!SubObjectProperty)
-		return Fail();
+		return DcFail();
 
 	UObject* SubObject = SubObjectProperty->GetPropertyValue(Datum.DataPtr);
 	if (SubObject != nullptr
@@ -335,14 +335,14 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 		SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
 
 	if (SubObject == nullptr)
-		return Fail();
+		return DcFail();
 
 	ObjectProperty->SetPropertyValue(Datum.DataPtr, SubObject);
 	//	manually setting class state
 	Ctx.Writer->PushTopClassPropertyState(Datum);
 
-	FClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDataReference::ExpandObject };
-	TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
+	FDcClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDcDataReference::ExpandObject };
+	DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 	//	usual read coroutine
 	EDataEntry CurPeek = PutbackReader.Peek();
@@ -350,35 +350,35 @@ FResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserial
 	{
 		if (CurPeek == EDataEntry::Name)
 		{
-			TRY(Ctx.Writer->Peek(EDataEntry::Name));
+			DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 			FName Value;
-			TRY(PutbackReader.ReadName(&Value, nullptr));
-			TRY(Ctx.Writer->WriteName(Value));
+			DC_TRY(PutbackReader.ReadName(&Value, nullptr));
+			DC_TRY(Ctx.Writer->WriteName(Value));
 		}
 		else if (CurPeek == EDataEntry::String)
 		{
-			TRY(Ctx.Writer->Peek(EDataEntry::Name));
+			DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
 
 			FString Value;
-			TRY(PutbackReader.ReadString(&Value, nullptr));
-			TRY(Ctx.Writer->WriteName(FName(*Value)));
+			DC_TRY(PutbackReader.ReadString(&Value, nullptr));
+			DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
 		}
 		else
 		{
-			return Fail(DIAG(DDeserialize, DataEntryMismatch2))
+			return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
 				<< EDataEntry::Name << EDataEntry::String << CurPeek;
 		}
 
 		FScopedProperty ScopedValueProperty(Ctx);
-		TRY(ScopedValueProperty.PushProperty());
-		TRY(Ctx.Deserializer->Deserialize(Ctx));
+		DC_TRY(ScopedValueProperty.PushProperty());
+		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
 		CurPeek = PutbackReader.Peek();
 	}
 
-	TRY(PutbackReader.ReadMapEnd(nullptr));
-	TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
+	DC_TRY(PutbackReader.ReadMapEnd(nullptr));
+	DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 	check(PutbackReader.Cached.Num() == 0);
 	return OkWithProcessed(OutRet);

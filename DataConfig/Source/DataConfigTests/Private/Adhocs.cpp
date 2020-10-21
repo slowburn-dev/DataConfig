@@ -28,17 +28,17 @@ void PropertyVisitorRoundtrip_Piped()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+		FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
 
-		FPropertyReader Reader(FPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &ObjRef));
-		FPropertyWriter WriteWriter(FPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &OutObj));
+		FDcPropertyReader Reader(FDcPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &ObjRef));
+		FDcPropertyWriter WriteWriter(FDcPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &OutObj));
 
-		FWeakCompositeWriter Writer;
+		FDcWeakCompositeWriter Writer;
 		Writer.Writers.Add(&PrettyPrinter);
 		Writer.Writers.Add(&WriteWriter);
 
-		FPipeVisitor RoundtripVisit(&Reader, &Writer);
-		FResult Ret = RoundtripVisit.PipeVisit();
+		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
@@ -58,17 +58,17 @@ void PropertyVisitorRoundtrip__TestObjAlpha()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+		FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
 
-		FPropertyReader Reader(FPropertyDatum(UTestObj_Alpha::StaticClass(), Obj));
-		FPropertyWriter WriteWriter(FPropertyDatum(UTestObj_Alpha::StaticClass(), OutObj));
+		FDcPropertyReader Reader(FDcPropertyDatum(UTestObj_Alpha::StaticClass(), Obj));
+		FDcPropertyWriter WriteWriter(FDcPropertyDatum(UTestObj_Alpha::StaticClass(), OutObj));
 
-		FWeakCompositeWriter Writer;
+		FDcWeakCompositeWriter Writer;
 		Writer.Writers.Add(&PrettyPrinter);
 		Writer.Writers.Add(&WriteWriter);
 
-		FPipeVisitor RoundtripVisit(&Reader, &Writer);
-		FResult Ret = RoundtripVisit.PipeVisit();
+		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
@@ -92,17 +92,17 @@ void PropertyVisitorRoundtrip__StructStruct()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+		FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
 
-		FPropertyReader Reader(FPropertyDatum(FMapOfStruct2::StaticStruct(), &St));
-		FPropertyWriter WriteWriter(FPropertyDatum(FMapOfStruct2::StaticStruct(), &OutSt));
+		FDcPropertyReader Reader(FDcPropertyDatum(FMapOfStruct2::StaticStruct(), &St));
+		FDcPropertyWriter WriteWriter(FDcPropertyDatum(FMapOfStruct2::StaticStruct(), &OutSt));
 
-		FWeakCompositeWriter Writer;
+		FDcWeakCompositeWriter Writer;
 		Writer.Writers.Add(&PrettyPrinter);
 		Writer.Writers.Add(&WriteWriter);
 
-		FPipeVisitor RoundtripVisit(&Reader, &Writer);
-		FResult Ret = RoundtripVisit.PipeVisit();
+		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
@@ -118,17 +118,17 @@ void PropertyVisitorRoundtrip__StructHasMap()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+		FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
 
-		FPropertyReader Reader(FPropertyDatum(FMapOfStruct1::StaticStruct(), &MapOfStruct));
-		FPropertyWriter WriteWriter(FPropertyDatum(FMapOfStruct1::StaticStruct(), &Out));
+		FDcPropertyReader Reader(FDcPropertyDatum(FMapOfStruct1::StaticStruct(), &MapOfStruct));
+		FDcPropertyWriter WriteWriter(FDcPropertyDatum(FMapOfStruct1::StaticStruct(), &Out));
 
-		FWeakCompositeWriter Writer;
+		FDcWeakCompositeWriter Writer;
 		Writer.Writers.Add(&PrettyPrinter);
 		Writer.Writers.Add(&WriteWriter);
 
-		FPipeVisitor RoundtripVisit(&Reader, &Writer);
-		FResult Ret = RoundtripVisit.PipeVisit();
+		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
@@ -145,10 +145,10 @@ void PropertyVisitorRoundtrip__MapStruct()
 	MapStruct.NameBoolMap.Add(TEXT("false"), false);
 
 	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-	FPropertyReader Reader(FPropertyDatum(FMapContainer1::StaticStruct(), &MapStruct));
-	FPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
-	FPipeVisitor PrettyPrintVisit(&Reader, &Writer);
-	FResult Ret = PrettyPrintVisit.PipeVisit();
+	FDcPropertyReader Reader(FDcPropertyDatum(FMapContainer1::StaticStruct(), &MapStruct));
+	FDcPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+	FDcPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+	FDcResult Ret = PrettyPrintVisit.PipeVisit();
 	if (!Ret.Ok())
 	{
 		UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
@@ -171,17 +171,17 @@ void PropertyVisitorRoundtrip__Basic()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+		FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
 
-		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-		FPropertyWriter WriteWriter(FPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
+		FDcPropertyReader Reader(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+		FDcPropertyWriter WriteWriter(FDcPropertyDatum(FNestStruct1::StaticStruct(), &OutStruct));
 
-		FWeakCompositeWriter Writer;
+		FDcWeakCompositeWriter Writer;
 		Writer.Writers.Add(&PrettyPrinter);
 		Writer.Writers.Add(&WriteWriter);
 
-		FPipeVisitor RoundtripVisit(&Reader, &Writer);
-		FResult Ret = RoundtripVisit.PipeVisit();
+		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
 	}
@@ -197,7 +197,7 @@ void PropertyVisitorRoundtrip_ReadNested()
 	StructAlpha.AName = FName(TEXT("ALPHA"));
 	StructAlpha.AStr = FString(TEXT("A L P H A"));
 
-	FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+	FDcPropertyReader Reader(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
 	//	Root
 	check(Reader.Peek() == EDataEntry::StructRoot);
@@ -245,7 +245,7 @@ void PropertyVisitorRoundtrip_ReadNested()
 void PropertyVisitorRoundtrip_WriteNested()
 {
 	FNestStruct1 NestStruct{};
-	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
 	//	Root
 	check(Writer.Peek(EDataEntry::StructRoot).Ok());
@@ -296,7 +296,7 @@ void PropertyVisitorRoundtrip_WriteNested()
 void PropertyVisitorRoundtrip()
 {
 	FNestStruct1 NestStruct{};
-	FPropertyWriter Writer(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
 
 	//	Root
 	check(Writer.Peek(EDataEntry::StructRoot).Ok());
@@ -343,10 +343,10 @@ void PropertyVisitorRoundtrip()
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FPropertyReader Reader(FPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-		FPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
-		FPipeVisitor PrettyPrintVisit(&Reader, &PrettyWriter);
-		FResult Ret = PrettyPrintVisit.PipeVisit();
+		FDcPropertyReader Reader(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
+		FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+		FDcPipeVisitor PrettyPrintVisit(&Reader, &PrettyWriter);
+		FDcResult Ret = PrettyPrintVisit.PipeVisit();
 		if (!Ret.Ok())
 		{
 			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
@@ -359,18 +359,18 @@ void PropertyVisitorRoundtrip()
 void TryOutVariant()
 {
 	{
-		FDataVariant DV = false;
+		FDcDataVariant DV = false;
 		check(DV.DataType == EDataEntry::Bool);
 	}
 
 	{
-		FDataVariant DV = FName(TEXT("Wha"));
+		FDcDataVariant DV = FName(TEXT("Wha"));
 		check(DV.DataType == EDataEntry::Name);
 		check(DV.GetValue<FName>() == FName(("Wha")));
 	}
 
 	{
-		FDataVariant DV = TEXT("Str");
+		FDcDataVariant DV = TEXT("Str");
 		check(DV.DataType == EDataEntry::String);
 		check(DV.GetValue<FString>() == FString(("Str")));
 	}
@@ -381,8 +381,8 @@ void TryOutPutback()
 {
 	FEmptyStruct EmptyObj;
 
-	FPropertyReader RawReader(FPropertyDatum(FEmptyStruct::StaticStruct(), &EmptyObj));
-	FPutbackReader Reader(&RawReader);
+	FDcPropertyReader RawReader(FDcPropertyDatum(FEmptyStruct::StaticStruct(), &EmptyObj));
+	FDcPutbackReader Reader(&RawReader);
 
 	check(Reader.Peek() == EDataEntry::StructRoot);
 	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
@@ -408,14 +408,14 @@ void TryOutPutback()
 
 void TryDiags()
 {
-	PushEnv();
+	DcPushEnv();
 
-	Env().Diag({0, 0}) << TEXT("WTF");
-	Env().Diag({1, 1}) << true;
+	DcEnv().Diag({0, 0}) << TEXT("WTF");
+	DcEnv().Diag({1, 1}) << true;
 
 	//	if this works i think it's pretty ok now
-	auto What = []() -> FResult {
-		return Env().Diag({1, 2}) << TEXT("Fuck My Life");
+	auto What = []() -> FDcResult {
+		return DcEnv().Diag({1, 2}) << TEXT("Fuck My Life");
 	};
 
 	check(!What().Ok());
@@ -423,16 +423,16 @@ void TryDiags()
 
 void TryConsoleDiagnosticReports()
 {
-	FWriter Writer{};
+	FDcWriter Writer{};
 	Writer.WriteBool(true);
 
-	Env().Diag(DIAG(DCommon, Unreachable));
+	DcEnv().Diag(DC_DIAG(DCommon, Unreachable));
 
 	TCHAR Ch = TCHAR('t');
 	FString Str(1, &Ch);
 
-	Env().Diag(DIAG(DCommon, Unexpected1)) << Str;
-	Env().Diag(DIAG(DCommon, Unexpected1)) << EDataEntry::Bool;
+	DcEnv().Diag(DC_DIAG(DCommon, Unexpected1)) << Str;
+	DcEnv().Diag(DC_DIAG(DCommon, Unexpected1)) << EDataEntry::Bool;
 }
 
 

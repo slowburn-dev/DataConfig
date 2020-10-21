@@ -2,28 +2,28 @@
 
 namespace DataConfig {
 
-const FPropertyDatum FPropertyDatum::NONE = FPropertyDatum();
+const FDcPropertyDatum FDcPropertyDatum::NONE = FDcPropertyDatum();
 
-FPropertyDatum::FPropertyDatum()
+FDcPropertyDatum::FDcPropertyDatum()
 {
 	Property = nullptr;
 	DataPtr = nullptr;
 }
 
-FPropertyDatum::FPropertyDatum(UField* InProperty, void* InDataPtr)
+FDcPropertyDatum::FDcPropertyDatum(UField* InProperty, void* InDataPtr)
 {
 	Property = InProperty;
 	DataPtr = InDataPtr;
 }
 
-FPropertyDatum::FPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
+FDcPropertyDatum::FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
 {
 	check(StructClass);
 	Property = StructClass;
 	DataPtr = StructPtr;
 }
 
-FPropertyDatum::FPropertyDatum(UObject* ClassObject)
+FDcPropertyDatum::FDcPropertyDatum(UObject* ClassObject)
 {
 	check(ClassObject);
 	Property = ClassObject->GetClass();

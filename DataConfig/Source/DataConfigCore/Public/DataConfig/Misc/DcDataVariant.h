@@ -9,60 +9,60 @@ namespace DataConfig
 {
 
 template<typename T>
-struct TDataEntryType
+struct TDcDataEntryType
 {
 	static constexpr EDataEntry Value = EDataEntry::Ended;
 };
 
-template<> struct TDataEntryType<nullptr_t> { static constexpr EDataEntry Value = EDataEntry::Nil; };
-template<> struct TDataEntryType<bool> { static constexpr EDataEntry Value = EDataEntry::Bool; };
-template<> struct TDataEntryType<FName> { static constexpr EDataEntry Value = EDataEntry::Name; };
-template<> struct TDataEntryType<FString> { static constexpr EDataEntry Value = EDataEntry::String; };
+template<> struct TDcDataEntryType<nullptr_t> { static constexpr EDataEntry Value = EDataEntry::Nil; };
+template<> struct TDcDataEntryType<bool> { static constexpr EDataEntry Value = EDataEntry::Bool; };
+template<> struct TDcDataEntryType<FName> { static constexpr EDataEntry Value = EDataEntry::Name; };
+template<> struct TDcDataEntryType<FString> { static constexpr EDataEntry Value = EDataEntry::String; };
 
-template<> struct TDataEntryType<float> { static constexpr EDataEntry Value = EDataEntry::Float; };
-template<> struct TDataEntryType<double> { static constexpr EDataEntry Value = EDataEntry::Double; };
+template<> struct TDcDataEntryType<float> { static constexpr EDataEntry Value = EDataEntry::Float; };
+template<> struct TDcDataEntryType<double> { static constexpr EDataEntry Value = EDataEntry::Double; };
 
-template<> struct TDataEntryType<int8> { static constexpr EDataEntry Value = EDataEntry::Int8; };
-template<> struct TDataEntryType<int16> { static constexpr EDataEntry Value = EDataEntry::Int16; };
-template<> struct TDataEntryType<int32> { static constexpr EDataEntry Value = EDataEntry::Int; };
-template<> struct TDataEntryType<int64> { static constexpr EDataEntry Value = EDataEntry::Int64; };
+template<> struct TDcDataEntryType<int8> { static constexpr EDataEntry Value = EDataEntry::Int8; };
+template<> struct TDcDataEntryType<int16> { static constexpr EDataEntry Value = EDataEntry::Int16; };
+template<> struct TDcDataEntryType<int32> { static constexpr EDataEntry Value = EDataEntry::Int; };
+template<> struct TDcDataEntryType<int64> { static constexpr EDataEntry Value = EDataEntry::Int64; };
 
-template<> struct TDataEntryType<uint8> { static constexpr EDataEntry Value = EDataEntry::Byte; };
-template<> struct TDataEntryType<uint16> { static constexpr EDataEntry Value = EDataEntry::UInt16; };
-template<> struct TDataEntryType<uint32> { static constexpr EDataEntry Value = EDataEntry::UInt32; };
-template<> struct TDataEntryType<uint64> { static constexpr EDataEntry Value = EDataEntry::UInt64; };
+template<> struct TDcDataEntryType<uint8> { static constexpr EDataEntry Value = EDataEntry::Byte; };
+template<> struct TDcDataEntryType<uint16> { static constexpr EDataEntry Value = EDataEntry::UInt16; };
+template<> struct TDcDataEntryType<uint32> { static constexpr EDataEntry Value = EDataEntry::UInt32; };
+template<> struct TDcDataEntryType<uint64> { static constexpr EDataEntry Value = EDataEntry::UInt64; };
 
 
 template<typename T>
-struct TIsDataVariantCompatible
+struct TDcIsDataVariantCompatible
 {
-	enum { Value = TDataEntryType<T>::Value != EDataEntry::Ended };
+	enum { Value = TDcDataEntryType<T>::Value != EDataEntry::Ended };
 };
 
-static_assert(TIsDataVariantCompatible<int>::Value, "yes");
-static_assert(!TIsDataVariantCompatible<EDataEntry>::Value, "no");
+static_assert(TDcIsDataVariantCompatible<int>::Value, "yes");
+static_assert(!TDcIsDataVariantCompatible<EDataEntry>::Value, "no");
 
 
-struct FDataVariant
+struct FDcDataVariant
 {
-	FDataVariant()
+	FDcDataVariant()
 		: DataType(EDataEntry::Nil)
 	{}
 
-	FDataVariant(const FDataVariant&) = default;
-	FDataVariant& operator=(const FDataVariant&) = default;
-	~FDataVariant() = default;
-	FDataVariant(FDataVariant&&) = default;
-	FDataVariant& operator=(FDataVariant&&) = default;
+	FDcDataVariant(const FDcDataVariant&) = default;
+	FDcDataVariant& operator=(const FDcDataVariant&) = default;
+	~FDcDataVariant() = default;
+	FDcDataVariant(FDcDataVariant&&) = default;
+	FDcDataVariant& operator=(FDcDataVariant&&) = default;
 
 	template<typename T>
-	FDataVariant(T&& InValue)
+	FDcDataVariant(T&& InValue)
 	{
 		Initialize(Forward<T>(InValue));
 	}
 
 	template<typename T>
-	FDataVariant& operator=(T&& InValue)
+	FDcDataVariant& operator=(T&& InValue)
 	{
 		Initialize(Forward<T>(InValue));
 		return *this;
@@ -72,7 +72,7 @@ struct FDataVariant
 	FORCEINLINE void Initialize(T InValue)
 	{
 		using TActual = typename TRemoveConst<TRemoveReference<T>::Type>::Type;
-		DataType = TDataEntryType<TActual>::Value;
+		DataType = TDcDataEntryType<TActual>::Value;
 
 		FMemoryWriter MemWriter(Value, true);
 		MemWriter << InValue;
@@ -84,12 +84,12 @@ struct FDataVariant
 		DataType = EDataEntry::Nil;
 	}
 
-	FDataVariant(const TCHAR* InString)
+	FDcDataVariant(const TCHAR* InString)
 	{
 		*this = FString(InString);
 	}
 
-	FDataVariant(TCHAR InTChar)
+	FDcDataVariant(TCHAR InTChar)
 	{
 		*this = FString(1, &InTChar);
 	}
@@ -97,7 +97,7 @@ struct FDataVariant
 	template<typename T>
 	T GetValue() const
 	{
-		check(TDataEntryType<T>::Value == DataType);
+		check(TDcDataEntryType<T>::Value == DataType);
 
 		T Result;
 
@@ -120,7 +120,7 @@ struct FDataVariant
 };
 
 
-static_assert(sizeof(FDataVariant) <= 64, "data variant too large");
+static_assert(sizeof(FDcDataVariant) <= 64, "data variant too large");
 
 
 } // namespace DataConfig

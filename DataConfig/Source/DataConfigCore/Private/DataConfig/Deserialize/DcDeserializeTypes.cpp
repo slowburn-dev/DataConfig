@@ -3,11 +3,11 @@
 
 namespace DataConfig {
 
-FResult FScopedProperty::PushProperty()
+FDcResult FScopedProperty::PushProperty()
 {
-	TRY(Ctx.Writer->PeekWriteProperty(&Property));
+	DC_TRY(Ctx.Writer->PeekWriteProperty(&Property));
 	Ctx.Properties.Push(Property);
-	return Ok();
+	return DcOk();
 }
 
 FScopedProperty::~FScopedProperty()

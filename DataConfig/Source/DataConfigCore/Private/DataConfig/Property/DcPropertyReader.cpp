@@ -7,59 +7,59 @@
 namespace DataConfig {
 
 //	need these as readers needs to push states
-using ReaderStorageType = FPropertyReader::FPropertyState::ImplStorageType;
+using ReaderStorageType = FDcPropertyReader::FPropertyState::ImplStorageType;
 
-static FORCEINLINE ReaderStorageType* GetTopStorage(FPropertyReader* Self)
+static FORCEINLINE ReaderStorageType* GetTopStorage(FDcPropertyReader* Self)
 {
 	return &Self->States.Top().ImplStorage;
 }
 
-static FORCEINLINE FBaseReadState& GetTopState(FPropertyReader* Self)
+static FORCEINLINE FBaseReadState& GetTopState(FDcPropertyReader* Self)
 {
 	return *reinterpret_cast<FBaseReadState*>(GetTopStorage(Self));
 }
 
 template<typename TState>
-static TState& GetTopState(FPropertyReader* Self) {
+static TState& GetTopState(FDcPropertyReader* Self) {
 	return *GetTopState(Self).As<TState>();
 }
 
 template<typename TState>
-static TState* TryGetTopState(FPropertyReader* Self) {
+static TState* TryGetTopState(FDcPropertyReader* Self) {
 	return GetTopState(Self).As<TState>();
 }
 
-FReadStateNil& PushNilState(FPropertyReader* Reader)
+FReadStateNil& PushNilState(FDcPropertyReader* Reader)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FReadStateNil>(GetTopStorage(Reader));
 }
 
-FReadStateClass& PushClassPropertyState(FPropertyReader* Reader, UObject* InClassObject, UClass* InClass, FReadStateClass::EType InType)
+FReadStateClass& PushClassPropertyState(FDcPropertyReader* Reader, UObject* InClassObject, UClass* InClass, FReadStateClass::EType InType)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FReadStateClass>(GetTopStorage(Reader), InClassObject, InClass, InType);
 }
 
-FReadStateStruct& PushStructPropertyState(FPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
+FReadStateStruct& PushStructPropertyState(FDcPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FReadStateStruct>(GetTopStorage(Reader), InStructPtr, InStructClass);
 }
 
-FReadStateMap& PushMappingPropertyState(FPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty)
+FReadStateMap& PushMappingPropertyState(FDcPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FReadStateMap>(GetTopStorage(Reader), InMapPtr, InMapProperty);
 }
 
-FReadStateArray& PushArrayPropertyState(FPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
+FReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FReadStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);
 }
 
-void PopState(FPropertyReader* Reader)
+void PopState(FDcPropertyReader* Reader)
 {
 	Reader->States.Pop();
 	check(Reader->States.Num() >= 1);
@@ -67,7 +67,7 @@ void PopState(FPropertyReader* Reader)
 
 
 template<typename TState>
-static void PopState(FPropertyReader* Reader)
+static void PopState(FDcPropertyReader* Reader)
 {
 	check(TState::ID == GetTopState(Reader).GetType());
 	PopState(Reader);
@@ -75,26 +75,26 @@ static void PopState(FPropertyReader* Reader)
 
 
 template<typename TProperty, typename TPrimitive>
-FORCEINLINE FResult ReadTopStateProperty(FPropertyReader* Self, TPrimitive* OutPtr, FContextStorage* CtxPtr)
+FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* OutPtr, FContextStorage* CtxPtr)
 {
-	FPropertyDatum Datum;
-	TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), CtxPtr, Datum));
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), CtxPtr, Datum));
 
 	if (OutPtr)
 	{
 		*OutPtr = Datum.CastChecked<TProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
-	return Ok();
+	return DcOk();
 }
 
-FPropertyReader::FPropertyReader()
+FDcPropertyReader::FDcPropertyReader()
 {
 	PushNilState(this);
 }
 
-FPropertyReader::FPropertyReader(FPropertyDatum Datum)
-	: FPropertyReader()
+FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
+	: FDcPropertyReader()
 {
 	if (Datum.IsNone())
 	{
@@ -116,37 +116,37 @@ FPropertyReader::FPropertyReader(FPropertyDatum Datum)
 	}
 }
 
-EDataEntry FPropertyReader::Peek()
+EDataEntry FDcPropertyReader::Peek()
 {
 	return GetTopState(this).Peek();
 }
 
-FResult FPropertyReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 {
 	return ReadTopStateProperty<UBoolProperty, bool>(this, OutPtr, CtxPtr);
 }
 
-FResult FPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 {
-	TRY(GetTopState(this).ReadName(OutPtr, CtxPtr));
+	DC_TRY(GetTopState(this).ReadName(OutPtr, CtxPtr));
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FPropertyReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 {
-	FPropertyDatum Datum;
-	TRY(GetTopState(this).ReadDataEntry(UStrProperty::StaticClass(), CtxPtr, Datum));
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).ReadDataEntry(UStrProperty::StaticClass(), CtxPtr, Datum));
 
 	if (OutPtr)
 	{
 		*OutPtr = Datum.CastChecked<UStrProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	FBaseReadState& TopState = GetTopState(this);
 	{
@@ -154,38 +154,38 @@ FResult FPropertyReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxP
 		if (StructState != nullptr
 			&& StructState->State == FReadStateStruct::EState::ExpectRoot)
 		{
-			TRY(StructState->ReadStructRoot(OutNamePtr, CtxPtr));
-			return Ok();
+			DC_TRY(StructState->ReadStructRoot(OutNamePtr, CtxPtr));
+			return DcOk();
 		}
 	}
 
 	{
-		FPropertyDatum Datum;
-		TRY(TopState.ReadDataEntry(UStructProperty::StaticClass(), CtxPtr, Datum));
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(UStructProperty::StaticClass(), CtxPtr, Datum));
 
 		FReadStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
-		TRY(ChildStruct.ReadStructRoot(OutNamePtr, CtxPtr));
+		DC_TRY(ChildStruct.ReadStructRoot(OutNamePtr, CtxPtr));
 	}
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
 	if (FReadStateStruct* StructState = TryGetTopState<FReadStateStruct>(this))
 	{
-		TRY(StructState->ReadStructEnd(OutNamePtr, CtxPtr));
+		DC_TRY(StructState->ReadStructEnd(OutNamePtr, CtxPtr));
 		PopState<FReadStateStruct>(this);
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateStruct::ID << (int)GetTopState(this).GetType();
 	}
 }
 
-FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	FBaseReadState& TopState = GetTopState(this);
 	{
@@ -193,14 +193,14 @@ FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 		if (ClassState != nullptr
 			&& ClassState->State == FReadStateClass::EState::ExpectRoot)
 		{
-			TRY(ClassState->ReadClassRoot(OutClassPtr, CtxPtr));
-			return Ok();
+			DC_TRY(ClassState->ReadClassRoot(OutClassPtr, CtxPtr));
+			return DcOk();
 		}
 	}
 
 	{
-		FPropertyDatum Datum;
-		TRY(TopState.ReadDataEntry(UObjectProperty::StaticClass(), CtxPtr, Datum));
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(UObjectProperty::StaticClass(), CtxPtr, Datum));
 
 		UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 		check(ObjProperty);
@@ -212,28 +212,28 @@ FResult FPropertyReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContext
 				? FReadStateClass::EType::PropertyInstanced
 				: FReadStateClass::EType::PropertyNormal
 		);
-		TRY(ChildClass.ReadClassRoot(OutClassPtr, CtxPtr));
+		DC_TRY(ChildClass.ReadClassRoot(OutClassPtr, CtxPtr));
 	}
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FPropertyReader::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
 {
 	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
 	{
-		TRY(ClassState->ReadClassEnd(OutClassPtr, CtxPtr));
+		DC_TRY(ClassState->ReadClassEnd(OutClassPtr, CtxPtr));
 		PopState<FReadStateClass>(this);
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
-FResult FPropertyReader::ReadMapRoot(FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadMapRoot(FContextStorage* CtxPtr)
 {
 	FBaseReadState& TopState = GetTopState(this);
 	{
@@ -241,38 +241,38 @@ FResult FPropertyReader::ReadMapRoot(FContextStorage* CtxPtr)
 		if (MapState != nullptr
 			&& MapState->State == FReadStateMap::EState::ExpectRoot)
 		{
-			TRY(MapState->ReadMapRoot(CtxPtr));
-			return Ok();
+			DC_TRY(MapState->ReadMapRoot(CtxPtr));
+			return DcOk();
 		}
 	}
 
 	{
-		FPropertyDatum Datum;
-		TRY(TopState.ReadDataEntry(UMapProperty::StaticClass(), CtxPtr, Datum));
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(UMapProperty::StaticClass(), CtxPtr, Datum));
 
 		FReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
-		TRY(ChildMap.ReadMapRoot(CtxPtr));
+		DC_TRY(ChildMap.ReadMapRoot(CtxPtr));
 	}
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
 {
 	if (FReadStateMap* StateMap = TryGetTopState<FReadStateMap>(this))
 	{
-		TRY(StateMap->ReadMapEnd(CtxPtr));
+		DC_TRY(StateMap->ReadMapEnd(CtxPtr));
 		PopState<FReadStateMap>(this);
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateMap::ID << (int)GetTopState(this).GetType();
 	}
 }
 
-FResult FPropertyReader::ReadArrayRoot(FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadArrayRoot(FContextStorage* CtxPtr)
 {
 	FBaseReadState& TopState = GetTopState(this);
 
@@ -281,40 +281,40 @@ FResult FPropertyReader::ReadArrayRoot(FContextStorage* CtxPtr)
 		if (ArrayState != nullptr
 			&& ArrayState->State == FReadStateArray::EState::ExpectRoot)
 		{
-			TRY(ArrayState->ReadArrayRoot(CtxPtr));
-			return Ok();
+			DC_TRY(ArrayState->ReadArrayRoot(CtxPtr));
+			return DcOk();
 		}
 	}
 
 	{
-		FPropertyDatum Datum;
-		TRY(TopState.ReadDataEntry(UArrayProperty::StaticClass(), CtxPtr, Datum));
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(UArrayProperty::StaticClass(), CtxPtr, Datum));
 
 		FReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
-		TRY(ChildArray.ReadArrayRoot(CtxPtr));
+		DC_TRY(ChildArray.ReadArrayRoot(CtxPtr));
 	}
 
-	return Ok();
+	return DcOk();
 }
 
-FResult FPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 {
 	if (FReadStateArray* ArrayState = TryGetTopState<FReadStateArray>(this))
 	{
-		TRY(ArrayState->ReadArrayEnd(CtxPtr));
+		DC_TRY(ArrayState->ReadArrayEnd(CtxPtr));
 		PopState<FReadStateArray>(this);
-		return Ok();
+		return DcOk();
 	}
 	else
 	{
-		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateArray::ID << (int)GetTopState(this).GetType();
 
 	}
 }
 
 
-DataConfig::FResult FPropertyReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+DataConfig::FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
 {
 	//	only class property reads reference
 	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
@@ -323,13 +323,13 @@ DataConfig::FResult FPropertyReader::ReadReference(UObject** OutPtr, FContextSto
 	}
 	else
 	{
-		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 
 	}
 }
 
-FResult FPropertyReader::ReadNil(FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadNil(FContextStorage* CtxPtr)
 {
 	//	only class property accepts nil
 	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
@@ -338,7 +338,7 @@ FResult FPropertyReader::ReadNil(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Fail(DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }

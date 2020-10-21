@@ -7,45 +7,45 @@
 namespace DataConfig
 {
 
-struct DATACONFIGCORE_API FPropertyWriter : public FWriter, private FNoncopyable
+struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
 {
-	FPropertyWriter();
-	FPropertyWriter(FPropertyDatum Datum);
+	FDcPropertyWriter();
+	FDcPropertyWriter(FDcPropertyDatum Datum);
 
-	FResult Peek(EDataEntry Next) override;
+	FDcResult Peek(EDataEntry Next) override;
 
-	FResult WriteNil() override;
-	FResult WriteBool(bool Value) override;
-	FResult WriteName(const FName& Value) override;
-	FResult WriteString(const FString& Value) override;
+	FDcResult WriteNil() override;
+	FDcResult WriteBool(bool Value) override;
+	FDcResult WriteName(const FName& Value) override;
+	FDcResult WriteString(const FString& Value) override;
 
-	FResult WriteStructRoot(const FName& Name) override;
-	FResult WriteStructEnd(const FName& Name) override;
+	FDcResult WriteStructRoot(const FName& Name) override;
+	FDcResult WriteStructEnd(const FName& Name) override;
 
-	FResult WriteClassRoot(const FClassPropertyStat& Class) override;
-	FResult WriteClassEnd(const FClassPropertyStat& Class) override;
+	FDcResult WriteClassRoot(const FDcClassPropertyStat& Class) override;
+	FDcResult WriteClassEnd(const FDcClassPropertyStat& Class) override;
 
-	FResult WriteMapRoot() override;
-	FResult WriteMapEnd() override;
+	FDcResult WriteMapRoot() override;
+	FDcResult WriteMapEnd() override;
 
-	FResult WriteArrayRoot() override;
-	FResult WriteArrayEnd() override;
+	FDcResult WriteArrayRoot() override;
+	FDcResult WriteArrayEnd() override;
 
-	FResult WriteReference(UObject* Value) override;
+	FDcResult WriteReference(UObject* Value) override;
 
 	//	skip current write at current position
-	FResult SkipWrite();
+	FDcResult SkipWrite();
 	//	get the next write property
-	FResult PeekWriteProperty(UField** OutProperty);
+	FDcResult PeekWriteProperty(UField** OutProperty);
 	//	manual writing
-	FResult WriteDataEntry(UClass* ExpectedPropertyClass, FPropertyDatum& OutDatum);
+	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
 	//	manual writing supporting
-	void PushTopClassPropertyState(FPropertyDatum& Datum);
+	void PushTopClassPropertyState(FDcPropertyDatum& Datum);
 
 	struct FPropertyState
 	{
-		using ImplStorageType = TAlignedStorage<64>::Type;
+		using ImplStorageType = TDcAlignedStorage<64>::Type;
 		ImplStorageType ImplStorage;
 	};
 

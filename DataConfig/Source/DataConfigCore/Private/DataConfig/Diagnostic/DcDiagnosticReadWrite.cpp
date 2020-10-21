@@ -4,7 +4,7 @@
 namespace DataConfig
 {
 
-static FDiagnosticDetail _ReadWriteDetails[] = {
+static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DReadWrite::InvalidStateNoExpect, TEXT("Invalid internal state. Actual {0}."), },
 	{ DReadWrite::InvalidStateWithExpect, TEXT("Invalid internal state. Expect {0}, Actual {1}."), },
 	{ DReadWrite::InvalidStateWithExpect2, TEXT("Invalid internal state. Expect {0} {1}, Actual {2}."), },
@@ -17,7 +17,7 @@ static FDiagnosticDetail _ReadWriteDetails[] = {
 	{ DReadWrite::StructNameMismatch, TEXT("Struct name mismatch, Expect {0}, Actual {1}") },
 };
 
-FDiagnosticGroup DPropertyReadWriteDetails = { DimOf(_ReadWriteDetails), _ReadWriteDetails };
+FDcDiagnosticGroup DPropertyReadWriteDetails = { DcDimOf(_ReadWriteDetails), _ReadWriteDetails };
 
 } // namespace DataConfig
 

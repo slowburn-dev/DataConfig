@@ -4,22 +4,22 @@
 namespace DataConfig
 {
 
-FReader::~FReader() {}
-EDataEntry FReader::Peek() { return EDataEntry::Ended; }
+FDcReader::~FDcReader() {}
+EDataEntry FDcReader::Peek() { return EDataEntry::Ended; }
 
-FResult FReader::ReadNil(FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadClassRoot(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadClassEnd(FClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadMapRoot(FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadMapEnd(FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadArrayRoot(FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadArrayEnd(FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
-FResult FReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) { return Fail(DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadNil(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadMapRoot(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadMapEnd(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadArrayRoot(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadArrayEnd(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
+FDcResult FDcReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 
 } // namespace DataConfig
 
