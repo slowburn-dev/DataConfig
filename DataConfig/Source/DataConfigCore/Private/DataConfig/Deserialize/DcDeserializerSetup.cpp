@@ -9,6 +9,8 @@
 
 void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 {
+	using namespace DcHandlers;
+
 	//	Primitives
 	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
 	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerNameDeserialize));

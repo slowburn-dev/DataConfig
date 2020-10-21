@@ -3,7 +3,7 @@
 #include "HAL/Platform.h"
 
 
-namespace DReadWrite
+namespace DcDReadWrite
 {
 	static const uint16 Category = 0x2;
 

@@ -2,7 +2,7 @@
 
 #include "HAL/Platform.h"
 
-namespace DDeserialize
+namespace DcDDeserialize
 {
 	static const uint16 Category = 0x4;
 

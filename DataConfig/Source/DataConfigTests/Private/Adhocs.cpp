@@ -424,13 +424,13 @@ void TryConsoleDiagnosticReports()
 	FDcWriter Writer{};
 	Writer.WriteBool(true);
 
-	DcEnv().Diag(DC_DIAG(DCommon, Unreachable));
+	DcEnv().Diag(DC_DIAG(DcDCommon, Unreachable));
 
 	TCHAR Ch = TCHAR('t');
 	FString Str(1, &Ch);
 
-	DcEnv().Diag(DC_DIAG(DCommon, Unexpected1)) << Str;
-	DcEnv().Diag(DC_DIAG(DCommon, Unexpected1)) << EDataEntry::Bool;
+	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << Str;
+	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << EDataEntry::Bool;
 }
 
 

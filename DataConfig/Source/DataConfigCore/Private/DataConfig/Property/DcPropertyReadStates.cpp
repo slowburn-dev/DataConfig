@@ -11,12 +11,12 @@ EDataEntry FBaseReadState::Peek()
 
 FDcResult FBaseReadState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 {
-	return DcFail(DC_DIAG(DCommon, NotImplemented));
+	return DcFail(DC_DIAG(DcDCommon, NotImplemented));
 }
 
 FDcResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum)
 {
-	return DcFail(DC_DIAG(DCommon, NotImplemented));
+	return DcFail(DC_DIAG(DcDCommon, NotImplemented));
 }
 
 EPropertyReadType FReadStateNil::GetType()
@@ -90,7 +90,7 @@ FDcResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateNoExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -100,7 +100,7 @@ FDcResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FContext
 	if (State == EState::ExpectKey)
 	{
 		checkNoEntry();	// should've be already handled in `ReadName`
-		return DcFail(DC_DIAG(DCommon, Unreachable));
+		return DcFail(DC_DIAG(DcDCommon, Unreachable));
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -116,13 +116,13 @@ FDcResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FContext
 		}
 		else
 		{
-			return DcFail(DC_DIAG(DReadWrite, PropertyMismatch))
+			return DcFail(DC_DIAG(DcDReadWrite, PropertyMismatch))
 				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName();
 		}
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -144,7 +144,7 @@ FDcResult FReadStateClass::EndReadValue()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -204,13 +204,13 @@ FDcResult FReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FCon
 			else
 			{
 				checkNoEntry();
-				return DcFail(DC_DIAG(DCommon, Unreachable));
+				return DcFail(DC_DIAG(DcDCommon, Unreachable));
 			}
 		}
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -233,7 +233,7 @@ FDcResult FReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FCont
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
@@ -247,7 +247,7 @@ FDcResult FReadStateClass::ReadNil(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectNil << (int)State;
 	}
 }
@@ -266,7 +266,7 @@ FDcResult FReadStateClass::ReadReference(UObject** OutPtr, FContextStorage* CtxP
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectReference << (int)State;
 	}
 }
@@ -333,7 +333,7 @@ FDcResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateNoExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -343,7 +343,7 @@ FDcResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FContex
 	if (State == EState::ExpectKey)
 	{
 		checkNoEntry();	// shouldn't be hanndled in `ReadName`
-		return DcFail(DC_DIAG(DCommon, Unreachable));
+		return DcFail(DC_DIAG(DcDCommon, Unreachable));
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -359,13 +359,13 @@ FDcResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FContex
 		}
 		else
 		{
-			return DcFail(DC_DIAG(DReadWrite, PropertyMismatch))
+			return DcFail(DC_DIAG(DcDReadWrite, PropertyMismatch))
 				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName();
 		}
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -387,7 +387,7 @@ FDcResult FReadStateStruct::EndReadValue()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectValue << (int)State;
 	}
 }
@@ -413,7 +413,7 @@ FDcResult FReadStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* C
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -435,7 +435,7 @@ FDcResult FReadStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* Ct
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
@@ -490,7 +490,7 @@ FDcResult FReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FContextSt
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
 		|| State == EState::ExpectEnd)
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateNoExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 
 	FScriptMapHelper MapHelper(MapProperty, MapPtr);
@@ -536,7 +536,7 @@ FDcResult FReadStateMap::EndReadValue()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateNoExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 	}
 }
@@ -566,7 +566,7 @@ FDcResult FReadStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -580,7 +580,7 @@ FDcResult FReadStateMap::ReadMapEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
@@ -634,7 +634,7 @@ FDcResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FContext
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
 		|| State == EState::ExpectEnd)
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateNoExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateNoExpect))
 			<< (int)State;
 
 	check(State == EState::ExpectItem);
@@ -664,7 +664,7 @@ FDcResult FReadStateArray::EndReadValue()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectItem << (int)State;
 	}
 }
@@ -692,7 +692,7 @@ FDcResult FReadStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectRoot << (int)State;
 	}
 }
@@ -706,7 +706,7 @@ FDcResult FReadStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)EState::ExpectEnd << (int)State;
 	}
 }

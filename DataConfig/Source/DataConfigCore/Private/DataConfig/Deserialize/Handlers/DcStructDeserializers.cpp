@@ -5,6 +5,8 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
+namespace DcHandlers {
+
 static FName GetStructName(UField* Property)
 {
 	if (UStructProperty* StructProperty = Cast<UStructProperty>(Property))
@@ -59,7 +61,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			}
 			else
 			{
-				return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
+				return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
 					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
@@ -77,8 +79,10 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch))
+		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch))
 			<< EDataEntry::MapRoot << Next;
 	}
 }
+
+}	// namespace DcHandlers
 

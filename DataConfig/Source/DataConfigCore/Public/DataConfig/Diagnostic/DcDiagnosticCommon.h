@@ -2,7 +2,7 @@
 
 #include "HAL/Platform.h"
 
-namespace DCommon
+namespace DcDCommon
 {
 
 static const uint16 Category = 0x1;

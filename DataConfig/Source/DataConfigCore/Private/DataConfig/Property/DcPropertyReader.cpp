@@ -178,7 +178,7 @@ FDcResult FDcPropertyReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* C
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateStruct::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -226,7 +226,7 @@ FDcResult FDcPropertyReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FCo
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -265,7 +265,7 @@ FDcResult FDcPropertyReader::ReadMapEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateMap::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -305,7 +305,7 @@ FDcResult FDcPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateArray::ID << (int)GetTopState(this).GetType();
 
 	}
@@ -321,7 +321,7 @@ FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr, FContextStorage* Ct
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 
 	}
@@ -336,7 +336,7 @@ FDcResult FDcPropertyReader::ReadNil(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
+		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
 			<< (int)FReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }

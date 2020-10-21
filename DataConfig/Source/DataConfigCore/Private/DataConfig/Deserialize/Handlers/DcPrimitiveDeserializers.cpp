@@ -2,6 +2,8 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
+namespace DcHandlers {
+
 FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UBoolProperty>())
@@ -45,7 +47,7 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
+		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
 			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }
@@ -76,8 +78,10 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
+		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
 			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }
+
+}	// namespace DcHandlers
 

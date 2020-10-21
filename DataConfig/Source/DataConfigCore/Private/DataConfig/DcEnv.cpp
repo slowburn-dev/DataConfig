@@ -58,6 +58,6 @@ FDcResult DcExpect(bool CondToBeTrue) {
 	if (CondToBeTrue)
 		return DcOk();
 	else
-		return DcFail(DC_DIAG(DCommon, PlaceHoldError));
+		return DcFail(DC_DIAG(DcDCommon, PlaceHoldError));
 }
 

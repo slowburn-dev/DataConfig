@@ -6,6 +6,8 @@
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "UObject/Package.h"
 
+namespace DcHandlers {
+
 FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
@@ -63,7 +65,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			}
 			else
 			{
-				return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
+				return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
 					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
@@ -81,7 +83,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch))
+		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch))
 			<< EDataEntry::MapRoot << Next;
 	}
 }
@@ -217,7 +219,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch3))
+		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch3))
 			<< EDataEntry::MapRoot << EDataEntry::String << EDataEntry::String << Next;
 	}
 }
@@ -363,7 +365,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		}
 		else
 		{
-			return DcFail(DC_DIAG(DDeserialize, DataEntryMismatch2))
+			return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
 				<< EDataEntry::Name << EDataEntry::String << CurPeek;
 		}
 
@@ -380,4 +382,6 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	check(PutbackReader.Cached.Num() == 0);
 	return DcOkWithProcessed(OutRet);
 }
+
+}	// namespace DcHandlers
 

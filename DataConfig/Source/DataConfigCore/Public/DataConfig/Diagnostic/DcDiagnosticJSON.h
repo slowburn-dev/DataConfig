@@ -2,7 +2,7 @@
 
 #include "HAL/Platform.h"
 
-namespace DJSON
+namespace DcDJSON
 {
 	static const uint16 Category = 0x3;
 

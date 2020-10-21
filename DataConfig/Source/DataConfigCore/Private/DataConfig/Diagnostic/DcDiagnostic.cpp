@@ -19,13 +19,13 @@ static const FDcDiagnosticDetail* SearchDetails(uint16 InID, const FDcDiagnostic
 const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError)
 {
 	//	TODO make this a jump table
-	if (InError.CategoryID == DCommon::Category)
+	if (InError.CategoryID == DcDCommon::Category)
 		return SearchDetails(InError.ErrorID, DCommonDetails);
-	if (InError.CategoryID == DReadWrite::Category)
+	if (InError.CategoryID == DcDReadWrite::Category)
 		return SearchDetails(InError.ErrorID, DPropertyReadWriteDetails);
-	if (InError.CategoryID == DJSON::Category)
+	if (InError.CategoryID == DcDJSON::Category)
 		return SearchDetails(InError.ErrorID, DJSONDetails);
-	if (InError.CategoryID == DDeserialize::Category)
+	if (InError.CategoryID == DcDDeserialize::Category)
 		return SearchDetails(InError.ErrorID, DDeserializeDetails);
 
 	return nullptr;
