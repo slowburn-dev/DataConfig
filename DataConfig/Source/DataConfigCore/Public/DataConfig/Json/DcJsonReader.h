@@ -27,11 +27,11 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	EDcDataEntry Peek() override;
 
-	FDcResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadMapRoot(FContextStorage* CtxPtr) override;
-	FDcResult ReadMapEnd(FContextStorage* CtxPtr) override;
+	FDcResult ReadBool(bool* OutPtr) override;
+	FDcResult ReadName(FName* OutPtr) override;
+	FDcResult ReadString(FString* OutPtr) override;
+	FDcResult ReadMapRoot() override;
+	FDcResult ReadMapEnd() override;
 
 	bool IsAtEnd();
 	void Advance();

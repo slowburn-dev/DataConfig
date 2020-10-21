@@ -127,22 +127,3 @@ struct FDcClassPropertyStat
 	EDcDataReference Reference;
 };
 
-//	TODO delete this
-struct DATACONFIGCORE_API FContextStorage : private FNoncopyable
-{
-	using ImplStorageType = TDcAlignedStorage<64>::Type;
-	ImplStorageType ImplStorage;
-
-	template<typename TContext, typename... TArgs>
-	TContext& Emplace(TArgs&&... Args)
-	{
-		check(IsEmpty());
-		return (new (this)TContext(Forward<TArgs>(Args)...));
-	}
-
-	FContextStorage();
-	~FContextStorage();
-	bool IsEmpty();
-};
-
-

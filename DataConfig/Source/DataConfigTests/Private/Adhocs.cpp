@@ -199,42 +199,42 @@ void PropertyVisitorRoundtrip_ReadNested()
 
 	//	Root
 	check(Reader.Peek() == EDcDataEntry::StructRoot);
-	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
+	check(Reader.ReadStructRoot(nullptr).Ok());
 
 	//	AName
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 
 	//	Nest Struct
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 	check(Reader.Peek() == EDcDataEntry::StructRoot);
-	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
+	check(Reader.ReadStructRoot(nullptr).Ok());
 
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 
 
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 	check(Reader.Peek() == EDcDataEntry::Bool);
-	check(Reader.ReadBool(nullptr, nullptr).Ok());
+	check(Reader.ReadBool(nullptr).Ok());
 
 	check(Reader.Peek() == EDcDataEntry::Name);
-	check(Reader.ReadName(nullptr, nullptr).Ok());
+	check(Reader.ReadName(nullptr).Ok());
 	check(Reader.Peek() == EDcDataEntry::String);
-	check(Reader.ReadString(nullptr, nullptr).Ok());
+	check(Reader.ReadString(nullptr).Ok());
 
 	check(Reader.Peek() == EDcDataEntry::StructEnd);
-	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
+	check(Reader.ReadStructEnd(nullptr).Ok());
 
 	//	Pop 1 Level
 	check(Reader.Peek() == EDcDataEntry::StructEnd);
-	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
+	check(Reader.ReadStructEnd(nullptr).Ok());
 
 	check(Reader.Peek() == EDcDataEntry::Ended);
 }
@@ -383,23 +383,23 @@ void TryOutPutback()
 	FDcPutbackReader Reader(&RawReader);
 
 	check(Reader.Peek() == EDcDataEntry::StructRoot);
-	check(Reader.ReadStructRoot(nullptr, nullptr).Ok());
+	check(Reader.ReadStructRoot(nullptr).Ok());
 
 	Reader.Putback(FName(TEXT("Foo")));
 	Reader.Putback(FName(TEXT("Bar")));
 
 	check(Reader.Peek() == EDcDataEntry::Name);
 	FName Name1;
-	check(Reader.ReadName(&Name1, nullptr).Ok());
+	check(Reader.ReadName(&Name1).Ok());
 	check(Name1 == FName(TEXT("Foo")));
 
 	check(Reader.Peek() == EDcDataEntry::Name);
 	FName Name2;
-	check(Reader.ReadName(&Name2, nullptr).Ok());
+	check(Reader.ReadName(&Name2).Ok());
 	check(Name2 == FName(TEXT("Bar")));
 
 	check(Reader.Peek() == EDcDataEntry::StructEnd);
-	check(Reader.ReadStructEnd(nullptr, nullptr).Ok());
+	check(Reader.ReadStructEnd(nullptr).Ok());
 
 	check(Reader.Peek() == EDcDataEntry::Ended);
 }

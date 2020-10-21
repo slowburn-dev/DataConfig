@@ -12,15 +12,14 @@ enum class EPropertyReadType
 };
 
 enum class EDcDataEntry;
-struct FContextStorage;
 
 struct FBaseReadState
 {
 	virtual EPropertyReadType GetType() = 0;
 
 	virtual EDcDataEntry Peek();
-	virtual FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr);
-	virtual FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum);
+	virtual FDcResult ReadName(FName* OutNamePtr);
+	virtual FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
 	//	!!!  intentionally ommitting virtual destructor, keep these state trivia
 	template<typename T>
@@ -88,14 +87,14 @@ struct FReadStateClass : public FBaseReadState
 
 	EPropertyReadType GetType() override;
 	EDcDataEntry Peek() override;
-	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadName(FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
 	FDcResult EndReadValue();
-	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
-	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr);
-	FDcResult ReadNil(FContextStorage* CtxPtr);
-	FDcResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr);
+	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr);
+	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr);
+	FDcResult ReadNil();
+	FDcResult ReadReference(UObject** OutPtr);
 
 };
 
@@ -128,12 +127,12 @@ struct FReadStateStruct : public FBaseReadState
 
 	EPropertyReadType GetType() override;
 	EDcDataEntry Peek() override;
-	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadName(FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
 	FDcResult EndReadValue();
-	FDcResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr);
-	FDcResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr);
+	FDcResult ReadStructRoot(FName* OutNamePtr);
+	FDcResult ReadStructEnd(FName* OutNamePtr);
 };
 
 struct FReadStateMap : public FBaseReadState
@@ -165,12 +164,12 @@ struct FReadStateMap : public FBaseReadState
 
 	EPropertyReadType GetType() override;
 	EDcDataEntry Peek() override;
-	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadName(FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
 	FDcResult EndReadValue();
-	FDcResult ReadMapRoot(FContextStorage* CtxPtr);
-	FDcResult ReadMapEnd(FContextStorage* CtxPtr);
+	FDcResult ReadMapRoot();
+	FDcResult ReadMapEnd();
 };
 
 struct FReadStateArray : public FBaseReadState
@@ -200,12 +199,12 @@ struct FReadStateArray : public FBaseReadState
 
 	EPropertyReadType GetType() override;
 	EDcDataEntry Peek() override;
-	FDcResult ReadName(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadName(FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
 	FDcResult EndReadValue();
-	FDcResult ReadArrayRoot(FContextStorage* CtxPtr);
-	FDcResult ReadArrayEnd(FContextStorage* CtxPtr);
+	FDcResult ReadArrayRoot();
+	FDcResult ReadArrayEnd();
 };
 
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway

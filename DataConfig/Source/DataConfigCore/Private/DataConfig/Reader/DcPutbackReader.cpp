@@ -29,7 +29,7 @@ EDcDataEntry FDcPutbackReader::Peek()
 	}
 }
 
-FDcResult FDcPutbackReader::ReadNil(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadNil()
 {
 	if (Cached.Num() > 0)
 	{
@@ -37,11 +37,11 @@ FDcResult FDcPutbackReader::ReadNil(FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Reader->ReadNil(CtxPtr);
+		return Reader->ReadNil();
 	}
 }
 
-FDcResult FDcPutbackReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadBool(bool* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -49,11 +49,11 @@ FDcResult FDcPutbackReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Reader->ReadBool(OutPtr, CtxPtr);
+		return Reader->ReadBool(OutPtr);
 	}
 }
 
-FDcResult FDcPutbackReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadName(FName* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -61,11 +61,11 @@ FDcResult FDcPutbackReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Reader->ReadName(OutPtr, CtxPtr);
+		return Reader->ReadName(OutPtr);
 	}
 }
 
-FDcResult FDcPutbackReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadString(FString* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -73,53 +73,53 @@ FDcResult FDcPutbackReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 	}
 	else
 	{
-		return Reader->ReadString(OutPtr, CtxPtr);
+		return Reader->ReadString(OutPtr);
 	}
 }
 
-FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr)
 {
-	return Reader->ReadStructRoot(OutNamePtr, CtxPtr);
+	return Reader->ReadStructRoot(OutNamePtr);
 }
 
-FDcResult FDcPutbackReader::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadStructEnd(FName* OutNamePtr)
 {
-	return Reader->ReadStructEnd(OutNamePtr, CtxPtr);
+	return Reader->ReadStructEnd(OutNamePtr);
 }
 
-FDcResult FDcPutbackReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 {
-	return Reader->ReadClassRoot(OutClassPtr, CtxPtr);
+	return Reader->ReadClassRoot(OutClassPtr);
 }
 
-FDcResult FDcPutbackReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 {
-	return Reader->ReadClassEnd(OutClassPtr, CtxPtr);
+	return Reader->ReadClassEnd(OutClassPtr);
 }
 
-FDcResult FDcPutbackReader::ReadMapRoot(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadMapRoot()
 {
-	return Reader->ReadMapRoot(CtxPtr);
+	return Reader->ReadMapRoot();
 }
 
-FDcResult FDcPutbackReader::ReadMapEnd(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadMapEnd()
 {
-	return Reader->ReadMapEnd(CtxPtr);
+	return Reader->ReadMapEnd();
 }
 
-FDcResult FDcPutbackReader::ReadArrayRoot(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadArrayRoot()
 {
-	return Reader->ReadArrayRoot(CtxPtr);
+	return Reader->ReadArrayRoot();
 }
 
-FDcResult FDcPutbackReader::ReadArrayEnd(FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadArrayEnd()
 {
-	return Reader->ReadArrayEnd(CtxPtr);
+	return Reader->ReadArrayEnd();
 }
 
-FDcResult FDcPutbackReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPutbackReader::ReadReference(UObject** OutPtr)
 {
-	return Reader->ReadReference(OutPtr, CtxPtr);
+	return Reader->ReadReference(OutPtr);
 }
 
 

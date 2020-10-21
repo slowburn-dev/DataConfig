@@ -50,7 +50,7 @@ EDcDataEntry FDcJsonReader::Peek()
 	return EDcDataEntry::Ended;
 }
 
-FDcResult FDcJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadBool(bool* OutPtr)
 {
 	ReadWhiteSpace();
 	//	TODO end check
@@ -86,7 +86,7 @@ FDcResult FDcJsonReader::ReadBool(bool* OutPtr, FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FDcJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadName(FName* OutPtr)
 {
 	ReadWhiteSpace();
 	//	TODO end check
@@ -111,7 +111,7 @@ FDcResult FDcJsonReader::ReadName(FName* OutPtr, FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FDcJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 {
 	ReadWhiteSpace();
 
@@ -250,7 +250,7 @@ FDcResult FDcJsonReader::EndTopRead()
 	}
 }
 
-FDcResult FDcJsonReader::ReadMapRoot(FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadMapRoot()
 {
 	DC_TRY(ReadCharExpect(TCharType('{')));
 	PushTopState(EParseState::Object);
@@ -259,7 +259,7 @@ FDcResult FDcJsonReader::ReadMapRoot(FContextStorage* CtxPtr)
 	return DcOk();
 }
 
-FDcResult FDcJsonReader::ReadMapEnd(FContextStorage* CtxPtr)
+FDcResult FDcJsonReader::ReadMapEnd()
 {
 	DC_TRY(ReadCharExpect(TCharType('}')));
 	PopTopState(EParseState::Object);

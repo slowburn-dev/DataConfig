@@ -18,15 +18,15 @@ namespace
 
 static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClass)
 {
-	DC_TRY(Reader.ReadMapRoot(nullptr));
+	DC_TRY(Reader.ReadMapRoot());
 
 	FString Value;
-	DC_TRY(Reader.ReadString(&Value, nullptr));
+	DC_TRY(Reader.ReadString(&Value));
 
 	if (Value != TEXT("$type"))
 		return DcFail();
 
-	DC_TRY(Reader.ReadString(&Value, nullptr));
+	DC_TRY(Reader.ReadString(&Value));
 
 	//	TODO support path and other things, for now just use FindObject<UClass>
 	OutDataClass = FindObject<UClass>(ANY_PACKAGE, *Value, true);

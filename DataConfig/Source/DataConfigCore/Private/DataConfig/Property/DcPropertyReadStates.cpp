@@ -9,12 +9,12 @@ EDcDataEntry FBaseReadState::Peek()
 	return EDcDataEntry::Ended;
 }
 
-FDcResult FBaseReadState::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FBaseReadState::ReadName(FName* OutNamePtr)
 {
 	return DcFail(DC_DIAG(DcDCommon, NotImplemented));
 }
 
-FDcResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum)
+FDcResult FBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	return DcFail(DC_DIAG(DcDCommon, NotImplemented));
 }
@@ -63,7 +63,7 @@ EDcDataEntry FReadStateClass::Peek()
 	}
 }
 
-FDcResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FReadStateClass::ReadName(FName* OutNamePtr)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -79,7 +79,7 @@ FDcResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	else if (State == EState::ExpectValue)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
+		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
 		if (OutNamePtr)
 		{
@@ -95,7 +95,7 @@ FDcResult FReadStateClass::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum)
+FDcResult FReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -149,7 +149,7 @@ FDcResult FReadStateClass::EndReadValue()
 	}
 }
 
-FDcResult FReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -215,7 +215,7 @@ FDcResult FReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FCon
 	}
 }
 
-FDcResult FReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr)
+FDcResult FReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -238,7 +238,7 @@ FDcResult FReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FCont
 	}
 }
 
-FDcResult FReadStateClass::ReadNil(FContextStorage* CtxPtr)
+FDcResult FReadStateClass::ReadNil()
 {
 	if (State == EState::ExpectNil)
 	{
@@ -252,7 +252,7 @@ FDcResult FReadStateClass::ReadNil(FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FReadStateClass::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+FDcResult FReadStateClass::ReadReference(UObject** OutPtr)
 {
 	if (State == EState::ExpectReference)
 	{
@@ -306,7 +306,7 @@ EDcDataEntry FReadStateStruct::Peek()
 	}
 }
 
-FDcResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FReadStateStruct::ReadName(FName* OutNamePtr)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -322,7 +322,7 @@ FDcResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	else if (State == EState::ExpectValue)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
+		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
 		if (OutNamePtr)
 		{
@@ -338,7 +338,7 @@ FDcResult FReadStateStruct::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum)
+FDcResult FReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -392,7 +392,7 @@ FDcResult FReadStateStruct::EndReadValue()
 	}
 }
 
-FDcResult FReadStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FReadStateStruct::ReadStructRoot(FName* OutNamePtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -418,7 +418,7 @@ FDcResult FReadStateStruct::ReadStructRoot(FName* OutNamePtr, FContextStorage* C
 	}
 }
 
-FDcResult FReadStateStruct::ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FReadStateStruct::ReadStructEnd(FName* OutNamePtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -472,10 +472,10 @@ EDcDataEntry FReadStateMap::Peek()
 	}
 }
 
-FDcResult FReadStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FReadStateMap::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
+	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
 	if (OutNamePtr)
 	{
@@ -485,7 +485,7 @@ FDcResult FReadStateMap::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return DcOk();
 }
 
-FDcResult FReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum)
+FDcResult FReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -541,7 +541,7 @@ FDcResult FReadStateMap::EndReadValue()
 	}
 }
 
-FDcResult FReadStateMap::ReadMapRoot(FContextStorage* CtxPtr)
+FDcResult FReadStateMap::ReadMapRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -571,7 +571,7 @@ FDcResult FReadStateMap::ReadMapRoot(FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FReadStateMap::ReadMapEnd(FContextStorage* CtxPtr)
+FDcResult FReadStateMap::ReadMapEnd()
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -616,10 +616,10 @@ EDcDataEntry FReadStateArray::Peek()
 	}
 }
 
-FDcResult FReadStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
+FDcResult FReadStateArray::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), CtxPtr, Datum));
+	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
 	if (OutNamePtr)
 	{
@@ -629,7 +629,7 @@ FDcResult FReadStateArray::ReadName(FName* OutNamePtr, FContextStorage* CtxPtr)
 	return DcOk();
 }
 
-FDcResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FContextStorage* CtxPtr, FDcPropertyDatum& OutDatum)
+FDcResult FReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -669,7 +669,7 @@ FDcResult FReadStateArray::EndReadValue()
 	}
 }
 
-FDcResult FReadStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
+FDcResult FReadStateArray::ReadArrayRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -697,7 +697,7 @@ FDcResult FReadStateArray::ReadArrayRoot(FContextStorage* CtxPtr)
 	}
 }
 
-FDcResult FReadStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
+FDcResult FReadStateArray::ReadArrayEnd()
 {
 	if (State == EState::ExpectEnd)
 	{

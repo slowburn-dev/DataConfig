@@ -11,19 +11,19 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 
 	EDcDataEntry Peek() override;
 
-	FDcResult ReadNil(FContextStorage* CtxPtr) override;
-	FDcResult ReadBool(bool* OutPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadName(FName* OutPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadString(FString* OutPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadStructRoot(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadStructEnd(FName* OutNamePtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr, FContextStorage* CtxPtr) override;
-	FDcResult ReadMapRoot(FContextStorage* CtxPtr) override;
-	FDcResult ReadMapEnd(FContextStorage* CtxPtr) override;
-	FDcResult ReadArrayRoot(FContextStorage* CtxPtr) override;
-	FDcResult ReadArrayEnd(FContextStorage* CtxPtr) override;
-	FDcResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) override;
+	FDcResult ReadNil() override;
+	FDcResult ReadBool(bool* OutPtr) override;
+	FDcResult ReadName(FName* OutPtr) override;
+	FDcResult ReadString(FString* OutPtr) override;
+	FDcResult ReadStructRoot(FName* OutNamePtr) override;
+	FDcResult ReadStructEnd(FName* OutNamePtr) override;
+	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr) override;
+	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr) override;
+	FDcResult ReadMapRoot() override;
+	FDcResult ReadMapEnd() override;
+	FDcResult ReadArrayRoot() override;
+	FDcResult ReadArrayEnd() override;
+	FDcResult ReadReference(UObject** OutPtr) override;
 
 	template<typename T>
 	void Putback(T&& InValue);

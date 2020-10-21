@@ -23,7 +23,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 
 	if (Next == EDcDataEntry::MapRoot)
 	{
-		DC_TRY(Ctx.Reader->ReadMapRoot(nullptr));
+		DC_TRY(Ctx.Reader->ReadMapRoot());
 		FDcClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDcDataReference::ExpandObject };
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
@@ -36,10 +36,10 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 				DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
 				FName Value;
-				DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
+				DC_TRY(Ctx.Reader->ReadName(&Value));
 				if (DcIsMeta(Value))
 				{
-					DC_TRY(Ctx.Reader->ReadName(nullptr, nullptr));
+					DC_TRY(Ctx.Reader->ReadName(nullptr));
 					continue;
 				}
 				else
@@ -52,10 +52,10 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 				DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
 				FString Value;
-				DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
+				DC_TRY(Ctx.Reader->ReadString(&Value));
 				if (DcIsMeta(Value))
 				{
-					DC_TRY(Ctx.Reader->ReadString(nullptr, nullptr));
+					DC_TRY(Ctx.Reader->ReadString(nullptr));
 					continue;
 				}
 				else
@@ -76,7 +76,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			CurPeek = Ctx.Reader->Peek();
 		}
 
-		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
+		DC_TRY(Ctx.Reader->ReadMapEnd());
 		DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 		return DcOkWithProcessed(OutRet);
@@ -126,7 +126,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	if (Next == EDcDataEntry::String)
 	{
 		FString Value;
-		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&Value));
 
 		if (Value.EndsWith(TEXT("'")))
 		{
@@ -182,20 +182,20 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		//
 		//	note that this is ordred and type and path needs to be first 2 items
 
-		DC_TRY(Ctx.Reader->ReadMapRoot(nullptr));
+		DC_TRY(Ctx.Reader->ReadMapRoot());
 		FString MetaKey;
-		DC_TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&MetaKey));
 		DC_TRY(DcExpect(MetaKey == TEXT("$type")));
 
 		FString LoadClassName;
-		DC_TRY(Ctx.Reader->ReadString(&LoadClassName, nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&LoadClassName));
 
-		DC_TRY(Ctx.Reader->ReadString(&MetaKey, nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&MetaKey));
 		DC_TRY(DcExpect(MetaKey == TEXT("$path")));
 
 		FString LoadPath;
-		DC_TRY(Ctx.Reader->ReadString(&LoadPath, nullptr));
-		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
+		DC_TRY(Ctx.Reader->ReadString(&LoadPath));
+		DC_TRY(Ctx.Reader->ReadMapEnd());
 
 		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *LoadClassName, true);
 		DC_TRY(DcExpect(LoadClass != nullptr));
@@ -261,17 +261,17 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		return DcFail();
 	}
 
-	DC_TRY(PutbackReader.ReadMapRoot(nullptr));
+	DC_TRY(PutbackReader.ReadMapRoot());
 
 	UClass* SubClassType = nullptr;
 
 	FString MetaKey;
-	DC_TRY(PutbackReader.ReadString(&MetaKey, nullptr));
+	DC_TRY(PutbackReader.ReadString(&MetaKey));
 	if (MetaKey == TEXT("$type"))
 	{
 		//	has `$type`
 		FString TypeStr;
-		DC_TRY(PutbackReader.ReadString(&TypeStr, nullptr));
+		DC_TRY(PutbackReader.ReadString(&TypeStr));
 
 		//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
 		//		console Program linking Engine just doesn't work
@@ -352,7 +352,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 			DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
 			FName Value;
-			DC_TRY(PutbackReader.ReadName(&Value, nullptr));
+			DC_TRY(PutbackReader.ReadName(&Value));
 			DC_TRY(Ctx.Writer->WriteName(Value));
 		}
 		else if (CurPeek == EDcDataEntry::String)
@@ -360,7 +360,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 			DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
 
 			FString Value;
-			DC_TRY(PutbackReader.ReadString(&Value, nullptr));
+			DC_TRY(PutbackReader.ReadString(&Value));
 			DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
 		}
 		else
@@ -376,7 +376,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		CurPeek = PutbackReader.Peek();
 	}
 
-	DC_TRY(PutbackReader.ReadMapEnd(nullptr));
+	DC_TRY(PutbackReader.ReadMapEnd());
 	DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 	check(PutbackReader.Cached.Num() == 0);
