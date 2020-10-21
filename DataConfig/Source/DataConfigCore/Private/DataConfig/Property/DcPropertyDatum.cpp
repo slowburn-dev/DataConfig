@@ -1,7 +1,5 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 
-namespace DataConfig {
-
 const FDcPropertyDatum FDcPropertyDatum::NONE = FDcPropertyDatum();
 
 FDcPropertyDatum::FDcPropertyDatum()
@@ -29,6 +27,4 @@ FDcPropertyDatum::FDcPropertyDatum(UObject* ClassObject)
 	Property = ClassObject->GetClass();
 	DataPtr = ClassObject;
 }
-
-} // namespace DataConfig
 

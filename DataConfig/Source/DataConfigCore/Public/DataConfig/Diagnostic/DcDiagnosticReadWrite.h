@@ -2,8 +2,6 @@
 
 #include "HAL/Platform.h"
 
-namespace DataConfig
-{
 
 namespace DReadWrite
 {
@@ -24,7 +22,5 @@ namespace DReadWrite
 		StructNameMismatch,
 	};
 
-} // namespace DataConfig::DPropertyReadWrite
+} // namespace DPropertyReadWrite
 
-
-} // namespace DataConfig

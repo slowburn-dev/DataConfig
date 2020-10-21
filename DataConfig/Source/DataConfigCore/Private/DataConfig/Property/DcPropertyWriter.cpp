@@ -1,8 +1,6 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyWriteStates.h"
 
-namespace DataConfig {
-
 static FORCEINLINE FBaseWriteState& GetTopState(FDcPropertyWriter* Self)
 {
 	return *reinterpret_cast<FBaseWriteState*>(&Self->States.Top().ImplStorage);
@@ -283,7 +281,7 @@ FDcResult FDcPropertyWriter::WriteArrayEnd()
 	}
 }
 
-DataConfig::FDcResult FDcPropertyWriter::WriteNil()
+FDcResult FDcPropertyWriter::WriteNil()
 {
 	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
 	{
@@ -296,7 +294,7 @@ DataConfig::FDcResult FDcPropertyWriter::WriteNil()
 	}
 }
 
-DataConfig::FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
+FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 {
 	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
 	{
@@ -319,9 +317,8 @@ FDcResult FDcPropertyWriter::PeekWriteProperty(UField** OutProperty)
 	return GetTopState(this).PeekWriteProperty(OutProperty);
 }
 
-DataConfig::FDcResult FDcPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	return GetTopState(this).WriteDataEntry(ExpectedPropertyClass, OutDatum);
 }
 
-} // namespace DataConfig

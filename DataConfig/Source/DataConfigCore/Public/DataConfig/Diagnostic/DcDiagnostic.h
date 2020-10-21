@@ -5,9 +5,6 @@
 
 #include "Templates/IsEnumClass.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcDiagnostic
 {
 	FDcErrorCode Code;
@@ -86,8 +83,6 @@ size_t DcDimOf(T(&)[N])
 {
 	return N;
 }
-
-} // namespace DataConfig
 
 
 

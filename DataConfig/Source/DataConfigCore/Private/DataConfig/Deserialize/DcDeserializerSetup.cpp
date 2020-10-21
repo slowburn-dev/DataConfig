@@ -7,28 +7,24 @@
 #include "DataConfig/Deserialize/Handlers/DcStructDeserializers.h"
 #include "DataConfig/Deserialize/Handlers/DcClassDeserializers.h"
 
-namespace DataConfig
-{
-
-void SetupDefaultDeserializeHandlers(FDeserializer& Deserializer)
+void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 {
 	//	Primitives
-	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
-	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
-	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerStringDeserialize));
+	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
+	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
+	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStringDeserialize));
 
 	//	Struct
-	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));
-	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));
+	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));
+	Deserializer.AddDirectHandler(UStructProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));
 
 	//	Class
-	Deserializer.AddDirectHandler(UClass::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerClassRootDeserialize));
+	Deserializer.AddDirectHandler(UClass::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassRootDeserialize));
 	Deserializer.AddPredicatedHandler(
-		FDeserializePredicate::CreateStatic(PredicateIsSubObjectProperty),
-		FDeserializeDelegate::CreateStatic(HandlerInstancedSubObjectDeserialize)
+		FDcDeserializePredicate::CreateStatic(PredicateIsSubObjectProperty),
+		FDcDeserializeDelegate::CreateStatic(HandlerInstancedSubObjectDeserialize)
 	);
-	Deserializer.AddDirectHandler(UObjectProperty::StaticClass(), FDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
+	Deserializer.AddDirectHandler(UObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 
 }
 
-} // namespace DataConfig

@@ -4,9 +4,6 @@
 
 class UField;
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcPropertyDatum
 {
 	UField* Property;
@@ -45,9 +42,6 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 
 	static const FDcPropertyDatum NONE;
 };
-
-
-}	// namespace DataConfig
 
 
 

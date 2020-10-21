@@ -4,14 +4,8 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
-namespace DataConfig
-{
-
-FDcResult DATACONFIGCORE_API HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-FDcResult DATACONFIGCORE_API HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-FDcResult DATACONFIGCORE_API HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-
-
-} // namespace DataConfig
+FDcResult DATACONFIGCORE_API HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+FDcResult DATACONFIGCORE_API HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+FDcResult DATACONFIGCORE_API HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 

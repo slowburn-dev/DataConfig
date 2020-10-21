@@ -5,24 +5,13 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
-namespace DataConfig
+struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 {
+	FDcResult Deserialize(FDcDeserializeContext& Ctx);
 
-struct DATACONFIGCORE_API FDeserializer : public FNoncopyable
-{
-	FDcResult Deserialize(FDeserializeContext& Ctx);
+	void AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate);
+	void AddPredicatedHandler(FDcDeserializePredicate&& Predicate, FDcDeserializeDelegate&& Delegate);
 
-	void AddDirectHandler(UClass* PropertyClass, FDeserializeDelegate&& Delegate);
-	void AddPredicatedHandler(FDeserializePredicate&& Predicate, FDeserializeDelegate&& Delegate);
-
-	TArray<TTuple<FDeserializePredicate, FDeserializeDelegate>> PredicatedDeserializers;
-	TMap<UClass*, FDeserializeDelegate> DirectDeserializersMap;
+	TArray<TTuple<FDcDeserializePredicate, FDcDeserializeDelegate>> PredicatedDeserializers;
+	TMap<UClass*, FDcDeserializeDelegate> DirectDeserializersMap;
 };
-
-
-} // namespace DataConfig
-
-
-
-
-

@@ -23,10 +23,8 @@ static void Dump(FDcPropertyDatum Datum)
 
 void DeserializeSimple()
 {
-	using namespace DataConfig;
-
-	FDeserializer Deserializer;
-	SetupDefaultDeserializeHandlers(Deserializer);
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -41,7 +39,7 @@ void DeserializeSimple()
 	FTestStruct_Alpha OutAlpha;
 	FDcPropertyWriter Writer(FDcPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
 
-	FDeserializeContext Ctx;
+	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
@@ -54,10 +52,8 @@ void DeserializeSimple()
 
 void DeserializeNestedStruct()
 {
-	using namespace DataConfig;
-
-	FDeserializer Deserializer;
-	SetupDefaultDeserializeHandlers(Deserializer);
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -78,7 +74,7 @@ void DeserializeNestedStruct()
 	FNestStruct1 OutNest;
 	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
 
-	FDeserializeContext Ctx;
+	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
@@ -91,10 +87,8 @@ void DeserializeNestedStruct()
 
 void DeserializeObjectRoot()
 {
-	using namespace DataConfig;
-
-	FDeserializer Deserializer;
-	SetupDefaultDeserializeHandlers(Deserializer);
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
 
 	UTestClass_Alpha* Obj = NewObject<UTestClass_Alpha>();
 	FDcPropertyWriter Writer(FDcPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
@@ -113,7 +107,7 @@ void DeserializeObjectRoot()
 	)");
 	Reader.SetNewString(&Str);
 
-	FDeserializeContext Ctx;
+	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
@@ -126,10 +120,8 @@ void DeserializeObjectRoot()
 
 void DeserializeObjectRef()
 {
-	using namespace DataConfig;
-
-	FDeserializer Deserializer;
-	SetupDefaultDeserializeHandlers(Deserializer);
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
 
 	FObjReference ObjRef{};		// default initialized OR READER WILL THROW
 	FDcPropertyWriter Writer(FDcPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
@@ -148,7 +140,7 @@ void DeserializeObjectRef()
 	)");
 	Reader.SetNewString(&Str);
 
-	FDeserializeContext Ctx;
+	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
@@ -160,10 +152,8 @@ void DeserializeObjectRef()
 
 void DeserializeSubObject()
 {
-	using namespace DataConfig;
-
-	FDeserializer Deserializer;
-	SetupDefaultDeserializeHandlers(Deserializer);
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
 
 	FShapeContainer Obj{};
 	FDcPropertyWriter Writer(FDcPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
@@ -186,7 +176,7 @@ void DeserializeSubObject()
 	)");
 	Reader.SetNewString(&Str);
 
-	FDeserializeContext Ctx;
+	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;

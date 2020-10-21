@@ -1,8 +1,5 @@
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 
-namespace DataConfig
-{
-
 //	TODO move statics to StartUp
 FString DC_STR_META_TYPE = FString(TEXT("$type"));
 FString DC_STR_META_PATH = FString(TEXT("$path"));
@@ -54,7 +51,5 @@ bool DcIsMeta(const FString& Str)
 
 	return false;
 }
-
-}; // namespace DataConfig
 
 

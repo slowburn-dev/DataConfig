@@ -3,10 +3,6 @@
 class UProperty;
 class UStruct;
 
-namespace DataConfig
-{
-
-
 bool IsEffectiveProperty(UProperty* Property);
 
 size_t CountEffectiveProperties(UStruct* Struct);
@@ -25,4 +21,3 @@ TState& Emplace(TStorage* Storage, TArgs&&... Args)
 	return *(new (Storage) TState(Forward<TArgs>(Args)...));
 }
 
-} // namespace DataConfig

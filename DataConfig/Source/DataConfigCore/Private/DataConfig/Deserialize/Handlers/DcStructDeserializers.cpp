@@ -5,10 +5,6 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
-namespace DataConfig
-{
-
-
 static FName GetStructName(UField* Property)
 {
 	if (UStructProperty* StructProperty = Cast<UStructProperty>(Property))
@@ -25,7 +21,7 @@ static FName GetStructName(UField* Property)
 	}
 }
 
-FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -34,7 +30,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& C
 	if (!bRootPeekPass
 		|| !bWritePass)
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	if (Next == EDataEntry::MapRoot)
@@ -67,7 +63,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& C
 					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
-			FScopedProperty ScopedValueProperty(Ctx);
+			FDcScopedProperty ScopedValueProperty(Ctx);
 			DC_TRY(ScopedValueProperty.PushProperty());
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
@@ -77,7 +73,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& C
 		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
 		DC_TRY(Ctx.Writer->WriteStructEnd(GetStructName(Ctx.TopProperty())));
 
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else
 	{
@@ -86,4 +82,3 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDeserializeContext& C
 	}
 }
 
-} // namespace DataConfig

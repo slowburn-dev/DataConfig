@@ -2,9 +2,6 @@
 
 #include "DataConfig/Writer/DcWriter.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 {
 	FDcResult Peek(EDataEntry Next) override;
@@ -26,9 +23,5 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	TArray<FDcWriter*, TInlineAllocator<4>> Writers;
 
 };
-
-
-}	// namespace DataConfig
-
 
 

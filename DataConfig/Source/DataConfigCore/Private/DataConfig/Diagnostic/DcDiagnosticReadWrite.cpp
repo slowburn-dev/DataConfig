@@ -1,9 +1,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
-namespace DataConfig
-{
-
 static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DReadWrite::InvalidStateNoExpect, TEXT("Invalid internal state. Actual {0}."), },
 	{ DReadWrite::InvalidStateWithExpect, TEXT("Invalid internal state. Expect {0}, Actual {1}."), },
@@ -18,7 +15,5 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 };
 
 FDcDiagnosticGroup DPropertyReadWriteDetails = { DcDimOf(_ReadWriteDetails), _ReadWriteDetails };
-
-} // namespace DataConfig
 
 

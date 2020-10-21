@@ -3,8 +3,6 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
 
-using namespace DataConfig;
-
 void JsonReader1()
 {
 	FDcJsonReader Reader;

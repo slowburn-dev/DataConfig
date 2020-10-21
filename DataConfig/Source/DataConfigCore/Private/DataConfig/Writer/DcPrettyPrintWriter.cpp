@@ -1,10 +1,7 @@
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "Misc/OutputDevice.h"
 
-namespace DataConfig
-{
-
-static const FString PER_INDENT = FString(TEXT("    "));
+static const FString _PER_INDENT = FString(TEXT("    "));
 
 FDcPrettyPrintWriter::FDcPrettyPrintWriter(FOutputDevice& InOutput)
 	: Output(InOutput)
@@ -41,27 +38,27 @@ FDcResult FDcPrettyPrintWriter::WriteString(const FString& Value)
 FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FName& Name)
 {
 	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *Name.ToString());
-	Indent += PER_INDENT;
+	Indent += _PER_INDENT;
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FName& Name)
 {
-	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
+	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
 	Output.Logf(TEXT("%s- struct end: <%s>"), *Indent, *Name.ToString());
 	return DcOk();
 }
 
-DataConfig::FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
+FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 {
 	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *Class.Name.ToString());
-	Indent += PER_INDENT;
+	Indent += _PER_INDENT;
 	return DcOk();
 }
 
-DataConfig::FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
+FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
 {
-	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
+	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
 	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *Class.Name.ToString());
 	return DcOk();
 }
@@ -69,13 +66,13 @@ DataConfig::FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcClassProperty
 FDcResult FDcPrettyPrintWriter::WriteMapRoot()
 {
 	Output.Logf(TEXT("%s- map begin"), *Indent);
-	Indent += PER_INDENT;
+	Indent += _PER_INDENT;
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteMapEnd()
 {
-	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
+	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
 	Output.Logf(TEXT("%s- map end"), *Indent);
 	return DcOk();
 }
@@ -84,18 +81,18 @@ FDcResult FDcPrettyPrintWriter::WriteMapEnd()
 FDcResult FDcPrettyPrintWriter::WriteArrayRoot()
 {
 	Output.Logf(TEXT("%s- array begin"), *Indent);
-	Indent += PER_INDENT;
+	Indent += _PER_INDENT;
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteArrayEnd()
 {
-	Indent = Indent.Left(Indent.Len() - PER_INDENT.Len());
+	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
 	Output.Logf(TEXT("%s- array end"), *Indent);
 	return DcOk();
 }
 
-DataConfig::FDcResult FDcPrettyPrintWriter::WriteReference(UObject* Value)
+FDcResult FDcPrettyPrintWriter::WriteReference(UObject* Value)
 {
 	check(Value);
 	Output.Logf(TEXT("%s- ref: %d"), *Indent, Value->GetUniqueID());
@@ -108,5 +105,3 @@ FDcResult FDcPrettyPrintWriter::WriteNil()
 	return DcOk();
 }
 
-
-}	// namespace DataConfig

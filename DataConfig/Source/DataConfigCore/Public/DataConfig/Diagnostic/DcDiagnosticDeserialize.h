@@ -2,9 +2,6 @@
 
 #include "HAL/Platform.h"
 
-namespace DataConfig
-{
-
 namespace DDeserialize
 {
 	static const uint16 Category = 0x4;
@@ -18,10 +15,8 @@ namespace DDeserialize
 		DataEntryMismatch3,
 	};
 
-	} // namespace DataConfig::DPropertyReadWrite
+} // namespace DPropertyReadWrite
 
-
-} // namespace DataConfig
 
 
 

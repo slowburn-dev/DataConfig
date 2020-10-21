@@ -3,23 +3,20 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "Containers/BasicArray.h"
 
-namespace DataConfig
-{
-
 TBasicArray<FDcEnv> Envs;
 
-FDcEnv& DataConfig::DcEnv()
+FDcEnv& DcEnv()
 {
 	check(DcIsInitialized());
 	return Envs[Envs.Num() - 1];
 }
 
-FDcEnv& DataConfig::DcPushEnv()
+FDcEnv& DcPushEnv()
 {
 	return Envs[Envs.Emplace()];
 }
 
-void DataConfig::DcPopEnv()
+void DcPopEnv()
 {
 	Envs.RemoveAt(Envs.Num() - 1);
 }
@@ -63,6 +60,4 @@ FDcResult DcExpect(bool CondToBeTrue) {
 	else
 		return DcFail(DC_DIAG(DCommon, PlaceHoldError));
 }
-
-} // namespace DataConfig
 

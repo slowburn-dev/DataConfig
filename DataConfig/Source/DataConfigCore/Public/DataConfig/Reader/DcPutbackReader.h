@@ -3,9 +3,6 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Misc/DcDataVariant.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 {
 	FDcPutbackReader(FDcReader* InReader)
@@ -40,6 +37,4 @@ void FDcPutbackReader::Putback(T&& InValue)
 {
 	Cached.Insert(Forward<T>(InValue), 0);
 }
-
-}	// namespace DataConfig
 

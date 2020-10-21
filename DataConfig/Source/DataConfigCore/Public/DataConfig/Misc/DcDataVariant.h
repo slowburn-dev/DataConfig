@@ -5,9 +5,6 @@
 #include "Serialization/MemoryReader.h"
 #include "DataConfig/DcTypes.h"
 
-namespace DataConfig
-{
-
 template<typename T>
 struct TDcDataEntryType
 {
@@ -121,14 +118,5 @@ struct FDcDataVariant
 
 
 static_assert(sizeof(FDcDataVariant) <= 64, "data variant too large");
-
-
-} // namespace DataConfig
-
-
-
-
-
-
 
 

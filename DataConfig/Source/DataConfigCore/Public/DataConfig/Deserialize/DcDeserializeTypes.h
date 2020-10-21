@@ -4,21 +4,18 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
 
-namespace DataConfig
-{
-
 struct FDcReader;
 struct FDcPropertyWriter;
-struct FDeserializer;
+struct FDcDeserializer;
 
-struct DATACONFIGCORE_API FDeserializeContext
+struct DATACONFIGCORE_API FDcDeserializeContext
 {
 	FString Name;
 	TArray<FName, TInlineAllocator<4>> Pathes;
 	TArray<UObject*, TInlineAllocator<4>> Objects;
 	TArray<UField*, TInlineAllocator<8>> Properties;
 
-	FDeserializer* Deserializer;
+	FDcDeserializer* Deserializer;
 	FDcReader* Reader;
 	FDcPropertyWriter* Writer;
 
@@ -26,7 +23,7 @@ struct DATACONFIGCORE_API FDeserializeContext
 	FORCEINLINE UObject* TopObject() { return Objects.Top(); }
 };
 
-enum class EDeserializeResult
+enum class EDcDeserializeResult
 {
 	Unknown,
 	CanNotProcess,
@@ -34,56 +31,54 @@ enum class EDeserializeResult
 	//	failed is implicit as it returns fail
 };
 
-FORCEINLINE FDcResult OkWithCanNotProcess(EDeserializeResult& OutResult)
+FORCEINLINE FDcResult DcOkWithCanNotProcess(EDcDeserializeResult& OutResult)
 {
-	OutResult = EDeserializeResult::CanNotProcess;
+	OutResult = EDcDeserializeResult::CanNotProcess;
 	return DcOk();
 }
 
-FORCEINLINE FDcResult OkWithProcessed(EDeserializeResult& OutResult)
+FORCEINLINE FDcResult DcOkWithProcessed(EDcDeserializeResult& OutResult)
 {
-	OutResult = EDeserializeResult::Processed;
+	OutResult = EDcDeserializeResult::Processed;
 	return DcOk();
 }
 
 
-using FDeserializeDelegateSignature = FDcResult(*)(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
-DECLARE_DELEGATE_RetVal_TwoParams(FDcResult, FDeserializeDelegate, FDeserializeContext&, EDeserializeResult&);
+using FDcDeserializeDelegateSignature = FDcResult(*)(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DECLARE_DELEGATE_RetVal_TwoParams(FDcResult, FDcDeserializeDelegate, FDcDeserializeContext&, EDcDeserializeResult&);
 
-enum class EDeserializePredicateResult
+enum class EDcDeserializePredicateResult
 {
 	Pass,
 	Process,
 };
 
-using FDeserializePredicateSignature = EDeserializePredicateResult(*)(FDeserializeContext& Ctx);
-DECLARE_DELEGATE_RetVal_OneParam(EDeserializePredicateResult, FDeserializePredicate, FDeserializeContext&);
+using FDcDeserializePredicateSignature = EDcDeserializePredicateResult(*)(FDcDeserializeContext& Ctx);
+DECLARE_DELEGATE_RetVal_OneParam(EDcDeserializePredicateResult, FDcDeserializePredicate, FDcDeserializeContext&);
 
-struct DATACONFIGCORE_API FScopedProperty
+struct DATACONFIGCORE_API FDcScopedProperty
 {
-	FScopedProperty(FDeserializeContext& InCtx)
+	FDcScopedProperty(FDcDeserializeContext& InCtx)
 		: Property(nullptr)
 		, Ctx(InCtx)
 	{}
 
 	FDcResult PushProperty();
-	~FScopedProperty();
+	~FDcScopedProperty();
 
 	UField* Property;
-	FDeserializeContext& Ctx;
+	FDcDeserializeContext& Ctx;
 };
 
-struct DATACONFIGCORE_API FScopedObject
+struct DATACONFIGCORE_API FDcScopedObject
 {
-	FScopedObject(FDeserializeContext& InCtx, UObject* InObject);
-	~FScopedObject();
+	FDcScopedObject(FDcDeserializeContext& InCtx, UObject* InObject);
+	~FDcScopedObject();
 
 	UObject* Object;
-	FDeserializeContext& Ctx;
+	FDcDeserializeContext& Ctx;
 };
 
-
-} // namespace DataConfig
 
 
 

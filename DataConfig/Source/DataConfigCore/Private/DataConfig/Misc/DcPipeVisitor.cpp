@@ -2,9 +2,6 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 
-namespace DataConfig
-{
-
 FDcPipeVisitor::FDcPipeVisitor(FDcReader* InReader, FDcWriter* InWriter)
 {
 	Reader = InReader;
@@ -101,11 +98,4 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		}
 	}
 }
-
-
-}	// namespace DataConfig
-
-
-
-
 

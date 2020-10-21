@@ -4,8 +4,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-namespace DataConfig {
-
 EDataEntry FBaseReadState::Peek()
 {
 	return EDataEntry::Ended;
@@ -712,7 +710,4 @@ FDcResult FReadStateArray::ReadArrayEnd(FContextStorage* CtxPtr)
 			<< (int)EState::ExpectEnd << (int)State;
 	}
 }
-
-} // namespace DataConfig
-
 

@@ -1,8 +1,5 @@
 #include "DataConfig/Reader/DcPutbackReader.h"
 
-namespace DataConfig
-{
-
 template<typename TData>
 FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData* OutPtr)
 {
@@ -124,8 +121,5 @@ FDcResult FDcPutbackReader::ReadReference(UObject** OutPtr, FContextStorage* Ctx
 {
 	return Reader->ReadReference(OutPtr, CtxPtr);
 }
-
-}	// namespace DataConfig
-
 
 

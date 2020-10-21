@@ -4,9 +4,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-namespace DataConfig
-{
-
 FDcResult FBaseWriteState::Peek(EDataEntry Next) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 FDcResult FBaseWriteState::WriteName(const FName& Value){ return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 FDcResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
@@ -279,7 +276,7 @@ FDcResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	return DcOk();
 }
 
-DataConfig::FDcResult FWriteStateClass::SkipWrite()
+FDcResult FWriteStateClass::SkipWrite()
 {
 	if (State != EState::ExpectValue)
 		return DcFail(DC_DIAG(DReadWrite, InvalidStateWithExpect))
@@ -675,9 +672,6 @@ FDcResult FWriteStateArray::WriteArrayEnd()
 			<< (int)EState::ExpectItemOrEnd << (int)State;
 	}
 }
-
-} // namespace DataConfig
-
 
 
 

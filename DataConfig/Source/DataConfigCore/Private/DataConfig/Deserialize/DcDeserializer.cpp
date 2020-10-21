@@ -1,16 +1,13 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 
-namespace DataConfig
+static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
-
-static FDcResult ExecuteDeserializeHandler(FDeserializeContext& Ctx, FDeserializeDelegate& Handler)
-{
-	EDeserializeResult HandlerRet;
+	EDcDeserializeResult HandlerRet;
 	DC_TRY(Handler.Execute(Ctx, HandlerRet));
-	check(HandlerRet != EDeserializeResult::Unknown);
+	check(HandlerRet != EDcDeserializeResult::Unknown);
 
-	if (HandlerRet == EDeserializeResult::CanNotProcess)
+	if (HandlerRet == EDcDeserializeResult::CanNotProcess)
 	{
 		return DcFail(DC_DIAG(DDeserialize, NoMatchingHandler))
 			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
@@ -22,7 +19,7 @@ static FDcResult ExecuteDeserializeHandler(FDeserializeContext& Ctx, FDeserializ
 }
 
 
-FDcResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
+FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 {
 	check(Ctx.Deserializer == this);
 	check(Ctx.Reader != nullptr);
@@ -31,34 +28,31 @@ FDcResult FDeserializer::Deserialize(FDeserializeContext& Ctx)
 
 	for (auto& PredPair : PredicatedDeserializers)
 	{
-		if (PredPair.Key.Execute(Ctx) == EDeserializePredicateResult::Process)
+		if (PredPair.Key.Execute(Ctx) == EDcDeserializePredicateResult::Process)
 		{
-			return ExecuteDeserializeHandler(Ctx, PredPair.Value);
+			return _ExecuteDeserializeHandler(Ctx, PredPair.Value);
 		}
 	}
 
 	UField* Property = Ctx.TopProperty();
-	FDeserializeDelegate* HandlerPtr = DirectDeserializersMap.Find(Property->GetClass());
+	FDcDeserializeDelegate* HandlerPtr = DirectDeserializersMap.Find(Property->GetClass());
 	if (HandlerPtr == nullptr)
 	{
 		return DcFail(DC_DIAG(DDeserialize, NoMatchingHandler))
 			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 
-	return ExecuteDeserializeHandler(Ctx, *HandlerPtr);
+	return _ExecuteDeserializeHandler(Ctx, *HandlerPtr);
 }
 
-void FDeserializer::AddDirectHandler(UClass* PropertyClass, FDeserializeDelegate&& Delegate)
+void FDcDeserializer::AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate)
 {
 	check(!DirectDeserializersMap.Contains(PropertyClass));
 	DirectDeserializersMap.Add(PropertyClass, MoveTemp(Delegate));
 }
 
-void FDeserializer::AddPredicatedHandler(FDeserializePredicate&& Predicate, FDeserializeDelegate&& Delegate)
+void FDcDeserializer::AddPredicatedHandler(FDcDeserializePredicate&& Predicate, FDcDeserializeDelegate&& Delegate)
 {
 	PredicatedDeserializers.Add(MakeTuple(MoveTemp(Predicate), MoveTemp(Delegate)));
 }
-
-} // namespace DataConfig
-
 

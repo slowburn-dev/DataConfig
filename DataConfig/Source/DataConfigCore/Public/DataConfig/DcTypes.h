@@ -4,9 +4,6 @@
 
 DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All);
 
-namespace DataConfig
-{
-	
 //	global initializer and shutdown
 enum class EDcInitializeAction
 {
@@ -52,7 +49,7 @@ FORCEINLINE FDcResult DcFail() {
 
 #define DC_TRY(expr)							\
 	do {									\
-		::DataConfig::FDcResult Ret = (expr);	\
+		::FDcResult Ret = (expr);	\
 		if (!Ret.Ok()) {					\
 			return Ret;						\
 		}									\
@@ -145,9 +142,5 @@ struct DATACONFIGCORE_API FContextStorage : private FNoncopyable
 	~FContextStorage();
 	bool IsEmpty();
 };
-
-} // namespace DataConfig
-
-
 
 

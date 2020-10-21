@@ -1,8 +1,5 @@
 #include "DataConfig/Writer/DcCompositeWriters.h"
 
-namespace DataConfig
-{
-
 template<typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)
 {
@@ -82,4 +79,3 @@ FDcResult FDcWeakCompositeWriter::WriteReference(UObject* Value)
 	return CompositeDispatch(this, &FDcWriter::WriteReference, Value);
 }
 
-}	// namespace DataConfig

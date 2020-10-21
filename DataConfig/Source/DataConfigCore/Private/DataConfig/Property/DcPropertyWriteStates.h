@@ -2,8 +2,6 @@
 
 #include "UObject/UnrealType.h"
 
-namespace DataConfig {
-
 enum class EPropertyWriteType
 {
 	Nil,
@@ -233,8 +231,4 @@ FDcResult WriteValue(FBaseWriteState& State, const TValue& Value)
 	Datum.CastChecked<TProperty>()->SetPropertyValue(Datum.DataPtr, Value);
 	return DcOk();
 }
-
-
-} // namespace DataConfig
-
 

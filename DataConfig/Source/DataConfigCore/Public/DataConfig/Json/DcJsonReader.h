@@ -4,9 +4,6 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Reader/DcReader.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 {
 	using TCharType = TCHAR;
@@ -95,15 +92,5 @@ bool FDcJsonReader::IsWhitespace(const TCharType& Char)
 		|| Char == TCharType('\n')
 		|| Char == TCharType('\r');
 }
-
-
-} // namespace DataConfig
-
-
-
-
-
-
-
 
 

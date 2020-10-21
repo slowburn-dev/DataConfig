@@ -7,9 +7,6 @@
 
 class UProperty;
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopyable
 {
 	FDcPropertyReader();
@@ -39,11 +36,8 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	TArray<FPropertyState, TInlineAllocator<8>> States;
 
-
-
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };
 
-} // namespace DataConfig
 

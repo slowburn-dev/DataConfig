@@ -12,8 +12,6 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 
-using namespace DataConfig;
-
 void PropertyVisitorRoundtrip_Piped()
 {
 	FTestStruct_ObjRef ObjRef;

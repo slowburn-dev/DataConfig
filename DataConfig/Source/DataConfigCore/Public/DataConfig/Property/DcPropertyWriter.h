@@ -4,9 +4,6 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Writer/DcWriter.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
 {
 	FDcPropertyWriter();
@@ -51,11 +48,5 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	TArray<FPropertyState, TInlineAllocator<4>> States;
 };
-
-
-
-}	// namespace DataConfig
-
-
 
 

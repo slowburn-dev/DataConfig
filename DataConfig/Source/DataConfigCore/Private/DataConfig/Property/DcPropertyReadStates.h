@@ -2,8 +2,6 @@
 
 #include "UObject/UnrealType.h"
 
-namespace DataConfig {
-
 enum class EPropertyReadType
 {
 	Nil,
@@ -217,7 +215,6 @@ static_assert(TIsTriviallyDestructible<FReadStateStruct>::Value, "need trivial d
 static_assert(TIsTriviallyDestructible<FReadStateMap>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FReadStateArray>::Value, "need trivial destructible");
 
-} // namespace DataConfig
 
 
 

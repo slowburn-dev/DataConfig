@@ -2,9 +2,6 @@
 
 #include "HAL/Platform.h"
 
-namespace DataConfig
-{
-
 namespace DJSON
 {
 	static const uint16 Category = 0x3;
@@ -19,7 +16,5 @@ namespace DJSON
 		UnexpectedChar1,
 	};
 
-} // namespace DataConfig::DJSON
+} // namespace DJSON
 
-
-} // namespace DataConfig

@@ -2,9 +2,6 @@
 
 #include "HAL/Platform.h"
 
-namespace DataConfig
-{
-
 namespace DCommon
 {
 
@@ -21,7 +18,5 @@ enum Type : uint16
 	PlaceHoldError,
 };
 
-} // namespace DataConfig::DCommon
+} // namespace DCommon
 
-
-} // namespace DataConfig

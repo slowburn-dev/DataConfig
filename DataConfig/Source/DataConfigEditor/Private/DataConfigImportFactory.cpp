@@ -16,8 +16,6 @@
 namespace
 {
 
-using namespace DataConfig;
-
 static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClass)
 {
 	DC_TRY(Reader.ReadMapRoot(nullptr));
@@ -35,7 +33,7 @@ static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClas
 	return OutDataClass ? DcOk() : DcFail();
 }
 
-static TOptional<DataConfig::FDeserializer> DcDeserializer;
+static TOptional<DataConfig::FDcDeserializer> DcDeserializer;
 static int32 LoadJSONAssetCount;
 
 template<typename T>
@@ -64,7 +62,7 @@ static void LazyInitializeDeserializer()
 	if (!DcDeserializer.IsSet())
 	{
 		DcDeserializer.Emplace();
-		SetupDefaultDeserializeHandlers(DcDeserializer.GetValue());
+		DcSetupDefaultDeserializeHandlers(DcDeserializer.GetValue());
 	}
 }
 
@@ -77,7 +75,7 @@ static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* 
 	FDcJsonReader Reader(&JSONStr);
 	FDcPropertyWriter Writer(FDcPropertyDatum(DataClass, NewObj));
 
-	FDeserializeContext Ctx;
+	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &DcDeserializer.GetValue();
@@ -133,8 +131,6 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 
 	FString JSONStr((int32)(BufferEnd - Buffer), (char*)Buffer);
 	UClass* DataClass = nullptr;
-
-	using namespace DataConfig;
 
 	{
 		FDcJsonReader TypeReader(&JSONStr);

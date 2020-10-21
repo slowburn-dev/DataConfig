@@ -4,8 +4,6 @@
 #include "DataConfig/Property/DcPropertyReadStates.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 
-namespace DataConfig {
-
 //	need these as readers needs to push states
 using ReaderStorageType = FDcPropertyReader::FPropertyState::ImplStorageType;
 
@@ -314,7 +312,7 @@ FDcResult FDcPropertyReader::ReadArrayEnd(FContextStorage* CtxPtr)
 }
 
 
-DataConfig::FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
+FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr)
 {
 	//	only class property reads reference
 	if (FReadStateClass* ClassState = TryGetTopState<FReadStateClass>(this))
@@ -343,4 +341,3 @@ FDcResult FDcPropertyReader::ReadNil(FContextStorage* CtxPtr)
 	}
 }
 
-} // namespace DataConfig

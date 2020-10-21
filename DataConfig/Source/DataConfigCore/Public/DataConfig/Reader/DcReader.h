@@ -3,9 +3,6 @@
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
 
-namespace DataConfig
-{
-
 struct FContextStorage;
 
 struct DATACONFIGCORE_API FDcReader
@@ -35,9 +32,4 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadReference(UObject** OutPtr, FContextStorage* CtxPtr);
 
 };
-
-
-} // namespace DataConfig
-
-
 

@@ -3,9 +3,6 @@
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcWriter
 {
 	FDcWriter();
@@ -32,8 +29,5 @@ struct DATACONFIGCORE_API FDcWriter
 
 	virtual FDcResult WriteReference(UObject* Value);
 };
-
-
-}	// namespace DataConfig
 
 

@@ -3,9 +3,6 @@
 #include "CoreMinimal.h"
 #include "Containers/BasicArray.h"
 
-namespace DataConfig
-{
-
 extern FString DC_STR_META_TYPE;
 extern FString DC_STR_META_PATH;
 
@@ -17,9 +14,5 @@ const TBasicArray<FString>& DcGetAllStringMetas();
 
 bool DcIsMeta(const FName& Name);
 bool DcIsMeta(const FString& Str);
-
-}; // namespace DataConfig
-
-
 
 

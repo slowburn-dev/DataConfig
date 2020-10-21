@@ -1,9 +1,6 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/DcEnv.h"
 
-namespace DataConfig
-{
-
 FDcWriter::FDcWriter()
 {}
 
@@ -24,7 +21,5 @@ FDcResult FDcWriter::WriteMapEnd() { return DcFail(DC_DIAG(DCommon, NotImplement
 FDcResult FDcWriter::WriteArrayRoot() { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 FDcResult FDcWriter::WriteArrayEnd() { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 FDcResult FDcWriter::WriteReference(UObject* Value) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
-
-}	// namespace DataConfig
 
 

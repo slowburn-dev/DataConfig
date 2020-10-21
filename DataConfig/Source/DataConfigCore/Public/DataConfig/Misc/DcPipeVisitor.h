@@ -2,9 +2,6 @@
 
 #include "DataConfig/DcTypes.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcPipeVisitor
 {
 	FDcReader* Reader;
@@ -14,11 +11,5 @@ struct DATACONFIGCORE_API FDcPipeVisitor
 
 	FDcResult PipeVisit();
 };
-
-}	// namespace DataConfig
-
-
-
-
 
 

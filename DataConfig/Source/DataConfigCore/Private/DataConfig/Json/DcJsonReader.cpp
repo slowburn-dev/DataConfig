@@ -2,9 +2,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 
-namespace DataConfig
-{
-
 using TCharType = FDcJsonReader::TCharType;
 
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
@@ -138,7 +135,7 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr, FContextStorage* CtxPtr)
 	}
 }
 
-DataConfig::FDcResult FDcJsonReader::ReadString(FString& OutStr)
+FDcResult FDcJsonReader::ReadString(FString& OutStr)
 {
 	ReadWhiteSpace();
 
@@ -187,7 +184,7 @@ void FDcJsonReader::ReadWhiteSpace()
 	}
 }
 
-DataConfig::FDcResult FDcJsonReader::EndTopRead()
+FDcResult FDcJsonReader::EndTopRead()
 {
 	EParseState TopState = GetTopState();
 	if (TopState == EParseState::Object)
@@ -300,7 +297,7 @@ TCharType FDcJsonReader::PeekChar()
 	return (*StrPtr)[Cur];
 }
 
-DataConfig::FDcResult FDcJsonReader::TryPeekChar(TCharType& OutChar)
+FDcResult FDcJsonReader::TryPeekChar(TCharType& OutChar)
 {
 	if (IsAtEnd())
 		return DcFail(DC_DIAG(DJSON, UnexpectedEnd));
@@ -309,7 +306,7 @@ DataConfig::FDcResult FDcJsonReader::TryPeekChar(TCharType& OutChar)
 	return DcOk();
 }
 
-DataConfig::FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
+FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 {
 	while (true)
 	{
@@ -327,7 +324,7 @@ DataConfig::FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 	return DcFail(DC_DIAG(DCommon, Unreachable));
 }
 
-DataConfig::FDcResult FDcJsonReader::ReadCharExpect(TCharType Expect)
+FDcResult FDcJsonReader::ReadCharExpect(TCharType Expect)
 {
 	if (IsAtEnd())
 		return DcFail();
@@ -335,6 +332,4 @@ DataConfig::FDcResult FDcJsonReader::ReadCharExpect(TCharType Expect)
 		? DcOk()
 		: DcFail(DC_DIAG(DJSON, ExpectCharButNotFound)) << Expect;
 }
-
-} // namespace DataConfig
 

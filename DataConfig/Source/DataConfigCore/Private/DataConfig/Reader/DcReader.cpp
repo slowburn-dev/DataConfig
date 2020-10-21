@@ -1,9 +1,6 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/DcEnv.h"
 
-namespace DataConfig
-{
-
 FDcReader::~FDcReader() {}
 EDataEntry FDcReader::Peek() { return EDataEntry::Ended; }
 
@@ -20,10 +17,6 @@ FDcResult FDcReader::ReadMapEnd(FContextStorage* CtxPtr) { return DcFail(DC_DIAG
 FDcResult FDcReader::ReadArrayRoot(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 FDcResult FDcReader::ReadArrayEnd(FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
 FDcResult FDcReader::ReadReference(UObject** OutPtr, FContextStorage* CtxPtr) { return DcFail(DC_DIAG(DCommon, NotImplemented)); }
-
-} // namespace DataConfig
-
-
 
 
 

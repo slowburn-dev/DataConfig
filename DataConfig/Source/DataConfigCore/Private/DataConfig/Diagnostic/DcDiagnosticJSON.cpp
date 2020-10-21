@@ -1,9 +1,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
-namespace DataConfig
-{
-
 static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DJSON::UnexpectedEnd, TEXT("Unexpected End"), },
 	{ DJSON::AlreadyEndedButExpect, TEXT("Input already ended but expect {0}"), },
@@ -13,12 +10,4 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };
-
-} // namespace DataConfig
-
-
-
-
-
-
 

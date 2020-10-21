@@ -3,8 +3,6 @@
 
 DEFINE_LOG_CATEGORY(LogDataConfigCore);
 
-namespace DataConfig {
-
 bool bInitialized = false;
 
 void DcStartUp(EDcInitializeAction InAction)
@@ -29,4 +27,3 @@ DATACONFIGCORE_API bool DcIsInitialized()
 	return bInitialized;
 }
 
-} // namespace DataConfig

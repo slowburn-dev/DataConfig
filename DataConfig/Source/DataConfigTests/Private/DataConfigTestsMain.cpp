@@ -83,9 +83,9 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		return ECompilationResult::CrashOrAssert;
 	}
 
-	DataConfig::DcStartUp(EDcInitializeAction::SetAsConsole);
+	DcStartUp(EDcInitializeAction::SetAsConsole);
 	Body();
-	DataConfig::DcShutDown();
+	DcShutDown();
 
 	ON_SCOPE_EXIT
 	{

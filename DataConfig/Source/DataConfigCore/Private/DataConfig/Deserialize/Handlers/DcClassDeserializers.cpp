@@ -6,10 +6,7 @@
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "UObject/Package.h"
 
-namespace DataConfig
-{
-
-FDcResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::MapRoot;
@@ -19,7 +16,7 @@ FDcResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResu
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	if (Next == EDataEntry::MapRoot)
@@ -70,7 +67,7 @@ FDcResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResu
 					<< EDataEntry::Name << EDataEntry::String << CurPeek;
 			}
 
-			FScopedProperty ScopedValueProperty(Ctx);
+			FDcScopedProperty ScopedValueProperty(Ctx);
 			DC_TRY(ScopedValueProperty.PushProperty());
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
@@ -80,7 +77,7 @@ FDcResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResu
 		DC_TRY(Ctx.Reader->ReadMapEnd(nullptr));
 		DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else
 	{
@@ -89,7 +86,7 @@ FDcResult HandlerClassRootDeserialize(FDeserializeContext& Ctx, EDeserializeResu
 	}
 }
 
-static FDcResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDeserializeContext& Ctx, UObject*& OutLoaded)
+static FDcResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDcDeserializeContext& Ctx, UObject*& OutLoaded)
 {
 	DC_TRY(DcExpect(LoadClass != nullptr));
 	DC_TRY(DcExpect(LoadClass->IsChildOf(ObjectProperty->PropertyClass)));
@@ -101,7 +98,7 @@ static FDcResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadC
 }
 
 
-FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDataEntry Next = Ctx.Reader->Peek();
 	bool bRootPeekPass = Next == EDataEntry::String
@@ -114,7 +111,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeseriali
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	FDcClassPropertyStat RefStat {
@@ -150,7 +147,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeseriali
 					DC_TRY(Ctx.Writer->WriteReference(Loaded));
 					DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-					return OkWithProcessed(OutRet);
+					return DcOkWithProcessed(OutRet);
 				}
 			}
 
@@ -167,7 +164,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeseriali
 			DC_TRY(Ctx.Writer->WriteReference(Loaded));
 			DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-			return OkWithProcessed(OutRet);
+			return DcOkWithProcessed(OutRet);
 		}
 		else
 		{
@@ -208,7 +205,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeseriali
 		DC_TRY(Ctx.Writer->WriteReference(Loaded));
 		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else if (Next == EDataEntry::Nil)
 	{
@@ -216,7 +213,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDeserializeContext& Ctx, EDeseriali
 		DC_TRY(Ctx.Writer->WriteNil());
 		DC_TRY(Ctx.Writer->WriteClassEnd(NullStat));
 
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else
 	{
@@ -233,15 +230,15 @@ static bool IsSubObjectProperty(UObjectProperty* ObjectProperty)
 		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
 }
 
-EDeserializePredicateResult PredicateIsSubObjectProperty(FDeserializeContext& Ctx)
+EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx)
 {
 	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
 	return ObjectProperty && IsSubObjectProperty(ObjectProperty)
-		? EDeserializePredicateResult::Process
-		: EDeserializePredicateResult::Pass;
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	FDcPutbackReader PutbackReader(Ctx.Reader);
 
@@ -254,7 +251,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeseri
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	if (!IsSubObjectProperty(ObjectProperty))
@@ -370,7 +367,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeseri
 				<< EDataEntry::Name << EDataEntry::String << CurPeek;
 		}
 
-		FScopedProperty ScopedValueProperty(Ctx);
+		FDcScopedProperty ScopedValueProperty(Ctx);
 		DC_TRY(ScopedValueProperty.PushProperty());
 		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
@@ -381,7 +378,6 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDeserializeContext& Ctx, EDeseri
 	DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 	check(PutbackReader.Cached.Num() == 0);
-	return OkWithProcessed(OutRet);
+	return DcOkWithProcessed(OutRet);
 }
 
-} // namespace DataConfig

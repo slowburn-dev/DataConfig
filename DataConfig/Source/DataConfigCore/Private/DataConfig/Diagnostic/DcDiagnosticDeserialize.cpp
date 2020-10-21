@@ -1,9 +1,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
-namespace DataConfig
-{
-
 struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ DDeserialize::NoMatchingHandler, TEXT("No matching handler, Property: {0} {1}"), },
 	{ DDeserialize::DataEntryMismatch, TEXT("Deserialize type mismatch, Expect: {0}, Actual: {1}"), },
@@ -12,12 +9,4 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 };
 
 FDcDiagnosticGroup DDeserializeDetails = { DcDimOf(_DeserializeDetails), _DeserializeDetails };
-
-
-} // namespace DataConfig
-
-
-
-
-
 

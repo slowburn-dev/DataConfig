@@ -3,9 +3,6 @@
 #include "CoreMinimal.h"
 #include "DataConfig/Writer/DcWriter.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 {
 	FDcPrettyPrintWriter(FOutputDevice& InOutput);
@@ -30,11 +27,5 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 	FOutputDevice& Output;
 	FString Indent;
 
-
-
 };
-
-
-
-}	// namespace DataConfig
 

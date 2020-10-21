@@ -19,7 +19,6 @@ struct FMessageLogDiagnosticConsumer : public DataConfig::IDcDiagnosticConsumer
 
 void FMessageLogDiagnosticConsumer::HandleDiagnostic(DataConfig::FDcDiagnostic& Diag)
 {
-	using namespace DataConfig;
 	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
 	if (Detail)
 	{

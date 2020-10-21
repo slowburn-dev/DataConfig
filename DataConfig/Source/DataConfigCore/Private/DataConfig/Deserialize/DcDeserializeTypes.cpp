@@ -1,16 +1,14 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
-namespace DataConfig {
-
-FDcResult FScopedProperty::PushProperty()
+FDcResult FDcScopedProperty::PushProperty()
 {
 	DC_TRY(Ctx.Writer->PeekWriteProperty(&Property));
 	Ctx.Properties.Push(Property);
 	return DcOk();
 }
 
-FScopedProperty::~FScopedProperty()
+FDcScopedProperty::~FDcScopedProperty()
 {
 	if (Property != nullptr)
 	{
@@ -19,7 +17,7 @@ FScopedProperty::~FScopedProperty()
 	}
 }
 
-FScopedObject::FScopedObject(FDeserializeContext& InCtx, UObject* InObject)
+FDcScopedObject::FDcScopedObject(FDcDeserializeContext& InCtx, UObject* InObject)
 	: Object(InObject)
 	, Ctx(InCtx)
 {
@@ -27,11 +25,10 @@ FScopedObject::FScopedObject(FDeserializeContext& InCtx, UObject* InObject)
 	Ctx.Objects.Push(Object);
 }
 
-FScopedObject::~FScopedObject()
+FDcScopedObject::~FDcScopedObject()
 {
 	UObject* Popped = Ctx.Objects.Pop();
 	check(Popped == Object);
 }
 
-} // namespace DataConfig
 

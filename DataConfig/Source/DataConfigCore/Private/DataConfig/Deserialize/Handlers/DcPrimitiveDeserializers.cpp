@@ -2,14 +2,11 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
-namespace DataConfig
-{
-
-FDcResult HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UBoolProperty>())
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	DC_TRY(Ctx.Writer->Peek(EDataEntry::Bool));
@@ -18,15 +15,15 @@ FDcResult HandlerBoolDeserialize(FDeserializeContext& Ctx, EDeserializeResult& O
 	DC_TRY(Ctx.Reader->ReadBool(&Value, nullptr));
 	DC_TRY(Ctx.Writer->WriteBool(Value));
 
-	OutRet = EDeserializeResult::Processed;
-	return OkWithProcessed(OutRet);
+	OutRet = EDcDeserializeResult::Processed;
+	return DcOkWithProcessed(OutRet);
 }
 
-FDcResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UNameProperty>())
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	DC_TRY(Ctx.Writer->Peek(EDataEntry::Name));
@@ -37,14 +34,14 @@ FDcResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& O
 		FName Value;
 		DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
 		DC_TRY(Ctx.Writer->WriteName(Value));
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else if (Next == EDataEntry::String)
 	{
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
 		DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else
 	{
@@ -53,11 +50,11 @@ FDcResult HandlerNameDeserialize(FDeserializeContext& Ctx, EDeserializeResult& O
 	}
 }
 
-FDcResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult& OutRet)
+FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty()->IsA<UStrProperty>())
 	{
-		return OkWithCanNotProcess(OutRet);
+		return DcOkWithCanNotProcess(OutRet);
 	}
 
 	DC_TRY(Ctx.Writer->Peek(EDataEntry::String));
@@ -68,14 +65,14 @@ FDcResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult&
 		FName Value;
 		DC_TRY(Ctx.Reader->ReadName(&Value, nullptr));
 		DC_TRY(Ctx.Writer->WriteString(Value.ToString()));
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else if (Next == EDataEntry::String)
 	{
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value, nullptr));
 		DC_TRY(Ctx.Writer->WriteString(Value));
-		return OkWithProcessed(OutRet);
+		return DcOkWithProcessed(OutRet);
 	}
 	else
 	{
@@ -83,6 +80,4 @@ FDcResult HandlerStringDeserialize(FDeserializeContext& Ctx, EDeserializeResult&
 			<< EDataEntry::Name << EDataEntry::String << Next;
 	}
 }
-
-} // namespace DataConfig
 

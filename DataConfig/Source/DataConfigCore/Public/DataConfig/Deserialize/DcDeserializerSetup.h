@@ -4,14 +4,5 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
-namespace DataConfig
-{
-
-void DATACONFIGCORE_API SetupDefaultDeserializeHandlers(FDeserializer& Deserializer);
-
-} // namespace DataConfig
-
-
-
-
+void DATACONFIGCORE_API DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer);
 

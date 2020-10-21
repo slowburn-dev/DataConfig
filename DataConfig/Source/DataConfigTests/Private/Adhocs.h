@@ -176,9 +176,6 @@ struct FShapeContainer
 };
 
 
-
-using namespace DataConfig;
-
 void PropertyVisitorRoundtrip();
 void JsonReader1();
 void UEStructSerializer();

@@ -2,9 +2,6 @@
 
 #include "DataConfig/Diagnostic/DcDiagnosticAll.inl"
 
-namespace DataConfig
-{
-
 static const FDcDiagnosticDetail* SearchDetails(uint16 InID, const FDcDiagnosticGroup& Group)
 {
 	for (int Ix = 0; Ix < Group.Count; Ix++)
@@ -90,4 +87,3 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 	}
 }
 
-} // namespace DataConfig

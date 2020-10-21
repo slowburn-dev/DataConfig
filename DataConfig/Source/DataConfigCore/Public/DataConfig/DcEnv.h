@@ -3,9 +3,6 @@
 #include "CoreMinimal.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
-namespace DataConfig
-{
-
 struct DATACONFIGCORE_API FDcEnv
 {
 	TArray<FDcDiagnostic> Diagnostics;
@@ -59,8 +56,6 @@ FORCEINLINE FDcResult DcExpect(bool CondToBeTrue, const TThunk& ErrFunc)
 }
 
 FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
-
-} // namespace DataConfig
 
 
 

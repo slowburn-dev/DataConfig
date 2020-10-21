@@ -1,9 +1,6 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "UObject/UnrealType.h"
 
-namespace DataConfig
-{
-
 bool IsEffectiveProperty(UProperty* Property)
 {
 	check(Property);
@@ -97,4 +94,3 @@ EDataEntry PropertyToDataEntry(UField* Property)
 	return EDataEntry::Ended;
 }
 
-} // namespace DataConfig
