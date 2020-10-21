@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 
-DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All)
+DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All);
 
 namespace DataConfig
 {
