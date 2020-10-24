@@ -32,18 +32,28 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
-	//PropertyVisitorRoundtrip();
-	//UEStructSerializer();
-	//DeserializeSimple();
-	//DeserializeNestedStruct();
-	//DeserializeObjectRoot();
-	//DeserializeObjectRef();
-	//DeserializeSubObject();
-	//TryOutVariant();
-	//TryOutPutback();
-	//TryDiags();
-	//TryConsoleDiagnosticReports();
-	JsonReader1();
+	PropertyVisitorRoundtrip_Piped();
+	PropertyVisitorRoundtrip__TestObjAlpha();
+	PropertyVisitorRoundtrip__StructStruct();
+	PropertyVisitorRoundtrip__StructHasMap();
+	PropertyVisitorRoundtrip_ReadNested();
+	PropertyVisitorRoundtrip_WriteNested();
+	PropertyVisitorRoundtrip();
+	UEStructSerializer();
+
+	//	Deserialize all uses JSON so they are broken atm
+	/*
+	DeserializeSimple();
+	DeserializeNestedStruct();
+	DeserializeObjectRoot();
+	DeserializeObjectRef();
+	DeserializeSubObject();
+	*/
+	TryOutVariant();
+	TryOutPutback();
+	TryDiags();
+	TryConsoleDiagnosticReports();
+	//JsonReader1();
 	//JsonFail1();
 	SourceTypes();
 

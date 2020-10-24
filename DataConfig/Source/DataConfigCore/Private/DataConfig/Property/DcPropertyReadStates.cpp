@@ -4,9 +4,9 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-EDcDataEntry FBaseReadState::Peek()
+FDcResult FBaseReadState::PeekRead(EDcDataEntry* OutPtr)
 {
-	return EDcDataEntry::Ended;
+	return DC_FAIL(DcDCommon, NotImplemented);
 }
 
 FDcResult FBaseReadState::ReadName(FName* OutNamePtr)
@@ -24,42 +24,54 @@ EPropertyReadType FReadStateNil::GetType()
 	return EPropertyReadType::Nil;
 }
 
+FDcResult FReadStateNil::PeekRead(EDcDataEntry* OutPtr)
+{
+	*OutPtr = EDcDataEntry::Ended;
+	return DcOk();
+}
+
 EPropertyReadType FReadStateClass::GetType()
 {
 	return EPropertyReadType::ClassProperty;
 }
 
-EDcDataEntry FReadStateClass::Peek()
+FDcResult FReadStateClass::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDcDataEntry::ClassRoot;
+		*OutPtr = EDcDataEntry::ClassRoot;
+		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDcDataEntry::ClassEnd;
+		*OutPtr = EDcDataEntry::ClassEnd;
+		return DcOk();
 	}
 	else if (State == EState::ExpectNil)
 	{
-		return EDcDataEntry::Nil;
+		*OutPtr = EDcDataEntry::Nil;
+		return DcOk();
 	}
 	else if (State == EState::ExpectReference)
 	{
-		return EDcDataEntry::Reference;
+		*OutPtr = EDcDataEntry::Reference;
+		return DcOk();
 	}
 	else if (State == EState::ExpectKey)
 	{
-		return EDcDataEntry::Name;
+		*OutPtr = EDcDataEntry::Name;
+		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		return PropertyToDataEntry(Property);
+		*OutPtr = PropertyToDataEntry(Property);
+		return DcOk();
 	}
 	else
 	{
 		checkNoEntry();
-		return EDcDataEntry::Ended;
+		return DC_FAIL(DcDCommon, Unreachable);
 	}
 }
 
@@ -276,33 +288,38 @@ EPropertyReadType FReadStateStruct::GetType()
 	return EPropertyReadType::StructProperty;
 }
 
-EDcDataEntry FReadStateStruct::Peek()
+FDcResult FReadStateStruct::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDcDataEntry::StructRoot;
+		*OutPtr = EDcDataEntry::StructRoot;
+		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDcDataEntry::StructEnd;
+		*OutPtr = EDcDataEntry::StructEnd;
+		return DcOk();
 	}
 	else if (State == EState::ExpectKey)
 	{
-		return EDcDataEntry::Name;
+		*OutPtr = EDcDataEntry::Name;
+		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		return PropertyToDataEntry(Property);
+		*OutPtr = PropertyToDataEntry(Property);
+		return DcOk();
 	}
 	else if (State == EState::Ended)
 	{
-		return EDcDataEntry::Ended;
+		*OutPtr = EDcDataEntry::Ended;
+		return DcOk();
 	}
 	else
 	{
 		checkNoEntry();
-		return EDcDataEntry::Ended;
+		return DC_FAIL(DcDCommon, Unreachable);
 	}
 }
 
@@ -445,30 +462,34 @@ EPropertyReadType FReadStateMap::GetType()
 	return EPropertyReadType::MapProperty;
 }
 
-EDcDataEntry FReadStateMap::Peek()
+FDcResult FReadStateMap::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDcDataEntry::MapRoot;
+		*OutPtr = EDcDataEntry::MapRoot;
+		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDcDataEntry::MapEnd;
+		*OutPtr = EDcDataEntry::MapEnd;
+		return DcOk();
 	}
 	else if (State == EState::ExpectKey)
 	{
 		check(MapProperty);
-		return PropertyToDataEntry(MapProperty->KeyProp);
+		*OutPtr = PropertyToDataEntry(MapProperty->KeyProp);
+		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(MapProperty);
-		return PropertyToDataEntry(MapProperty->ValueProp);
+		*OutPtr = PropertyToDataEntry(MapProperty->ValueProp);
+		return DcOk();
 	}
 	else
 	{
 		checkNoEntry();
-		return EDcDataEntry::Ended;
+		return DC_FAIL(DcDCommon, Unreachable);
 	}
 }
 
@@ -590,29 +611,33 @@ EPropertyReadType FReadStateArray::GetType()
 	return EPropertyReadType::ArrayProperty;
 }
 
-EDcDataEntry FReadStateArray::Peek()
+FDcResult FReadStateArray::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return EDcDataEntry::ArrayRoot;
+		*OutPtr = EDcDataEntry::ArrayRoot;
+		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		return EDcDataEntry::ArrayEnd;
+		*OutPtr = EDcDataEntry::ArrayEnd;
+		return DcOk();
 	}
 	else if (State == EState::ExpectItem)
 	{
 		check(ArrayProperty->Inner);
-		return PropertyToDataEntry(ArrayProperty->Inner);
+		*OutPtr = PropertyToDataEntry(ArrayProperty->Inner);
+		return DcOk();
 	}
 	else if (State == EState::Ended)
 	{
-		return EDcDataEntry::Ended;
+		*OutPtr = EDcDataEntry::Ended;
+		return DcOk();
 	}
 	else
 	{
 		checkNoEntry();
-		return EDcDataEntry::Ended;
+		return DC_FAIL(DcDCommon, Unreachable);
 	}
 }
 

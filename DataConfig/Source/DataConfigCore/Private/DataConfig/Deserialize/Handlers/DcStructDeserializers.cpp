@@ -25,10 +25,11 @@ static FName GetStructName(UField* Property)
 
 FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	EDcDataEntry Next = Ctx.Reader->Peek();
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->Peek(EDcDataEntry::StructRoot).Ok();
+	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot).Ok();
 	if (!bRootPeekPass
 		|| !bWritePass)
 	{
@@ -40,12 +41,13 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 		DC_TRY(Ctx.Reader->ReadMapRoot());
 		DC_TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
 
-		EDcDataEntry CurPeek = Ctx.Reader->Peek();
+		EDcDataEntry CurPeek;
+		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
 		while (CurPeek != EDcDataEntry::MapEnd)
 		{
 			if (CurPeek == EDcDataEntry::Name)
 			{
-				DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
+				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
 
 				FName Value;
 				DC_TRY(Ctx.Reader->ReadName(&Value));
@@ -53,7 +55,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{
-				DC_TRY(Ctx.Writer->Peek(EDcDataEntry::Name));
+				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
 
 				FString Value;
 				DC_TRY(Ctx.Reader->ReadString(&Value));
@@ -69,7 +71,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			DC_TRY(ScopedValueProperty.PushProperty());
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
-			CurPeek = Ctx.Reader->Peek();
+			DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
 		}
 
 		DC_TRY(Ctx.Reader->ReadMapEnd());

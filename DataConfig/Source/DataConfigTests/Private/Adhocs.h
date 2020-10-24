@@ -51,6 +51,25 @@ struct FNestStruct1
 };
 
 USTRUCT()
+struct FTestStruct_OldSchool
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) FName AName;
+	UPROPERTY(EditAnywhere) bool ABool;
+	UPROPERTY(EditAnywhere) FString AStr;
+};
+
+USTRUCT()
+struct FNestStruct_OldSchool
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) FName AName;
+	UPROPERTY(EditAnywhere) FTestStruct_OldSchool AStruct;
+};
+
+USTRUCT()
 struct FMapContainer1
 {
 	GENERATED_BODY()

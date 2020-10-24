@@ -9,7 +9,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 		: Reader(InReader)
 	{}
 
-	EDcDataEntry Peek() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadNil() override;
 	FDcResult ReadBool(bool* OutPtr) override;

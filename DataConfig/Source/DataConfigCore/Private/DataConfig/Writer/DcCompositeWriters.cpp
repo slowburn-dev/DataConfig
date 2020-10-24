@@ -9,9 +9,9 @@ FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Me
 	return DcOk();
 }
 
-FDcResult FDcWeakCompositeWriter::Peek(EDcDataEntry Next)
+FDcResult FDcWeakCompositeWriter::PeekWrite(EDcDataEntry Next)
 {
-	return CompositeDispatch(this, &FDcWriter::Peek, Next);
+	return CompositeDispatch(this, &FDcWriter::PeekWrite, Next);
 }
 
 FDcResult FDcWeakCompositeWriter::WriteBool(bool Value)

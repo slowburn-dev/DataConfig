@@ -17,15 +17,16 @@ FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData
 	return DcOk();
 }
 
-EDcDataEntry FDcPutbackReader::Peek()
+FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
-		return Cached.Last().DataType;
+		*OutPtr = Cached.Last().DataType;
+		return DcOk();
 	}
 	else
 	{
-		return Reader->Peek();
+		return Reader->PeekRead(OutPtr);
 	}
 }
 

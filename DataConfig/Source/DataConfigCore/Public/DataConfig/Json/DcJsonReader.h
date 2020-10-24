@@ -61,7 +61,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	int32 Cur = 0;
 	int32 LineStart = 0;
 
-	EDcDataEntry Peek() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;

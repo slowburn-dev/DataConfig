@@ -101,7 +101,7 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	}
 }
 
-FDcResult FDcPropertyWriter::Peek(EDcDataEntry Next)
+FDcResult FDcPropertyWriter::PeekWrite(EDcDataEntry Next)
 {
 	return GetTopState(this).Peek(Next);
 }

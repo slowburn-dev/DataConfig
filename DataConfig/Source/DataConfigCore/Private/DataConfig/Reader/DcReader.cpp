@@ -2,8 +2,8 @@
 #include "DataConfig/DcEnv.h"
 
 FDcReader::~FDcReader() {}
-EDcDataEntry FDcReader::Peek() { return EDcDataEntry::Ended; }
 
+FDcResult FDcReader::PeekRead(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadNil() { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
 FDcResult FDcReader::ReadBool(bool* OutPtr) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }
 FDcResult FDcReader::ReadName(FName* OutPtr) { return DcFail(DC_DIAG(DcDCommon, NotImplemented)); }

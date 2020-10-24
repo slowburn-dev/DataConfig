@@ -17,7 +17,7 @@ struct FBaseReadState
 {
 	virtual EPropertyReadType GetType() = 0;
 
-	virtual EDcDataEntry Peek();
+	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
 	virtual FDcResult ReadName(FName* OutNamePtr);
 	virtual FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
@@ -45,6 +45,7 @@ struct FReadStateNil : public FBaseReadState
 	static const EPropertyReadType ID = EPropertyReadType::Nil;
 
 	EPropertyReadType GetType() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 };
 
 struct FReadStateClass : public FBaseReadState
@@ -86,7 +87,7 @@ struct FReadStateClass : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDcDataEntry Peek() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
@@ -126,7 +127,7 @@ struct FReadStateStruct : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDcDataEntry Peek() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
@@ -163,7 +164,7 @@ struct FReadStateMap : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDcDataEntry Peek() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 
@@ -198,7 +199,7 @@ struct FReadStateArray : public FBaseReadState
 	}
 
 	EPropertyReadType GetType() override;
-	EDcDataEntry Peek() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 

@@ -25,18 +25,22 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 	Loc.Column = 0;
 }
 
-EDcDataEntry FDcJsonReader::Peek()
+FDcResult FDcJsonReader::PeekRead(EDcDataEntry* OutPtr)
 {
+	//	TODO consume token here !!!
 	switch (Token.Type)
 	{
-	case ETokenType::True: return EDcDataEntry::Bool;
-	case ETokenType::False: return EDcDataEntry::Bool;
-	case ETokenType::CurlyOpen: return EDcDataEntry::MapRoot;
-	case ETokenType::CurlyClose: return EDcDataEntry::MapEnd;
-	case ETokenType::String: return EDcDataEntry::String;
-	case ETokenType::EOF_: return EDcDataEntry::Ended;
-		default: return EDcDataEntry::Ended;
+	case ETokenType::True: { *OutPtr = EDcDataEntry::Bool; break; }
+	case ETokenType::False: { *OutPtr = EDcDataEntry::Bool; break; }
+	case ETokenType::CurlyOpen: { *OutPtr = EDcDataEntry::MapRoot; break;}
+	case ETokenType::CurlyClose: { *OutPtr = EDcDataEntry::MapEnd; break;}
+	case ETokenType::String: { *OutPtr = EDcDataEntry::String; break;}
+	case ETokenType::EOF_: { *OutPtr = EDcDataEntry::Ended; break;}
+	default: 
+		return DC_FAIL(DcDCommon, NotImplemented);
 	}
+
+	return DcOk();
 }
 
 FDcResult FDcJsonReader::ReadBool(bool* OutPtr)
