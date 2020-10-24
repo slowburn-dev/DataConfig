@@ -43,7 +43,7 @@ static void Body()
 	//TryOutPutback();
 	//TryDiags();
 	//TryConsoleDiagnosticReports();
-	//JsonReader1();
+	JsonReader1();
 	//JsonFail1();
 	SourceTypes();
 

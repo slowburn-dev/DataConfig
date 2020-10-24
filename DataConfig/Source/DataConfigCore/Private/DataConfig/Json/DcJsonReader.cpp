@@ -2,6 +2,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 
+
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
 {
@@ -16,75 +17,40 @@ FDcJsonReader::FDcJsonReader()
 void FDcJsonReader::SetNewString(const FString* InStrPtr)
 {
 	check(State == EState::Unitialized || State == EState::FinishedStr);
-	StrPtr = InStrPtr;
+	Buf = SourceBuf(InStrPtr->GetCharArray().GetData());
 	State = EState::InitializedWithStr;
 	Cur = 0;
-	Span = {};
+	LineStart = 0;
+	Loc.Line = 0;
+	Loc.Column = 0;
 }
 
 EDcDataEntry FDcJsonReader::Peek()
 {
-	//	TODO only allow top level array or object, for now it allow top level everything
-
-	ReadWhiteSpace();
-	if (IsAtEnd())
-		return EDcDataEntry::Ended;
-
-	TCharType Char = PeekChar();
-	if (Char == TCharType('t'))	// true
-		return EDcDataEntry::Bool;
-	else if (Char == TCharType('f')) // false
-		return EDcDataEntry::Bool;
-	else if (Char == TCharType('{'))
-		return EDcDataEntry::MapRoot;
-	else if (Char == TCharType('}'))
-		return EDcDataEntry::MapEnd;
-	else if (Char == TCharType('"'))
-		return EDcDataEntry::String;
-	else {
-#if DO_CHECK
-		PLATFORM_BREAK();
-#endif
-		return EDcDataEntry::Ended;
+	switch (Token.Type)
+	{
+	case ETokenType::True: return EDcDataEntry::Bool;
+	case ETokenType::False: return EDcDataEntry::Bool;
+	case ETokenType::CurlyOpen: return EDcDataEntry::MapRoot;
+	case ETokenType::CurlyClose: return EDcDataEntry::MapEnd;
+	case ETokenType::String: return EDcDataEntry::String;
+	case ETokenType::EOF_: return EDcDataEntry::Ended;
+		default: return EDcDataEntry::Ended;
 	}
-
-	return EDcDataEntry::Ended;
 }
 
 FDcResult FDcJsonReader::ReadBool(bool* OutPtr)
 {
-	ReadWhiteSpace();
-	//	TODO end check
-
-	TCharType Next = PeekChar();
-	if (Next == TCharType('t'))
+	if (Token.Type == ETokenType::True)
 	{
-		DC_TRY(ReadWordExpect(TEXT("true")));
-
-		if (OutPtr)
-		{
-			*OutPtr = true;
-		}
-
-		EndTopRead();
-		return DcOk();
+		*OutPtr = true;
 	}
-	else if (Next == 'f')
+	else if (Token.Type == ETokenType::False)
 	{
-		DC_TRY(ReadWordExpect(TEXT("false")));
-
-		if (OutPtr)
-		{
-			*OutPtr = false;
-		}
-
-		EndTopRead();
-		return DcOk();
+		*OutPtr = false;
 	}
-	else
-	{
-		return DcFail(DC_DIAG(DcDJSON, UnexpectedChar1)) << Next;
-	}
+
+	return DcOk();
 }
 
 FDcResult FDcJsonReader::ReadName(FName* OutPtr)
@@ -96,7 +62,7 @@ FDcResult FDcJsonReader::ReadName(FName* OutPtr)
 	if (Next == TCharType('"'))
 	{
 		FString Str;
-		DC_TRY(ReadString(Str));
+		//DC_TRY(ReadString(Str));
 
 		if (OutPtr)
 		{
@@ -120,7 +86,7 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 	if (Next == TCharType('"'))
 	{
 		FString Str;
-		DC_TRY(ReadString(Str));
+		//DC_TRY(ReadString(Str));
 
 		if (OutPtr)
 		{
@@ -163,6 +129,35 @@ FDcResult FDcJsonReader::ReadString(FString& OutStr)
 	return DcFail(DC_DIAG(DcDCommon, Unreachable));
 }
 
+FDcResult FDcJsonReader::ReadStringToken()
+{
+	Token.Ref.Begin = Cur;
+	Advance();
+	while (true)
+	{
+		if (IsAtEnd())
+			return DcFail();
+
+		TCharType Char = ReadChar();
+		check(Char != TCharType('\0'));	// should be handled in IsAtEnd();
+		if (Char == TCharType('"'))
+		{
+			Advance();
+			Token.Type = ETokenType::String;
+			Token.Ref.Num = Cur - Token.Ref.Begin;
+			return DcOk();
+		}
+		else
+		{
+			//	TODO handle scaping and things
+			//	pass
+		}
+	}
+
+	checkNoEntry();
+	return DC_FAIL(DcDCommon, Unreachable);
+}
+
 void FDcJsonReader::ReadWhiteSpace()
 {
 	//	TODO actually can add a dirty flag to save duplicated read white space
@@ -174,8 +169,8 @@ void FDcJsonReader::ReadWhiteSpace()
 			Cur++;
 			LineStart = Cur;
 
-			Span.Line++;
-			Span.ColBegin = 0;
+			Loc.Line++;
+			Loc.Column = 0;
 		}
 
 		if (IsWhitespace(Char))
@@ -257,12 +252,7 @@ FDcResult FDcJsonReader::EndTopRead()
 
 FDcInputSpan FDcJsonReader::FormatInputSpan()
 {
-	FDcInputSpan OutSpan = Span;
-
-
-
-
-
+	FDcInputSpan OutSpan;
 	return OutSpan;
 }
 
@@ -288,18 +278,84 @@ FDcResult FDcJsonReader::ReadMapEnd()
 	return DcOk();
 }
 
-bool FDcJsonReader::IsAtEnd()
+FDcResult FDcJsonReader::ConsumeToken()
+{
+	check(State == EState::InitializedWithStr);
+	ReadWhiteSpace();
+
+	if (IsAtEnd())
+	{
+		Token.Type = ETokenType::EOF_;
+		Token.Ref.Reset();
+		return DcOk();
+	}
+
+	TCharType Char = PeekChar();
+	if (Char == TCharType('{'))
+	{
+		Token.Type = ETokenType::CurlyOpen;
+		Token.Ref.Begin = Cur;
+		Token.Ref.Num = 1;
+		Advance();
+		return DcOk();
+	}
+	else if (Char == TCharType('}'))
+	{
+		Token.Type = ETokenType::CurlyClose;
+		Token.Ref.Begin = Cur;
+		Token.Ref.Num = 1;
+		Advance();
+		return DcOk();
+	}
+	else if (Char == TCharType('t'))
+	{
+		DC_TRY(ReadWordExpect(_TRUE_LITERAL));
+		Token.Type = ETokenType::True;
+		return DcOk();
+	}
+	else if (Char == TCharType('f'))
+	{
+		DC_TRY(ReadWordExpect(_FALSE_LITERAL));
+		Token.Type = ETokenType::False;
+		return DcOk();
+	}
+	else if (Char == TCharType('n'))
+	{
+		DC_TRY(ReadWordExpect(_NULL_LITERAL));
+		Token.Type = ETokenType::Null;
+		return DcOk();
+	}
+	else if (Char == TCharType('"'))
+	{
+		return ReadStringToken();
+	}
+	else
+	{
+		//	TODO fail with unexpected
+		return DcOk();
+	}
+}
+
+bool FDcJsonReader::IsAtEnd(int N)
 {
 	check(State != EState::Unitialized && State != EState::Invalid);
 	check(Cur >= 0);
-	return Cur >= StrPtr->Len();
+	return Cur + N >= Buf.Num;
 }
 
 void FDcJsonReader::Advance()
 {
 	check(!IsAtEnd());
 	++Cur;
-	Span.ColBegin++;
+	Loc.Column++;
+}
+
+void FDcJsonReader::AdvanceN(int N)
+{
+	check(N != 0);
+	check(!IsAtEnd(N));
+	Cur += N;
+	Loc.Column += N;
 }
 
 FDcJsonReader::TCharType FDcJsonReader::ReadChar()
@@ -310,10 +366,10 @@ FDcJsonReader::TCharType FDcJsonReader::ReadChar()
 	return Ret;
 }
 
-FDcJsonReader::TCharType FDcJsonReader::PeekChar()
+FDcJsonReader::TCharType FDcJsonReader::PeekChar(int N)
 {
-	check(!IsAtEnd());
-	return (*StrPtr)[Cur];
+	check(!IsAtEnd(N));
+	return Buf.Buffer[Cur + N];
 }
 
 FDcResult FDcJsonReader::TryPeekChar(TCharType& OutChar)
@@ -327,20 +383,28 @@ FDcResult FDcJsonReader::TryPeekChar(TCharType& OutChar)
 
 FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 {
-	while (true)
-	{
-		if (IsAtEnd())
-			return DC_FAIL(DcDJSON, AlreadyEndedButExpect) << Word;
-		if (*Word == TCharType('\0'))
-			return DcOk();	// !!! note that this is end of `Word`
-		if (*Word != ReadChar())
-			return DC_FAIL(DcDJSON, ExpectWordButNotFound) << Word;
+	int32 RefBegin = Cur;
+	int32 WordLen = CString::Strlen(Word);
+	SourceRef WordRef = Token.Ref;
+	WordRef.Begin = Cur;
+	WordRef.Num = WordLen;
 
-		++Word;
+	if (IsAtEnd(WordLen))
+	{
+		return DcFail();
 	}
 
-	checkNoEntry();
-	return DcFail(DC_DIAG(DcDCommon, Unreachable));
+	for (int Ix = 0; Ix < WordLen; Ix++)
+	{
+		if (TCharType(Word[Ix]) != PeekChar(Ix))
+		{
+			return DcFail();
+		}
+	}
+
+	Token.Ref = WordRef;
+	AdvanceN(WordLen);
+	return DcOk();
 }
 
 FDcResult FDcJsonReader::ReadCharExpect(TCharType Expect)

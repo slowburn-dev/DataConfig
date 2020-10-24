@@ -1,6 +1,7 @@
 #pragma once
 
-#include <HAL/Platform.h>
+#include "HAL/Platform.h"
+#include "Misc/CString.h"
 #include "DataConfig/DcTypes.h"
 
 struct DATACONFIGCORE_API FDcSourceLocation
@@ -9,13 +10,23 @@ struct DATACONFIGCORE_API FDcSourceLocation
 	uint32 Column;
 };
 
+
 template<class CharType = TCHAR>
 struct TDcSourceBuffer
 {
-	CharType* Buffer;
-	int32 Num;
+	const CharType* Buffer = nullptr;
+	int32 Num = 0;
 
-	FORCEINLINE CharType* End() 
+	TDcSourceBuffer() = default;
+	TDcSourceBuffer(const TDcSourceBuffer&) = default;
+
+	TDcSourceBuffer(const CharType* Ptr)
+	{
+		Buffer = Ptr;
+		Num = TCString<CharType>::Strlen(Ptr);
+	}
+
+	CharType* End() 
 	{
 		return Buffer + Num;
 	}
@@ -24,12 +35,15 @@ struct TDcSourceBuffer
 template<class CharType = TCHAR>
 struct TDcSourceRef
 {
-	TDcSourceBuffer<CharType>* SourceBuffer = nullptr;
+	const TDcSourceBuffer<CharType>* SourceBuffer = nullptr;
 
 	int32 Begin;
 	int32 Num;
 
 	FString ToString();
+
+	bool IsValid();
+	void Reset();
 };
 
 #include "DataConfig/Source/DcSourceTypes.inl"

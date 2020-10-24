@@ -50,10 +50,10 @@ void SourceTypes()
 	static TCHAR* _tchar_text = L"also my twisted words";
 	FString TCharText(5, _tchar_text + 5);
 
-	FDcAnsiSourceBuffer Buf{ _text, TCString<char>::Strlen(_text) };
+	FDcAnsiSourceBuffer Buf(_text);
 	FDcAnsiSourceRef Ref{ &Buf, 6, 5 };
 
-	FDcSourceBuffer TBuf{ _tchar_text, TCString<TCHAR>::Strlen(_tchar_text) };
+	FDcSourceBuffer TBuf(_tchar_text);
 	FDcSourceRef TRef{ &TBuf, 0, 4 };
 
 	UE_LOG(LogDataConfigCore, Display, TEXT("'%s' '%s' '%s' '%s'"), *WhatText, *TCharText, *Ref.ToString(), *TRef.ToString());

@@ -1,4 +1,3 @@
-#include <HAL/Platform.h>
 
 template<class CharType>
 FString TDcSourceRef<CharType>::ToString()
@@ -7,4 +6,14 @@ FString TDcSourceRef<CharType>::ToString()
 	return FString(Num, SourceBuffer->Buffer + Begin);
 }
 
+template<class CharType>
+bool TDcSourceRef<CharType>::IsValid()
+{
+	return SourceBuffer != nullptr;
+}
 
+template<class CharType>
+void TDcSourceRef<CharType>::Reset()
+{
+	SourceBuffer = nullptr;
+}
