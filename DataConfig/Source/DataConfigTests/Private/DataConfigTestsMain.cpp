@@ -44,7 +44,8 @@ static void Body()
 	//TryDiags();
 	//TryConsoleDiagnosticReports();
 	//JsonReader1();
-	JsonFail1();
+	//JsonFail1();
+	SourceTypes();
 
 	return;
 }

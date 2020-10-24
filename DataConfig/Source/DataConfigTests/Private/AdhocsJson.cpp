@@ -2,6 +2,8 @@
 #include "UObject/UnrealType.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Source/DcSourceTypes.h"
+#include "Misc/CString.h"
 
 void JsonReader1()
 {
@@ -34,6 +36,28 @@ void JsonReader1()
 			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
 		}
 	}
+}
+
+static_assert(TIsSame<TCHAR, WIDECHAR>::Value , "TCHAR is WIDECHAR on pc atleast");
+
+void SourceTypes()
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+
+	static char* _text = "these are my twisted words";
+	FString WhatText(5, _text + 5);
+
+	static TCHAR* _tchar_text = L"also my twisted words";
+	FString TCharText(5, _tchar_text + 5);
+
+	FDcAnsiSourceBuffer Buf{ _text, TCString<char>::Strlen(_text) };
+	FDcAnsiSourceRef Ref{ &Buf, 6, 5 };
+
+	FDcSourceBuffer TBuf{ _tchar_text, TCString<TCHAR>::Strlen(_tchar_text) };
+	FDcSourceRef TRef{ &TBuf, 0, 4 };
+
+	UE_LOG(LogDataConfigCore, Display, TEXT("'%s' '%s' '%s' '%s'"), *WhatText, *TCharText, *Ref.ToString(), *TRef.ToString());
+
 }
 
 void JsonFail1()
