@@ -24,6 +24,9 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	const FString* StrPtr = nullptr;
 	int32 Cur = 0;
+	int32 LineStart = 0;
+
+	FDcInputSpan Span = {};
 
 	EDcDataEntry Peek() override;
 
@@ -61,6 +64,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();
+
+	FDcInputSpan FormatInputSpan();
 };
 
 //	actually these can be moved into .inl

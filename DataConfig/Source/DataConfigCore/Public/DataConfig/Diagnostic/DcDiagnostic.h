@@ -5,10 +5,34 @@
 
 #include "Templates/IsEnumClass.h"
 
+struct DATACONFIGCORE_API FDcInputSpan
+{
+	uint32 Line;
+	uint32 ColBegin;
+	uint32 SpanLen;
+
+	FString Formatted;
+};
+
+struct DATACONFIGCORE_API FDcFileSpan 
+{
+	FDcInputSpan Span;
+	FString FilePath;
+
+	FString Formatted;
+
+	FORCEINLINE bool IsValid()
+	{
+		return !Formatted.IsEmpty();
+	}
+};
+
 struct DATACONFIGCORE_API FDcDiagnostic
 {
 	FDcErrorCode Code;
 	TArray<FDcDataVariant> Args;
+
+	TOptional<FDcFileSpan> Span;
 
 	FDcDiagnostic(FDcErrorCode InID) : Code(InID)
 	{}
@@ -17,6 +41,8 @@ struct DATACONFIGCORE_API FDcDiagnostic
 		return DcFail();
 	}
 };
+
+
 
 template<typename T>
 FORCEINLINE typename TEnableIf<!TIsEnumClass<T>::Value, FDcDiagnostic&>::Type

@@ -28,6 +28,8 @@ struct DATACONFIGCORE_API FDcScopedEnv
 
 #define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
 
+#define DC_FAIL(DiagNamespace, DiagID) (DcFail(FDcErrorCode{DiagNamespace::Category, DiagNamespace::DiagID}))
+
 FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr) {
 
 #if DO_CHECK

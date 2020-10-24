@@ -2,8 +2,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 
-using TCharType = FDcJsonReader::TCharType;
-
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
 {
@@ -21,10 +19,13 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 	StrPtr = InStrPtr;
 	State = EState::InitializedWithStr;
 	Cur = 0;
+	Span = {};
 }
 
 EDcDataEntry FDcJsonReader::Peek()
 {
+	//	TODO only allow top level array or object, for now it allow top level everything
+
 	ReadWhiteSpace();
 	if (IsAtEnd())
 		return EDcDataEntry::Ended;
@@ -170,7 +171,11 @@ void FDcJsonReader::ReadWhiteSpace()
 		TCharType Char = PeekChar();
 		if (IsLineBreak(Char))
 		{
-			//	pass for now, add line count
+			Cur++;
+			LineStart = Cur;
+
+			Span.Line++;
+			Span.ColBegin = 0;
 		}
 
 		if (IsWhitespace(Char))
@@ -250,6 +255,17 @@ FDcResult FDcJsonReader::EndTopRead()
 	}
 }
 
+FDcInputSpan FDcJsonReader::FormatInputSpan()
+{
+	FDcInputSpan OutSpan = Span;
+
+
+
+
+
+	return OutSpan;
+}
+
 FDcResult FDcJsonReader::ReadMapRoot()
 {
 	DC_TRY(ReadCharExpect(TCharType('{')));
@@ -283,15 +299,18 @@ void FDcJsonReader::Advance()
 {
 	check(!IsAtEnd());
 	++Cur;
+	Span.ColBegin++;
 }
 
-TCharType FDcJsonReader::ReadChar()
+FDcJsonReader::TCharType FDcJsonReader::ReadChar()
 {
 	check(!IsAtEnd());
-	return (*StrPtr)[Cur++];
+	TCharType Ret = PeekChar();
+	Advance();
+	return Ret;
 }
 
-TCharType FDcJsonReader::PeekChar()
+FDcJsonReader::TCharType FDcJsonReader::PeekChar()
 {
 	check(!IsAtEnd());
 	return (*StrPtr)[Cur];
@@ -311,11 +330,11 @@ FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 	while (true)
 	{
 		if (IsAtEnd())
-			return DcFail(DC_DIAG(DcDJSON, AlreadyEndedButExpect)) << Word;
+			return DC_FAIL(DcDJSON, AlreadyEndedButExpect) << Word;
 		if (*Word == TCharType('\0'))
 			return DcOk();	// !!! note that this is end of `Word`
 		if (*Word != ReadChar())
-			return DcFail(DC_DIAG(DcDJSON, ExpectWordButNotFound)) << Word;
+			return DC_FAIL(DcDJSON, ExpectWordButNotFound) << Word;
 
 		++Word;
 	}

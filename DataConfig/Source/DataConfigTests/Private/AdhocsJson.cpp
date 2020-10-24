@@ -34,6 +34,27 @@ void JsonReader1()
 			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
 		}
 	}
+}
 
+void JsonFail1()
+{
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+
+		fuck
+
+	)");
+	Reader.SetNewString(&Str);
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FDcPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+		FDcPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+		FDcResult Ret = PrettyPrintVisit.PipeVisit();
+		if (!Ret.Ok())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+		}
+	}
 
 }
