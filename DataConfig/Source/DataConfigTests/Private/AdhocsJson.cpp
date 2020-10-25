@@ -18,7 +18,7 @@ void JsonReader1()
 				"Nest1" : "yeah",
 			},
 			"Nest2" : {
-				"Nest2" : "wow",
+				"Nest2" : "wow"
 			},
 		}
 

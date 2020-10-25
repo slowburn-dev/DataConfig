@@ -42,7 +42,7 @@ struct TDcSourceRef
 
 	FString ToString();
 
-	bool IsValid();
+	bool IsValid() const;
 	void Reset();
 };
 

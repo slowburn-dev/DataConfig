@@ -7,7 +7,7 @@ FString TDcSourceRef<CharType>::ToString()
 }
 
 template<class CharType>
-bool TDcSourceRef<CharType>::IsValid()
+bool TDcSourceRef<CharType>::IsValid() const
 {
 	return SourceBuffer != nullptr;
 }

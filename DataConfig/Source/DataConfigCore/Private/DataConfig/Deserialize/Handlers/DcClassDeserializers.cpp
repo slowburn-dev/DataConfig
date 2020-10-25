@@ -269,10 +269,25 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 
 	UClass* SubClassType = nullptr;
 
+	//	TODO this is now becoming a bit verbose, needs something around this
+	DC_TRY(PutbackReader.PeekRead(&Next));
+	if (Next != EDcDataEntry::String)
+	{
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
+			<< EDcDataEntry::String << Next;
+	}
+
 	FString MetaKey;
 	DC_TRY(PutbackReader.ReadString(&MetaKey));
 	if (MetaKey == TEXT("$type"))
 	{
+		DC_TRY(PutbackReader.PeekRead(&Next));
+		if (Next != EDcDataEntry::String)
+		{
+			return DC_FAIL(DcDDeserialize, DataEntryMismatch)
+				<< EDcDataEntry::String << Next;
+		}
+
 		//	has `$type`
 		FString TypeStr;
 		DC_TRY(PutbackReader.ReadString(&TypeStr));
@@ -347,7 +362,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	FDcClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDcDataReference::ExpandObject };
 	DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
-	//	usual read coroutine
+	//	usual read routine
 	EDcDataEntry CurPeek;
 	DC_TRY(PutbackReader.PeekRead(&CurPeek));
 	while (CurPeek != EDcDataEntry::MapEnd)

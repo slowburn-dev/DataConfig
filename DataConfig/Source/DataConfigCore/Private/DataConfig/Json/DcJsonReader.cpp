@@ -187,15 +187,18 @@ FDcResult FDcJsonReader::EndTopRead()
 		else
 		{
 			//	at value position
+			FToken Prev = Token;
 			DC_TRY(ConsumeToken());
 			bTopObjectAtValue = false;
 
+			//	allowing optional trailing comma
 			if (Token.Type == ETokenType::Comma)
 			{
 				return DcOk();
 			}
 			else if (Token.Type == ETokenType::CurlyClose)
 			{
+				PutbackToken(Prev);
 				return DcOk();
 			}
 			else
@@ -207,6 +210,7 @@ FDcResult FDcJsonReader::EndTopRead()
 	else if (TopState == EParseState::Array)
 	{
 		//	TODO these block isn't evaluated yet
+		FToken Prev = Token;
 		DC_TRY(ConsumeToken());
 
 		if (Token.Type == ETokenType::Comma)
@@ -215,6 +219,7 @@ FDcResult FDcJsonReader::EndTopRead()
 		}
 		else if (Token.Type == ETokenType::SquareClose)
 		{
+			PutbackToken(Prev);
 			return DcOk();
 		}
 		else
@@ -272,6 +277,13 @@ FDcResult FDcJsonReader::ReadMapEnd()
 
 FDcResult FDcJsonReader::ConsumeToken()
 {
+	if (CachedNext.IsValid())
+	{
+		Token = CachedNext;
+		CachedNext.Reset();
+		return DcOk();
+	}
+
 	check(State == EState::InitializedWithStr);
 	ReadWhiteSpace();
 
@@ -337,6 +349,14 @@ FDcResult FDcJsonReader::ConsumeToken()
 		//	TODO fail with unexpected
 		return DC_FAIL(DcDJSON, UnexpectedToken);
 	}
+}
+
+void FDcJsonReader::PutbackToken(const FToken& Putback)
+{
+	check(Token.IsValid() && Putback.IsValid());
+	check(!CachedNext.IsValid());
+	CachedNext = Token;
+	Token = Putback;
 }
 
 bool FDcJsonReader::IsAtEnd(int N)

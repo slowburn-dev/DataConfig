@@ -163,11 +163,11 @@ void DeserializeSubObject()
 		{
 			"ShapeAlpha" :  {
 				"$type" : "ShapeBox",
-				"ShapeName" : "Box1"
+				"ShapeName" : "Box1",
 			},
 			"ShapeBeta" : {
 				"$type" : "ShapeSquare",
-				"ShapeName" : "Square1"
+				"ShapeName" : "Square1",
 			},
 			"ShapeGamma" : {
 				"ShapeName" : "BaseShape"

@@ -11,6 +11,14 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+
+	if (Next != EDcDataEntry::Bool)
+	{
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
+			<< EDcDataEntry::Bool << Next;
+	}
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Bool));
 
 	bool Value;

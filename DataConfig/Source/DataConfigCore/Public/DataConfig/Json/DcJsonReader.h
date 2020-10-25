@@ -36,6 +36,9 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	{
 		ETokenType Type;
 		SourceRef Ref;
+
+		FORCEINLINE bool IsValid() const { return Ref.IsValid(); }
+		FORCEINLINE void Reset() { Ref.Reset(); }
 	};
 
 	FDcJsonReader();
@@ -57,6 +60,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	//	current peeking ahead token
 	FToken Token;
+	FToken CachedNext;
 
 	int32 Cur = 0;
 	int32 LineStart = 0;
@@ -70,6 +74,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadMapEnd() override;
 
 	FDcResult ConsumeToken();
+
+	void PutbackToken(const FToken& Putback);
 
 	bool IsAtEnd(int N = 0);
 	void Advance();
