@@ -44,10 +44,6 @@ FORCEINLINE FDcResult DcOk() {
 	return FDcResult{ FDcResult::EStatus::Ok };
 }
 
-FORCEINLINE FDcResult DcFail() {
-	return FDcResult{ FDcResult::EStatus::Error };
-}
-
 #define DC_TRY(expr)						\
 	do {									\
 		::FDcResult Ret = (expr);			\

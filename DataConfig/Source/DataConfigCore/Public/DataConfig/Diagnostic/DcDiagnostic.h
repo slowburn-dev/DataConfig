@@ -38,7 +38,7 @@ struct DATACONFIGCORE_API FDcDiagnostic
 	{}
 
 	operator FDcResult() const {
-		return DcFail();
+		return FDcResult{ FDcResult::EStatus::Error };
 	}
 };
 

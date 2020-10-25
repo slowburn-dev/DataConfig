@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/BasicArray.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 struct DATACONFIGCORE_API FDcEnv
@@ -19,6 +20,8 @@ struct DATACONFIGCORE_API FDcEnv
 DATACONFIGCORE_API FDcEnv& DcEnv();
 DATACONFIGCORE_API FDcEnv& DcPushEnv();
 DATACONFIGCORE_API void DcPopEnv();
+
+extern TBasicArray<FDcEnv> Envs;	// external linkage for debug watch window
 
 struct DATACONFIGCORE_API FDcScopedEnv
 {
@@ -46,6 +49,10 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
 #endif
 
 	return DcEnv().Diag({InCategory, InCode});
+}
+
+FORCEINLINE FDcDiagnostic& DcFail() {
+	return DcFail(1, 1);	// DCommon::Unhandled
 }
 
 template<typename TThunk>

@@ -32,6 +32,7 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
+	/*
 	PropertyVisitorRoundtrip_Piped();
 	PropertyVisitorRoundtrip__TestObjAlpha();
 	PropertyVisitorRoundtrip__StructStruct();
@@ -52,9 +53,11 @@ static void Body()
 	TryDiags();
 	TryConsoleDiagnosticReports();
 	JsonReader1();
-	JsonFail1();
 	SourceTypes();
 	JsonReader1();
+	*/
+
+	JsonFail1();
 
 	return;
 }
