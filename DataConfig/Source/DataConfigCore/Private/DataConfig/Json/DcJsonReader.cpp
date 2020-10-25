@@ -2,7 +2,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 
-
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
 {
@@ -20,7 +19,7 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 	Buf = SourceBuf(InStrPtr->GetCharArray().GetData());
 	Token.Type = ETokenType::EOF_;
 	Token.Ref.Reset();
-	Token.Ref.SourceBuffer = &Buf;
+	Token.Ref.Buffer = &Buf;
 
 	State = EState::InitializedWithStr;
 	Cur = 0;
@@ -238,12 +237,6 @@ FDcResult FDcJsonReader::EndTopRead()
 	}
 }
 
-FDcInputSpan FDcJsonReader::FormatInputSpan()
-{
-	FDcInputSpan OutSpan;
-	return OutSpan;
-}
-
 FDcResult FDcJsonReader::ReadMapRoot()
 {
 	if (Token.Type == ETokenType::CurlyOpen)
@@ -412,12 +405,82 @@ FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 	{
 		if (TCharType(Word[Ix]) != PeekChar(Ix))
 		{
-			return DcFail();
+			return DC_FAIL(DcDJSON, ExpectWordButNotFound)
+				<< Word << WordRef.ToString();
 		}
 	}
 
 	Token.Ref = WordRef;
 	AdvanceN(WordLen);
 	return DcOk();
+}
+
+struct FHightlightFormatter
+{
+	using TReader = FDcJsonReader;
+	using SourceBuf = TReader::SourceBuf;
+	using SourceRef = TReader::SourceRef;
+
+	static constexpr int _LINE_CONTEXT = 1;
+
+	TReader* Reader;
+
+	struct FLine
+	{
+		SourceRef Line;
+	};
+
+	FLine LinesBefore[_LINE_CONTEXT];
+	FLine LineHighlight;
+	FLine LinesAfter[_LINE_CONTEXT];
+
+	FHightlightFormatter(TReader* InReader);
+
+	FString FormatHighlight(const SourceRef& SpanRef);
+
+	SourceRef FindLine(const SourceRef& SpanRef);
+};
+
+FHightlightFormatter::FHightlightFormatter(TReader* InReader)
+{
+	Reader = InReader;
+}
+
+FString FHightlightFormatter::FormatHighlight(const TReader::SourceRef& SpanRef)
+{
+	check(SpanRef.Begin >= Reader->LineStart);
+
+	return FString();
+}
+
+FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& SpanRef)
+{
+	const SourceBuf* Buf = SpanRef.Buffer;
+	int32 CurHead = SpanRef.Begin;
+	while (CurHead >= 0)
+	{
+		if (TReader::IsLineBreak(Buf->Get(CurHead)))
+			break;
+	}
+
+	int32 CurTail = SpanRef.Begin;
+	while (CurTail < Buf->Num)
+	{
+		if (TReader::IsLineBreak(Buf->Get(CurTail)))
+			break;
+	}
+
+	return SourceRef{ Buf, CurHead, CurTail - CurHead };
+}
+
+FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
+{
+	FDcDiagnosticHighlight OutHighlight;
+	OutHighlight.Loc = Loc;
+	OutHighlight.FilePath = DiagFilePath;
+	FHightlightFormatter Highlighter(this);
+	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef);
+
+	return OutHighlight;
 }
 

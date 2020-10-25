@@ -64,6 +64,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	int32 Cur = 0;
 	int32 LineStart = 0;
+	FString DiagFilePath = TEXT("<unknown file>");
 
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
@@ -108,8 +109,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();
 
-	FString FormatAtCurrentLoc(int32);
-	FDcInputSpan FormatInputSpan();
+	FDcDiagnosticHighlight FormatInputSpan(SourceRef SpanRef);
 };
 
 //	actually these can be moved into .inl

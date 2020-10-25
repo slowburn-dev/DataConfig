@@ -26,7 +26,13 @@ struct TDcSourceBuffer
 		Num = TCString<CharType>::Strlen(Ptr);
 	}
 
-	CharType* End() 
+	FORCEINLINE CharType Get(int32 Ix) const
+	{
+		check(Ix >= 0 && Ix < Num);
+		return Buffer[Ix];
+	}
+
+	CharType* End() const
 	{
 		return Buffer + Num;
 	}
@@ -35,7 +41,7 @@ struct TDcSourceBuffer
 template<class CharType = TCHAR>
 struct TDcSourceRef
 {
-	const TDcSourceBuffer<CharType>* SourceBuffer = nullptr;
+	const TDcSourceBuffer<CharType>* Buffer = nullptr;
 
 	int32 Begin;
 	int32 Num;

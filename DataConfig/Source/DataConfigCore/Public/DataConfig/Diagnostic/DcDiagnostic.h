@@ -2,29 +2,16 @@
 
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Misc/DcDataVariant.h"
+#include "DataConfig/Source/DcSourceTypes.h"
 
 #include "Templates/IsEnumClass.h"
 
-struct DATACONFIGCORE_API FDcInputSpan
+struct DATACONFIGCORE_API FDcDiagnosticHighlight
 {
-	uint32 Line;
-	uint32 ColBegin;
-	uint32 SpanLen;
-
-	FString Formatted;
-};
-
-struct DATACONFIGCORE_API FDcFileSpan 
-{
-	FDcInputSpan Span;
+	FDcSourceLocation Loc;
 	FString FilePath;
 
 	FString Formatted;
-
-	FORCEINLINE bool IsValid()
-	{
-		return !Formatted.IsEmpty();
-	}
 };
 
 struct DATACONFIGCORE_API FDcDiagnostic
@@ -32,7 +19,7 @@ struct DATACONFIGCORE_API FDcDiagnostic
 	FDcErrorCode Code;
 	TArray<FDcDataVariant> Args;
 
-	TOptional<FDcFileSpan> Span;
+	TOptional<FDcDiagnosticHighlight> InputSpan;
 
 	FDcDiagnostic(FDcErrorCode InID) : Code(InID)
 	{}
@@ -64,6 +51,13 @@ operator<<(FDcDiagnostic& Diag, T&& InValue)
 FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
 {
 	Diag.Args.Emplace(FName(TEXT("<DataEntry>")));
+	return Diag;
+}
+
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighlight&& DiagSpan)
+{
+	check(!Diag.InputSpan.IsSet());
+	Diag.InputSpan.Emplace(MoveTemp(DiagSpan));
 	return Diag;
 }
 
