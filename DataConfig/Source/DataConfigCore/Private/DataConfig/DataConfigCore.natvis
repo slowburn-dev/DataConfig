@@ -19,6 +19,17 @@
     </Expand>
   </Type>
 
+  <!-- ref: llvm.natvis -->
+  <!-- `su` ref: https://docs.microsoft.com/en-us/visualstudio/debugger/format-specifiers-in-cpp?view=vs-2019 -->
+  <Type Name="TDcSourceRef&lt;wchar_t&gt;">
+  		<DisplayString>{SourceBuffer->Buffer+Begin,[Num]su}</DisplayString>
+	    <StringView>SourceBuffer->Buffer+Begin,[Num]su</StringView>
+  </Type>
+  <Type Name="TDcSourceRef&lt;char&gt;">
+  		<DisplayString>{SourceBuffer->Buffer+Begin,[Num]s}</DisplayString>
+	    <StringView>SourceBuffer->Buffer+Begin,[Num]s</StringView>
+  </Type>
+
 </AutoVisualizer>
 
 

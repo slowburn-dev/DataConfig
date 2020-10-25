@@ -32,6 +32,7 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
+	/*
 	PropertyVisitorRoundtrip_Piped();
 	PropertyVisitorRoundtrip__TestObjAlpha();
 	PropertyVisitorRoundtrip__StructStruct();
@@ -40,6 +41,7 @@ static void Body()
 	PropertyVisitorRoundtrip_WriteNested();
 	PropertyVisitorRoundtrip();
 	UEStructSerializer();
+	*/
 
 	//	Deserialize all uses JSON so they are broken atm
 	/*
@@ -49,13 +51,17 @@ static void Body()
 	DeserializeObjectRef();
 	DeserializeSubObject();
 	*/
+	/*
 	TryOutVariant();
 	TryOutPutback();
 	TryDiags();
 	TryConsoleDiagnosticReports();
-	//JsonReader1();
-	//JsonFail1();
+	JsonReader1();
+	JsonFail1();
 	SourceTypes();
+	*/
+
+	JsonReader1();
 
 	return;
 }

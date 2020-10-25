@@ -69,7 +69,6 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadMapRoot() override;
 	FDcResult ReadMapEnd() override;
 
-	//	parsing functions
 	FDcResult ConsumeToken();
 
 	bool IsAtEnd(int N = 0);
@@ -78,12 +77,10 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	TCharType ReadChar();
 	TCharType PeekChar(int N = 0);
 
-	FDcResult TryPeekChar(TCharType& OutChar);
 	FDcResult ReadWordExpect(const TCharType* Word);
-	FDcResult ReadCharExpect(TCharType Expect);
-	FDcResult ReadString(FString& OutStr);
 
 	FDcResult ReadStringToken();
+	FDcResult ParseStringToken(FString &OutStr);
 
 	void ReadWhiteSpace();
 
@@ -101,6 +98,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FORCEINLINE static bool IsLineBreak(const TCharType& Char);
 	FORCEINLINE static bool IsWhitespace(const TCharType& Char);
 
+	//	this should be put inside EParseState, it's just that we need only 1 marker for all
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();
 

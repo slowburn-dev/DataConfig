@@ -29,5 +29,15 @@ struct DATACONFIGCORE_API FDcReader
 
 	virtual FDcResult ReadReference(UObject** OutPtr);
 
+	//	shorthand for optional reading values
+	template<typename T1, typename T2>
+	FORCEINLINE static void ReadOut(T1*& OutPtr, T2&& Value)
+	{
+		if (OutPtr)
+		{
+			*OutPtr = Forward<T2>(Value);
+		}
+	}
 };
+
 
