@@ -56,7 +56,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	EState State = EState::Unitialized;
 
 	SourceBuf Buf = {};
-	FDcSourceLocation Loc = {};
+	FDcSourceLocation Loc = {1, 0};
 
 	//	current peeking ahead token
 	FToken Token;

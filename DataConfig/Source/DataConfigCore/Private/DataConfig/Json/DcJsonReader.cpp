@@ -1,6 +1,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
+#include "Misc/StringBuilder.h"
 
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
@@ -406,7 +407,8 @@ FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 		if (TCharType(Word[Ix]) != PeekChar(Ix))
 		{
 			return DC_FAIL(DcDJSON, ExpectWordButNotFound)
-				<< Word << WordRef.ToString();
+				<< Word << WordRef.ToString()
+				<< FormatInputSpan(WordRef);
 		}
 	}
 
@@ -423,54 +425,123 @@ struct FHightlightFormatter
 
 	static constexpr int _LINE_CONTEXT = 1;
 
-	TReader* Reader;
+	SourceRef LinesBefore[_LINE_CONTEXT];
+	SourceRef LineHighlight;
+	SourceRef LinesAfter[_LINE_CONTEXT];
 
-	struct FLine
-	{
-		SourceRef Line;
-	};
-
-	FLine LinesBefore[_LINE_CONTEXT];
-	FLine LineHighlight;
-	FLine LinesAfter[_LINE_CONTEXT];
-
-	FHightlightFormatter(TReader* InReader);
-
-	FString FormatHighlight(const SourceRef& SpanRef);
-
+	FString FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc);
 	SourceRef FindLine(const SourceRef& SpanRef);
+
+	static FString Dup(TCHAR Ch, int N);
+	static void EatTrailingLinebreak(SourceRef& Ref);
 };
 
-FHightlightFormatter::FHightlightFormatter(TReader* InReader)
-{
-	Reader = InReader;
-}
 
-FString FHightlightFormatter::FormatHighlight(const TReader::SourceRef& SpanRef)
+FString FHightlightFormatter::FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc)
 {
-	check(SpanRef.Begin >= Reader->LineStart);
+	LineHighlight = FindLine(SpanRef);
+	check(LineHighlight.IsValid());
 
-	return FString();
+	{
+		SourceRef LineBefore = LineHighlight;
+		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
+		{
+			LineBefore.Begin = LineBefore.Begin - 1;
+			LineBefore.Num = 0;
+			if (!LineBefore.IsValid())
+				break;
+			int Cur = _LINE_CONTEXT - Ix - 1;
+			LinesBefore[Cur] = FindLine(LineBefore);
+			LineBefore = LinesBefore[Cur];
+		}
+	}
+
+	{
+		SourceRef LineAfter = LineHighlight;
+		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
+		{
+			LineAfter.Begin = LineAfter.Begin + LineAfter.Num;
+			LineAfter.Num = 0;
+			if (!LineAfter.IsValid())
+				break;
+			LinesAfter[Ix] = FindLine(LineAfter);
+			LineAfter = LinesAfter[Ix];
+		}
+	}
+
+	{
+		TArray<FString, TFixedAllocator<_LINE_CONTEXT * 2 + 2>> Reports;
+
+		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
+		{
+			if (!LinesBefore[Ix].IsValid())
+				continue;
+
+			EatTrailingLinebreak(LinesBefore[Ix]);
+			int CurLine = Loc.Line - _LINE_CONTEXT + Ix;
+			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LinesBefore[Ix].ToString()));
+		}
+
+		EatTrailingLinebreak(LineHighlight);
+		Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineHighlight.ToString()));
+		Reports.Add(FString::Printf(TEXT("     |%s%s"), 
+			*Dup(TCHAR(' '), SpanRef.Begin - LineHighlight.Begin),
+			*Dup(TCHAR('^'), SpanRef.Num)));
+
+		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
+		{
+			if (!LinesAfter[Ix].IsValid())
+				continue;
+
+			EatTrailingLinebreak(LinesAfter[Ix]);
+			int CurLine = Loc.Line + Ix + 1;
+			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LinesAfter[Ix].ToString()));
+		}
+
+		return FString::Join(Reports, TEXT("\n"));
+	}
 }
 
 FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& SpanRef)
 {
+	check(SpanRef.IsValid());
+
 	const SourceBuf* Buf = SpanRef.Buffer;
 	int32 CurHead = SpanRef.Begin;
 	while (CurHead >= 0)
 	{
 		if (TReader::IsLineBreak(Buf->Get(CurHead)))
+		{
+			++CurHead;
 			break;
+		}
+		--CurHead;
 	}
 
 	int32 CurTail = SpanRef.Begin;
 	while (CurTail < Buf->Num)
 	{
-		if (TReader::IsLineBreak(Buf->Get(CurTail)))
+		if (TReader::IsLineBreak(Buf->Get(CurTail++)))
 			break;
 	}
 
 	return SourceRef{ Buf, CurHead, CurTail - CurHead };
+}
+
+FString FHightlightFormatter::Dup(TCHAR Ch, int N)
+{
+	FString Out;
+	for (int Ix = 0; Ix < N; Ix++)
+		Out.AppendChar(Ch);
+
+	return Out;
+}
+
+void FHightlightFormatter::EatTrailingLinebreak(SourceRef& Ref)
+{
+	check(Ref.IsValid());
+	if (TReader::IsLineBreak(Ref.Buffer->Get(Ref.Begin + Ref.Num - 1)))
+		--Ref.Num;
 }
 
 FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
@@ -478,8 +549,8 @@ FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
 	FDcDiagnosticHighlight OutHighlight;
 	OutHighlight.Loc = Loc;
 	OutHighlight.FilePath = DiagFilePath;
-	FHightlightFormatter Highlighter(this);
-	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef);
+	FHightlightFormatter Highlighter;
+	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
 
 	return OutHighlight;
 }

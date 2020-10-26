@@ -9,7 +9,9 @@ FString TDcSourceRef<CharType>::ToString()
 template<class CharType>
 bool TDcSourceRef<CharType>::IsValid() const
 {
-	return Buffer != nullptr;
+	return Buffer != nullptr
+		&& Begin >= 0
+		&& Num <= Buffer->Num;
 }
 
 template<class CharType>

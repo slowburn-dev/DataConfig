@@ -14,6 +14,8 @@ struct DATACONFIGCORE_API FDcSourceLocation
 template<class CharType = TCHAR>
 struct TDcSourceBuffer
 {
+	using TCharType = CharType;
+
 	const CharType* Buffer = nullptr;
 	int32 Num = 0;
 
@@ -31,16 +33,13 @@ struct TDcSourceBuffer
 		check(Ix >= 0 && Ix < Num);
 		return Buffer[Ix];
 	}
-
-	CharType* End() const
-	{
-		return Buffer + Num;
-	}
 };
 
 template<class CharType = TCHAR>
 struct TDcSourceRef
 {
+	using TCharType = CharType;
+
 	const TDcSourceBuffer<CharType>* Buffer = nullptr;
 
 	int32 Begin;

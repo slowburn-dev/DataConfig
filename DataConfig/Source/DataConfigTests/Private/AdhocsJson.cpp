@@ -65,7 +65,12 @@ void JsonFail1()
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
-		fuck
+
+    {
+        fuck
+    }
+
+
 
 	)");
 	Reader.SetNewString(&Str);

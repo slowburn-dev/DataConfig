@@ -79,7 +79,18 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 		TArray<FStringFormatArg> FormatArgs;
 		for (FDcDataVariant& Var : Diag.Args)
 			FormatArgs.Add(DcConvertArg(Var));
-		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *FString::Format(Detail->Msg, FormatArgs));
+
+
+
+		UE_LOG(LogDataConfigCore, Display, TEXT("DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
+		if (Diag.InputSpan.IsSet())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("-->%s%d:%d\n%s"),
+				*Diag.InputSpan->FilePath,
+				Diag.InputSpan->Loc.Line,
+				Diag.InputSpan->Loc.Column,
+				*Diag.InputSpan->Formatted);
+		}
 	}
 	else
 	{
