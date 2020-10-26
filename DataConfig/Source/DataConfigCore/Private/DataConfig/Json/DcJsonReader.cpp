@@ -446,7 +446,7 @@ FString FHightlightFormatter::FormatHighlight(const SourceRef& SpanRef, const FD
 		SourceRef LineBefore = LineHighlight;
 		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
 		{
-			LineBefore.Begin = LineBefore.Begin - 1;
+			LineBefore.Begin = LineBefore.Begin - 2;	// -1 is \n
 			LineBefore.Num = 0;
 			if (!LineBefore.IsValid())
 				break;
