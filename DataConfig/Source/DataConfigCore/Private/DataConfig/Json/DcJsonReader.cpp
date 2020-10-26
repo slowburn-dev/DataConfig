@@ -24,7 +24,6 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 
 	State = EState::InitializedWithStr;
 	Cur = 0;
-	LineStart = 0;
 	Loc.Line = 0;
 	Loc.Column = 0;
 }
@@ -149,7 +148,6 @@ void FDcJsonReader::ReadWhiteSpace()
 		if (IsLineBreak(Char))
 		{
 			Cur++;
-			LineStart = Cur;
 
 			Loc.Line++;
 			Loc.Column = 0;

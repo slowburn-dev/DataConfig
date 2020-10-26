@@ -19,7 +19,7 @@ struct DATACONFIGCORE_API FDcDiagnostic
 	FDcErrorCode Code;
 	TArray<FDcDataVariant> Args;
 
-	TOptional<FDcDiagnosticHighlight> InputSpan;
+	TOptional<FDcDiagnosticHighlight> Highlight;
 
 	FDcDiagnostic(FDcErrorCode InID) : Code(InID)
 	{}
@@ -56,8 +56,8 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
 
 FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighlight&& DiagSpan)
 {
-	check(!Diag.InputSpan.IsSet());
-	Diag.InputSpan.Emplace(MoveTemp(DiagSpan));
+	check(!Diag.Highlight.IsSet());
+	Diag.Highlight.Emplace(MoveTemp(DiagSpan));
 	return Diag;
 }
 
