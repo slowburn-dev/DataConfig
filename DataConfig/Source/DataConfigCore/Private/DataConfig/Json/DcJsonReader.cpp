@@ -147,7 +147,7 @@ void FDcJsonReader::ReadWhiteSpace()
 	while (!IsAtEnd())
 	{
 		TCharType Char = PeekChar();
-		if (DcSourceUtils::IsLineBreak(Char))
+		if (SourceUtils::IsLineBreak(Char))
 		{
 			Cur++;
 
@@ -155,7 +155,7 @@ void FDcJsonReader::ReadWhiteSpace()
 			Loc.Column = 0;
 		}
 
-		if (DcSourceUtils::IsWhitespace(Char))
+		if (SourceUtils::IsWhitespace(Char))
 		{
 			Advance();
 		}
@@ -209,7 +209,6 @@ FDcResult FDcJsonReader::EndTopRead()
 	}
 	else if (TopState == EParseState::Array)
 	{
-		//	TODO these block isn't evaluated yet
 		FToken Prev = Token;
 		DC_TRY(ConsumeToken());
 
@@ -512,12 +511,17 @@ FString FHightlightFormatter::FormatHighlight(const SourceRef& SpanRef, const FD
 		}
 
 		{
+			SourceRef PrefixRef = LineHighlight;
+			PrefixRef.Num = SpanRef.Begin - LineHighlight.Begin;
+			check(PrefixRef.IsValid());
+
 			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LineHighlight.ToString());
+			FString PrefixStr = FDcSourceUtils::FormatDiagnosticLine(PrefixRef.ToString());
 			FString SpanStr = FDcSourceUtils::FormatDiagnosticLine(SpanRef.ToString());
 
 			Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineStr));
 			Reports.Add(FString::Printf(TEXT("     |%s%s"),
-				*FString::ChrN(LineStr.Len() - SpanStr.Len(), TCHAR(' ')),
+				*FString::ChrN(PrefixStr.Len(), TCHAR(' ')),
 				*FString::ChrN(SpanStr.Len(), TCHAR('^'))));
 		}
 
@@ -543,7 +547,7 @@ FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& 
 	int32 CurHead = SpanRef.Begin;
 	while (CurHead >= 0)
 	{
-		if (TReader::DcSourceUtils::IsLineBreak(Buf->Get(CurHead)))
+		if (TReader::SourceUtils::IsLineBreak(Buf->Get(CurHead)))
 		{
 			++CurHead;
 			break;
@@ -554,7 +558,7 @@ FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& 
 	int32 CurTail = SpanRef.Begin;
 	while (CurTail < Buf->Num)
 	{
-		if (TReader::DcSourceUtils::IsLineBreak(Buf->Get(CurTail++)))
+		if (TReader::SourceUtils::IsLineBreak(Buf->Get(CurTail++)))
 			break;
 	}
 

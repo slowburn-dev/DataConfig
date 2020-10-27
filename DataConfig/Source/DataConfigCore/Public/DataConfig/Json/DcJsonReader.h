@@ -11,8 +11,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	using TCharType = TCHAR;
 	using SourceBuf = TDcSourceBuffer<TCharType>;
 	using SourceRef = TDcSourceRef<TCharType>;
+	using SourceUtils = TDcCSourceUtils<TCharType>;
 	using CString = TCString<TCharType>;
-	using DcSourceUtils = TDcCSourceUtils<TCharType>;
 
 	enum class ETokenType
 	{
