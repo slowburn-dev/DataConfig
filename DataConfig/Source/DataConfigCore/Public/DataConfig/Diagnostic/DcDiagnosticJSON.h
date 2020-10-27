@@ -12,7 +12,7 @@ namespace DcDJSON
 		UnexpectedEnd,
 		AlreadyEndedButExpect,
 		ExpectWordButNotFound,
-		UnexpectedChar1,
+		UnexpectedChar,
 		UnexpectedToken,
 	};
 

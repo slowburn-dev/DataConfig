@@ -20,6 +20,9 @@ void JsonReader1()
 			"Nest2" : {
 				"Nest2" : "wow"
 			},
+			"Arr" : [
+				"these", "are", "my", "twisted"
+			],
 		}
 
 	)");

@@ -57,7 +57,8 @@ static void Body()
 	JsonReader1();
 	*/
 
-	JsonFail1();
+	//JsonFail1();
+	JsonReader1();
 
 	return;
 }

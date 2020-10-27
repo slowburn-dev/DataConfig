@@ -3,10 +3,10 @@
 
 static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::UnexpectedEnd, TEXT("Unexpected End"), },
-	{ DcDJSON::AlreadyEndedButExpect, TEXT("Input already ended but expect {0}"), },
+	{ DcDJSON::AlreadyEndedButExpect, TEXT("Input already ended but expect '{0}'"), },
 	{ DcDJSON::ExpectWordButNotFound, TEXT("Expect word '{0}' but found '{1}' instead."), },
-	{ DcDJSON::UnexpectedChar1, TEXT("Unexpected char {0}"), },
-	{ DcDJSON::UnexpectedToken, TEXT("Expect token {0} but found {1}"), },
+	{ DcDJSON::UnexpectedChar, TEXT("Unexpected char '{0}'"), },
+	{ DcDJSON::UnexpectedToken, TEXT("Unexpected token '{0}'"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };

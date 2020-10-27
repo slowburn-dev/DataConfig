@@ -74,6 +74,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadString(FString* OutPtr) override;
 	FDcResult ReadMapRoot() override;
 	FDcResult ReadMapEnd() override;
+	FDcResult ReadArrayRoot() override;
+	FDcResult ReadArrayEnd() override;
 
 	FDcResult ConsumeToken();
 
@@ -109,6 +111,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult EndTopRead();
 
 	FDcDiagnosticHighlight FormatInputSpan(SourceRef SpanRef);
+	FDcDiagnosticHighlight FormatInputSpan(int Begin, int Num);
 };
 
 //	actually these can be moved into .inl

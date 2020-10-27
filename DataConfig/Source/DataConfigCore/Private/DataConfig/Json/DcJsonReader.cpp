@@ -39,6 +39,8 @@ FDcResult FDcJsonReader::PeekRead(EDcDataEntry* OutPtr)
 	case ETokenType::False: { *OutPtr = EDcDataEntry::Bool; break; }
 	case ETokenType::CurlyOpen: { *OutPtr = EDcDataEntry::MapRoot; break;}
 	case ETokenType::CurlyClose: { *OutPtr = EDcDataEntry::MapEnd; break;}
+	case ETokenType::SquareOpen: { *OutPtr = EDcDataEntry::ArrayRoot; break;}
+	case ETokenType::SquareClose: { *OutPtr = EDcDataEntry::ArrayEnd; break;}
 	case ETokenType::String: { *OutPtr = EDcDataEntry::String; break;}
 	case ETokenType::EOF_: { *OutPtr = EDcDataEntry::Ended; break;}
 	default: 
@@ -267,6 +269,33 @@ FDcResult FDcJsonReader::ReadMapEnd()
 	}
 }
 
+FDcResult FDcJsonReader::ReadArrayRoot()
+{
+	if (Token.Type == ETokenType::SquareOpen)
+	{
+		PushTopState(EParseState::Array);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, UnexpectedToken);
+	}
+}
+
+FDcResult FDcJsonReader::ReadArrayEnd()
+{
+	if (Token.Type == ETokenType::SquareClose)
+	{
+		PopTopState(EParseState::Array);
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, UnexpectedToken);
+	}
+}
+
 FDcResult FDcJsonReader::ConsumeToken()
 {
 	if (CachedNext.IsValid())
@@ -291,28 +320,33 @@ FDcResult FDcJsonReader::ConsumeToken()
 		Token.Ref.Begin = Cur;
 		Token.Ref.Num = 1;
 		Advance();
+		return DcOk();
 	};
 
 	TCharType Char = PeekChar();
 	if (Char == TCharType('{'))
 	{
-		_ConsumeSingleCharToken(ETokenType::CurlyOpen);
-		return DcOk();
+		return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
 	}
 	else if (Char == TCharType('}'))
 	{
-		_ConsumeSingleCharToken(ETokenType::CurlyClose);
-		return DcOk();
+		return _ConsumeSingleCharToken(ETokenType::CurlyClose);
+	}
+	else if (Char == TCharType('['))
+	{
+		return _ConsumeSingleCharToken(ETokenType::SquareOpen);
+	}
+	else if (Char == TCharType(']'))
+	{
+		return _ConsumeSingleCharToken(ETokenType::SquareClose);
 	}
 	else if (Char == TCharType(':'))
 	{
-		_ConsumeSingleCharToken(ETokenType::Colon);
-		return DcOk();
+		return _ConsumeSingleCharToken(ETokenType::Colon);
 	}
 	else if (Char == TCharType(','))
 	{
-		_ConsumeSingleCharToken(ETokenType::Comma);
-		return DcOk();
+		return _ConsumeSingleCharToken(ETokenType::Comma);
 	}
 	else if (Char == TCharType('t'))
 	{
@@ -338,8 +372,8 @@ FDcResult FDcJsonReader::ConsumeToken()
 	}
 	else
 	{
-		//	TODO fail with unexpected
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, UnexpectedChar)
+			<< FString::Chr(Char) << FormatInputSpan(Cur, 1);
 	}
 }
 
@@ -536,5 +570,10 @@ FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
 
 	return OutHighlight;
+}
+
+FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(int Begin, int Num)
+{
+	return FormatInputSpan(SourceRef{ &Buf, Begin, Num });
 }
 
