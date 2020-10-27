@@ -1,7 +1,6 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
-#include "DataConfig/Source/DcSourceUtils.h"
 #include "Misc/StringBuilder.h"
 
 
@@ -143,11 +142,10 @@ FDcResult FDcJsonReader::ParseStringToken(FString &OutStr)
 
 void FDcJsonReader::ReadWhiteSpace()
 {
-	//	TODO actually can add a dirty flag to save duplicated read white space
 	while (!IsAtEnd())
 	{
 		TCharType Char = PeekChar();
-		if (IsLineBreak(Char))
+		if (DcSourceUtils::IsLineBreak(Char))
 		{
 			Cur++;
 
@@ -155,7 +153,7 @@ void FDcJsonReader::ReadWhiteSpace()
 			Loc.Column = 0;
 		}
 
-		if (IsWhitespace(Char))
+		if (DcSourceUtils::IsWhitespace(Char))
 		{
 			Advance();
 		}
@@ -431,9 +429,6 @@ struct FHightlightFormatter
 
 	FString FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc);
 	SourceRef FindLine(const SourceRef& SpanRef);
-
-	static FString Dup(TCHAR Ch, int N);
-	static void EatTrailingLinebreak(SourceRef& Ref);
 };
 
 
@@ -488,8 +483,8 @@ FString FHightlightFormatter::FormatHighlight(const SourceRef& SpanRef, const FD
 
 			Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineStr));
 			Reports.Add(FString::Printf(TEXT("     |%s%s"),
-				*Dup(TCHAR(' '), LineStr.Len() - SpanStr.Len()),
-				*Dup(TCHAR('^'), SpanStr.Len())));
+				*FString::ChrN(LineStr.Len() - SpanStr.Len(), TCHAR(' ')),
+				*FString::ChrN(SpanStr.Len(), TCHAR('^'))));
 		}
 
 		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
@@ -514,7 +509,7 @@ FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& 
 	int32 CurHead = SpanRef.Begin;
 	while (CurHead >= 0)
 	{
-		if (TReader::IsLineBreak(Buf->Get(CurHead)))
+		if (TReader::DcSourceUtils::IsLineBreak(Buf->Get(CurHead)))
 		{
 			++CurHead;
 			break;
@@ -525,28 +520,11 @@ FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& 
 	int32 CurTail = SpanRef.Begin;
 	while (CurTail < Buf->Num)
 	{
-		if (TReader::IsLineBreak(Buf->Get(CurTail++)))
+		if (TReader::DcSourceUtils::IsLineBreak(Buf->Get(CurTail++)))
 			break;
 	}
 
 	return SourceRef{ Buf, CurHead, CurTail - CurHead };
-}
-
-//	TODO drop this infavor of `FString::ChrN`
-FString FHightlightFormatter::Dup(TCHAR Ch, int N)
-{
-	FString Out;
-	for (int Ix = 0; Ix < N; Ix++)
-		Out.AppendChar(Ch);
-
-	return Out;
-}
-
-void FHightlightFormatter::EatTrailingLinebreak(SourceRef& Ref)
-{
-	check(Ref.IsValid());
-	if (TReader::IsLineBreak(Ref.Buffer->Get(Ref.Begin + Ref.Num - 1)))
-		--Ref.Num;
 }
 
 FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)

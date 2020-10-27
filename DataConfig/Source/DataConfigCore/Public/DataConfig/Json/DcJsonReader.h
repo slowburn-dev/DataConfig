@@ -4,6 +4,7 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Source/DcSourceTypes.h"
+#include "DataConfig/Source/DcSourceUtils.h"
 
 struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 {
@@ -11,6 +12,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	using SourceBuf = TDcSourceBuffer<TCharType>;
 	using SourceRef = TDcSourceRef<TCharType>;
 	using CString = TCString<TCharType>;
+	using DcSourceUtils = TDcCSourceUtils<TCharType>;
 
 	enum class ETokenType
 	{
@@ -101,8 +103,6 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FORCEINLINE EParseState GetTopState();
 	FORCEINLINE void PushTopState(EParseState InState);
 	FORCEINLINE void PopTopState(EParseState InState);
-	FORCEINLINE static bool IsLineBreak(const TCharType& Char);
-	FORCEINLINE static bool IsWhitespace(const TCharType& Char);
 
 	//	this should be put inside EParseState, it's just that we need only 1 marker for all
 	bool bTopObjectAtValue = false;
@@ -127,18 +127,4 @@ void FDcJsonReader::PopTopState(EParseState InState)
 	check(GetTopState() == InState);
 	States.Pop();
 }
-
-bool FDcJsonReader::IsLineBreak(const TCharType& Char)
-{
-	return Char == TCharType('\n');
-}
-
-bool FDcJsonReader::IsWhitespace(const TCharType& Char)
-{
-	return Char == TCharType(' ')
-		|| Char == TCharType('\t')
-		|| Char == TCharType('\n')
-		|| Char == TCharType('\r');
-}
-
 
