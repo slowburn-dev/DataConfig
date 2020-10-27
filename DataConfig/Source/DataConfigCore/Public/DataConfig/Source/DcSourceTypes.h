@@ -45,7 +45,7 @@ struct TDcSourceRef
 	int32 Begin;
 	int32 Num;
 
-	FString ToString();
+	FString ToString() const;
 
 	bool IsValid() const;
 	void Reset();

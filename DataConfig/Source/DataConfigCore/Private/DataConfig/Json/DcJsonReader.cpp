@@ -1,7 +1,9 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
+#include "DataConfig/Source/DcSourceUtils.h"
 #include "Misc/StringBuilder.h"
+
 
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
@@ -475,25 +477,29 @@ FString FHightlightFormatter::FormatHighlight(const SourceRef& SpanRef, const FD
 			if (!LinesBefore[Ix].IsValid())
 				continue;
 
-			EatTrailingLinebreak(LinesBefore[Ix]);
+			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LinesBefore[Ix].ToString());
 			int CurLine = Loc.Line - _LINE_CONTEXT + Ix;
-			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LinesBefore[Ix].ToString()));
+			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LineStr));
 		}
 
-		EatTrailingLinebreak(LineHighlight);
-		Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineHighlight.ToString()));
-		Reports.Add(FString::Printf(TEXT("     |%s%s"), 
-			*Dup(TCHAR(' '), SpanRef.Begin - LineHighlight.Begin),
-			*Dup(TCHAR('^'), SpanRef.Num)));
+		{
+			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LineHighlight.ToString());
+			FString SpanStr = FDcSourceUtils::FormatDiagnosticLine(SpanRef.ToString());
+
+			Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineStr));
+			Reports.Add(FString::Printf(TEXT("     |%s%s"),
+				*Dup(TCHAR(' '), LineStr.Len() - SpanStr.Len()),
+				*Dup(TCHAR('^'), SpanStr.Len())));
+		}
 
 		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
 		{
 			if (!LinesAfter[Ix].IsValid())
 				continue;
 
-			EatTrailingLinebreak(LinesAfter[Ix]);
+			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LinesAfter[Ix].ToString());
 			int CurLine = Loc.Line + Ix + 1;
-			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LinesAfter[Ix].ToString()));
+			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LineStr));
 		}
 
 		return FString::Join(Reports, TEXT("\n"));
@@ -526,6 +532,7 @@ FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& 
 	return SourceRef{ Buf, CurHead, CurTail - CurHead };
 }
 
+//	TODO drop this infavor of `FString::ChrN`
 FString FHightlightFormatter::Dup(TCHAR Ch, int N)
 {
 	FString Out;

@@ -1,6 +1,6 @@
 
 template<class CharType>
-FString TDcSourceRef<CharType>::ToString()
+FString TDcSourceRef<CharType>::ToString() const
 {
 	//	this constructor already accept both char types
 	return FString(Num, Buffer->Buffer + Begin);
