@@ -33,6 +33,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	constexpr static TCharType _TRUE_LITERAL[] = { 't','r','u','e',0 };
 	constexpr static TCharType _FALSE_LITERAL[] = { 'f','a','l','s','e',0 };
 	constexpr static TCharType _NULL_LITERAL[] = { 'n','u','l','l',0 };
+	constexpr static TCharType _EOF_CHAR = TCharType('\0');
 
 	struct FToken
 	{
@@ -93,6 +94,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ParseStringToken(FString &OutStr);
 
 	void ReadWhiteSpace();
+	void ReadLineComment();
+	void ReadBlockComment();
 
 	enum class EParseState
 	{

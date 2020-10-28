@@ -1,8 +1,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
-#include "Misc/StringBuilder.h"
-
+#include "DataConfig/Source/DcHighlightFormatter.h"
 
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
@@ -166,6 +165,22 @@ void FDcJsonReader::ReadWhiteSpace()
 	}
 }
 
+void FDcJsonReader::ReadLineComment()
+{
+	Advance();
+	while (!IsAtEnd())
+	{
+		TCharType Char = ReadChar();
+		if (SourceUtils::IsLineBreak(Char))
+			break;
+	}
+}
+
+void FDcJsonReader::ReadBlockComment()
+{
+
+}
+
 FDcResult FDcJsonReader::EndTopRead()
 {
 	EParseState TopState = GetTopState();
@@ -297,6 +312,7 @@ FDcResult FDcJsonReader::ReadArrayEnd()
 
 FDcResult FDcJsonReader::ConsumeToken()
 {
+	check(State == EState::InitializedWithStr);
 	if (CachedNext.IsValid())
 	{
 		Token = CachedNext;
@@ -304,75 +320,94 @@ FDcResult FDcJsonReader::ConsumeToken()
 		return DcOk();
 	}
 
-	check(State == EState::InitializedWithStr);
-	ReadWhiteSpace();
+	{
+		TCharType Char = PeekChar();
+		if (SourceUtils::IsWhitespace(Char))
+		{
+			ReadWhiteSpace();
+		}
+		else if (Char == TCharType('/'))
+		{
+			TCharType NextChar = PeekChar(1);
+			if (NextChar == TCharType('/'))
+			{
+				ReadLineComment();
+			}
+			else if (NextChar == TCharType('*'))
+			{
+				ReadBlockComment();
+			}
+		}
 
-	if (IsAtEnd())
-	{
-		Token.Type = ETokenType::EOF_;
-		Token.Ref.Reset();
-		return DcOk();
+		if (IsAtEnd())
+		{
+			Token.Type = ETokenType::EOF_;
+			Token.Ref.Reset();
+			return DcOk();
+		}
 	}
 
-	auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {
-		Token.Type = TokenType;
-		Token.Ref.Begin = Cur;
-		Token.Ref.Num = 1;
-		Advance();
-		return DcOk();
-	};
+	{
+		auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {
+			Token.Type = TokenType;
+			Token.Ref.Begin = Cur;
+			Token.Ref.Num = 1;
+			Advance();
+			return DcOk();
+		};
 
-	TCharType Char = PeekChar();
-	if (Char == TCharType('{'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
-	}
-	else if (Char == TCharType('}'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::CurlyClose);
-	}
-	else if (Char == TCharType('['))
-	{
-		return _ConsumeSingleCharToken(ETokenType::SquareOpen);
-	}
-	else if (Char == TCharType(']'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::SquareClose);
-	}
-	else if (Char == TCharType(':'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::Colon);
-	}
-	else if (Char == TCharType(','))
-	{
-		return _ConsumeSingleCharToken(ETokenType::Comma);
-	}
-	else if (Char == TCharType('t'))
-	{
-		DC_TRY(ReadWordExpect(_TRUE_LITERAL));
-		Token.Type = ETokenType::True;
-		return DcOk();
-	}
-	else if (Char == TCharType('f'))
-	{
-		DC_TRY(ReadWordExpect(_FALSE_LITERAL));
-		Token.Type = ETokenType::False;
-		return DcOk();
-	}
-	else if (Char == TCharType('n'))
-	{
-		DC_TRY(ReadWordExpect(_NULL_LITERAL));
-		Token.Type = ETokenType::Null;
-		return DcOk();
-	}
-	else if (Char == TCharType('"'))
-	{
-		return ReadStringToken();
-	}
-	else
-	{
-		return DC_FAIL(DcDJSON, UnexpectedChar)
-			<< FString::Chr(Char) << FormatInputSpan(Cur, 1);
+		TCharType Char = PeekChar();
+		if (Char == TCharType('{'))
+		{
+			return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
+		}
+		else if (Char == TCharType('}'))
+		{
+			return _ConsumeSingleCharToken(ETokenType::CurlyClose);
+		}
+		else if (Char == TCharType('['))
+		{
+			return _ConsumeSingleCharToken(ETokenType::SquareOpen);
+		}
+		else if (Char == TCharType(']'))
+		{
+			return _ConsumeSingleCharToken(ETokenType::SquareClose);
+		}
+		else if (Char == TCharType(':'))
+		{
+			return _ConsumeSingleCharToken(ETokenType::Colon);
+		}
+		else if (Char == TCharType(','))
+		{
+			return _ConsumeSingleCharToken(ETokenType::Comma);
+		}
+		else if (Char == TCharType('t'))
+		{
+			DC_TRY(ReadWordExpect(_TRUE_LITERAL));
+			Token.Type = ETokenType::True;
+			return DcOk();
+		}
+		else if (Char == TCharType('f'))
+		{
+			DC_TRY(ReadWordExpect(_FALSE_LITERAL));
+			Token.Type = ETokenType::False;
+			return DcOk();
+		}
+		else if (Char == TCharType('n'))
+		{
+			DC_TRY(ReadWordExpect(_NULL_LITERAL));
+			Token.Type = ETokenType::Null;
+			return DcOk();
+		}
+		else if (Char == TCharType('"'))
+		{
+			return ReadStringToken();
+		}
+		else
+		{
+			return DC_FAIL(DcDJSON, UnexpectedChar)
+				<< FString::Chr(Char) << FormatInputSpan(Cur, 1);
+		}
 	}
 }
 
@@ -416,8 +451,10 @@ FDcJsonReader::TCharType FDcJsonReader::ReadChar()
 
 FDcJsonReader::TCharType FDcJsonReader::PeekChar(int N)
 {
-	check(!IsAtEnd(N));
-	return Buf.Buffer[Cur + N];
+	if (IsAtEnd(N))
+		return _EOF_CHAR;
+	else
+		return Buf.Buffer[Cur + N];
 }
 
 FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
@@ -448,129 +485,13 @@ FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 	return DcOk();
 }
 
-struct FHightlightFormatter
-{
-	using TReader = FDcJsonReader;
-	using SourceBuf = TReader::SourceBuf;
-	using SourceRef = TReader::SourceRef;
-
-	static constexpr int _LINE_CONTEXT = 1;
-
-	SourceRef LinesBefore[_LINE_CONTEXT];
-	SourceRef LineHighlight;
-	SourceRef LinesAfter[_LINE_CONTEXT];
-
-	FString FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc);
-	SourceRef FindLine(const SourceRef& SpanRef);
-};
-
-
-FString FHightlightFormatter::FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc)
-{
-	LineHighlight = FindLine(SpanRef);
-	check(LineHighlight.IsValid());
-
-	{
-		SourceRef LineBefore = LineHighlight;
-		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
-		{
-			LineBefore.Begin = LineBefore.Begin - 2;	// -1 is \n
-			LineBefore.Num = 0;
-			if (!LineBefore.IsValid())
-				break;
-			int Cur = _LINE_CONTEXT - Ix - 1;
-			LinesBefore[Cur] = FindLine(LineBefore);
-			LineBefore = LinesBefore[Cur];
-		}
-	}
-
-	{
-		SourceRef LineAfter = LineHighlight;
-		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
-		{
-			LineAfter.Begin = LineAfter.Begin + LineAfter.Num;
-			LineAfter.Num = 0;
-			if (!LineAfter.IsValid())
-				break;
-			LinesAfter[Ix] = FindLine(LineAfter);
-			LineAfter = LinesAfter[Ix];
-		}
-	}
-
-	{
-		TArray<FString, TFixedAllocator<_LINE_CONTEXT * 2 + 2>> Reports;
-
-		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
-		{
-			if (!LinesBefore[Ix].IsValid())
-				continue;
-
-			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LinesBefore[Ix].ToString());
-			int CurLine = Loc.Line - _LINE_CONTEXT + Ix;
-			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LineStr));
-		}
-
-		{
-			SourceRef PrefixRef = LineHighlight;
-			PrefixRef.Num = SpanRef.Begin - LineHighlight.Begin;
-			check(PrefixRef.IsValid());
-
-			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LineHighlight.ToString());
-			FString PrefixStr = FDcSourceUtils::FormatDiagnosticLine(PrefixRef.ToString());
-			FString SpanStr = FDcSourceUtils::FormatDiagnosticLine(SpanRef.ToString());
-
-			Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineStr));
-			Reports.Add(FString::Printf(TEXT("     |%s%s"),
-				*FString::ChrN(PrefixStr.Len(), TCHAR(' ')),
-				*FString::ChrN(SpanStr.Len(), TCHAR('^'))));
-		}
-
-		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
-		{
-			if (!LinesAfter[Ix].IsValid())
-				continue;
-
-			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LinesAfter[Ix].ToString());
-			int CurLine = Loc.Line + Ix + 1;
-			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LineStr));
-		}
-
-		return FString::Join(Reports, TEXT("\n"));
-	}
-}
-
-FHightlightFormatter::SourceRef FHightlightFormatter::FindLine(const SourceRef& SpanRef)
-{
-	check(SpanRef.IsValid());
-
-	const SourceBuf* Buf = SpanRef.Buffer;
-	int32 CurHead = SpanRef.Begin;
-	while (CurHead >= 0)
-	{
-		if (TReader::SourceUtils::IsLineBreak(Buf->Get(CurHead)))
-		{
-			++CurHead;
-			break;
-		}
-		--CurHead;
-	}
-
-	int32 CurTail = SpanRef.Begin;
-	while (CurTail < Buf->Num)
-	{
-		if (TReader::SourceUtils::IsLineBreak(Buf->Get(CurTail++)))
-			break;
-	}
-
-	return SourceRef{ Buf, CurHead, CurTail - CurHead };
-}
 
 FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
 {
 	FDcDiagnosticHighlight OutHighlight;
 	OutHighlight.Loc = Loc;
 	OutHighlight.FilePath = DiagFilePath;
-	FHightlightFormatter Highlighter;
+	FHightlightFormatter<TCharType> Highlighter;
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
 
 	return OutHighlight;
