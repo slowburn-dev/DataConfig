@@ -48,6 +48,12 @@ operator<<(FDcDiagnostic& Diag, T&& InValue)
 	return Diag;
 }
 
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, TCHAR Char)
+{
+	Diag.Args.Emplace(FString::Chr(Char));
+	return Diag;
+}
+
 FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
 {
 	Diag.Args.Emplace(FName(TEXT("<DataEntry>")));

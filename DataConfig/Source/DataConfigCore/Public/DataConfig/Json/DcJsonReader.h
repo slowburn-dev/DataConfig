@@ -28,6 +28,10 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 		True,			// true
 		False,			// false
 		Null,			// null
+
+		LineComment,	//	`// Foo`
+		BlockComment,	//	`/* Foo */`
+		Whitespace,		// \r\t and space
 	};
 
 	constexpr static TCharType _TRUE_LITERAL[] = { 't','r','u','e',0 };
@@ -78,7 +82,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadArrayRoot() override;
 	FDcResult ReadArrayEnd() override;
 
-	FDcResult ConsumeToken();
+	FDcResult ConsumeRawToken();
+	FDcResult ConsumeEffectiveToken();
 
 	void PutbackToken(const FToken& Putback);
 
@@ -95,7 +100,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	void ReadWhiteSpace();
 	void ReadLineComment();
-	void ReadBlockComment();
+	FDcResult ReadBlockComment();
 
 	enum class EParseState
 	{

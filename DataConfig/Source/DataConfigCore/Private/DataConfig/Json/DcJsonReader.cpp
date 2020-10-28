@@ -30,7 +30,7 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 
 FDcResult FDcJsonReader::PeekRead(EDcDataEntry* OutPtr)
 {
-	DC_TRY(ConsumeToken());
+	DC_TRY(ConsumeEffectiveToken());
 
 	switch (Token.Type)
 	{
@@ -143,42 +143,53 @@ FDcResult FDcJsonReader::ParseStringToken(FString &OutStr)
 
 void FDcJsonReader::ReadWhiteSpace()
 {
+	Token.Ref.Begin = Cur;
+	Advance();
+
 	while (!IsAtEnd())
 	{
 		TCharType Char = PeekChar();
 		if (SourceUtils::IsLineBreak(Char))
 		{
-			Cur++;
+			Advance();
 
 			Loc.Line++;
 			Loc.Column = 0;
 		}
 
-		if (SourceUtils::IsWhitespace(Char))
-		{
-			Advance();
-		}
-		else
-		{
+		if (!SourceUtils::IsWhitespace(Char))
 			break;
-		}
+
+		Advance();
 	}
+
+	Token.Ref.Num = Cur - Token.Ref.Begin;
+	Token.Type = ETokenType::Whitespace;
 }
 
 void FDcJsonReader::ReadLineComment()
 {
-	Advance();
+	Token.Ref.Begin = Cur;
+	check(PeekChar(0) == TCharType('/'));
+	check(PeekChar(1) == TCharType('/'));
+	AdvanceN(2);
+
 	while (!IsAtEnd())
 	{
-		TCharType Char = ReadChar();
+		TCharType Char = PeekChar();
 		if (SourceUtils::IsLineBreak(Char))
 			break;
+
+		Advance();
 	}
+
+	Token.Ref.Num = Cur - Token.Ref.Begin;
+	Token.Type = ETokenType::LineComment;
 }
 
-void FDcJsonReader::ReadBlockComment()
+FDcResult FDcJsonReader::ReadBlockComment()
 {
-
+	return DcOk();
 }
 
 FDcResult FDcJsonReader::EndTopRead()
@@ -189,7 +200,7 @@ FDcResult FDcJsonReader::EndTopRead()
 		if (!bTopObjectAtValue)
 		{
 			//	at key position
-			DC_TRY(ConsumeToken());
+			DC_TRY(ConsumeEffectiveToken());
 
 			if (Token.Type != ETokenType::Colon)
 			{
@@ -203,7 +214,7 @@ FDcResult FDcJsonReader::EndTopRead()
 		{
 			//	at value position
 			FToken Prev = Token;
-			DC_TRY(ConsumeToken());
+			DC_TRY(ConsumeEffectiveToken());
 			bTopObjectAtValue = false;
 
 			//	allowing optional trailing comma
@@ -225,7 +236,7 @@ FDcResult FDcJsonReader::EndTopRead()
 	else if (TopState == EParseState::Array)
 	{
 		FToken Prev = Token;
-		DC_TRY(ConsumeToken());
+		DC_TRY(ConsumeEffectiveToken());
 
 		if (Token.Type == ETokenType::Comma)
 		{
@@ -310,7 +321,7 @@ FDcResult FDcJsonReader::ReadArrayEnd()
 	}
 }
 
-FDcResult FDcJsonReader::ConsumeToken()
+FDcResult FDcJsonReader::ConsumeRawToken()
 {
 	check(State == EState::InitializedWithStr);
 	if (CachedNext.IsValid())
@@ -320,95 +331,112 @@ FDcResult FDcJsonReader::ConsumeToken()
 		return DcOk();
 	}
 
+	if (IsAtEnd())
 	{
-		TCharType Char = PeekChar();
-		if (SourceUtils::IsWhitespace(Char))
-		{
-			ReadWhiteSpace();
-		}
-		else if (Char == TCharType('/'))
-		{
-			TCharType NextChar = PeekChar(1);
-			if (NextChar == TCharType('/'))
-			{
-				ReadLineComment();
-			}
-			else if (NextChar == TCharType('*'))
-			{
-				ReadBlockComment();
-			}
-		}
-
-		if (IsAtEnd())
-		{
-			Token.Type = ETokenType::EOF_;
-			Token.Ref.Reset();
-			return DcOk();
-		}
+		Token.Type = ETokenType::EOF_;
+		Token.Ref.Reset();
+		return DcOk();
 	}
 
-	{
-		auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {
-			Token.Type = TokenType;
-			Token.Ref.Begin = Cur;
-			Token.Ref.Num = 1;
-			Advance();
-			return DcOk();
-		};
+	auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {
+		Token.Type = TokenType;
+		Token.Ref.Begin = Cur;
+		Token.Ref.Num = 1;
+		Advance();
+		return DcOk();
+	};
 
-		TCharType Char = PeekChar();
-		if (Char == TCharType('{'))
+	TCharType Char = PeekChar();
+	if (SourceUtils::IsWhitespace(Char))
+	{
+		ReadWhiteSpace();
+		return DcOk();
+	}
+	else if (Char == TCharType('/'))
+	{
+		TCharType NextChar = PeekChar(1);
+		if (NextChar == TCharType('/'))
 		{
-			return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
-		}
-		else if (Char == TCharType('}'))
-		{
-			return _ConsumeSingleCharToken(ETokenType::CurlyClose);
-		}
-		else if (Char == TCharType('['))
-		{
-			return _ConsumeSingleCharToken(ETokenType::SquareOpen);
-		}
-		else if (Char == TCharType(']'))
-		{
-			return _ConsumeSingleCharToken(ETokenType::SquareClose);
-		}
-		else if (Char == TCharType(':'))
-		{
-			return _ConsumeSingleCharToken(ETokenType::Colon);
-		}
-		else if (Char == TCharType(','))
-		{
-			return _ConsumeSingleCharToken(ETokenType::Comma);
-		}
-		else if (Char == TCharType('t'))
-		{
-			DC_TRY(ReadWordExpect(_TRUE_LITERAL));
-			Token.Type = ETokenType::True;
+			ReadLineComment();
 			return DcOk();
 		}
-		else if (Char == TCharType('f'))
+		else if (NextChar == TCharType('*'))
 		{
-			DC_TRY(ReadWordExpect(_FALSE_LITERAL));
-			Token.Type = ETokenType::False;
-			return DcOk();
-		}
-		else if (Char == TCharType('n'))
-		{
-			DC_TRY(ReadWordExpect(_NULL_LITERAL));
-			Token.Type = ETokenType::Null;
-			return DcOk();
-		}
-		else if (Char == TCharType('"'))
-		{
-			return ReadStringToken();
+			return ReadBlockComment();
 		}
 		else
 		{
-			return DC_FAIL(DcDJSON, UnexpectedChar)
-				<< FString::Chr(Char) << FormatInputSpan(Cur, 1);
+			return DC_FAIL(DcDJSON, UnexpectedChar) << Char << FormatInputSpan(Cur, 1);
 		}
 	}
+	else if (Char == TCharType('{'))
+	{
+		return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
+	}
+	else if (Char == TCharType('}'))
+	{
+		return _ConsumeSingleCharToken(ETokenType::CurlyClose);
+	}
+	else if (Char == TCharType('['))
+	{
+		return _ConsumeSingleCharToken(ETokenType::SquareOpen);
+	}
+	else if (Char == TCharType(']'))
+	{
+		return _ConsumeSingleCharToken(ETokenType::SquareClose);
+	}
+	else if (Char == TCharType(':'))
+	{
+		return _ConsumeSingleCharToken(ETokenType::Colon);
+	}
+	else if (Char == TCharType(','))
+	{
+		return _ConsumeSingleCharToken(ETokenType::Comma);
+	}
+	else if (Char == TCharType('t'))
+	{
+		DC_TRY(ReadWordExpect(_TRUE_LITERAL));
+		Token.Type = ETokenType::True;
+		return DcOk();
+	}
+	else if (Char == TCharType('f'))
+	{
+		DC_TRY(ReadWordExpect(_FALSE_LITERAL));
+		Token.Type = ETokenType::False;
+		return DcOk();
+	}
+	else if (Char == TCharType('n'))
+	{
+		DC_TRY(ReadWordExpect(_NULL_LITERAL));
+		Token.Type = ETokenType::Null;
+		return DcOk();
+	}
+	else if (Char == TCharType('"'))
+	{
+		return ReadStringToken();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, UnexpectedChar)
+			<< FString::Chr(Char) << FormatInputSpan(Cur, 1);
+	}
+}
+
+FDcResult FDcJsonReader::ConsumeEffectiveToken()
+{
+	while (true)
+	{
+		FDcResult Ret = ConsumeRawToken();
+		if (!Ret.Ok())
+			return Ret;
+		else if (Token.Type < ETokenType::LineComment)
+			return DcOk();
+		else
+			continue;
+	}
+
+	checkNoEntry();
+	return DC_FAIL(DcDCommon, Unreachable);
 }
 
 void FDcJsonReader::PutbackToken(const FToken& Putback)
