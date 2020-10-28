@@ -144,15 +144,12 @@ FDcResult FDcJsonReader::ParseStringToken(FString &OutStr)
 void FDcJsonReader::ReadWhiteSpace()
 {
 	Token.Ref.Begin = Cur;
-	Advance();
 
 	while (!IsAtEnd())
 	{
 		TCharType Char = PeekChar();
 		if (SourceUtils::IsLineBreak(Char))
 		{
-			Advance();
-
 			Loc.Line++;
 			Loc.Column = 0;
 		}
