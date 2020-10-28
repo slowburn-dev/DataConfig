@@ -17,14 +17,14 @@ void JsonReader1()
 			"Nest1" : {
 				"Nest1" : "yeah",
 			},
+			// /*  /* helllllo ??? */
 			"Nest2" : {
 				"Nest2" : "wow"
 			},
 			"Arr" : [
 				"these", "are", "my", "twisted",
-			], /
+			],
 		}
-
 	)");
 	Reader.SetNewString(&Str);
 

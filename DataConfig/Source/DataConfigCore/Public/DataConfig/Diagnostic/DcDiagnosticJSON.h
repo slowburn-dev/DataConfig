@@ -14,6 +14,7 @@ namespace DcDJSON
 		ExpectWordButNotFound,
 		UnexpectedChar,
 		UnexpectedToken,
+		UnclosedBlockComment,
 	};
 
 } // namespace DJSON

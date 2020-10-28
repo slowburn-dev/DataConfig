@@ -186,7 +186,44 @@ void FDcJsonReader::ReadLineComment()
 
 FDcResult FDcJsonReader::ReadBlockComment()
 {
-	return DcOk();
+	Token.Ref.Begin = Cur;
+	check(PeekChar(0) == TCharType('/'));
+	check(PeekChar(1) == TCharType('*'));
+	AdvanceN(2);
+
+	int Depth = 1;
+	while (!IsAtEnd())
+	{
+		TCharType Char0 = PeekChar(0);
+		TCharType Char1 = PeekChar(1);
+
+		if (Char0 == TCharType('/') && Char1 == TCharType('*'))
+		{
+			Depth += 1;
+		}
+		else if (Char0 == TCharType('*') && Char1 == TCharType('/'))
+		{
+			Depth -= 1;
+			if (Depth == 0)
+			{
+				AdvanceN(2);
+				break;
+			}
+		}
+
+		Advance();
+	}
+
+	if (Depth != 0)
+	{
+		return DC_FAIL(DcDJSON, UnclosedBlockComment) << FormatInputSpan(Token.Ref.Begin, 2);
+	}
+	else
+	{
+		Token.Ref.Num = Cur - Token.Ref.Begin;
+		Token.Type = ETokenType::BlockComment;
+		return DcOk();
+	}
 }
 
 FDcResult FDcJsonReader::EndTopRead()

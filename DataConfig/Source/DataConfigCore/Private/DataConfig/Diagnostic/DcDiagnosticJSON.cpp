@@ -7,6 +7,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::ExpectWordButNotFound, TEXT("Expect word '{0}' but found '{1}' instead."), },
 	{ DcDJSON::UnexpectedChar, TEXT("Unexpected char '{0}'"), },
 	{ DcDJSON::UnexpectedToken, TEXT("Unexpected token '{0}'"), },
+	{ DcDJSON::UnclosedBlockComment, TEXT("Unclosed block comment"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };
