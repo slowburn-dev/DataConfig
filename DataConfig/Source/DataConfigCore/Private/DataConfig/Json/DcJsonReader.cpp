@@ -2,6 +2,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 #include "DataConfig/Source/DcHighlightFormatter.h"
+#include "Misc/Parse.h"
 
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
@@ -104,24 +105,35 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 FDcResult FDcJsonReader::ReadStringToken()
 {
 	Token.Ref.Begin = Cur;
+	Token.Flag.bStringHasEscapeChar = false;
+
 	Advance();
 	while (true)
 	{
-		if (IsAtEnd())
-			return DcFail();
-
-		TCharType Char = ReadChar();
-		check(Char != TCharType('\0'));	// should be handled in IsAtEnd();
-		if (Char == TCharType('"'))
+		TCharType Char = PeekChar();
+		if (Char == _EOF_CHAR)
 		{
+			return DC_FAIL(DcDJSON, UnclosedStringLiteral) << FormatInputSpan(Token.Ref.Begin, 1);
+		}
+		else if (Char == TCharType('"'))
+		{
+			Advance();
 			Token.Type = ETokenType::String;
 			Token.Ref.Num = Cur - Token.Ref.Begin;
 			return DcOk();
 		}
+		else if (Char == TCharType('\\'))
+		{
+			Token.Flag.bStringHasEscapeChar = true;
+
+			Advance();
+			TCharType EscapeChar = PeekChar();
+			if (EscapeChar == TCharType('"'))
+				Advance();
+		}
 		else
 		{
-			//	TODO handle scaping and things
-			//	pass
+			Advance();
 		}
 	}
 
@@ -131,14 +143,26 @@ FDcResult FDcJsonReader::ReadStringToken()
 
 FDcResult FDcJsonReader::ParseStringToken(FString &OutStr)
 {
-	//	for now simply strip the quotes
 	check(Token.Type == ETokenType::String);
 	SourceRef literalRef = Token.Ref;
 	literalRef.Begin += 1;
 	literalRef.Num -= 2;
-	OutStr = literalRef.ToString();
-
-	return DcOk();
+	if (!Token.Flag.bStringHasEscapeChar)
+	{
+		OutStr = literalRef.ToString();
+		return DcOk();
+	}
+	else
+	{
+		// FParse::QuotedString needs string to be quoted
+		FString RawStr = Token.Ref.ToString();	
+		int32 CharsRead = 0;
+		bool bOk = FParse::QuotedString(RawStr.GetCharArray().GetData(), OutStr, &CharsRead);
+		if (!bOk)
+			return DC_FAIL(DcDJSON, InvalidStringEscaping) << FormatInputSpan(Token.Ref.Begin, CharsRead);
+		else
+			return DcOk();
+	}
 }
 
 void FDcJsonReader::ReadWhiteSpace()
@@ -501,14 +525,6 @@ void FDcJsonReader::AdvanceN(int N)
 	check(!IsAtEnd(N));
 	Cur += N;
 	Loc.Column += N;
-}
-
-FDcJsonReader::TCharType FDcJsonReader::ReadChar()
-{
-	check(!IsAtEnd());
-	TCharType Ret = PeekChar();
-	Advance();
-	return Ret;
 }
 
 FDcJsonReader::TCharType FDcJsonReader::PeekChar(int N)

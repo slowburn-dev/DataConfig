@@ -39,10 +39,16 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	constexpr static TCharType _NULL_LITERAL[] = { 'n','u','l','l',0 };
 	constexpr static TCharType _EOF_CHAR = TCharType('\0');
 
+	struct FTokenFlag
+	{
+		bool bStringHasEscapeChar : 1;
+	};
+
 	struct FToken
 	{
 		ETokenType Type;
 		SourceRef Ref;
+		FTokenFlag Flag;
 
 		FORCEINLINE bool IsValid() const { return Ref.IsValid(); }
 		FORCEINLINE void Reset() { Ref.Reset(); }
@@ -90,7 +96,6 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	bool IsAtEnd(int N = 0);
 	void Advance();
 	void AdvanceN(int N);
-	TCharType ReadChar();
 	TCharType PeekChar(int N = 0);
 
 	FDcResult ReadWordExpect(const TCharType* Word);

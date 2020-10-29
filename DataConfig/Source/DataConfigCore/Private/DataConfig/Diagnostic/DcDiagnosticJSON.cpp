@@ -8,6 +8,8 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::UnexpectedChar, TEXT("Unexpected char '{0}'"), },
 	{ DcDJSON::UnexpectedToken, TEXT("Unexpected token '{0}'"), },
 	{ DcDJSON::UnclosedBlockComment, TEXT("Unclosed block comment"), },
+	{ DcDJSON::UnclosedStringLiteral, TEXT("Unclosed string literal"), },
+	{ DcDJSON::InvalidStringEscaping, TEXT("Invalid string escaping"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };
