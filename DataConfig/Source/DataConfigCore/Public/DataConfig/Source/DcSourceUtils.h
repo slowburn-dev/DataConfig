@@ -45,6 +45,11 @@ struct TDcCSourceUtils
 			return 0;
 		}
 	}
+
+	static bool IsControl(const CharType& Char)
+	{
+		return (uint32)Char < 0x20 || Char == 0x7f;
+	}
 };
 
 namespace FDcSourceUtils

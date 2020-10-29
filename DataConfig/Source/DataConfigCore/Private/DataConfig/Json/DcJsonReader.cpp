@@ -131,6 +131,10 @@ FDcResult FDcJsonReader::ReadStringToken()
 			if (EscapeChar == TCharType('"'))
 				Advance();
 		}
+		else if (SourceUtils::IsControl(Char))
+		{
+			return DC_FAIL(DcDJSON, InvalidStringEscaping) << FormatInputSpan(Cur, 1);
+		}
 		else
 		{
 			Advance();
