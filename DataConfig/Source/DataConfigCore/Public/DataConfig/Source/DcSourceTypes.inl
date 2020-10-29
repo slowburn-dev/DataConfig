@@ -11,7 +11,7 @@ bool TDcSourceRef<CharType>::IsValid() const
 {
 	return Buffer != nullptr
 		&& Begin >= 0
-		&& Begin + Num < Buffer->Num;
+		&& Begin + Num <= Buffer->Num;
 }
 
 template<class CharType>

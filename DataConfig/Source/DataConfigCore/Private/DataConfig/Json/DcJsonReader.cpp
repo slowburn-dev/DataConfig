@@ -133,7 +133,7 @@ FDcResult FDcJsonReader::ReadStringToken()
 		}
 		else if (SourceUtils::IsControl(Char))
 		{
-			return DC_FAIL(DcDJSON, InvalidStringEscaping) << FormatInputSpan(Cur, 1);
+			return DC_FAIL(DcDJSON, InvalidControlCharInString) << FormatInputSpan(Cur, 1);
 		}
 		else
 		{
@@ -344,8 +344,6 @@ FDcResult FDcJsonReader::ReadMapEnd()
 	if (Token.Type == ETokenType::CurlyClose)
 	{
 		PopTopState(EParseState::Object);
-		//	!!! HACK
-		//	we know it's always at value position due to JSON spec, so just set it
 		bTopObjectAtValue = true;
 		DC_TRY(EndTopRead());
 		return DcOk();

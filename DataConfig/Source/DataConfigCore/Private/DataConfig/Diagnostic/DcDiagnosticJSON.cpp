@@ -10,6 +10,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::UnclosedBlockComment, TEXT("Unclosed block comment"), },
 	{ DcDJSON::UnclosedStringLiteral, TEXT("Unclosed string literal"), },
 	{ DcDJSON::InvalidStringEscaping, TEXT("Invalid string escaping"), },
+	{ DcDJSON::InvalidControlCharInString, TEXT("Invalid control character found in string"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };

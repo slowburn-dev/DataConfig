@@ -11,7 +11,7 @@ void JsonReader1()
 	FString Str = TEXT(R"(
 
 		{
-			"Hello" : "JSON the	shit",
+			"Hello" : "JSON the shit,
 			"Truthy" : true,
 			"Falsy" : false,
 			"Nest1" : {
@@ -25,6 +25,7 @@ void JsonReader1()
 				"these", "are", "my", "twisted",
 			],
 		}
+
 	)");
 	Reader.SetNewString(&Str);
 

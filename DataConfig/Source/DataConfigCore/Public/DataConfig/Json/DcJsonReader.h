@@ -115,32 +115,14 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	};
 
 	TArray<EParseState, TInlineAllocator<8>> States;
-	FORCEINLINE EParseState GetTopState();
-	FORCEINLINE void PushTopState(EParseState InState);
-	FORCEINLINE void PopTopState(EParseState InState);
+	FORCEINLINE EParseState GetTopState() { return States.Top(); }
+	FORCEINLINE void PushTopState(EParseState InState) { States.Push(InState); }
+	FORCEINLINE void PopTopState(EParseState InState) { check(GetTopState() == InState); States.Pop(); }
 
-	//	this should be put inside EParseState, it's just that we need only 1 marker for all
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();
 
 	FDcDiagnosticHighlight FormatInputSpan(SourceRef SpanRef);
 	FDcDiagnosticHighlight FormatInputSpan(int Begin, int Num);
 };
-
-//	actually these can be moved into .inl
-FDcJsonReader::EParseState FDcJsonReader::GetTopState()
-{
-	return States.Top();
-}
-
-void FDcJsonReader::PushTopState(EParseState InState)
-{
-	States.Push(InState);
-}
-
-void FDcJsonReader::PopTopState(EParseState InState)
-{
-	check(GetTopState() == InState);
-	States.Pop();
-}
 

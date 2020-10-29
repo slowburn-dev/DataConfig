@@ -11,7 +11,7 @@ FString FHightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef
 		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
 		{
 			LineBefore.Begin = LineBefore.Begin - 2;    // -1 is \n
-			LineBefore.Num = 0;
+			LineBefore.Num = 1;
 			if (!LineBefore.IsValid())
 				break;
 			int Cur = _LINE_CONTEXT - Ix - 1;
@@ -25,7 +25,7 @@ FString FHightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef
 		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
 		{
 			LineAfter.Begin = LineAfter.Begin + LineAfter.Num;
-			LineAfter.Num = 0;
+			LineAfter.Num = 1;
 			if (!LineAfter.IsValid())
 				break;
 			LinesAfter[Ix] = FindLine(LineAfter);
@@ -81,7 +81,7 @@ TDcSourceRef<CharType> FHightlightFormatter<CharType>::FindLine(const TDcSourceR
 	check(SpanRef.IsValid());
 
 	const SourceBuf* Buf = SpanRef.Buffer;
-	int32 CurHead = SpanRef.Begin;
+	int32 CurHead = SpanRef.Begin - 1;
 	while (CurHead >= 0)
 	{
 		if (SourceUtils::IsLineBreak(Buf->Get(CurHead)))
@@ -91,6 +91,10 @@ TDcSourceRef<CharType> FHightlightFormatter<CharType>::FindLine(const TDcSourceR
 		}
 		--CurHead;
 	}
+
+	if (CurHead < 0)
+		CurHead = 0;
+
 
 	int32 CurTail = SpanRef.Begin;
 	while (CurTail < Buf->Num)

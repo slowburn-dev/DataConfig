@@ -37,7 +37,7 @@ struct TDcCSourceUtils
 		}
 		else if (Char == CharType('\n'))
 		{
-			return 0;
+			return 1;	// so that highlight can points to line end
 		}
 		else
 		{
