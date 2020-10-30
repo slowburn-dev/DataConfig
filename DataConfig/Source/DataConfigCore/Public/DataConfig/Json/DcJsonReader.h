@@ -78,7 +78,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	int32 Cur = 0;
 	FString DiagFilePath = TEXT("<unknown file>");
 
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
+	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;

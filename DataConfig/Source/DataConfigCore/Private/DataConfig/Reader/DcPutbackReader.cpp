@@ -17,7 +17,7 @@ FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData
 	return DcOk();
 }
 
-FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -26,7 +26,7 @@ FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		return Reader->PeekRead(OutPtr);
+		return Reader->ReadNext(OutPtr);
 	}
 }
 

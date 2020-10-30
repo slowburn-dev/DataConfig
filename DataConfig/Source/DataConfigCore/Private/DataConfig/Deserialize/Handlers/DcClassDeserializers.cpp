@@ -11,10 +11,10 @@ namespace DcHandlers {
 FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	DC_TRY(Ctx.Reader->ReadNext(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot).Ok();
+	bool bWritePass = Ctx.Writer->WriteNext(EDcDataEntry::ClassRoot).Ok();
 	bool bPropertyPass = Ctx.TopProperty()->IsA<UClass>();
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
@@ -29,13 +29,13 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDcDataEntry CurPeek;
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
+		DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
 		while (CurPeek != EDcDataEntry::MapEnd)
 		{
 			//	read key
 			if (CurPeek == EDcDataEntry::Name)
 			{
-				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
+				DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
 
 				FName Value;
 				DC_TRY(Ctx.Reader->ReadName(&Value));
@@ -51,7 +51,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{
-				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
+				DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
 
 				FString Value;
 				DC_TRY(Ctx.Reader->ReadString(&Value));
@@ -75,7 +75,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			DC_TRY(ScopedValueProperty.PushProperty());
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
-			DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
+			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
 		}
 
 		DC_TRY(Ctx.Reader->ReadMapEnd());
@@ -104,12 +104,12 @@ static FDcResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadC
 FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	DC_TRY(Ctx.Reader->ReadNext(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::String
 		|| Next == EDcDataEntry::Nil
 		|| Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot).Ok();
+	bool bWritePass = Ctx.Writer->WriteNext(EDcDataEntry::ClassRoot).Ok();
 	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
 	bool bPropertyPass = Ctx.TopProperty()->IsA<UObjectProperty>();
 
@@ -247,10 +247,10 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	FDcPutbackReader PutbackReader(Ctx.Reader);
 
 	EDcDataEntry Next;
-	DC_TRY(PutbackReader.PeekRead(&Next));
+	DC_TRY(PutbackReader.ReadNext(&Next));
 
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot).Ok();
+	bool bWritePass = Ctx.Writer->WriteNext(EDcDataEntry::ClassRoot).Ok();
 
 	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
 	bool bPropertyPass = ObjectProperty != nullptr;
@@ -270,7 +270,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	UClass* SubClassType = nullptr;
 
 	//	TODO this is now becoming a bit verbose, needs something around this
-	DC_TRY(PutbackReader.PeekRead(&Next));
+	DC_TRY(PutbackReader.ReadNext(&Next));
 	if (Next != EDcDataEntry::String)
 	{
 		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
@@ -281,7 +281,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	DC_TRY(PutbackReader.ReadString(&MetaKey));
 	if (MetaKey == TEXT("$type"))
 	{
-		DC_TRY(PutbackReader.PeekRead(&Next));
+		DC_TRY(PutbackReader.ReadNext(&Next));
 		if (Next != EDcDataEntry::String)
 		{
 			return DC_FAIL(DcDDeserialize, DataEntryMismatch)
@@ -364,12 +364,12 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 
 	//	usual read routine
 	EDcDataEntry CurPeek;
-	DC_TRY(PutbackReader.PeekRead(&CurPeek));
+	DC_TRY(PutbackReader.ReadNext(&CurPeek));
 	while (CurPeek != EDcDataEntry::MapEnd)
 	{
 		if (CurPeek == EDcDataEntry::Name)
 		{
-			DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
+			DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
 
 			FName Value;
 			DC_TRY(PutbackReader.ReadName(&Value));
@@ -377,7 +377,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		}
 		else if (CurPeek == EDcDataEntry::String)
 		{
-			DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
+			DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
 
 			FString Value;
 			DC_TRY(PutbackReader.ReadString(&Value));
@@ -393,7 +393,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		DC_TRY(ScopedValueProperty.PushProperty());
 		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
-		DC_TRY(PutbackReader.PeekRead(&CurPeek));
+		DC_TRY(PutbackReader.ReadNext(&CurPeek));
 	}
 
 	DC_TRY(PutbackReader.ReadMapEnd());

@@ -29,7 +29,7 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 	Loc.Column = 0;
 }
 
-FDcResult FDcJsonReader::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcJsonReader::ReadNext(EDcDataEntry* OutPtr)
 {
 	DC_TRY(ConsumeEffectiveToken());
 

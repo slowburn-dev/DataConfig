@@ -13,8 +13,8 @@ FDcResult FDcPipeVisitor::PipeVisit()
 	while (true)
 	{
 		EDcDataEntry PeekEntry;
-		DC_TRY(Reader->PeekRead(&PeekEntry));
-		DC_TRY(Writer->PeekWrite(PeekEntry));
+		DC_TRY(Reader->ReadNext(&PeekEntry));
+		DC_TRY(Writer->WriteNext(PeekEntry));
 
 		if (PeekEntry == EDcDataEntry::Nil)
 		{
