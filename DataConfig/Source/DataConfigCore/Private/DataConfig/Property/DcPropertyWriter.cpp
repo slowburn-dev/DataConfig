@@ -154,7 +154,7 @@ FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FWriteStateStruct::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -200,7 +200,7 @@ FDcResult FDcPropertyWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -238,7 +238,7 @@ FDcResult FDcPropertyWriter::WriteMapEnd()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FWriteStateMap::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -276,7 +276,7 @@ FDcResult FDcPropertyWriter::WriteArrayEnd()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FWriteStateArray::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -289,7 +289,7 @@ FDcResult FDcPropertyWriter::WriteNil()
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
@@ -302,7 +302,7 @@ FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDReadWrite, InvalidStateWithExpect))
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }

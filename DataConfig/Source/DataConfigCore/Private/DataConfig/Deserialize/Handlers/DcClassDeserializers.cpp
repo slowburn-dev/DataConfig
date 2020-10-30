@@ -67,7 +67,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			}
 			else
 			{
-				return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
+				return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
 					<< EDcDataEntry::Name << EDcDataEntry::String << CurPeek;
 			}
 
@@ -85,7 +85,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch))
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
 			<< EDcDataEntry::MapRoot << Next;
 	}
 }
@@ -221,7 +221,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch3))
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch3)
 			<< EDcDataEntry::MapRoot << EDcDataEntry::String << EDcDataEntry::String << Next;
 	}
 }
@@ -385,7 +385,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		}
 		else
 		{
-			return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
+			return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
 				<< EDcDataEntry::Name << EDcDataEntry::String << CurPeek;
 		}
 

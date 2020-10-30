@@ -9,7 +9,7 @@ static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeser
 
 	if (HandlerRet == EDcDeserializeResult::CanNotProcess)
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, NoMatchingHandler))
+		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
 			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 	else
@@ -38,7 +38,7 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	FDcDeserializeDelegate* HandlerPtr = DirectDeserializersMap.Find(Property->GetClass());
 	if (HandlerPtr == nullptr)
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, NoMatchingHandler))
+		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
 			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
 	}
 

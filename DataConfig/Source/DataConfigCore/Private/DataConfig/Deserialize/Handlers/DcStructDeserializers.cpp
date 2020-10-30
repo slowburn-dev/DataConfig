@@ -63,7 +63,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			}
 			else
 			{
-				return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
+				return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
 					<< EDcDataEntry::Name << EDcDataEntry::String << CurPeek;
 			}
 
@@ -81,7 +81,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch))
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
 			<< EDcDataEntry::MapRoot << Next;
 	}
 }

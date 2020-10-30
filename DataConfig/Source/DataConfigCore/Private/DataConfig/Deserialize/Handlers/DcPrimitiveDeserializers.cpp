@@ -56,7 +56,7 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
 			<< EDcDataEntry::Name << EDcDataEntry::String << Next;
 	}
 }
@@ -88,7 +88,7 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 	}
 	else
 	{
-		return DcFail(DC_DIAG(DcDDeserialize, DataEntryMismatch2))
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
 			<< EDcDataEntry::Name << EDcDataEntry::String << Next;
 	}
 }
