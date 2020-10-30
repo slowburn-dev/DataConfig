@@ -82,7 +82,7 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	if (Property->IsA<UBoolProperty>()) return EDcDataEntry::Bool;
 	if (Property->IsA<UFloatProperty>()) return EDcDataEntry::Float;
 	if (Property->IsA<UDoubleProperty>()) return EDcDataEntry::Double;
-	if (Property->IsA<UIntProperty>()) return EDcDataEntry::Int;
+	if (Property->IsA<UIntProperty>()) return EDcDataEntry::Int32;
 	if (Property->IsA<UUInt32Property>()) return EDcDataEntry::UInt32;
 	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
 	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;

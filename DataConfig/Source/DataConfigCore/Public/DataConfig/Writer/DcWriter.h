@@ -28,6 +28,20 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteArrayEnd();
 
 	virtual FDcResult WriteReference(UObject* Value);
+
+	virtual FDcResult WriteInt8(const int8& Value);
+	virtual FDcResult WriteInt16(const int16& Value);
+	virtual FDcResult WriteInt32(const int32& Value);
+	virtual FDcResult WriteInt64(const int64& Value);
+
+	virtual FDcResult WriteUInt8(const uint8& Value);
+	virtual FDcResult WriteUInt16(const uint16& Value);
+	virtual FDcResult WriteUInt32(const uint32& Value);
+	virtual FDcResult WriteUInt64(const uint64& Value);
+
+	virtual FDcResult WriteFloat(const float& Value);
+	virtual FDcResult WriteDouble(const double& Value);
+
 };
 
 

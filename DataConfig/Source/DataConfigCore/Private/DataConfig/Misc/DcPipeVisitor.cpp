@@ -89,6 +89,66 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadReference(&Value));
 			DC_TRY(Writer->WriteReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::Int8)
+		{
+			int8 Value;
+			DC_TRY(Reader->ReadInt8(&Value));
+			DC_TRY(Writer->WriteInt8(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::Int16)
+		{
+			int16 Value;
+			DC_TRY(Reader->ReadInt16(&Value));
+			DC_TRY(Writer->WriteInt16(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::Int32)
+		{
+			int32 Value;
+			DC_TRY(Reader->ReadInt32(&Value));
+			DC_TRY(Writer->WriteInt32(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::Int64)
+		{
+			int64 Value;
+			DC_TRY(Reader->ReadInt64(&Value));
+			DC_TRY(Writer->WriteInt64(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::UInt8)
+		{
+			uint8 Value;
+			DC_TRY(Reader->ReadUInt8(&Value));
+			DC_TRY(Writer->WriteUInt8(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::UInt16)
+		{
+			uint16 Value;
+			DC_TRY(Reader->ReadUInt16(&Value));
+			DC_TRY(Writer->WriteUInt16(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::UInt32)
+		{
+			uint32 Value;
+			DC_TRY(Reader->ReadUInt32(&Value));
+			DC_TRY(Writer->WriteUInt32(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::UInt64)
+		{
+			uint64 Value;
+			DC_TRY(Reader->ReadUInt64(&Value));
+			DC_TRY(Writer->WriteUInt64(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::Float)
+		{
+			float Value;
+			DC_TRY(Reader->ReadFloat(&Value));
+			DC_TRY(Writer->WriteFloat(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::Double)
+		{
+			double Value;
+			DC_TRY(Reader->ReadDouble(&Value));
+			DC_TRY(Writer->WriteDouble(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Ended)
 		{
 			return DcOk();

@@ -30,4 +30,6 @@ FDcResult FDcReader::ReadUInt8(uint8* OutPtr) { return DC_FAIL(DcDCommon, NotImp
 FDcResult FDcReader::ReadUInt16(uint16* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadUInt32(uint32* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadUInt64(uint64* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadFloat(float* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadDouble(double* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 

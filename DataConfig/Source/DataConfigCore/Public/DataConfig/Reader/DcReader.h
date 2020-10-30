@@ -41,6 +41,8 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadUInt32(uint32* OutPtr);
 	virtual FDcResult ReadUInt64(uint64* OutPtr);
 
+	virtual FDcResult ReadFloat(float* OutPtr);
+	virtual FDcResult ReadDouble(double* OutPtr);
 
 	//	shorthand for optional reading values
 	template<typename T1, typename T2>

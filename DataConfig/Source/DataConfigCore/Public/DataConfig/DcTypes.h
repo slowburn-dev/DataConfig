@@ -79,7 +79,7 @@ enum class EDcDataEntry
 
 	Int8,
 	Int16,
-	Int,
+	Int32,
 	Int64,
 
 	UInt8,
