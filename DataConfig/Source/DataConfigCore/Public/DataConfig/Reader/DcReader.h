@@ -7,6 +7,8 @@ struct DATACONFIGCORE_API FDcReader
 {
 	virtual ~FDcReader();
 
+	virtual bool Coercion(EDcDataEntry ToEntry);
+
 	virtual FDcResult ReadNext(EDcDataEntry* OutPtr);
 
 	virtual FDcResult ReadNil();
@@ -28,6 +30,17 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadArrayEnd();
 
 	virtual FDcResult ReadReference(UObject** OutPtr);
+
+	virtual FDcResult ReadInt8(int8* OutPtr);
+	virtual FDcResult ReadInt16(int16* OutPtr);
+	virtual FDcResult ReadInt32(int32* OutPtr);
+	virtual FDcResult ReadInt64(int64* OutPtr);
+
+	virtual FDcResult ReadUInt8(uint8* OutPtr);
+	virtual FDcResult ReadUInt16(uint16* OutPtr);
+	virtual FDcResult ReadUInt32(uint32* OutPtr);
+	virtual FDcResult ReadUInt64(uint64* OutPtr);
+
 
 	//	shorthand for optional reading values
 	template<typename T1, typename T2>
