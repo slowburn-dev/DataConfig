@@ -1,12 +1,12 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "DataConfig/Source/DcSourceTypes.h"
 
 template<class CharType = TCHAR>
 struct TDcCSourceUtils
 {
 	using SourceRef = TDcSourceRef<CharType>;
+	using CChar = TChar<CharType>;
 
 	static bool IsLineBreak(const CharType& Char)
 	{
@@ -50,6 +50,12 @@ struct TDcCSourceUtils
 	{
 		return (uint32)Char < 0x20 || Char == 0x7f;
 	}
+
+	static bool IsDigit(const CharType& Char)
+	{
+		return CChar::IsDigit(Char);
+	}
+
 };
 
 namespace FDcSourceUtils

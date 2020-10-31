@@ -1,4 +1,5 @@
 #pragma once
+
 #include "DataConfig/Source/DcSourceTypes.h"
 
 template<class CharType>
@@ -18,6 +19,7 @@ struct FHightlightFormatter
 	SourceRef FindLine(const SourceRef& SpanRef);
 };
 
-extern template struct FHightlightFormatter<TCHAR>;
+extern template struct FHightlightFormatter<ANSICHAR>;
+extern template struct FHightlightFormatter<WIDECHAR>;
 
 

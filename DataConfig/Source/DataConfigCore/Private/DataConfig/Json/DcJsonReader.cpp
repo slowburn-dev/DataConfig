@@ -2,6 +2,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 #include "DataConfig/Source/DcHighlightFormatter.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 #include "Misc/Parse.h"
 
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
@@ -29,6 +30,17 @@ void FDcJsonReader::SetNewString(const FString* InStrPtr)
 	Loc.Column = 0;
 }
 
+bool FDcJsonReader::Coercion(EDcDataEntry ToEntry)
+{
+	if (Token.Type == ETokenType::Number)
+	{
+		return FDcTypeUtils::IsNumericDataEntry(ToEntry)
+			|| ToEntry == EDcDataEntry::String;
+	}
+
+	return false;
+}
+
 FDcResult FDcJsonReader::ReadNext(EDcDataEntry* OutPtr)
 {
 	DC_TRY(ConsumeEffectiveToken());
@@ -42,6 +54,7 @@ FDcResult FDcJsonReader::ReadNext(EDcDataEntry* OutPtr)
 	case ETokenType::SquareOpen: { *OutPtr = EDcDataEntry::ArrayRoot; break;}
 	case ETokenType::SquareClose: { *OutPtr = EDcDataEntry::ArrayEnd; break;}
 	case ETokenType::String: { *OutPtr = EDcDataEntry::String; break;}
+	case ETokenType::Number: { *OutPtr = EDcDataEntry::Double; break;}
 	case ETokenType::EOF_: { *OutPtr = EDcDataEntry::Ended; break;}
 	default: 
 		return DC_FAIL(DcDCommon, NotImplemented);
@@ -96,6 +109,12 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
+	else if (Token.Type == ETokenType::Number)
+	{
+		ReadOut(OutPtr, Token.Ref.ToString());
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
 	else
 	{
 		return DC_FAIL(DcDJSON, UnexpectedToken);
@@ -105,7 +124,7 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 FDcResult FDcJsonReader::ReadStringToken()
 {
 	Token.Ref.Begin = Cur;
-	Token.Flag.bStringHasEscapeChar = false;
+	Token.Flag.Reset();
 
 	Advance();
 	while (true)
@@ -167,6 +186,40 @@ FDcResult FDcJsonReader::ParseStringToken(FString &OutStr)
 		else
 			return DcOk();
 	}
+}
+
+FDcResult FDcJsonReader::ReadNumberToken()
+{
+	Token.Ref.Begin = Cur;
+	Token.Flag.Reset();
+
+	Advance();
+	while (!IsAtEnd())
+	{
+		TCharType Char = PeekChar();
+		if (Char == TCharType('.'))
+		{
+			Token.Flag.bNumberHasDecimal = true;
+			Advance();
+		}
+		else if (Char == TCharType('e') || Char == TCharType('E'))
+		{
+			Token.Flag.bNumberHasExp = true;
+			Advance();
+		}
+		else if (Char == TCharType('-') || Char == TCharType('+') || SourceUtils::IsDigit(Char))
+		{
+			Advance();
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	Token.Type = ETokenType::Number;
+	Token.Ref.Num = Cur - Token.Ref.Begin;
+	return DcOk();
 }
 
 void FDcJsonReader::ReadWhiteSpace()
@@ -381,6 +434,29 @@ FDcResult FDcJsonReader::ReadArrayEnd()
 	}
 }
 
+template<typename TInt>
+FDcResult FDcJsonReader::ParseInteger(TInt& OutInt)
+{
+	return DcOk();
+}
+
+FDcResult FDcJsonReader::ReadInt32(int32* OutPtr)
+{
+	int32 Value;
+	ParseInteger<int32>(Value);
+	return DcOk();
+}
+
+FDcResult FDcJsonReader::ReadUInt32(uint32* OutPtr)
+{
+	return DcOk();
+}
+
+FDcResult FDcJsonReader::ReadDouble(double* OutPtr)
+{
+	return DcOk();
+}
+
 FDcResult FDcJsonReader::ConsumeRawToken()
 {
 	check(State == EState::InitializedWithStr);
@@ -474,6 +550,11 @@ FDcResult FDcJsonReader::ConsumeRawToken()
 	else if (Char == TCharType('"'))
 	{
 		return ReadStringToken();
+	}
+	else if (Char == TCharType('-')
+		|| SourceUtils::IsDigit(Char))
+	{
+		return ReadNumberToken();
 	}
 	else
 	{

@@ -106,4 +106,5 @@ TDcSourceRef<CharType> FHightlightFormatter<CharType>::FindLine(const TDcSourceR
 	return SourceRef{ Buf, CurHead, CurTail - CurHead };
 }
 
-template struct FHightlightFormatter<TCHAR>;
+template struct FHightlightFormatter<ANSICHAR>;
+template struct FHightlightFormatter<WIDECHAR>;

@@ -42,6 +42,10 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	struct FTokenFlag
 	{
 		bool bStringHasEscapeChar : 1;
+		bool bNumberHasDecimal : 1;
+		bool bNumberHasExp : 1;
+
+		FORCEINLINE void Reset() { *this = FTokenFlag{}; }
 	};
 
 	struct FToken
@@ -78,6 +82,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	int32 Cur = 0;
 	FString DiagFilePath = TEXT("<unknown file>");
 
+	bool Coercion(EDcDataEntry ToEntry) override;
 	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadBool(bool* OutPtr) override;
@@ -87,6 +92,10 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadMapEnd() override;
 	FDcResult ReadArrayRoot() override;
 	FDcResult ReadArrayEnd() override;
+
+	FDcResult ReadInt32(int32* OutPtr);
+	FDcResult ReadUInt32(uint32* OutPtr);
+	FDcResult ReadDouble(double* OutPtr) override;
 
 	FDcResult ConsumeRawToken();
 	FDcResult ConsumeEffectiveToken();
@@ -100,12 +109,18 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult ReadWordExpect(const TCharType* Word);
 
-	FDcResult ReadStringToken();
-	FDcResult ParseStringToken(FString &OutStr);
 
 	void ReadWhiteSpace();
 	void ReadLineComment();
 	FDcResult ReadBlockComment();
+
+	FDcResult ReadStringToken();
+	FDcResult ParseStringToken(FString &OutStr);
+
+	FDcResult ReadNumberToken();
+
+	template<typename TInt>
+	FDcResult ParseInteger(TInt& OutInt);
 
 	enum class EParseState
 	{
