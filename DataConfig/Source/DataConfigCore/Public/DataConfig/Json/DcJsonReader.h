@@ -45,6 +45,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 		bool bNumberHasDecimal : 1;
 		bool bNumberHasExp : 1;
 
+		uint8 NumberDecimalOffset;
+
 		FORCEINLINE void Reset() { *this = FTokenFlag{}; }
 	};
 
@@ -118,9 +120,6 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ParseStringToken(FString &OutStr);
 
 	FDcResult ReadNumberToken();
-
-	template<typename TInt>
-	FDcResult ParseInteger(TInt& OutInt);
 
 	enum class EParseState
 	{

@@ -200,6 +200,7 @@ FDcResult FDcJsonReader::ReadNumberToken()
 		if (Char == TCharType('.'))
 		{
 			Token.Flag.bNumberHasDecimal = true;
+			Token.Flag.NumberDecimalOffset = Cur - Token.Ref.Begin;
 			Advance();
 		}
 		else if (Char == TCharType('e') || Char == TCharType('E'))
@@ -434,22 +435,44 @@ FDcResult FDcJsonReader::ReadArrayEnd()
 	}
 }
 
-template<typename TInt>
-FDcResult FDcJsonReader::ParseInteger(TInt& OutInt)
-{
-	return DcOk();
-}
-
 FDcResult FDcJsonReader::ReadInt32(int32* OutPtr)
 {
-	int32 Value;
-	ParseInteger<int32>(Value);
-	return DcOk();
+	if (Token.Type == ETokenType::Number)
+	{
+		int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
+		const TCharType* BeginPtr = Token.Ref.GetBeginPtr();
+		TCharType* EndPtr = nullptr;
+		int32 Value = CString::Strtoi(BeginPtr, &EndPtr, 10);
+		ReadOut(OutPtr, Value);
+		check(IntOffset == EndPtr - BeginPtr);
+
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, UnexpectedToken);
+	}
 }
 
 FDcResult FDcJsonReader::ReadUInt32(uint32* OutPtr)
 {
-	return DcOk();
+	if (Token.Type == ETokenType::Number)
+	{
+		int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
+		const TCharType* BeginPtr = Token.Ref.GetBeginPtr();
+		TCharType* EndPtr = nullptr;
+		uint32 Value = CString::Strtoui64(BeginPtr, &EndPtr, 10);
+		ReadOut(OutPtr, Value);
+		check(IntOffset == EndPtr - BeginPtr);
+
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, UnexpectedToken);
+	}
 }
 
 FDcResult FDcJsonReader::ReadDouble(double* OutPtr)

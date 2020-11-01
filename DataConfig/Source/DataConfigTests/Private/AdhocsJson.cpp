@@ -24,7 +24,7 @@ void JsonReader1()
 			"Arr" : [
 				"these", "are", "my", "twisted",
 			],
-			"Inty" : -253.874e+123,
+			"Inty" : -253874
 		}
 
 	)");

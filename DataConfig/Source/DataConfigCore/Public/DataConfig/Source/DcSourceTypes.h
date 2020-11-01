@@ -49,6 +49,7 @@ struct TDcSourceRef
 
 	bool IsValid() const;
 	void Reset();
+	const CharType* GetBeginPtr() const;
 };
 
 #include "DataConfig/Source/DcSourceTypes.inl"

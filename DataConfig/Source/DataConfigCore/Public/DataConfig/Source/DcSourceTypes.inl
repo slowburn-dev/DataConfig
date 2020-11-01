@@ -15,6 +15,19 @@ bool TDcSourceRef<CharType>::IsValid() const
 }
 
 template<class CharType>
+const CharType* TDcSourceRef<CharType>::GetBeginPtr() const
+{
+	if (!IsValid())
+	{
+		return nullptr;
+	}
+	else
+	{
+		return Buffer->Buffer + Begin;
+	}
+}
+
+template<class CharType>
 void TDcSourceRef<CharType>::Reset()
 {
 	Buffer = nullptr;
