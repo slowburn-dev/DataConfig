@@ -42,6 +42,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	struct FTokenFlag
 	{
 		bool bStringHasEscapeChar : 1;
+		bool bNumberIsNegative : 1;
 		bool bNumberHasDecimal : 1;
 		bool bNumberHasExp : 1;
 
@@ -94,6 +95,9 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadMapEnd() override;
 	FDcResult ReadArrayRoot() override;
 	FDcResult ReadArrayEnd() override;
+
+	template<typename TInt>
+	FDcResult ReadInteger(TInt* OutPtr);
 
 	FDcResult ReadInt32(int32* OutPtr);
 	FDcResult ReadUInt32(uint32* OutPtr);

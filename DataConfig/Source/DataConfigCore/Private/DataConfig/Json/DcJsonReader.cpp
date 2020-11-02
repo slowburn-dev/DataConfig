@@ -193,6 +193,9 @@ FDcResult FDcJsonReader::ReadNumberToken()
 	Token.Ref.Begin = Cur;
 	Token.Flag.Reset();
 
+	if (PeekChar() == TCharType('-'))
+		Token.Flag.bNumberIsNegative = true;
+
 	Advance();
 	while (!IsAtEnd())
 	{
@@ -435,19 +438,50 @@ FDcResult FDcJsonReader::ReadArrayEnd()
 	}
 }
 
+
+template<typename TCharType>
+struct TDcJsonReader_NumericDispatch
+{
+	using CString = TCString<TCharType>;
+
+	static int32 ReadIntDispatch(int32, const TCharType* Ptr, int Num)
+	{
+		TCharType* EndPtr = nullptr;
+		int32 Value = CString::Strtoi(Ptr, &EndPtr, 10);
+		check(Num == EndPtr - Ptr);
+		return Value;
+	}
+
+	static uint32 ReadIntDispatch(uint32, const TCharType* Ptr, int Num)
+	{
+		TCharType* EndPtr = nullptr;
+		uint32 Value = CString::Strtoui64(Ptr, &EndPtr, 10);
+		check(Num == EndPtr - Ptr);
+		return Value;
+	}
+
+};
+
+
+template<typename TInt>
+FDcResult FDcJsonReader::ReadInteger(TInt* OutPtr)
+{
+	int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
+	const TCharType* BeginPtr = Token.Ref.GetBeginPtr();
+
+	TInt Value = TDcJsonReader_NumericDispatch<TCharType>::ReadIntDispatch(TInt{}, BeginPtr, IntOffset);
+
+	ReadOut(OutPtr, Value);
+	DC_TRY(EndTopRead());
+	return DcOk();
+}
+
+
 FDcResult FDcJsonReader::ReadInt32(int32* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
-		int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
-		const TCharType* BeginPtr = Token.Ref.GetBeginPtr();
-		TCharType* EndPtr = nullptr;
-		int32 Value = CString::Strtoi(BeginPtr, &EndPtr, 10);
-		ReadOut(OutPtr, Value);
-		check(IntOffset == EndPtr - BeginPtr);
-
-		DC_TRY(EndTopRead());
-		return DcOk();
+		return ReadInteger<int32>(OutPtr);
 	}
 	else
 	{
@@ -459,15 +493,11 @@ FDcResult FDcJsonReader::ReadUInt32(uint32* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
-		int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
-		const TCharType* BeginPtr = Token.Ref.GetBeginPtr();
-		TCharType* EndPtr = nullptr;
-		uint32 Value = CString::Strtoui64(BeginPtr, &EndPtr, 10);
-		ReadOut(OutPtr, Value);
-		check(IntOffset == EndPtr - BeginPtr);
+		if (Token.Flag.bNumberIsNegative)
+			return DC_FAIL(DcDJSON, CoercionUnsignedWithNegativeNumber)
+				<< FormatInputSpan(Token.Ref);
 
-		DC_TRY(EndTopRead());
-		return DcOk();
+		return ReadInteger<uint32>(OutPtr);
 	}
 	else
 	{
