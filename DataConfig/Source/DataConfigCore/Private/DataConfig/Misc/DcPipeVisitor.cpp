@@ -149,9 +149,9 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			//DC_TRY(Reader->ReadDouble(&Value));
 			//DC_TRY(Writer->WriteDouble(Value));
 
-			uint32 Value;
-			DC_TRY(Reader->ReadUInt32(&Value));
-			DC_TRY(Writer->WriteUInt32(Value));
+			int32 Value;
+			DC_TRY(Reader->ReadInt32(&Value));
+			DC_TRY(Writer->WriteInt32(Value));
 		}
 		else if (PeekEntry == EDcDataEntry::Ended)
 		{

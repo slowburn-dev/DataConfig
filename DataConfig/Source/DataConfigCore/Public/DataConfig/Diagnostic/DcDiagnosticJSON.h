@@ -18,7 +18,8 @@ namespace DcDJSON
 		UnclosedStringLiteral,
 		InvalidStringEscaping,
 		InvalidControlCharInString,
-		CoercionUnsignedWithNegativeNumber,
+		ReadUnsignedWithNegativeNumber,
+		ParseIntegerFailed,
 	};
 
 } // namespace DJSON

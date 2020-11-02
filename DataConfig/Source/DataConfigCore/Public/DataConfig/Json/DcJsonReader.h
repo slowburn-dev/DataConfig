@@ -96,11 +96,16 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadArrayRoot() override;
 	FDcResult ReadArrayEnd() override;
 
-	template<typename TInt>
-	FDcResult ReadInteger(TInt* OutPtr);
+	FDcResult ReadInt8(int8* OutPtr) override;
+	FDcResult ReadInt16(int16* OutPtr) override;
+	FDcResult ReadInt32(int32* OutPtr) override;
+	FDcResult ReadInt64(int64* OutPtr) override;
 
-	FDcResult ReadInt32(int32* OutPtr);
-	FDcResult ReadUInt32(uint32* OutPtr);
+	FDcResult ReadUInt8(uint8* OutPtr) override;
+	FDcResult ReadUInt16(uint16* OutPtr) override;
+	FDcResult ReadUInt64(uint64* OutPtr) override;
+	FDcResult ReadUInt32(uint32* OutPtr) override;
+
 	FDcResult ReadDouble(double* OutPtr) override;
 
 	FDcResult ConsumeRawToken();
@@ -142,5 +147,12 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcDiagnosticHighlight FormatInputSpan(SourceRef SpanRef);
 	FDcDiagnosticHighlight FormatInputSpan(int Begin, int Num);
-};
 
+	template<typename TInt>
+	FDcResult ParseInteger(TInt* OutPtr);
+	template<typename TInt>
+	FDcResult ReadSignedInteger(TInt* OutPtr);
+	template<typename TInt>
+	FDcResult ReadUnsignedInteger(TInt* OutPtr);
+
+};

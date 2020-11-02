@@ -444,44 +444,41 @@ struct TDcJsonReader_NumericDispatch
 {
 	using CString = TCString<TCharType>;
 
-	static int32 ReadIntDispatch(int32, const TCharType* Ptr, int Num)
-	{
-		TCharType* EndPtr = nullptr;
-		int32 Value = CString::Strtoi(Ptr, &EndPtr, 10);
-		check(Num == EndPtr - Ptr);
-		return Value;
-	}
+	static FORCEINLINE void ParseIntDispatch(int8& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(int16& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(int32& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(int64& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoi64(Ptr, OutEnd, 10); }
 
-	static uint32 ReadIntDispatch(uint32, const TCharType* Ptr, int Num)
-	{
-		TCharType* EndPtr = nullptr;
-		uint32 Value = CString::Strtoui64(Ptr, &EndPtr, 10);
-		check(Num == EndPtr - Ptr);
-		return Value;
-	}
+	static FORCEINLINE void ParseIntDispatch(uint8& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(uint16& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(uint32& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(uint64& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
 
 };
 
-
 template<typename TInt>
-FDcResult FDcJsonReader::ReadInteger(TInt* OutPtr)
+FDcResult FDcJsonReader::ParseInteger(TInt* OutPtr)
 {
 	int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
 	const TCharType* BeginPtr = Token.Ref.GetBeginPtr();
+	TCharType* EndPtr = nullptr;
 
-	TInt Value = TDcJsonReader_NumericDispatch<TCharType>::ReadIntDispatch(TInt{}, BeginPtr, IntOffset);
+	TInt Value;
+	TDcJsonReader_NumericDispatch<TCharType>::ParseIntDispatch(Value, &EndPtr, BeginPtr);
+	if (EndPtr - BeginPtr != IntOffset)
+		return DC_FAIL(DcDJSON, ParseIntegerFailed) << FormatInputSpan(Token.Ref);
 
 	ReadOut(OutPtr, Value);
 	DC_TRY(EndTopRead());
 	return DcOk();
 }
 
-
-FDcResult FDcJsonReader::ReadInt32(int32* OutPtr)
+template<typename TInt>
+FDcResult FDcJsonReader::ReadSignedInteger(TInt* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
-		return ReadInteger<int32>(OutPtr);
+		return ParseInteger<TInt>(OutPtr);
 	}
 	else
 	{
@@ -489,21 +486,34 @@ FDcResult FDcJsonReader::ReadInt32(int32* OutPtr)
 	}
 }
 
-FDcResult FDcJsonReader::ReadUInt32(uint32* OutPtr)
+template<typename TInt>
+FDcResult FDcJsonReader::ReadUnsignedInteger(TInt* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
 		if (Token.Flag.bNumberIsNegative)
-			return DC_FAIL(DcDJSON, CoercionUnsignedWithNegativeNumber)
+			return DC_FAIL(DcDJSON, ReadUnsignedWithNegativeNumber)
 				<< FormatInputSpan(Token.Ref);
 
-		return ReadInteger<uint32>(OutPtr);
+		return ParseInteger<TInt>(OutPtr);
 	}
 	else
 	{
 		return DC_FAIL(DcDJSON, UnexpectedToken);
 	}
 }
+
+
+FDcResult FDcJsonReader::ReadInt8(int8* OutPtr) { return ReadSignedInteger<int8>(OutPtr); }
+FDcResult FDcJsonReader::ReadInt16(int16* OutPtr) { return ReadSignedInteger<int16>(OutPtr); }
+FDcResult FDcJsonReader::ReadInt32(int32* OutPtr) { return ReadSignedInteger<int32>(OutPtr); }
+FDcResult FDcJsonReader::ReadInt64(int64* OutPtr) { return ReadSignedInteger<int64>(OutPtr); }
+
+FDcResult FDcJsonReader::ReadUInt8(uint8* OutPtr) { return ReadUnsignedInteger<uint8>(OutPtr); }
+FDcResult FDcJsonReader::ReadUInt16(uint16* OutPtr) { return ReadUnsignedInteger<uint16>(OutPtr); }
+FDcResult FDcJsonReader::ReadUInt32(uint32* OutPtr) { return ReadUnsignedInteger<uint32>(OutPtr); }
+FDcResult FDcJsonReader::ReadUInt64(uint64* OutPtr) { return ReadUnsignedInteger<uint64>(OutPtr); }
+
 
 FDcResult FDcJsonReader::ReadDouble(double* OutPtr)
 {
