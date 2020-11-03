@@ -13,6 +13,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::InvalidControlCharInString, TEXT("Invalid control character found in string"), },
 	{ DcDJSON::ReadUnsignedWithNegativeNumber, TEXT("Reading unsigned with negative number"), },
 	{ DcDJSON::ParseIntegerFailed, TEXT("Parse integer failed"), },
+	{ DcDJSON::DuplicatedKey, TEXT("Duplicated key within object"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };

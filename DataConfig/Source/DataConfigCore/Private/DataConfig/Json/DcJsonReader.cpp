@@ -37,6 +37,10 @@ bool FDcJsonReader::Coercion(EDcDataEntry ToEntry)
 		return FDcTypeUtils::IsNumericDataEntry(ToEntry)
 			|| ToEntry == EDcDataEntry::String;
 	}
+	else if (Token.Type == ETokenType::String)
+	{
+		return ToEntry == EDcDataEntry::Name;
+	}
 
 	return false;
 }
@@ -83,13 +87,32 @@ FDcResult FDcJsonReader::ReadBool(bool* OutPtr)
 	}
 }
 
+FDcResult FDcJsonReader::CheckObjectDuplicatedKey(const FName& KeyName)
+{
+	if (GetTopState() == EParseState::Object
+		&& !bTopObjectAtValue)
+	{
+		check(Keys.Num());
+		if (Keys.Top().Contains(KeyName))
+			return DC_FAIL(DcDJSON, DuplicatedKey) << FormatInputSpan(Token.Ref);
+		else
+			Keys.Top().Add(KeyName);
+	}
+
+	return DcOk();
+}
+
 FDcResult FDcJsonReader::ReadName(FName* OutPtr)
 {
 	if (Token.Type == ETokenType::String)
 	{
 		FString ParsedStr;
 		DC_TRY(ParseStringToken(ParsedStr));
-		ReadOut(OutPtr, *ParsedStr);
+
+		FName ParsedName(*ParsedStr);
+		DC_TRY(CheckObjectDuplicatedKey(ParsedName));
+
+		ReadOut(OutPtr, ParsedName);
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
@@ -105,6 +128,9 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 	{
 		FString ParsedStr;
 		DC_TRY(ParseStringToken(ParsedStr));
+
+		DC_TRY(CheckObjectDuplicatedKey(*ParsedStr));
+
 		ReadOut(OutPtr, ParsedStr);
 		DC_TRY(EndTopRead());
 		return DcOk();
@@ -388,6 +414,7 @@ FDcResult FDcJsonReader::ReadMapRoot()
 	{
 		PushTopState(EParseState::Object);
 		bTopObjectAtValue = false;
+		Keys.AddDefaulted();
 		return DcOk();
 	}
 	else
@@ -402,6 +429,7 @@ FDcResult FDcJsonReader::ReadMapEnd()
 	{
 		PopTopState(EParseState::Object);
 		bTopObjectAtValue = true;
+		Keys.Pop();
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
@@ -453,6 +481,9 @@ struct TDcJsonReader_NumericDispatch
 	static FORCEINLINE void ParseIntDispatch(uint16& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
 	static FORCEINLINE void ParseIntDispatch(uint32& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
 	static FORCEINLINE void ParseIntDispatch(uint64& OutValue, TCharType** OutEnd, const TCharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+
+	static FORCEINLINE void ParseFloatDispatch(float& OutValue, const TCharType* Ptr) { OutValue = CString::Atof(Ptr); }
+	static FORCEINLINE void ParseFloatDispatch(double& OutValue, const TCharType* Ptr) { OutValue = CString::Atod(Ptr); }
 
 };
 
@@ -514,11 +545,26 @@ FDcResult FDcJsonReader::ReadUInt16(uint16* OutPtr) { return ReadUnsignedInteger
 FDcResult FDcJsonReader::ReadUInt32(uint32* OutPtr) { return ReadUnsignedInteger<uint32>(OutPtr); }
 FDcResult FDcJsonReader::ReadUInt64(uint64* OutPtr) { return ReadUnsignedInteger<uint64>(OutPtr); }
 
-
-FDcResult FDcJsonReader::ReadDouble(double* OutPtr)
+template<typename TFloat>
+FDcResult FDcJsonReader::ReadFloating(TFloat* OutPtr)
 {
-	return DcOk();
+	if (Token.Type == ETokenType::Number)
+	{
+		TFloat Value;
+		TDcJsonReader_NumericDispatch<TCharType>::ParseFloatDispatch(Value, Token.Ref.GetBeginPtr());
+
+		ReadOut(OutPtr, Value);
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, UnexpectedToken);
+	}
 }
+
+FDcResult FDcJsonReader::ReadFloat(float* OutPtr) { return ReadFloating<float>(OutPtr); }
+FDcResult FDcJsonReader::ReadDouble(double* OutPtr) { return ReadFloating<double>(OutPtr); }
 
 FDcResult FDcJsonReader::ConsumeRawToken()
 {

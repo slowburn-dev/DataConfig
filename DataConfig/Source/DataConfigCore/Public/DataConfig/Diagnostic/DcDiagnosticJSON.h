@@ -20,6 +20,7 @@ namespace DcDJSON
 		InvalidControlCharInString,
 		ReadUnsignedWithNegativeNumber,
 		ParseIntegerFailed,
+		DuplicatedKey,
 	};
 
 } // namespace DJSON

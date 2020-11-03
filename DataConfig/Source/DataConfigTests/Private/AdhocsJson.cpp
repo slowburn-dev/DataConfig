@@ -13,18 +13,21 @@ void JsonReader1()
 		{
 			"Hello" : "JSON the shit",
 			"Truthy" : true,
+			"Btoy" : -2538.1e-3,
 			"Falsy" : false,
 			"Nest1" : {
 				"Nest1" : "yeah",
 			},
 			// /*  /* helllllo ??? */
 			"Nest2" : {
-				"Nest2" : "wow"
+				"Nest2" : "wow",
+				"Inty" : "dow",
 			},
 			"Arr" : [
 				"these", "are", "my", "twisted",
 			],
-			"Inty" : -253874
+			"Inty" : -2538.1e-3,
+			"Btoy" : "dope"
 		}
 
 	)");

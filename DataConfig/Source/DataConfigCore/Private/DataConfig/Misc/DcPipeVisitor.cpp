@@ -145,13 +145,9 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		}
 		else if (PeekEntry == EDcDataEntry::Double)
 		{
-			//double Value;
-			//DC_TRY(Reader->ReadDouble(&Value));
-			//DC_TRY(Writer->WriteDouble(Value));
-
-			int32 Value;
-			DC_TRY(Reader->ReadInt32(&Value));
-			DC_TRY(Writer->WriteInt32(Value));
+			double Value;
+			DC_TRY(Reader->ReadDouble(&Value));
+			DC_TRY(Writer->WriteDouble(Value));
 		}
 		else if (PeekEntry == EDcDataEntry::Ended)
 		{

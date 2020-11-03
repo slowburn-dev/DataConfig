@@ -106,6 +106,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadUInt64(uint64* OutPtr) override;
 	FDcResult ReadUInt32(uint32* OutPtr) override;
 
+	FDcResult ReadFloat(float* OutPtr) override;
 	FDcResult ReadDouble(double* OutPtr) override;
 
 	FDcResult ConsumeRawToken();
@@ -119,7 +120,6 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	TCharType PeekChar(int N = 0);
 
 	FDcResult ReadWordExpect(const TCharType* Word);
-
 
 	void ReadWhiteSpace();
 	void ReadLineComment();
@@ -138,6 +138,9 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	};
 
 	TArray<EParseState, TInlineAllocator<8>> States;
+	using FKeys = TArray<FName, TInlineAllocator<8>>;
+	TArray<FKeys, TInlineAllocator<8>> Keys;
+
 	FORCEINLINE EParseState GetTopState() { return States.Top(); }
 	FORCEINLINE void PushTopState(EParseState InState) { States.Push(InState); }
 	FORCEINLINE void PopTopState(EParseState InState) { check(GetTopState() == InState); States.Pop(); }
@@ -154,5 +157,9 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadSignedInteger(TInt* OutPtr);
 	template<typename TInt>
 	FDcResult ReadUnsignedInteger(TInt* OutPtr);
+	template<typename TFloat>
+	FDcResult ReadFloating(TFloat* OutPtr);
 
+	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
 };
+
