@@ -5,6 +5,7 @@
 #include "DataConfig/Source/DcSourceTypes.h"
 
 #include "Templates/IsEnumClass.h"
+#include "UObject/Package.h"
 
 struct DATACONFIGCORE_API FDcDiagnosticHighlight
 {
@@ -39,7 +40,6 @@ operator<<(FDcDiagnostic& Diag, T&& InValue)
 	return Diag;
 }
 
-//	TODO UENUM -> FName conversion
 template<typename T>
 FORCEINLINE typename TEnableIf<TIsEnumClass<T>::Value, FDcDiagnostic&>::Type
 operator<<(FDcDiagnostic& Diag, T&& InValue)
@@ -54,9 +54,11 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, TCHAR Char)
 	return Diag;
 }
 
-FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
+FORCEINLINE_DEBUGGABLE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
 {
-	Diag.Args.Emplace(FName(TEXT("<DataEntry>")));
+	UEnum* DataEntryEnum = ::FindObject<UEnum>(ANY_PACKAGE, TEXT("EDcDataEntry"), true);
+	check(DataEntryEnum);
+	Diag.Args.Emplace(DataEntryEnum->GetNameByIndex((int32)Entry));
 	return Diag;
 }
 
