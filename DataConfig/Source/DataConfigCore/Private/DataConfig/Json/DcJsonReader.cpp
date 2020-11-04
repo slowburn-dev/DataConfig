@@ -5,6 +5,31 @@
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "Misc/Parse.h"
 
+
+EDcDataEntry FDcJsonReader::TokenTypeToDataEntry(ETokenType TokenType)
+{
+	static EDcDataEntry _Mapping[ETokenType::_Count] = {
+		EDcDataEntry::Ended,
+		EDcDataEntry::Nil,
+		EDcDataEntry::MapRoot,
+		EDcDataEntry::MapEnd,
+		EDcDataEntry::ArrayRoot,
+		EDcDataEntry::ArrayEnd,
+		EDcDataEntry::Nil,
+		EDcDataEntry::String,
+		EDcDataEntry::Double,
+		EDcDataEntry::Bool,
+		EDcDataEntry::Bool,
+		EDcDataEntry::Nil,
+
+		EDcDataEntry::Nil,
+		EDcDataEntry::Nil,
+		EDcDataEntry::Nil,
+	};
+
+	return _Mapping[(int)TokenType];
+}
+
 FDcJsonReader::FDcJsonReader(const FString* InStrPtr)
 	: FDcJsonReader()
 {
@@ -51,41 +76,75 @@ FDcResult FDcJsonReader::ReadNext(EDcDataEntry* OutPtr)
 
 	switch (Token.Type)
 	{
-	case ETokenType::True: { *OutPtr = EDcDataEntry::Bool; break; }
-	case ETokenType::False: { *OutPtr = EDcDataEntry::Bool; break; }
-	case ETokenType::CurlyOpen: { *OutPtr = EDcDataEntry::MapRoot; break;}
-	case ETokenType::CurlyClose: { *OutPtr = EDcDataEntry::MapEnd; break;}
-	case ETokenType::SquareOpen: { *OutPtr = EDcDataEntry::ArrayRoot; break;}
-	case ETokenType::SquareClose: { *OutPtr = EDcDataEntry::ArrayEnd; break;}
-	case ETokenType::String: { *OutPtr = EDcDataEntry::String; break;}
-	case ETokenType::Number: { *OutPtr = EDcDataEntry::Double; break;}
-	case ETokenType::EOF_: { *OutPtr = EDcDataEntry::Ended; break;}
+	case ETokenType::True:
+	case ETokenType::False:
+	case ETokenType::Null:
+	case ETokenType::CurlyOpen:
+	case ETokenType::CurlyClose: 
+	case ETokenType::SquareOpen: 
+	case ETokenType::SquareClose: 
+	case ETokenType::String:
+	case ETokenType::Number:
+	case ETokenType::EOF_:
+		{
+			ReadOut(OutPtr, TokenTypeToDataEntry(Token.Type));
+			return DcOk();
+		}
 	default: 
-		return DC_FAIL(DcDCommon, NotImplemented);
+		return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
 	}
+}
 
-	return DcOk();
+FDcResult FDcJsonReader::ReadNil()
+{
+	if (Token.Type == ETokenType::Null)
+	{
+		CheckNotObjectKey();
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::Nil << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
+	}
 }
 
 FDcResult FDcJsonReader::ReadBool(bool* OutPtr)
 {
 	if (Token.Type == ETokenType::True)
 	{
+		CheckNotObjectKey();
 		ReadOut(OutPtr, true);
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
 	else if (Token.Type == ETokenType::False)
 	{
+		CheckNotObjectKey();
 		ReadOut(OutPtr, false);
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::Bool << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
+
+
+FDcResult FDcJsonReader::CheckNotObjectKey()
+{
+	if (GetTopState() == EParseState::Object
+		&& !bTopObjectAtValue)
+		return DC_FAIL(DcDJSON, KeyMustBeString) << FormatHighlight(Token.Ref);
+	else
+		return DcOk();
+}
+
 
 FDcResult FDcJsonReader::CheckObjectDuplicatedKey(const FName& KeyName)
 {
@@ -94,7 +153,7 @@ FDcResult FDcJsonReader::CheckObjectDuplicatedKey(const FName& KeyName)
 	{
 		check(Keys.Num());
 		if (Keys.Top().Contains(KeyName))
-			return DC_FAIL(DcDJSON, DuplicatedKey) << FormatInputSpan(Token.Ref);
+			return DC_FAIL(DcDJSON, DuplicatedKey) << FormatHighlight(Token.Ref);
 		else
 			Keys.Top().Add(KeyName);
 	}
@@ -158,7 +217,7 @@ FDcResult FDcJsonReader::ReadStringToken()
 		TCharType Char = PeekChar();
 		if (Char == _EOF_CHAR)
 		{
-			return DC_FAIL(DcDJSON, UnclosedStringLiteral) << FormatInputSpan(Token.Ref.Begin, 1);
+			return DC_FAIL(DcDJSON, UnclosedStringLiteral) << FormatHighlight(Token.Ref.Begin, 1);
 		}
 		else if (Char == TCharType('"'))
 		{
@@ -178,7 +237,7 @@ FDcResult FDcJsonReader::ReadStringToken()
 		}
 		else if (SourceUtils::IsControl(Char))
 		{
-			return DC_FAIL(DcDJSON, InvalidControlCharInString) << FormatInputSpan(Cur, 1);
+			return DC_FAIL(DcDJSON, InvalidControlCharInString) << FormatHighlight(Cur, 1);
 		}
 		else
 		{
@@ -208,7 +267,7 @@ FDcResult FDcJsonReader::ParseStringToken(FString &OutStr)
 		int32 CharsRead = 0;
 		bool bOk = FParse::QuotedString(RawStr.GetCharArray().GetData(), OutStr, &CharsRead);
 		if (!bOk)
-			return DC_FAIL(DcDJSON, InvalidStringEscaping) << FormatInputSpan(Token.Ref.Begin, CharsRead);
+			return DC_FAIL(DcDJSON, InvalidStringEscaping) << FormatHighlight(Token.Ref.Begin, CharsRead);
 		else
 			return DcOk();
 	}
@@ -327,7 +386,7 @@ FDcResult FDcJsonReader::ReadBlockComment()
 
 	if (Depth != 0)
 	{
-		return DC_FAIL(DcDJSON, UnclosedBlockComment) << FormatInputSpan(Token.Ref.Begin, 2);
+		return DC_FAIL(DcDJSON, UnclosedBlockComment) << FormatHighlight(Token.Ref.Begin, 2);
 	}
 	else
 	{
@@ -412,6 +471,7 @@ FDcResult FDcJsonReader::ReadMapRoot()
 {
 	if (Token.Type == ETokenType::CurlyOpen)
 	{
+		CheckNotObjectKey();
 		PushTopState(EParseState::Object);
 		bTopObjectAtValue = false;
 		Keys.AddDefaulted();
@@ -443,6 +503,7 @@ FDcResult FDcJsonReader::ReadArrayRoot()
 {
 	if (Token.Type == ETokenType::SquareOpen)
 	{
+		CheckNotObjectKey();
 		PushTopState(EParseState::Array);
 		return DcOk();
 	}
@@ -497,7 +558,7 @@ FDcResult FDcJsonReader::ParseInteger(TInt* OutPtr)
 	TInt Value;
 	TDcJsonReader_NumericDispatch<TCharType>::ParseIntDispatch(Value, &EndPtr, BeginPtr);
 	if (EndPtr - BeginPtr != IntOffset)
-		return DC_FAIL(DcDJSON, ParseIntegerFailed) << FormatInputSpan(Token.Ref);
+		return DC_FAIL(DcDJSON, ParseIntegerFailed) << FormatHighlight(Token.Ref);
 
 	ReadOut(OutPtr, Value);
 	DC_TRY(EndTopRead());
@@ -509,6 +570,7 @@ FDcResult FDcJsonReader::ReadSignedInteger(TInt* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
+		CheckNotObjectKey();
 		return ParseInteger<TInt>(OutPtr);
 	}
 	else
@@ -522,9 +584,11 @@ FDcResult FDcJsonReader::ReadUnsignedInteger(TInt* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
+		CheckNotObjectKey();
+
 		if (Token.Flag.bNumberIsNegative)
 			return DC_FAIL(DcDJSON, ReadUnsignedWithNegativeNumber)
-				<< FormatInputSpan(Token.Ref);
+				<< FormatHighlight(Token.Ref);
 
 		return ParseInteger<TInt>(OutPtr);
 	}
@@ -550,6 +614,8 @@ FDcResult FDcJsonReader::ReadFloating(TFloat* OutPtr)
 {
 	if (Token.Type == ETokenType::Number)
 	{
+		CheckNotObjectKey();
+
 		TFloat Value;
 		TDcJsonReader_NumericDispatch<TCharType>::ParseFloatDispatch(Value, Token.Ref.GetBeginPtr());
 
@@ -611,7 +677,7 @@ FDcResult FDcJsonReader::ConsumeRawToken()
 		}
 		else
 		{
-			return DC_FAIL(DcDJSON, UnexpectedChar) << Char << FormatInputSpan(Cur, 1);
+			return DC_FAIL(DcDJSON, UnexpectedChar) << Char << FormatHighlight(Cur, 1);
 		}
 	}
 	else if (Char == TCharType('{'))
@@ -668,7 +734,7 @@ FDcResult FDcJsonReader::ConsumeRawToken()
 	else
 	{
 		return DC_FAIL(DcDJSON, UnexpectedChar)
-			<< FString::Chr(Char) << FormatInputSpan(Cur, 1);
+			<< FString::Chr(Char) << FormatHighlight(Cur, 1);
 	}
 }
 
@@ -746,7 +812,7 @@ FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 		{
 			return DC_FAIL(DcDJSON, ExpectWordButNotFound)
 				<< Word << WordRef.ToString()
-				<< FormatInputSpan(WordRef);
+				<< FormatHighlight(WordRef);
 		}
 	}
 
@@ -756,7 +822,7 @@ FDcResult FDcJsonReader::ReadWordExpect(const TCharType* Word)
 }
 
 
-FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
+FDcDiagnosticHighlight FDcJsonReader::FormatHighlight(SourceRef SpanRef)
 {
 	FDcDiagnosticHighlight OutHighlight;
 	OutHighlight.Loc = Loc;
@@ -767,8 +833,8 @@ FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(SourceRef SpanRef)
 	return OutHighlight;
 }
 
-FDcDiagnosticHighlight FDcJsonReader::FormatInputSpan(int Begin, int Num)
+FDcDiagnosticHighlight FDcJsonReader::FormatHighlight(int Begin, int Num)
 {
-	return FormatInputSpan(SourceRef{ &Buf, Begin, Num });
+	return FormatHighlight(SourceRef{ &Buf, Begin, Num });
 }
 

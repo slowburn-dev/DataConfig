@@ -26,8 +26,7 @@ void JsonReader1()
 			"Arr" : [
 				"these", "are", "my", "twisted",
 			],
-			"Inty" : -2538.1e-3,
-			"Btoy" : "dope"
+			"Inty" : null,
 		}
 
 	)");

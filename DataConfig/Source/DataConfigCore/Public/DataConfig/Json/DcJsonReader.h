@@ -32,7 +32,11 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 		LineComment,	//	`// Foo`
 		BlockComment,	//	`/* Foo */`
 		Whitespace,		// \r\t and space
+
+		_Count,
 	};
+
+	static EDcDataEntry TokenTypeToDataEntry(ETokenType TokenType);
 
 	constexpr static TCharType _TRUE_LITERAL[] = { 't','r','u','e',0 };
 	constexpr static TCharType _FALSE_LITERAL[] = { 'f','a','l','s','e',0 };
@@ -88,6 +92,7 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	bool Coercion(EDcDataEntry ToEntry) override;
 	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
 
+	FDcResult ReadNil() override;
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;
 	FDcResult ReadString(FString* OutPtr) override;
@@ -148,8 +153,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();
 
-	FDcDiagnosticHighlight FormatInputSpan(SourceRef SpanRef);
-	FDcDiagnosticHighlight FormatInputSpan(int Begin, int Num);
+	FDcDiagnosticHighlight FormatHighlight(SourceRef SpanRef);
+	FDcDiagnosticHighlight FormatHighlight(int Begin, int Num);
 
 	template<typename TInt>
 	FDcResult ParseInteger(TInt* OutPtr);
@@ -160,6 +165,8 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	template<typename TFloat>
 	FDcResult ReadFloating(TFloat* OutPtr);
 
+	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+
 };
 

@@ -21,6 +21,8 @@ namespace DcDJSON
 		ReadUnsignedWithNegativeNumber,
 		ParseIntegerFailed,
 		DuplicatedKey,
+		KeyMustBeString,
+		ReadTypeMismatch,
 	};
 
 } // namespace DJSON
