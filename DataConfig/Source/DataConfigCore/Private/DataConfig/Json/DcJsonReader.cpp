@@ -177,7 +177,9 @@ FDcResult FDcJsonReader::ReadName(FName* OutPtr)
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::Name << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -202,7 +204,9 @@ FDcResult FDcJsonReader::ReadString(FString* OutPtr)
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::String << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -408,7 +412,7 @@ FDcResult FDcJsonReader::EndTopRead()
 
 			if (Token.Type != ETokenType::Colon)
 			{
-				return DC_FAIL(DcDJSON, UnexpectedToken);
+				return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
 			}
 
 			bTopObjectAtValue = true;
@@ -433,7 +437,7 @@ FDcResult FDcJsonReader::EndTopRead()
 			}
 			else
 			{
-				return DC_FAIL(DcDJSON, UnexpectedToken);
+				return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
 			}
 		}
 	}
@@ -453,7 +457,7 @@ FDcResult FDcJsonReader::EndTopRead()
 		}
 		else
 		{
-			return DC_FAIL(DcDJSON, UnexpectedToken);
+			return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
 		}
 	}
 	else if (TopState == EParseState::Nil)
@@ -479,7 +483,9 @@ FDcResult FDcJsonReader::ReadMapRoot()
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::MapRoot << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -495,7 +501,9 @@ FDcResult FDcJsonReader::ReadMapEnd()
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::MapEnd << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -509,7 +517,9 @@ FDcResult FDcJsonReader::ReadArrayRoot()
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::ArrayRoot << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -523,7 +533,9 @@ FDcResult FDcJsonReader::ReadArrayEnd()
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::ArrayEnd << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -575,7 +587,9 @@ FDcResult FDcJsonReader::ReadSignedInteger(TInt* OutPtr)
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -594,7 +608,9 @@ FDcResult FDcJsonReader::ReadUnsignedInteger(TInt* OutPtr)
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
@@ -625,7 +641,9 @@ FDcResult FDcJsonReader::ReadFloating(TFloat* OutPtr)
 	}
 	else
 	{
-		return DC_FAIL(DcDJSON, UnexpectedToken);
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< TDcDataEntryType<TFloat>::Value << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
 	}
 }
 
