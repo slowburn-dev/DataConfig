@@ -36,8 +36,7 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		else if (PeekEntry == EDcDataEntry::String)
 		{
 			FString Value;
-			//DC_TRY(Reader->ReadString(&Value));
-			DC_TRY(Reader->ReadBool(nullptr));
+			DC_TRY(Reader->ReadString(&Value));
 			DC_TRY(Writer->WriteString(Value));
 		}
 		else if (PeekEntry == EDcDataEntry::StructRoot)

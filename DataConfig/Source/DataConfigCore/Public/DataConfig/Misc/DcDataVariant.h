@@ -81,14 +81,24 @@ struct FDcDataVariant
 		DataType = EDcDataEntry::Nil;
 	}
 
-	FDcDataVariant(const TCHAR* InString)
+	FDcDataVariant(const WIDECHAR* InString)
 	{
 		*this = FString(InString);
 	}
 
-	FDcDataVariant(TCHAR InTChar)
+	FDcDataVariant(WIDECHAR InChar)
 	{
-		*this = FString(1, &InTChar);
+		*this = FString(1, &InChar);
+	}
+
+	FDcDataVariant(const ANSICHAR* InString)
+	{
+		*this = FString(InString);
+	}
+
+	FDcDataVariant(ANSICHAR InChar)
+	{
+		*this = FString(1, &InChar);
 	}
 
 	template<typename T>

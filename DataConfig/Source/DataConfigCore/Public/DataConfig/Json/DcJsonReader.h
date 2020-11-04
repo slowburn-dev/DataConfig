@@ -6,13 +6,13 @@
 #include "DataConfig/Source/DcSourceTypes.h"
 #include "DataConfig/Source/DcSourceUtils.h"
 
-struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
+template<typename CharType>
+struct TDcJsonReader : public FDcReader, private FNoncopyable
 {
-	using TCharType = TCHAR;
-	using SourceBuf = TDcSourceBuffer<TCharType>;
-	using SourceRef = TDcSourceRef<TCharType>;
-	using SourceUtils = TDcCSourceUtils<TCharType>;
-	using CString = TCString<TCharType>;
+	using SourceBuf = TDcSourceBuffer<CharType>;
+	using SourceRef = TDcSourceRef<CharType>;
+	using SourceUtils = TDcCSourceUtils<CharType>;
+	using CString = TCString<CharType>;
 
 	enum class ETokenType
 	{
@@ -38,10 +38,10 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	static EDcDataEntry TokenTypeToDataEntry(ETokenType TokenType);
 
-	constexpr static TCharType _TRUE_LITERAL[] = { 't','r','u','e',0 };
-	constexpr static TCharType _FALSE_LITERAL[] = { 'f','a','l','s','e',0 };
-	constexpr static TCharType _NULL_LITERAL[] = { 'n','u','l','l',0 };
-	constexpr static TCharType _EOF_CHAR = TCharType('\0');
+	constexpr static CharType _TRUE_LITERAL[] = { 't','r','u','e',0 };
+	constexpr static CharType _FALSE_LITERAL[] = { 'f','a','l','s','e',0 };
+	constexpr static CharType _NULL_LITERAL[] = { 'n','u','l','l',0 };
+	constexpr static CharType _EOF_CHAR = CharType('\0');
 
 	struct FTokenFlag
 	{
@@ -65,10 +65,11 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 		FORCEINLINE void Reset() { Ref.Reset(); }
 	};
 
-	FDcJsonReader();
-	FDcJsonReader(const FString* InStrPtr);
+	TDcJsonReader();
+	TDcJsonReader(const FString* InStrPtr);
 
 	void SetNewString(const FString* InStrPtr);
+	void Reset();
 
 	enum class EState
 	{
@@ -122,9 +123,9 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 	bool IsAtEnd(int N = 0);
 	void Advance();
 	void AdvanceN(int N);
-	TCharType PeekChar(int N = 0);
+	CharType PeekChar(int N = 0);
 
-	FDcResult ReadWordExpect(const TCharType* Word);
+	FDcResult ReadWordExpect(const CharType* Word);
 
 	void ReadWhiteSpace();
 	void ReadLineComment();
@@ -167,6 +168,11 @@ struct DATACONFIGCORE_API FDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
-
 };
+
+extern template struct TDcJsonReader<ANSICHAR>;
+extern template struct TDcJsonReader<WIDECHAR>;
+
+using FDcJsonReader = TDcJsonReader<TCHAR>;
+
 
