@@ -9,8 +9,6 @@ namespace DcDJSON
 	enum Type : uint16
 	{
 		Unknown = 0,
-		UnexpectedEnd,
-		AlreadyEndedButExpect,
 		ExpectWordButNotFound,
 		UnexpectedChar,
 		UnexpectedToken,
