@@ -148,6 +148,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FORCEINLINE EParseState GetTopState() { return States.Top(); }
 	FORCEINLINE void PushTopState(EParseState InState) { States.Push(InState); }
 	FORCEINLINE void PopTopState(EParseState InState) { check(GetTopState() == InState); States.Pop(); }
+	FORCEINLINE bool IsAtObjectKey() { return GetTopState() == EParseState::Object && !bTopObjectAtValue; }
 
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();

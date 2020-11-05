@@ -148,19 +148,14 @@ FDcResult TDcJsonReader<CharType>::CheckNotObjectKey()
 		return DcOk();
 }
 
-
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::CheckObjectDuplicatedKey(const FName& KeyName)
 {
-	if (GetTopState() == EParseState::Object
-		&& !bTopObjectAtValue)
-	{
-		check(Keys.Num());
-		if (Keys.Top().Contains(KeyName))
-			return DC_FAIL(DcDJSON, DuplicatedKey) << FormatHighlight(Token.Ref);
-		else
-			Keys.Top().Add(KeyName);
-	}
+	check(Keys.Num() && IsAtObjectKey());
+	if (Keys.Top().Contains(KeyName))
+		return DC_FAIL(DcDJSON, DuplicatedKey) << FormatHighlight(Token.Ref);
+	else
+		Keys.Top().Add(KeyName);
 
 	return DcOk();
 }
@@ -174,7 +169,8 @@ FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 		DC_TRY(ParseStringToken(ParsedStr));
 
 		FName ParsedName(*ParsedStr);
-		DC_TRY(CheckObjectDuplicatedKey(ParsedName));
+		if (IsAtObjectKey())
+			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
 
 		ReadOut(OutPtr, ParsedName);
 		DC_TRY(EndTopRead());
@@ -196,7 +192,11 @@ FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 		FString ParsedStr;
 		DC_TRY(ParseStringToken(ParsedStr));
 
-		DC_TRY(CheckObjectDuplicatedKey(*ParsedStr));
+		if (IsAtObjectKey())
+		{
+			FName ParsedName(*ParsedStr);
+			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
+		}
 
 		ReadOut(OutPtr, ParsedStr);
 		DC_TRY(EndTopRead());

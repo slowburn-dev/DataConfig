@@ -97,7 +97,7 @@ void JsonCanada()
 	FDcAnsiJsonReader Reader;
 
 	TArray<uint8> Result;
-	FFileHelper::LoadFileToArray(Result, TEXT("C:/DevUE/projects/DataConfig/Reference/simdjson-0.6.0/jsonexamples/canada.json"));
+	FFileHelper::LoadFileToArray(Result, TEXT("C:/DevUE/projects/DataConfig/Reference/simdjson-0.6.0/jsonexamples/gsoc-2018.json"));
 
 	Reader.SetNewString((const char*)Result.GetData());
 
