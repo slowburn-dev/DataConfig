@@ -3,7 +3,7 @@
 #include "DataConfig/Source/DcSourceTypes.h"
 
 template<class CharType>
-struct FHightlightFormatter
+struct THightlightFormatter
 {
 	using SourceBuf = TDcSourceView<CharType>;
 	using SourceRef = TDcSourceRef<CharType>;
@@ -19,7 +19,7 @@ struct FHightlightFormatter
 	SourceRef FindLine(const SourceRef& SpanRef);
 };
 
-extern template struct FHightlightFormatter<ANSICHAR>;
-extern template struct FHightlightFormatter<WIDECHAR>;
+extern template struct THightlightFormatter<ANSICHAR>;
+extern template struct THightlightFormatter<WIDECHAR>;
 
 

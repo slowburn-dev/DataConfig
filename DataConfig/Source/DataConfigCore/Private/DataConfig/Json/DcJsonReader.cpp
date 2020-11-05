@@ -49,7 +49,7 @@ void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr)
 
 	State = EState::InitializedWithStr;
 	Cur = 0;
-	Loc.Line = 0;
+	Loc.Line = 1;
 	Loc.Column = 0;
 }
 
@@ -874,7 +874,7 @@ FDcDiagnosticHighlight TDcJsonReader<CharType>::FormatHighlight(SourceRef SpanRe
 	FDcDiagnosticHighlight OutHighlight;
 	OutHighlight.Loc = Loc;
 	OutHighlight.FilePath = DiagFilePath;
-	FHightlightFormatter<CharType> Highlighter;
+	THightlightFormatter<CharType> Highlighter;
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
 
 	return OutHighlight;

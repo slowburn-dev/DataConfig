@@ -3,7 +3,10 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Source/DcSourceTypes.h"
+#include "DataConfig/Writer/DcNoopWriter.h"
 #include "Misc/CString.h"
+#include "Misc/FileHelper.h"
+#include "ProfilingDebugging/ScopedTimers.h"
 
 void JsonReader1()
 {
@@ -30,7 +33,7 @@ void JsonReader1()
 		}
 
 	)");
-	Reader.SetNewString(Str.GetCharArray().GetData());
+	Reader.SetNewString(*Str);
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
@@ -74,7 +77,7 @@ void JsonFail1()
 		fuck
 	}
 	)");
-	Reader.SetNewString(Str.GetCharArray().GetData());
+	Reader.SetNewString(*Str);
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
@@ -91,7 +94,30 @@ void JsonFail1()
 
 void JsonCanada()
 {
+	FDcAnsiJsonReader Reader;
 
+	TArray<uint8> Result;
+	FFileHelper::LoadFileToArray(Result, TEXT("C:/DevUE/projects/DataConfig/Reference/simdjson-0.6.0/jsonexamples/canada.json"));
 
+	Reader.SetNewString((const char*)Result.GetData());
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+
+		double ExecTime = 0;
+		{
+			FScopedDurationTimer Timer(ExecTime);
+			//FDcPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
+			FDcNoopWriter Writer;
+			FDcPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+			FDcResult Ret = PrettyPrintVisit.PipeVisit();
+			if (!Ret.Ok())
+			{
+				UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit failed --"));
+			}
+		}
+
+		UE_LOG(LogDataConfigCore, Display, TEXT("- pipe visit time: %.2f --"), ExecTime);
+	}
 
 }

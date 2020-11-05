@@ -6,20 +6,6 @@
 #include "DataConfig/Source/DcSourceTypes.h"
 #include "DataConfig/Source/DcSourceUtils.h"
 
-/*
-template<typename CharType>
-struct TDcJsonReader;
-
-template<>
-struct TDcJsonReader<TCHAR>
-{
-	void SetNewString(const FString& InStr)
-	{
-		SetNewString(InStr.GetCharArray().GetData());
-	}
-};
-*/
-
 template<typename CharType>
 struct TDcJsonReader : public FDcReader, private FNoncopyable
 {
@@ -186,5 +172,5 @@ extern template struct TDcJsonReader<ANSICHAR>;
 extern template struct TDcJsonReader<WIDECHAR>;
 
 using FDcJsonReader = TDcJsonReader<TCHAR>;
-
+using FDcAnsiJsonReader = TDcJsonReader<ANSICHAR>;
 

@@ -1,7 +1,7 @@
 #include "DataConfig/Source/DcHighlightFormatter.h"
 
 template<class CharType>
-FString FHightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc)
+FString THightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc)
 {
 	LineHighlight = FindLine(SpanRef);
 	check(LineHighlight.IsValid());
@@ -76,7 +76,7 @@ FString FHightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef
 }
 
 template<class CharType>
-TDcSourceRef<CharType> FHightlightFormatter<CharType>::FindLine(const TDcSourceRef<CharType>& SpanRef)
+TDcSourceRef<CharType> THightlightFormatter<CharType>::FindLine(const TDcSourceRef<CharType>& SpanRef)
 {
 	check(SpanRef.IsValid());
 
@@ -106,5 +106,5 @@ TDcSourceRef<CharType> FHightlightFormatter<CharType>::FindLine(const TDcSourceR
 	return SourceRef{ Buf, CurHead, CurTail - CurHead };
 }
 
-template struct FHightlightFormatter<ANSICHAR>;
-template struct FHightlightFormatter<WIDECHAR>;
+template struct THightlightFormatter<ANSICHAR>;
+template struct THightlightFormatter<WIDECHAR>;
