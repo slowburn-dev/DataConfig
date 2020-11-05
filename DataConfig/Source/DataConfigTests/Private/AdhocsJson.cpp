@@ -30,8 +30,7 @@ void JsonReader1()
 		}
 
 	)");
-	Reader.SetNewString(&Str);
-
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
@@ -75,7 +74,7 @@ void JsonFail1()
 		fuck
 	}
 	)");
-	Reader.SetNewString(&Str);
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);

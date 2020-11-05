@@ -5,7 +5,7 @@
 template<class CharType>
 struct FHightlightFormatter
 {
-	using SourceBuf = TDcSourceBuffer<CharType>;
+	using SourceBuf = TDcSourceView<CharType>;
 	using SourceRef = TDcSourceRef<CharType>;
 	using SourceUtils = TDcCSourceUtils<CharType>;
 

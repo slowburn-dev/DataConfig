@@ -34,7 +34,7 @@ void DeserializeSimple()
 			"AStr" : "Wooooooot",
 		}
 	)");
-	Reader.SetNewString(&Str);
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	FTestStruct_Alpha OutAlpha;
 	FDcPropertyWriter Writer(FDcPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
@@ -69,7 +69,7 @@ void DeserializeNestedStruct()
 			},
 		}
 	)");
-	Reader.SetNewString(&Str);
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	FNestStruct1 OutNest;
 	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
@@ -105,7 +105,7 @@ void DeserializeObjectRoot()
 			},
 		}
 	)");
-	Reader.SetNewString(&Str);
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
@@ -138,7 +138,7 @@ void DeserializeObjectRef()
 			"Obj1" : "Object'/Script/DataConfigTests'",
 		}
 	)");
-	Reader.SetNewString(&Str);
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;
@@ -174,7 +174,7 @@ void DeserializeSubObject()
 			}
 		}
 	)");
-	Reader.SetNewString(&Str);
+	Reader.SetNewString(Str.GetCharArray().GetData());
 
 	FDcDeserializeContext Ctx;
 	Ctx.Reader = &Reader;

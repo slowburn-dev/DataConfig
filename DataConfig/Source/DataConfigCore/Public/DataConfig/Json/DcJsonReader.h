@@ -6,10 +6,24 @@
 #include "DataConfig/Source/DcSourceTypes.h"
 #include "DataConfig/Source/DcSourceUtils.h"
 
+/*
+template<typename CharType>
+struct TDcJsonReader;
+
+template<>
+struct TDcJsonReader<TCHAR>
+{
+	void SetNewString(const FString& InStr)
+	{
+		SetNewString(InStr.GetCharArray().GetData());
+	}
+};
+*/
+
 template<typename CharType>
 struct TDcJsonReader : public FDcReader, private FNoncopyable
 {
-	using SourceBuf = TDcSourceBuffer<CharType>;
+	using SourceView = TDcSourceView<CharType>;
 	using SourceRef = TDcSourceRef<CharType>;
 	using SourceUtils = TDcCSourceUtils<CharType>;
 	using CString = TCString<CharType>;
@@ -66,10 +80,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	};
 
 	TDcJsonReader();
-	TDcJsonReader(const FString* InStrPtr);
 
-	void SetNewString(const FString* InStrPtr);
-	void Reset();
+	void SetNewString(const CharType* InStrPtr);
 
 	enum class EState
 	{
@@ -80,7 +92,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	};
 	EState State = EState::Unitialized;
 
-	SourceBuf Buf = {};
+	SourceView Buf = {};
 	FDcSourceLocation Loc = {1, 0};
 
 	//	current peeking ahead token

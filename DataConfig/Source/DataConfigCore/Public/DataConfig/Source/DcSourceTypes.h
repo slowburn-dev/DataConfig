@@ -12,20 +12,26 @@ struct DATACONFIGCORE_API FDcSourceLocation
 
 
 template<class CharType = TCHAR>
-struct TDcSourceBuffer
+struct TDcSourceView
 {
 	using TCharType = CharType;
 
 	const CharType* Buffer = nullptr;
 	int32 Num = 0;
 
-	TDcSourceBuffer() = default;
-	TDcSourceBuffer(const TDcSourceBuffer&) = default;
+	TDcSourceView() = default;
+	TDcSourceView(const TDcSourceView&) = default;
 
-	TDcSourceBuffer(const CharType* Ptr)
+	TDcSourceView(const CharType* InPtr)
 	{
-		Buffer = Ptr;
-		Num = TCString<CharType>::Strlen(Ptr);
+		Buffer = InPtr;
+		Num = TCString<CharType>::Strlen(InPtr);
+	}
+
+	TDcSourceView(const CharType* InPtr, int32 InNum)
+	{
+		Buffer = InPtr;
+		Num = InNum;
 	}
 
 	FORCEINLINE CharType Get(int32 Ix) const
@@ -40,7 +46,7 @@ struct TDcSourceRef
 {
 	using TCharType = CharType;
 
-	const TDcSourceBuffer<CharType>* Buffer = nullptr;
+	const TDcSourceView<CharType>* Buffer = nullptr;
 
 	int32 Begin;
 	int32 Num;
@@ -54,8 +60,8 @@ struct TDcSourceRef
 
 #include "DataConfig/Source/DcSourceTypes.inl"
 
-using FDcAnsiSourceBuffer = TDcSourceBuffer<ANSICHAR>;
-using FDcSourceBuffer = TDcSourceBuffer<TCHAR>;
+using FDcAnsiSourceBuffer = TDcSourceView<ANSICHAR>;
+using FDcSourceBuffer = TDcSourceView<TCHAR>;
 
 using FDcAnsiSourceRef = TDcSourceRef<ANSICHAR>;
 using FDcSourceRef = TDcSourceRef<TCHAR>;

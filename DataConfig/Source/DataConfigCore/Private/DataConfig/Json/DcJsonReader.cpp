@@ -31,22 +31,18 @@ EDcDataEntry TDcJsonReader<CharType>::TokenTypeToDataEntry(ETokenType TokenType)
 }
 
 template<typename CharType>
-TDcJsonReader<CharType>::TDcJsonReader(const FString* InStrPtr)
-	: TDcJsonReader()
-{
-	SetNewString(InStrPtr);
-}
-
-template<typename CharType>
 TDcJsonReader<CharType>::TDcJsonReader()
 {
 	States.Add(EParseState::Nil);
 }
 
+
 template<typename CharType>
-void TDcJsonReader<CharType>::Reset()
+void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr)
 {
 	check(State == EState::Unitialized || State == EState::FinishedStr);
+	Buf = SourceView(InStrPtr);
+
 	Token.Type = ETokenType::EOF_;
 	Token.Ref.Reset();
 	Token.Ref.Buffer = &Buf;
@@ -55,20 +51,6 @@ void TDcJsonReader<CharType>::Reset()
 	Cur = 0;
 	Loc.Line = 0;
 	Loc.Column = 0;
-}
-
-template<>
-void DATACONFIGCORE_API TDcJsonReader<WIDECHAR>::SetNewString(const FString* InStrPtr)
-{
-	Buf = SourceBuf(InStrPtr->GetCharArray().GetData());
-	Reset();
-}
-
-template<>
-void DATACONFIGCORE_API TDcJsonReader<ANSICHAR>::SetNewString(const FString* InStrPtr)
-{
-	//	TODO, what to do with this?
-	Reset();
 }
 
 template<typename CharType>
