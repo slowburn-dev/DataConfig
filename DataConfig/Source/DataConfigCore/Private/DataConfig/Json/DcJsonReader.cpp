@@ -36,12 +36,11 @@ TDcJsonReader<CharType>::TDcJsonReader()
 	States.Add(EParseState::Nil);
 }
 
-
 template<typename CharType>
-void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr)
+void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 Num)
 {
 	check(State == EState::Unitialized || State == EState::FinishedStr);
-	Buf = SourceView(InStrPtr);
+	Buf = SourceView(InStrPtr, Num);
 
 	Token.Type = ETokenType::EOF_;
 	Token.Ref.Reset();

@@ -67,7 +67,16 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	TDcJsonReader();
 
-	void SetNewString(const CharType* InStrPtr);
+	void SetNewString(const CharType* InStrPtr, int32 Num);
+
+	template<typename TArrayChar, typename TArrayAllocator>
+	void SetNewString(const TArray<TArrayChar, TArrayAllocator>& InCharArr)
+	{
+		SetNewString((const CharType*)(InCharArr.GetData()), InCharArr.Num());
+	}
+
+	FORCEINLINE void SetNewString(const CharType* InStrPtr) { SetNewString(InStrPtr, CString::Strlen(InStrPtr)); }
+
 
 	enum class EState
 	{
