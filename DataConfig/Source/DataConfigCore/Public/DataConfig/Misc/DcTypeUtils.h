@@ -18,5 +18,14 @@ namespace FDcTypeUtils {
 			|| Entry == EDcDataEntry::Double;
 	}
 
+	template <typename TLhs, typename TRhs>
+	struct TIsSameSize
+	{
+		enum { Value = sizeof(TLhs) == sizeof(TRhs) };
+	};
+
+	static_assert(TIsSameSize<uint8, int8>::Value, "yes");
+	static_assert(!TIsSameSize<uint8, int32>::Value, "no");
+
 }	// namespace FDcTypeUtils
 

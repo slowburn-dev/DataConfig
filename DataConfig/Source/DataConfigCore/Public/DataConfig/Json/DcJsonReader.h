@@ -5,6 +5,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Source/DcSourceTypes.h"
 #include "DataConfig/Source/DcSourceUtils.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 template<typename CharType>
 struct TDcJsonReader : public FDcReader, private FNoncopyable
@@ -72,6 +73,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	template<typename TArrayChar, typename TArrayAllocator>
 	void SetNewString(const TArray<TArrayChar, TArrayAllocator>& InCharArr)
 	{
+		static_assert(FDcTypeUtils::TIsSameSize<TArrayChar, CharType>::Value, "array element type isn't same size as this reader");
 		SetNewString((const CharType*)(InCharArr.GetData()), InCharArr.Num());
 	}
 
