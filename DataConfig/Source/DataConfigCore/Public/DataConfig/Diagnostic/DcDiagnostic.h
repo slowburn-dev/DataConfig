@@ -48,9 +48,39 @@ operator<<(FDcDiagnostic& Diag, T&& InValue)
 	return Diag;
 }
 
-FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, TCHAR Char)
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, ANSICHAR Char)
 {
-	Diag.Args.Emplace(FString::Chr(Char));
+	if (FCharAnsi::IsPrint(Char))
+	{
+		Diag.Args.Emplace(FString::Chr((TCHAR)Char));
+	}
+	else
+	{
+		FString Hex(TEXT("0x"));
+		ByteToHex((uint8)Char, Hex);
+		Diag.Args.Emplace(Hex);
+	}
+
+	return Diag;
+}
+
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, WIDECHAR Char)
+{
+	if (FCharWide::IsPrint(Char))
+	{
+		Diag.Args.Emplace(FString::Chr(Char));
+	}
+	else
+	{
+		const char* Ch1 = (const char*)&Char;
+		const char* Ch2 = Ch1 + 1;
+
+		FString Hex;
+		ByteToHex((uint8)*Ch1, Hex);
+		ByteToHex((uint8)*Ch2, Hex);
+		Diag.Args.Emplace(Hex);
+	}
+
 	return Diag;
 }
 

@@ -81,6 +81,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	SourceView Buf = {};
 	FDcSourceLocation Loc = {1, 0};
 
+	FORCEINLINE void NewLine() { Loc.Line++; Loc.Column = 0; }
+
 	//	current peeking ahead token
 	FToken Token;
 	FToken CachedNext;

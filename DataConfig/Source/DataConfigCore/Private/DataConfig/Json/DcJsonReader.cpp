@@ -334,8 +334,7 @@ void TDcJsonReader<CharType>::ReadWhiteSpace()
 		CharType Char = PeekChar();
 		if (SourceUtils::IsLineBreak(Char))
 		{
-			Loc.Line++;
-			Loc.Column = 0;
+			NewLine();
 		}
 
 		if (!SourceUtils::IsWhitespace(Char))
@@ -383,7 +382,11 @@ FDcResult TDcJsonReader<CharType>::ReadBlockComment()
 		CharType Char0 = PeekChar(0);
 		CharType Char1 = PeekChar(1);
 
-		if (Char0 == CharType('/') && Char1 == CharType('*'))
+		if (SourceUtils::IsLineBreak(Char0))
+		{
+			NewLine();
+		}
+		else if (Char0 == CharType('/') && Char1 == CharType('*'))
 		{
 			Depth += 1;
 		}
@@ -450,7 +453,7 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 			}
 			else
 			{
-				return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
+				return DC_FAIL(DcDJSON, ExpectComma) << FormatHighlight(Token.Ref);
 			}
 		}
 	}
@@ -470,7 +473,7 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 		}
 		else
 		{
-			return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
+			return DC_FAIL(DcDJSON, ExpectComma) << FormatHighlight(Token.Ref);
 		}
 	}
 	else if (TopState == EParseState::Nil)
@@ -774,7 +777,7 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 	else
 	{
 		return DC_FAIL(DcDJSON, UnexpectedChar)
-			<< FString::Chr(Char) << FormatHighlight(Cur, 1);
+			<< Char << FormatHighlight(Cur, 1);
 	}
 }
 

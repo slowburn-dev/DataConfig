@@ -21,6 +21,7 @@ namespace DcDJSON
 		DuplicatedKey,
 		KeyMustBeString,
 		ReadTypeMismatch,
+		ExpectComma,
 	};
 
 } // namespace DJSON

@@ -9,7 +9,7 @@ struct THightlightFormatter
 	using SourceRef = TDcSourceRef<CharType>;
 	using SourceUtils = TDcCSourceUtils<CharType>;
 
-	static constexpr int _LINE_CONTEXT = 1;
+	static constexpr int _LINE_CONTEXT = 2;
 
 	SourceRef LinesBefore[_LINE_CONTEXT];
 	SourceRef LineHighlight;

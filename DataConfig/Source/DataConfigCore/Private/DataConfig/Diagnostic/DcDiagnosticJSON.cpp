@@ -14,6 +14,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::DuplicatedKey, TEXT("Duplicated key within object"), },
 	{ DcDJSON::KeyMustBeString, TEXT("Object key must be a string"), },
 	{ DcDJSON::ReadTypeMismatch, TEXT("Reading type mismatch, expecting '{0}' actual '{1}'"), },
+	{ DcDJSON::ExpectComma, TEXT("Expect comma but not found"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };
