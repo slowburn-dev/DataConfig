@@ -1,5 +1,6 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyWriteStates.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 static FORCEINLINE FDcBaseWriteState& GetTopState(FDcPropertyWriter* Self)
 {
@@ -70,9 +71,10 @@ static void PopState(FDcPropertyWriter* Writer)
 	PopState(Writer);
 }
 
-template<typename TProperty, typename TPrimitive>
+template<typename TPrimitive>
 FORCEINLINE FDcResult WriteTopStateProperty(FDcPropertyWriter* Self, const TPrimitive& Value)
 {
+	using TProperty = FDcTypeUtils::TPropertyTypeMap<TPrimitive>::Type;
 	return WriteValue<TProperty, TPrimitive>(GetTopState(Self), Value);
 }
 
@@ -112,19 +114,12 @@ FDcResult FDcPropertyWriter::WriteNext(EDcDataEntry Next)
 	return GetTopState(this).Peek(Next);
 }
 
-FDcResult FDcPropertyWriter::WriteBool(bool Value)
-{
-	return WriteTopStateProperty<UBoolProperty, bool>(this, Value);
-}
+FDcResult FDcPropertyWriter::WriteBool(bool Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteString(const FString& Value) { return WriteTopStateProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::WriteName(const FName& Value)
 {
 	return GetTopState(this).WriteName(Value);
-}
-
-FDcResult FDcPropertyWriter::WriteString(const FString& Value)
-{
-	return WriteTopStateProperty<UStrProperty, FString>(this, Value);
 }
 
 FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
@@ -313,55 +308,18 @@ FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 	}
 }
 
-FDcResult FDcPropertyWriter::WriteInt8(const int8& Value)
-{
-	return WriteTopStateProperty<UInt8Property, int8>(this, Value);
-}
+FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt32(const int32& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt64(const int64& Value) { return WriteTopStateProperty(this, Value); }
 
-FDcResult FDcPropertyWriter::WriteInt16(const int16& Value)
-{
-	return WriteTopStateProperty<UInt16Property, int16>(this, Value);
-}
+FDcResult FDcPropertyWriter::WriteUInt8(const uint8& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt16(const uint16& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt32(const uint32& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt64(const uint64& Value) { return WriteTopStateProperty(this, Value); }
 
-FDcResult FDcPropertyWriter::WriteInt32(const int32& Value)
-{
-	return WriteTopStateProperty<UIntProperty, int32>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteInt64(const int64& Value)
-{
-	return WriteTopStateProperty<UInt64Property, int64>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteUInt8(const uint8& Value)
-{
-	return WriteTopStateProperty<UByteProperty, uint8>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteUInt16(const uint16& Value)
-{
-	return WriteTopStateProperty<UUInt16Property, uint16>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteUInt32(const uint32& Value)
-{
-	return WriteTopStateProperty<UUInt32Property, uint32>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteUInt64(const uint64& Value)
-{
-	return WriteTopStateProperty<UUInt64Property, uint64>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteFloat(const float& Value)
-{
-	return WriteTopStateProperty<UFloatProperty, float>(this, Value);
-}
-
-FDcResult FDcPropertyWriter::WriteDouble(const double& Value)
-{
-	return WriteTopStateProperty<UDoubleProperty, double>(this, Value);
-}
+FDcResult FDcPropertyWriter::WriteFloat(const float& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteDouble(const double& Value) { return WriteTopStateProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::SkipWrite()
 {

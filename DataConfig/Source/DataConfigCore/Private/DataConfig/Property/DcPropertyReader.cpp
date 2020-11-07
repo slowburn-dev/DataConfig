@@ -3,6 +3,7 @@
 #include "Templates/Casts.h"
 #include "DataConfig/Property/DcPropertyReadStates.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 //	need these as readers needs to push states
 using ReaderStorageType = FDcPropertyReader::FPropertyState::ImplStorageType;
@@ -72,9 +73,11 @@ static void PopState(FDcPropertyReader* Reader)
 }
 
 
-template<typename TProperty, typename TPrimitive>
+template<typename TPrimitive>
 FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
 {
+	using TProperty = FDcTypeUtils::TPropertyTypeMap<TPrimitive>::Type;
+
 	FDcPropertyDatum Datum;
 	DC_TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum));
 
@@ -119,27 +122,12 @@ FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 	return GetTopState(this).PeekRead(OutPtr);
 }
 
-FDcResult FDcPropertyReader::ReadBool(bool* OutPtr)
-{
-	return ReadTopStateProperty<UBoolProperty, bool>(this, OutPtr);
-}
+FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadName(FName* OutPtr)
 {
 	DC_TRY(GetTopState(this).ReadName(OutPtr));
-
-	return DcOk();
-}
-
-FDcResult FDcPropertyReader::ReadString(FString* OutPtr)
-{
-	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).ReadDataEntry(UStrProperty::StaticClass(), Datum));
-
-	if (OutPtr)
-	{
-		*OutPtr = Datum.CastChecked<UStrProperty>()->GetPropertyValue(Datum.DataPtr);
-	}
 
 	return DcOk();
 }
@@ -327,55 +315,18 @@ FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr)
 	}
 }
 
-FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr)
-{
-	return ReadTopStateProperty<UInt8Property, int8>(this, OutPtr);
-}
+FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt32(int32* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt64(int64* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
 
-FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr)
-{
-	return ReadTopStateProperty<UInt16Property, int16>(this, OutPtr);
-}
+FDcResult FDcPropertyReader::ReadUInt8(uint8* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt16(uint16* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt32(uint32* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt64(uint64* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
 
-FDcResult FDcPropertyReader::ReadInt32(int32* OutPtr)
-{
-	return ReadTopStateProperty<UIntProperty, int32>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadInt64(int64* OutPtr)
-{
-	return ReadTopStateProperty<UInt64Property, int64>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadUInt8(uint8* OutPtr)
-{
-	return ReadTopStateProperty<UByteProperty, uint8>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadUInt16(uint16* OutPtr)
-{
-	return ReadTopStateProperty<UUInt16Property, uint16>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadUInt32(uint32* OutPtr)
-{
-	return ReadTopStateProperty<UUInt32Property, uint32>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadUInt64(uint64* OutPtr)
-{
-	return ReadTopStateProperty<UUInt64Property, uint64>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadFloat(float* OutPtr)
-{
-	return ReadTopStateProperty<UFloatProperty, float>(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadDouble(double* OutPtr)
-{
-	return ReadTopStateProperty<UDoubleProperty, double>(this, OutPtr);
-}
+FDcResult FDcPropertyReader::ReadFloat(float* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadDouble(double* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadNil()
 {
