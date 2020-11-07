@@ -120,8 +120,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult ReadUInt8(uint8* OutPtr) override;
 	FDcResult ReadUInt16(uint16* OutPtr) override;
-	FDcResult ReadUInt64(uint64* OutPtr) override;
 	FDcResult ReadUInt32(uint32* OutPtr) override;
+	FDcResult ReadUInt64(uint64* OutPtr) override;
 
 	FDcResult ReadFloat(float* OutPtr) override;
 	FDcResult ReadDouble(double* OutPtr) override;

@@ -72,7 +72,8 @@ static void PopState(FDcPropertyReader* Reader)
 }
 
 
-template<typename TProperty, typename TPrimitive> FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
+template<typename TProperty, typename TPrimitive>
+FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
 {
 	FDcPropertyDatum Datum;
 	DC_TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum));
@@ -324,6 +325,56 @@ FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr)
 			<< (int)FDcReadStateClass::ID << (int)GetTopState(this).GetType();
 
 	}
+}
+
+FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr)
+{
+	return ReadTopStateProperty<UInt8Property, int8>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr)
+{
+	return ReadTopStateProperty<UInt16Property, int16>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadInt32(int32* OutPtr)
+{
+	return ReadTopStateProperty<UIntProperty, int32>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadInt64(int64* OutPtr)
+{
+	return ReadTopStateProperty<UInt64Property, int64>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadUInt8(uint8* OutPtr)
+{
+	return ReadTopStateProperty<UByteProperty, uint8>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadUInt16(uint16* OutPtr)
+{
+	return ReadTopStateProperty<UUInt16Property, uint16>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadUInt32(uint32* OutPtr)
+{
+	return ReadTopStateProperty<UUInt32Property, uint32>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadUInt64(uint64* OutPtr)
+{
+	return ReadTopStateProperty<UUInt64Property, uint64>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadFloat(float* OutPtr)
+{
+	return ReadTopStateProperty<UFloatProperty, float>(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadDouble(double* OutPtr)
+{
+	return ReadTopStateProperty<UDoubleProperty, double>(this, OutPtr);
 }
 
 FDcResult FDcPropertyReader::ReadNil()
