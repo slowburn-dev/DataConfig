@@ -7,11 +7,20 @@
 #include "Templates/IsEnumClass.h"
 #include "UObject/Package.h"
 
-struct DATACONFIGCORE_API FDcDiagnosticHighlight
+struct DATACONFIGCORE_API FDcDiagnosticFileContext
 {
 	FDcSourceLocation Loc;
 	FString FilePath;
+};
 
+struct DATACONFIGCORE_API FDcDiagnosticHighlight
+{
+	FString Formatted;
+};
+
+struct DATACONFIGCORE_API FDcDiagnosticHighlightWithFileContext
+{
+	FDcDiagnosticFileContext FileContext;
 	FString Formatted;
 };
 
@@ -20,7 +29,8 @@ struct DATACONFIGCORE_API FDcDiagnostic
 	FDcErrorCode Code;
 	TArray<FDcDataVariant> Args;
 
-	TOptional<FDcDiagnosticHighlight> Highlight;
+	TOptional<FDcDiagnosticFileContext> FileContext;
+	FString Highlight;
 
 	FDcDiagnostic(FDcErrorCode InID) : Code(InID)
 	{}
@@ -29,8 +39,6 @@ struct DATACONFIGCORE_API FDcDiagnostic
 		return FDcResult{ FDcResult::EStatus::Error };
 	}
 };
-
-
 
 template<typename T>
 FORCEINLINE typename TEnableIf<!TIsEnumClass<T>::Value, FDcDiagnostic&>::Type
@@ -94,8 +102,19 @@ FORCEINLINE_DEBUGGABLE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEnt
 
 FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighlight&& DiagSpan)
 {
-	check(!Diag.Highlight.IsSet());
-	Diag.Highlight.Emplace(MoveTemp(DiagSpan));
+	check(Diag.Highlight.IsEmpty());
+
+	Diag.Highlight = MoveTemp(DiagSpan.Formatted);
+	return Diag;
+}
+
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighlightWithFileContext&& DiagSpan)
+{
+	check(Diag.Highlight.IsEmpty());
+	check(!Diag.FileContext.IsSet());
+
+	Diag.Highlight = MoveTemp(DiagSpan.Formatted);
+	Diag.FileContext.Emplace(MoveTemp(DiagSpan.FileContext));
 	return Diag;
 }
 

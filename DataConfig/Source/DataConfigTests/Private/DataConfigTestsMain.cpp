@@ -58,16 +58,16 @@ static void Body()
 	*/
 
 	//JsonFail1();
-	//JsonReader1();
+	JsonReader1();
 	//JsonCanada();
 
-	PropertyVisitorRoundtrip_Piped();
-	PropertyVisitorRoundtrip__TestObjAlpha();
-	PropertyVisitorRoundtrip__StructStruct();
-	PropertyVisitorRoundtrip__StructHasMap();
-	PropertyVisitorRoundtrip_ReadNested();
-	PropertyVisitorRoundtrip_WriteNested();
-	PropertyVisitorRoundtrip();
+	//PropertyVisitorRoundtrip_Piped();
+	//PropertyVisitorRoundtrip__TestObjAlpha();
+	//PropertyVisitorRoundtrip__StructStruct();
+	//PropertyVisitorRoundtrip__StructHasMap();
+	//PropertyVisitorRoundtrip_ReadNested();
+	//PropertyVisitorRoundtrip_WriteNested();
+	//PropertyVisitorRoundtrip();
 
 	return;
 }

@@ -166,8 +166,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	bool bTopObjectAtValue = false;
 	FDcResult EndTopRead();
 
-	FDcDiagnosticHighlight FormatHighlight(SourceRef SpanRef);
-	FDcDiagnosticHighlight FormatHighlight(int Begin, int Num);
+	FDcDiagnosticHighlightWithFileContext FormatHighlight(SourceRef SpanRef);
+	FORCEINLINE FDcDiagnosticHighlightWithFileContext FormatHighlight(int Begin, int Num) { return FormatHighlight(SourceRef{ &Buf, Begin, Num }); }
 
 	template<typename TInt>
 	FDcResult ParseInteger(TInt* OutPtr);

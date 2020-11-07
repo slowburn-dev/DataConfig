@@ -83,13 +83,19 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 
 
 		UE_LOG(LogDataConfigCore, Display, TEXT("DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
-		if (Diag.Highlight.IsSet())
+		if (Diag.FileContext.IsSet())
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("-->%s%d:%d\n%s"),
-				*Diag.Highlight->FilePath,
-				Diag.Highlight->Loc.Line,
-				Diag.Highlight->Loc.Column,
-				*Diag.Highlight->Formatted);
+			UE_LOG(LogDataConfigCore, Display, TEXT("-->%s%d:%d"),
+				*Diag.FileContext->FilePath,
+				Diag.FileContext->Loc.Line,
+				Diag.FileContext->Loc.Column
+			);
+		}
+
+		if (!Diag.Highlight.IsEmpty())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("\n%s"),
+				*Diag.Highlight);
 		}
 	}
 	else
