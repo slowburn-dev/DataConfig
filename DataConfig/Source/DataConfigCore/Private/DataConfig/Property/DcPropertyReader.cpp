@@ -79,11 +79,7 @@ FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* 
 	using TProperty = FDcTypeUtils::TPropertyTypeMap<TPrimitive>::Type;
 
 	FDcPropertyDatum Datum;
-	if (!GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum).Ok())
-	{
-		DcEnv().GetLastDiag() << Self->FormatHighlight();
-		return DcFail();
-	}
+	DC_TRY_LAST_DIAG(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum), Self->FormatHighlight());
 
 	if (OutPtr)
 	{

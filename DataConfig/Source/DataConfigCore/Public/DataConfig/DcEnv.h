@@ -35,6 +35,15 @@ struct DATACONFIGCORE_API FDcScopedEnv
 
 #define DC_FAIL(DiagNamespace, DiagID) (DcFail(FDcErrorCode{DiagNamespace::Category, DiagNamespace::DiagID}))
 
+#define DC_TRY_LAST_DIAG(Expr, Arg)			\
+	do {									\
+		::FDcResult Ret = (Expr);			\
+		if (!Ret.Ok()) {					\
+			DcEnv().GetLastDiag() << Arg;	\
+			return Ret;						\
+		}									\
+	} while (0)
+
 FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr) {
 
 #if DO_CHECK
