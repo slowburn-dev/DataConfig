@@ -2,7 +2,7 @@
 
 #include "UObject/UnrealType.h"
 
-enum class EPropertyWriteType
+enum class EDcPropertyWriteType
 {
 	Nil,
 	ClassProperty,
@@ -14,9 +14,9 @@ enum class EPropertyWriteType
 
 enum class EDcDataEntry;
 
-struct FBaseWriteState
+struct FDcBaseWriteState
 {
-	virtual EPropertyWriteType GetType() = 0;
+	virtual EDcPropertyWriteType GetType() = 0;
 
 	virtual FDcResult Peek(EDcDataEntry Next);
 	virtual FDcResult WriteName(const FName& Value);
@@ -28,13 +28,13 @@ struct FBaseWriteState
 	T* As();
 
 	//	non copyable
-	FBaseWriteState() = default;
-	FBaseWriteState(const FNoncopyable&) = delete;
-	FBaseWriteState& operator=(const FBaseReadState&) = delete;
+	FDcBaseWriteState() = default;
+	FDcBaseWriteState(const FNoncopyable&) = delete;
+	FDcBaseWriteState& operator=(const FDcBaseReadState&) = delete;
 };
 
 template<typename T>
-T* FBaseWriteState::As()
+T* FDcBaseWriteState::As()
 {
 	if (GetType() == T::ID)
 		return (T*)this;
@@ -42,20 +42,20 @@ T* FBaseWriteState::As()
 		return nullptr;
 }
 
-struct FWriteStateNil : public FBaseWriteState
+struct FDcWriteStateNil : public FDcBaseWriteState
 {
-	static const EPropertyWriteType ID = EPropertyWriteType::Nil;
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::Nil;
 
-	FWriteStateNil() = default;
+	FDcWriteStateNil() = default;
 
-	EPropertyWriteType GetType() override;
+	EDcPropertyWriteType GetType() override;
 	FDcResult Peek(EDcDataEntry Next) override;
 
 };
 
-struct FWriteStateStruct : public FBaseWriteState
+struct FDcWriteStateStruct : public FDcBaseWriteState
 {
-	static const EPropertyWriteType ID = EPropertyWriteType::StructProperty;
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::StructProperty;
 
 	void* StructPtr;
 	UScriptStruct* StructClass;
@@ -70,7 +70,7 @@ struct FWriteStateStruct : public FBaseWriteState
 	};
 	EState State;
 
-	FWriteStateStruct(void* InStructPtr, UScriptStruct* InStructClass)
+	FDcWriteStateStruct(void* InStructPtr, UScriptStruct* InStructClass)
 	{
 		StructPtr = InStructPtr;
 		StructClass = InStructClass;
@@ -78,7 +78,7 @@ struct FWriteStateStruct : public FBaseWriteState
 		State = EState::ExpectRoot;
 	}
 
-	EPropertyWriteType GetType() override;
+	EDcPropertyWriteType GetType() override;
 	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -90,9 +90,9 @@ struct FWriteStateStruct : public FBaseWriteState
 
 };
 
-struct FWriteStateClass : public FBaseWriteState
+struct FDcWriteStateClass : public FDcBaseWriteState
 {
-	static const EPropertyWriteType ID = EPropertyWriteType::ClassProperty;
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ClassProperty;
 
 	FDcPropertyDatum Datum;
 	UClass* Class;
@@ -116,7 +116,7 @@ struct FWriteStateClass : public FBaseWriteState
 	};
 	EType Type;
 
-	FWriteStateClass(UObject* InClassObject, UClass* InClass)
+	FDcWriteStateClass(UObject* InClassObject, UClass* InClass)
 	{
 		Datum.DataPtr = InClassObject;
 		Datum.Property = InClass;
@@ -125,7 +125,7 @@ struct FWriteStateClass : public FBaseWriteState
 		Type = EType::Root;
 	}
 
-	FWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
+	FDcWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
 	{
 		Datum.DataPtr = DataPtr;
 		Datum.Property = InObjProperty;
@@ -134,7 +134,7 @@ struct FWriteStateClass : public FBaseWriteState
 		Type = EType::PropertyNormalOrInstanced;
 	}
 
-	EPropertyWriteType GetType() override;
+	EDcPropertyWriteType GetType() override;
 	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -147,9 +147,9 @@ struct FWriteStateClass : public FBaseWriteState
 	FDcResult WriteReference(UObject* Value);
 };
 
-struct FWriteStateMap : public FBaseWriteState
+struct FDcWriteStateMap : public FDcBaseWriteState
 {
-	static const EPropertyWriteType ID = EPropertyWriteType::MapProperty;
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::MapProperty;
 
 	void* MapPtr;
 	UMapProperty* MapProperty;
@@ -166,7 +166,7 @@ struct FWriteStateMap : public FBaseWriteState
 
 	bool bNeedsRehash;
 
-	FWriteStateMap(void* InMapPtr, UMapProperty* InMapProperty)
+	FDcWriteStateMap(void* InMapPtr, UMapProperty* InMapProperty)
 	{
 		MapPtr = InMapPtr;
 		MapProperty = InMapProperty;
@@ -175,7 +175,7 @@ struct FWriteStateMap : public FBaseWriteState
 		bNeedsRehash = false;
 	}
 
-	EPropertyWriteType GetType() override;
+	EDcPropertyWriteType GetType() override;
 	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -187,9 +187,9 @@ struct FWriteStateMap : public FBaseWriteState
 
 };
 
-struct FWriteStateArray : public FBaseWriteState
+struct FDcWriteStateArray : public FDcBaseWriteState
 {
-	static const EPropertyWriteType ID = EPropertyWriteType::ArrayProperty;
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ArrayProperty;
 
 	void* ArrayPtr;
 	UArrayProperty* ArrayProperty;
@@ -203,7 +203,7 @@ struct FWriteStateArray : public FBaseWriteState
 	};
 	EState State;
 
-	FWriteStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
+	FDcWriteStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
 	{
 		ArrayPtr = InArrayPtr;
 		ArrayProperty = InArrayProperty;
@@ -211,7 +211,7 @@ struct FWriteStateArray : public FBaseWriteState
 		Index = 0;
 	}
 
-	EPropertyWriteType GetType() override;
+	EDcPropertyWriteType GetType() override;
 	FDcResult Peek(EDcDataEntry Next) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -223,7 +223,7 @@ struct FWriteStateArray : public FBaseWriteState
 };
 
 template<typename TProperty, typename TValue>
-FDcResult WriteValue(FBaseWriteState& State, const TValue& Value)
+FDcResult WriteValue(FDcBaseWriteState& State, const TValue& Value)
 {
 	FDcPropertyDatum Datum;
 	DC_TRY(State.WriteDataEntry(TProperty::StaticClass(), Datum));

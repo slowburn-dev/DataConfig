@@ -1,9 +1,9 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyWriteStates.h"
 
-static FORCEINLINE FBaseWriteState& GetTopState(FDcPropertyWriter* Self)
+static FORCEINLINE FDcBaseWriteState& GetTopState(FDcPropertyWriter* Self)
 {
-	return *reinterpret_cast<FBaseWriteState*>(&Self->States.Top().ImplStorage);
+	return *reinterpret_cast<FDcBaseWriteState*>(&Self->States.Top().ImplStorage);
 }
 
 using WriterStorageType = FDcPropertyWriter::FPropertyState::ImplStorageType;
@@ -22,39 +22,39 @@ static TState* TryGetTopState(FDcPropertyWriter* Self) {
 	return GetTopState(Self).As<TState>();
 }
 
-static FWriteStateNil& PushNilState(FDcPropertyWriter* Writer) {
+static FDcWriteStateNil& PushNilState(FDcPropertyWriter* Writer) {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateNil>(GetTopStorage(Writer));
+	return Emplace<FDcWriteStateNil>(GetTopStorage(Writer));
 }
 
-static FWriteStateClass& PushClassRootState(FDcPropertyWriter* Writer, UObject* InClassObject, UClass* InClass)
+static FDcWriteStateClass& PushClassRootState(FDcPropertyWriter* Writer, UObject* InClassObject, UClass* InClass)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateClass>(GetTopStorage(Writer), InClassObject, InClass);
+	return Emplace<FDcWriteStateClass>(GetTopStorage(Writer), InClassObject, InClass);
 }
 
-static FWriteStateClass& PushClassPropertyState(FDcPropertyWriter* Writer, void* InDataPtr, UObjectProperty* InObjProperty)
+static FDcWriteStateClass& PushClassPropertyState(FDcPropertyWriter* Writer, void* InDataPtr, UObjectProperty* InObjProperty)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateClass>(GetTopStorage(Writer), InDataPtr, InObjProperty);
+	return Emplace<FDcWriteStateClass>(GetTopStorage(Writer), InDataPtr, InObjProperty);
 }
 
-static FWriteStateStruct& PushStructPropertyState(FDcPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct)
+static FDcWriteStateStruct& PushStructPropertyState(FDcPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateStruct>(GetTopStorage(Writer), InStructPtr, InStructStruct);
+	return Emplace<FDcWriteStateStruct>(GetTopStorage(Writer), InStructPtr, InStructStruct);
 }
 
-static FWriteStateMap& PushMappingPropertyState(FDcPropertyWriter* Writer, void* InMapPtr, UMapProperty* InMapProperty)
+static FDcWriteStateMap& PushMappingPropertyState(FDcPropertyWriter* Writer, void* InMapPtr, UMapProperty* InMapProperty)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateMap>(GetTopStorage(Writer), InMapPtr, InMapProperty);
+	return Emplace<FDcWriteStateMap>(GetTopStorage(Writer), InMapPtr, InMapProperty);
 }
 
-static FWriteStateArray& PushArrayPropertyState(FDcPropertyWriter* Writer, void* InArrayPtr, UArrayProperty* InArrayProperty)
+static FDcWriteStateArray& PushArrayPropertyState(FDcPropertyWriter* Writer, void* InArrayPtr, UArrayProperty* InArrayProperty)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FWriteStateArray>(GetTopStorage(Writer), InArrayPtr, InArrayProperty);
+	return Emplace<FDcWriteStateArray>(GetTopStorage(Writer), InArrayPtr, InArrayProperty);
 }
 
 static void PopState(FDcPropertyWriter* Writer)
@@ -123,11 +123,11 @@ FDcResult FDcPropertyWriter::WriteString(const FString& Value)
 
 FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 {
-	FBaseWriteState& TopState = GetTopState(this);
+	FDcBaseWriteState& TopState = GetTopState(this);
 	{
-		FWriteStateStruct* StructState = TopState.As<FWriteStateStruct>();
+		FDcWriteStateStruct* StructState = TopState.As<FDcWriteStateStruct>();
 		if (StructState != nullptr
-			&& StructState->State == FWriteStateStruct::EState::ExpectRoot)
+			&& StructState->State == FDcWriteStateStruct::EState::ExpectRoot)
 		{
 			return StructState->WriteStructRoot(Name);
 		}
@@ -137,7 +137,7 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(UStructProperty::StaticClass(), Datum));
 
-		FWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
+		FDcWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
 		DC_TRY(ChildStruct.WriteStructRoot(Name));
 	}
 
@@ -146,16 +146,16 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 
 FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
 {
-	if (FWriteStateStruct* StructState = TryGetTopState<FWriteStateStruct>(this))
+	if (FDcWriteStateStruct* StructState = TryGetTopState<FDcWriteStateStruct>(this))
 	{
 		DC_TRY(StructState->WriteStructEnd(Name));
-		PopState<FWriteStateStruct>(this);
+		PopState<FDcWriteStateStruct>(this);
 		return DcOk();
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FWriteStateStruct::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateStruct::ID << (int)GetTopState(this).GetType();
 	}
 }
 
@@ -169,11 +169,11 @@ void FDcPropertyWriter::PushTopClassPropertyState(FDcPropertyDatum& Datum)
 
 FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 {
-	FBaseWriteState& TopState = GetTopState(this);
+	FDcBaseWriteState& TopState = GetTopState(this);
 	{
-		FWriteStateClass* ClassState = TopState.As<FWriteStateClass>();
+		FDcWriteStateClass* ClassState = TopState.As<FDcWriteStateClass>();
 		if (ClassState != nullptr
-			&& ClassState->State == FWriteStateClass::EState::ExpectRoot)
+			&& ClassState->State == FDcWriteStateClass::EState::ExpectRoot)
 		{
 			return ClassState->WriteClassRoot(Class);
 		}
@@ -184,7 +184,7 @@ FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 		DC_TRY(TopState.WriteDataEntry(UObjectProperty::StaticClass(), Datum));
 
 		PushTopClassPropertyState(Datum);
-		DC_TRY(GetTopState(this).As<FWriteStateClass>()->WriteClassRoot(Class));
+		DC_TRY(GetTopState(this).As<FDcWriteStateClass>()->WriteClassRoot(Class));
 	}
 
 	return DcOk();
@@ -192,26 +192,26 @@ FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 
 FDcResult FDcPropertyWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
 {
-	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
+	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
 		DC_TRY(ClassState->WriteClassEnd(Class));
-		PopState<FWriteStateClass>(this);
+		PopState<FDcWriteStateClass>(this);
 		return DcOk();
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteMapRoot()
 {
-	FBaseWriteState& TopState = GetTopState(this);
+	FDcBaseWriteState& TopState = GetTopState(this);
 	{
-		FWriteStateMap* MapState = TopState.As<FWriteStateMap>();
+		FDcWriteStateMap* MapState = TopState.As<FDcWriteStateMap>();
 		if (MapState != nullptr
-			&& MapState->State == FWriteStateMap::EState::ExpectRoot)
+			&& MapState->State == FDcWriteStateMap::EState::ExpectRoot)
 		{
 			return MapState->WriteMapRoot();
 		}
@@ -221,7 +221,7 @@ FDcResult FDcPropertyWriter::WriteMapRoot()
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(UMapProperty::StaticClass(), Datum));
 
-		FWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
+		FDcWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
 		DC_TRY(ChildMap.WriteMapRoot());
 	}
 
@@ -230,26 +230,26 @@ FDcResult FDcPropertyWriter::WriteMapRoot()
 
 FDcResult FDcPropertyWriter::WriteMapEnd()
 {
-	if (FWriteStateMap* MapState = TryGetTopState<FWriteStateMap>(this))
+	if (FDcWriteStateMap* MapState = TryGetTopState<FDcWriteStateMap>(this))
 	{
 		DC_TRY(MapState->WriteMapEnd());
-		PopState<FWriteStateMap>(this);
+		PopState<FDcWriteStateMap>(this);
 		return DcOk();
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FWriteStateMap::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateMap::ID << (int)GetTopState(this).GetType();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteArrayRoot()
 {
-	FBaseWriteState& TopState = GetTopState(this);
+	FDcBaseWriteState& TopState = GetTopState(this);
 	{
-		FWriteStateArray* ArrayState = TopState.As<FWriteStateArray>();
+		FDcWriteStateArray* ArrayState = TopState.As<FDcWriteStateArray>();
 		if (ArrayState != nullptr
-			&& ArrayState->State == FWriteStateArray::EState::ExpectRoot)
+			&& ArrayState->State == FDcWriteStateArray::EState::ExpectRoot)
 		{
 			return ArrayState->WriteArrayRoot();
 		}
@@ -259,7 +259,7 @@ FDcResult FDcPropertyWriter::WriteArrayRoot()
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(UArrayProperty::StaticClass(), Datum));
 
-		FWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
+		FDcWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
 		DC_TRY(ChildArray.WriteArrayRoot());
 	}
 
@@ -268,42 +268,42 @@ FDcResult FDcPropertyWriter::WriteArrayRoot()
 
 FDcResult FDcPropertyWriter::WriteArrayEnd()
 {
-	if (FWriteStateArray* ArrayState = TryGetTopState<FWriteStateArray>(this))
+	if (FDcWriteStateArray* ArrayState = TryGetTopState<FDcWriteStateArray>(this))
 	{
 		DC_TRY(ArrayState->WriteArrayEnd());
-		PopState<FWriteStateArray>(this);
+		PopState<FDcWriteStateArray>(this);
 		return DcOk();
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FWriteStateArray::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateArray::ID << (int)GetTopState(this).GetType();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteNil()
 {
-	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
+	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
 		return ClassState->WriteNil();
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 {
-	if (FWriteStateClass* ClassState = TryGetTopState<FWriteStateClass>(this))
+	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
 		return ClassState->WriteReference(Value);
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FWriteStateClass::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType();
 	}
 }
 

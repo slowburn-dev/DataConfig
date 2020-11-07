@@ -4,30 +4,30 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-FDcResult FBaseWriteState::Peek(EDcDataEntry Next) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FBaseWriteState::WriteName(const FName& Value){ return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FBaseWriteState::SkipWrite() { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FBaseWriteState::PeekWriteProperty(UField** OutProperty) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseWriteState::Peek(EDcDataEntry Next) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseWriteState::WriteName(const FName& Value){ return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseWriteState::SkipWrite() { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseWriteState::PeekWriteProperty(UField** OutProperty) { return DC_FAIL(DcDCommon, NotImplemented); }
 
-EPropertyWriteType FWriteStateNil::GetType()
+EDcPropertyWriteType FDcWriteStateNil::GetType()
 {
-	return EPropertyWriteType::Nil;
+	return EDcPropertyWriteType::Nil;
 }
 
-FDcResult FWriteStateNil::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateNil::Peek(EDcDataEntry Next)
 {
 	return DcExpect(Next == EDcDataEntry::Ended, [=]{
 		return DC_FAIL(DcDReadWrite, AlreadyEnded);
 	});
 }
 
-EPropertyWriteType FWriteStateStruct::GetType()
+EDcPropertyWriteType FDcWriteStateStruct::GetType()
 {
-	return EPropertyWriteType::StructProperty;
+	return EDcPropertyWriteType::StructProperty;
 }
 
-FDcResult FWriteStateStruct::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateStruct::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -68,7 +68,7 @@ FDcResult FWriteStateStruct::Peek(EDcDataEntry Next)
 	}
 }
 
-FDcResult FWriteStateStruct::WriteName(const FName& Value)
+FDcResult FDcWriteStateStruct::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -92,7 +92,7 @@ FDcResult FWriteStateStruct::WriteName(const FName& Value)
 	}
 }
 
-FDcResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectValue)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -109,7 +109,7 @@ FDcResult FWriteStateStruct::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPr
 	return DcOk();
 }
 
-FDcResult FWriteStateStruct::SkipWrite()
+FDcResult FDcWriteStateStruct::SkipWrite()
 {
 	if (State != EState::ExpectValue)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -119,7 +119,7 @@ FDcResult FWriteStateStruct::SkipWrite()
 	return DcOk();
 }
 
-FDcResult FWriteStateStruct::PeekWriteProperty(UField** OutProperty)
+FDcResult FDcWriteStateStruct::PeekWriteProperty(UField** OutProperty)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -138,7 +138,7 @@ FDcResult FWriteStateStruct::PeekWriteProperty(UField** OutProperty)
 	}
 }
 
-FDcResult FWriteStateStruct::WriteStructRoot(const FName& Name)
+FDcResult FDcWriteStateStruct::WriteStructRoot(const FName& Name)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -155,7 +155,7 @@ FDcResult FWriteStateStruct::WriteStructRoot(const FName& Name)
 	}
 }
 
-FDcResult FWriteStateStruct::WriteStructEnd(const FName& Name)
+FDcResult FDcWriteStateStruct::WriteStructEnd(const FName& Name)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -172,12 +172,12 @@ FDcResult FWriteStateStruct::WriteStructEnd(const FName& Name)
 	}
 }
 
-EPropertyWriteType FWriteStateClass::GetType()
+EDcPropertyWriteType FDcWriteStateClass::GetType()
 {
-	return EPropertyWriteType::ClassProperty;
+	return EDcPropertyWriteType::ClassProperty;
 }
 
-FDcResult FWriteStateClass::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -233,7 +233,7 @@ FDcResult FWriteStateClass::Peek(EDcDataEntry Next)
 	}
 }
 
-FDcResult FWriteStateClass::WriteName(const FName& Value)
+FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -257,7 +257,7 @@ FDcResult FWriteStateClass::WriteName(const FName& Value)
 	}
 }
 
-FDcResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectValue)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -276,7 +276,7 @@ FDcResult FWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	return DcOk();
 }
 
-FDcResult FWriteStateClass::SkipWrite()
+FDcResult FDcWriteStateClass::SkipWrite()
 {
 	if (State != EState::ExpectValue)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -286,7 +286,7 @@ FDcResult FWriteStateClass::SkipWrite()
 	return DcOk();
 }
 
-FDcResult FWriteStateClass::PeekWriteProperty(UField** OutProperty)
+FDcResult FDcWriteStateClass::PeekWriteProperty(UField** OutProperty)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -305,7 +305,7 @@ FDcResult FWriteStateClass::PeekWriteProperty(UField** OutProperty)
 	}
 }
 
-FDcResult FWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassStat)
+FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -351,7 +351,7 @@ FDcResult FWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassStat
 	}
 }
 
-FDcResult FWriteStateClass::WriteClassEnd(const FDcClassPropertyStat& ClassStat)
+FDcResult FDcWriteStateClass::WriteClassEnd(const FDcClassPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -367,7 +367,7 @@ FDcResult FWriteStateClass::WriteClassEnd(const FDcClassPropertyStat& ClassStat)
 	}
 }
 
-FDcResult FWriteStateClass::WriteNil()
+FDcResult FDcWriteStateClass::WriteNil()
 {
 	if (State == EState::ExpectNil)
 	{
@@ -383,7 +383,7 @@ FDcResult FWriteStateClass::WriteNil()
 	}
 }
 
-FDcResult FWriteStateClass::WriteReference(UObject* Value)
+FDcResult FDcWriteStateClass::WriteReference(UObject* Value)
 {
 	if (State == EState::ExpectReference)
 	{
@@ -399,12 +399,12 @@ FDcResult FWriteStateClass::WriteReference(UObject* Value)
 	}
 }
 
-EPropertyWriteType FWriteStateMap::GetType()
+EDcPropertyWriteType FDcWriteStateMap::GetType()
 {
-	return EPropertyWriteType::MapProperty;
+	return EDcPropertyWriteType::MapProperty;
 }
 
-FDcResult FWriteStateMap::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateMap::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -447,12 +447,12 @@ FDcResult FWriteStateMap::Peek(EDcDataEntry Next)
 	}
 }
 
-FDcResult FWriteStateMap::WriteName(const FName& Value)
+FDcResult FDcWriteStateMap::WriteName(const FName& Value)
 {
 	return WriteValue<UNameProperty, FName>(*this, Value);
 }
 
-FDcResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -486,7 +486,7 @@ FDcResult FWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 	}
 }
 
-FDcResult FWriteStateMap::SkipWrite()
+FDcResult FDcWriteStateMap::SkipWrite()
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -506,7 +506,7 @@ FDcResult FWriteStateMap::SkipWrite()
 	}
 }
 
-FDcResult FWriteStateMap::PeekWriteProperty(UField** OutProperty)
+FDcResult FDcWriteStateMap::PeekWriteProperty(UField** OutProperty)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -525,7 +525,7 @@ FDcResult FWriteStateMap::PeekWriteProperty(UField** OutProperty)
 	}
 }
 
-FDcResult FWriteStateMap::WriteMapRoot()
+FDcResult FDcWriteStateMap::WriteMapRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -539,7 +539,7 @@ FDcResult FWriteStateMap::WriteMapRoot()
 	}
 }
 
-FDcResult FWriteStateMap::WriteMapEnd()
+FDcResult FDcWriteStateMap::WriteMapEnd()
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
@@ -560,12 +560,12 @@ FDcResult FWriteStateMap::WriteMapEnd()
 	}
 }
 
-EPropertyWriteType FWriteStateArray::GetType()
+EDcPropertyWriteType FDcWriteStateArray::GetType()
 {
-	return EPropertyWriteType::ArrayProperty;
+	return EDcPropertyWriteType::ArrayProperty;
 }
 
-FDcResult FWriteStateArray::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateArray::Peek(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -605,12 +605,12 @@ FDcResult FWriteStateArray::Peek(EDcDataEntry Next)
 	}
 }
 
-FDcResult FWriteStateArray::WriteName(const FName& Value)
+FDcResult FDcWriteStateArray::WriteName(const FName& Value)
 {
 	return WriteValue<UNameProperty, FName>(*this, Value);
 }
 
-FDcResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectItemOrEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -625,7 +625,7 @@ FDcResult FWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	return DcOk();
 }
 
-FDcResult FWriteStateArray::SkipWrite()
+FDcResult FDcWriteStateArray::SkipWrite()
 {
 	if (State != EState::ExpectItemOrEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -635,7 +635,7 @@ FDcResult FWriteStateArray::SkipWrite()
 	return DcOk();
 }
 
-FDcResult FWriteStateArray::PeekWriteProperty(UField** OutProperty)
+FDcResult FDcWriteStateArray::PeekWriteProperty(UField** OutProperty)
 {
 	if (State != EState::ExpectItemOrEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -645,7 +645,7 @@ FDcResult FWriteStateArray::PeekWriteProperty(UField** OutProperty)
 	return DcOk();
 }
 
-FDcResult FWriteStateArray::WriteArrayRoot()
+FDcResult FDcWriteStateArray::WriteArrayRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -659,7 +659,7 @@ FDcResult FWriteStateArray::WriteArrayRoot()
 	}
 }
 
-FDcResult FWriteStateArray::WriteArrayEnd()
+FDcResult FDcWriteStateArray::WriteArrayEnd()
 {
 	if (State == EState::ExpectItemOrEnd)
 	{

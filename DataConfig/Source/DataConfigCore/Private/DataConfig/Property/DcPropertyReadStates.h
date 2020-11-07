@@ -2,7 +2,7 @@
 
 #include "UObject/UnrealType.h"
 
-enum class EPropertyReadType
+enum class EDcPropertyReadType
 {
 	Nil,
 	ClassProperty,
@@ -13,9 +13,9 @@ enum class EPropertyReadType
 
 enum class EDcDataEntry;
 
-struct FBaseReadState
+struct FDcBaseReadState
 {
-	virtual EPropertyReadType GetType() = 0;
+	virtual EDcPropertyReadType GetType() = 0;
 
 	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
 	virtual FDcResult ReadName(FName* OutNamePtr);
@@ -26,13 +26,13 @@ struct FBaseReadState
 	T* As();
 
 	//	non copyable
-	FBaseReadState() = default;
-	FBaseReadState(const FNoncopyable&) = delete;
-	FBaseReadState& operator=(const FBaseReadState&) = delete;
+	FDcBaseReadState() = default;
+	FDcBaseReadState(const FNoncopyable&) = delete;
+	FDcBaseReadState& operator=(const FDcBaseReadState&) = delete;
 };
 
 template<typename T>
-T* FBaseReadState::As()
+T* FDcBaseReadState::As()
 {
 	if (GetType() == T::ID)
 		return (T*)this;
@@ -40,17 +40,17 @@ T* FBaseReadState::As()
 		return nullptr;
 }
 
-struct FReadStateNil : public FBaseReadState
+struct FDcReadStateNil : public FDcBaseReadState
 {
-	static const EPropertyReadType ID = EPropertyReadType::Nil;
+	static const EDcPropertyReadType ID = EDcPropertyReadType::Nil;
 
-	EPropertyReadType GetType() override;
+	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 };
 
-struct FReadStateClass : public FBaseReadState
+struct FDcReadStateClass : public FDcBaseReadState
 {
-	static const EPropertyReadType ID = EPropertyReadType::ClassProperty;
+	static const EDcPropertyReadType ID = EDcPropertyReadType::ClassProperty;
 
 	UObject* ClassObject;
 	UClass* Class;
@@ -77,7 +77,7 @@ struct FReadStateClass : public FBaseReadState
 	};
 	EType Type;
 
-	FReadStateClass(UObject* InClassObject, UClass* InClass, EType InType)
+	FDcReadStateClass(UObject* InClassObject, UClass* InClass, EType InType)
 	{
 		ClassObject = InClassObject;
 		Class = InClass;
@@ -86,7 +86,7 @@ struct FReadStateClass : public FBaseReadState
 		Type = InType;
 	}
 
-	EPropertyReadType GetType() override;
+	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -99,9 +99,9 @@ struct FReadStateClass : public FBaseReadState
 
 };
 
-struct FReadStateStruct : public FBaseReadState
+struct FDcReadStateStruct : public FDcBaseReadState
 {
-	static const EPropertyReadType ID = EPropertyReadType::StructProperty;
+	static const EDcPropertyReadType ID = EDcPropertyReadType::StructProperty;
 
 	void* StructPtr;
 	UScriptStruct* StructClass;
@@ -118,7 +118,7 @@ struct FReadStateStruct : public FBaseReadState
 
 	EState State;
 
-	FReadStateStruct(void* InStructPtr, UScriptStruct* InStructClass)
+	FDcReadStateStruct(void* InStructPtr, UScriptStruct* InStructClass)
 	{
 		StructPtr = InStructPtr;
 		StructClass = InStructClass;
@@ -126,7 +126,7 @@ struct FReadStateStruct : public FBaseReadState
 		State = EState::ExpectRoot;
 	}
 
-	EPropertyReadType GetType() override;
+	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -136,9 +136,9 @@ struct FReadStateStruct : public FBaseReadState
 	FDcResult ReadStructEnd(FName* OutNamePtr);
 };
 
-struct FReadStateMap : public FBaseReadState
+struct FDcReadStateMap : public FDcBaseReadState
 {
-	static const EPropertyReadType ID = EPropertyReadType::MapProperty;
+	static const EDcPropertyReadType ID = EDcPropertyReadType::MapProperty;
 
 	void* MapPtr;
 	UMapProperty* MapProperty;
@@ -155,7 +155,7 @@ struct FReadStateMap : public FBaseReadState
 
 	EState State;
 
-	FReadStateMap(void* InMapPtr, UMapProperty* InMapProperty)
+	FDcReadStateMap(void* InMapPtr, UMapProperty* InMapProperty)
 	{
 		MapPtr = InMapPtr;
 		MapProperty = InMapProperty;
@@ -163,7 +163,7 @@ struct FReadStateMap : public FBaseReadState
 		State = EState::ExpectRoot;
 	}
 
-	EPropertyReadType GetType() override;
+	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -173,9 +173,9 @@ struct FReadStateMap : public FBaseReadState
 	FDcResult ReadMapEnd();
 };
 
-struct FReadStateArray : public FBaseReadState
+struct FDcReadStateArray : public FDcBaseReadState
 {
-	static const EPropertyReadType ID = EPropertyReadType::ArrayProperty;
+	static const EDcPropertyReadType ID = EDcPropertyReadType::ArrayProperty;
 
 	void* ArrayPtr;
 	UArrayProperty* ArrayProperty;
@@ -190,7 +190,7 @@ struct FReadStateArray : public FBaseReadState
 	};
 	EState State;
 
-	FReadStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
+	FDcReadStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
 	{
 		ArrayPtr = InArrayPtr;
 		ArrayProperty = InArrayProperty;
@@ -198,7 +198,7 @@ struct FReadStateArray : public FBaseReadState
 		Index = 0;
 	}
 
-	EPropertyReadType GetType() override;
+	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
@@ -210,10 +210,10 @@ struct FReadStateArray : public FBaseReadState
 
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway
 //	we'll just needs to assume these types are trivially destructable
-static_assert(TIsTriviallyDestructible<FReadStateClass>::Value, "need trivial destructible");
-static_assert(TIsTriviallyDestructible<FReadStateStruct>::Value, "need trivial destructible");
-static_assert(TIsTriviallyDestructible<FReadStateMap>::Value, "need trivial destructible");
-static_assert(TIsTriviallyDestructible<FReadStateArray>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcReadStateClass>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcReadStateStruct>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcReadStateMap>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcReadStateArray>::Value, "need trivial destructible");
 
 
 
