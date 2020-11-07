@@ -79,7 +79,11 @@ FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* 
 	using TProperty = FDcTypeUtils::TPropertyTypeMap<TPrimitive>::Type;
 
 	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum));
+	if (!GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum).Ok())
+	{
+		DcEnv().GetLastDiag() << Self->FormatHighlight();
+		return DcFail();
+	}
 
 	if (OutPtr)
 	{
@@ -340,5 +344,13 @@ FDcResult FDcPropertyReader::ReadNil()
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FDcReadStateClass::ID << (int)GetTopState(this).GetType();
 	}
+}
+
+FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
+{
+	FDcDiagnosticHighlight OutHighlight;
+	OutHighlight.Formatted = TEXT("<---- highlight ---->");
+
+	return OutHighlight;
 }
 

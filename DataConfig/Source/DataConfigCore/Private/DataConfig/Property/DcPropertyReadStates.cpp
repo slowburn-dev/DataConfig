@@ -111,8 +111,9 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 {
 	if (State == EState::ExpectKey)
 	{
-		checkNoEntry();	// should've be already handled in `ReadName`
-		return DC_FAIL(DcDCommon, Unreachable);
+		// should've be already handled in `ReadName`
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectValue << (int)State;
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -359,8 +360,9 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 {
 	if (State == EState::ExpectKey)
 	{
-		checkNoEntry();	// shouldn't be hanndled in `ReadName`
-		return DC_FAIL(DcDCommon, Unreachable);
+		// should've be already handled in `ReadName`
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectValue << (int)State;
 	}
 	else if (State == EState::ExpectValue)
 	{

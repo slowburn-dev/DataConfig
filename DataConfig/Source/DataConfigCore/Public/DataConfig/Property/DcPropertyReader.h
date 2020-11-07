@@ -4,6 +4,7 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Reader/DcReader.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 class UProperty;
 
@@ -54,6 +55,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	TArray<FPropertyState, TInlineAllocator<8>> States;
 
+	FDcDiagnosticHighlight FormatHighlight();
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };

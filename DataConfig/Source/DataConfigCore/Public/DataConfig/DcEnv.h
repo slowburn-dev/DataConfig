@@ -14,6 +14,8 @@ struct DATACONFIGCORE_API FDcEnv
 
 	void FlushDiags();
 
+	FORCEINLINE FDcDiagnostic& GetLastDiag() { return Diagnostics.Last(); }
+
 	~FDcEnv();
 };
 
@@ -51,8 +53,8 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
 	return DcEnv().Diag({InCategory, InCode});
 }
 
-FORCEINLINE FDcDiagnostic& DcFail() {
-	return DcFail(1, 1);	// DCommon::Unhandled
+FORCEINLINE FDcResult DcFail() {
+	return FDcResult{ FDcResult::EStatus::Error };
 }
 
 template<typename TThunk>
