@@ -6,16 +6,20 @@
 #include "DataConfig/Misc/DcTypeUtils.h"
 
 //	need these as readers needs to push states
-using ReaderStorageType = FDcPropertyReader::FPropertyState::ImplStorageType;
 
-static FORCEINLINE ReaderStorageType* GetTopStorage(FDcPropertyReader* Self)
+static FORCEINLINE FDcPropertyReader::FPropertyState::ImplStorageType* GetTopStorage(FDcPropertyReader* Self)
 {
 	return &Self->States.Top().ImplStorage;
 }
 
+static FORCEINLINE FDcBaseReadState& AsReadState(FDcPropertyReader::FPropertyState::ImplStorageType* Storage)
+{
+	return *reinterpret_cast<FDcBaseReadState*>(Storage);
+}
+
 static FORCEINLINE FDcBaseReadState& GetTopState(FDcPropertyReader* Self)
 {
-	return *reinterpret_cast<FDcBaseReadState*>(GetTopStorage(Self));
+	return AsReadState(GetTopStorage(Self));
 }
 
 template<typename TState>
@@ -345,8 +349,12 @@ FDcResult FDcPropertyReader::ReadNil()
 FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 {
 	FDcDiagnosticHighlight OutHighlight;
-	OutHighlight.Formatted = TEXT("<---- highlight ---->");
+	TArray<FString> Segments;
 
+	for (FPropertyState& State : States)
+		AsReadState(&State.ImplStorage).FormatHighlightSegment(Segments);
+
+	OutHighlight.Formatted = FString::Join(Segments, TEXT("."));
 	return OutHighlight;
 }
 

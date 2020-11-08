@@ -19,10 +19,9 @@ FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcProp
 	return DC_FAIL(DcDCommon, NotImplemented);
 }
 
-FString FDcBaseReadState::FormatHighlightSegment()
+void FDcBaseReadState::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
 	checkNoEntry();
-	return FString();
 }
 
 EDcPropertyReadType FDcReadStateNil::GetType()
@@ -36,9 +35,9 @@ FDcResult FDcReadStateNil::PeekRead(EDcDataEntry* OutPtr)
 	return DcOk();
 }
 
-FString FDcReadStateNil::FormatHighlightSegment()
+void FDcReadStateNil::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
-	return TEXT("<nil>");
+	OutSegments.Add(TEXT("<nil>"));
 }
 
 EDcPropertyReadType FDcReadStateClass::GetType()
@@ -151,17 +150,18 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	}
 }
 
-FString FDcReadStateClass::FormatHighlightSegment()
+void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
-	FString ClassName;
-	Class->GetName(ClassName);
-	if (Property)
+	OutSegments.Add(FString::Printf(TEXT("(U%s)%s"),
+		*Class->GetName(),
+		*(ClassObject ? ClassObject->GetName() : TEXT("<null>"))
+	));
+
+	if (Property != nullptr)
 	{
-		return FString::Format(TEXT("U{0}.{1}"), { *ClassName, *Property->GetPathName() });
-	}
-	else
-	{
-		return ClassName;
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
+			TEXT("<!!PrimitiveType!!>"),
+			*Property->GetName()));
 	}
 }
 
@@ -414,17 +414,18 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 	}
 }
 
-FString FDcReadStateStruct::FormatHighlightSegment()
+void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
-	FString StructName;
-	StructClass->GetName(StructName);
-	if (Property)
+	OutSegments.Add(FString::Printf(TEXT("(F%s)%s"),
+		*StructClass->GetName(),
+		TEXT("<!!StructName!!>")
+	));
+
+	if (Property != nullptr)
 	{
-		return FString::Format(TEXT("F{0}.{1}"), { *StructName, *Property->GetPathName() });
-	}
-	else
-	{
-		return StructName;
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
+			TEXT("<!!PrimitiveType!!>"),
+			*Property->GetName()));
 	}
 }
 
@@ -575,6 +576,17 @@ FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 	return DcOk();
 }
 
+void FDcReadStateMap::FormatHighlightSegment(TArray<FString>& OutSegments)
+{
+	check(MapProperty);
+	OutSegments.Add(FString::Printf(TEXT("(TMap<%s, %s>)%s[%d]"), 
+		*MapProperty->KeyProp->GetName(),
+		*MapProperty->ValueProp->GetName(),
+		TEXT("<!!MapName!!>"),
+		Index
+		));
+}
+
 FDcResult FDcReadStateMap::EndReadValue()
 {
 	if (State == EState::ExpectKey)
@@ -710,6 +722,16 @@ FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 
 	DC_TRY(EndReadValue());
 	return DcOk();
+}
+
+void FDcReadStateArray::FormatHighlightSegment(TArray<FString>& OutSegments)
+{
+	check(ArrayProperty);
+	OutSegments.Add(FString::Printf(TEXT("(TArray<%s>)%s[%d]"), 
+		*ArrayProperty->Inner->GetName(),
+		TEXT("<!!ArrName!!>"),
+		Index
+		));
 }
 
 FDcResult FDcReadStateArray::EndReadValue()
