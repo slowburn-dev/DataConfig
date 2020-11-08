@@ -194,7 +194,6 @@ struct FShapeContainer
 	UPROPERTY(EditAnywhere) UBaseShape* ShapeGamma;
 };
 
-
 void PropertyVisitorRoundtrip();
 void JsonReader1();
 void UEStructSerializer();

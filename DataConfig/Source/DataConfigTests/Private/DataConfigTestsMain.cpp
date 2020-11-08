@@ -61,7 +61,7 @@ static void Body()
 	//JsonReader1();
 	//JsonCanada();
 
-	PropertyVisitorRoundtrip__StructStruct();
+	PropertyVisitorRoundtrip__Basic();
 
 	return;
 }

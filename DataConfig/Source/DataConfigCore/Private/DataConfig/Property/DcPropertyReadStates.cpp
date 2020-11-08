@@ -19,6 +19,12 @@ FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcProp
 	return DC_FAIL(DcDCommon, NotImplemented);
 }
 
+FString FDcBaseReadState::FormatHighlightSegment()
+{
+	checkNoEntry();
+	return FString();
+}
+
 EDcPropertyReadType FDcReadStateNil::GetType()
 {
 	return EDcPropertyReadType::Nil;
@@ -28,6 +34,11 @@ FDcResult FDcReadStateNil::PeekRead(EDcDataEntry* OutPtr)
 {
 	*OutPtr = EDcDataEntry::Ended;
 	return DcOk();
+}
+
+FString FDcReadStateNil::FormatHighlightSegment()
+{
+	return TEXT("<nil>");
 }
 
 EDcPropertyReadType FDcReadStateClass::GetType()
@@ -137,6 +148,20 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)EState::ExpectValue << (int)State;
+	}
+}
+
+FString FDcReadStateClass::FormatHighlightSegment()
+{
+	FString ClassName;
+	Class->GetName(ClassName);
+	if (Property)
+	{
+		return FString::Format(TEXT("U{0}.{1}"), { *ClassName, *Property->GetPathName() });
+	}
+	else
+	{
+		return ClassName;
 	}
 }
 
@@ -386,6 +411,20 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)EState::ExpectValue << (int)State;
+	}
+}
+
+FString FDcReadStateStruct::FormatHighlightSegment()
+{
+	FString StructName;
+	StructClass->GetName(StructName);
+	if (Property)
+	{
+		return FString::Format(TEXT("F{0}.{1}"), { *StructName, *Property->GetPathName() });
+	}
+	else
+	{
+		return StructName;
 	}
 }
 

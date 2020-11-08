@@ -29,15 +29,9 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		}
 		else if (PeekEntry == EDcDataEntry::Name)
 		{
-
-			bool Value;
-			DC_TRY(Reader->ReadBool(&Value));
-			DC_TRY(Writer->WriteBool(Value));
-
-			//FName Value;
-			//DC_TRY(Reader->ReadName(&Value));
-			//DC_TRY(Writer->WriteName(Value));
-
+			FName Value;
+			DC_TRY(Reader->ReadName(&Value));
+			DC_TRY(Writer->WriteName(Value));
 		}
 		else if (PeekEntry == EDcDataEntry::String)
 		{

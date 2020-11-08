@@ -20,6 +20,7 @@ struct FDcBaseReadState
 	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
 	virtual FDcResult ReadName(FName* OutNamePtr);
 	virtual FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FString FormatHighlightSegment();
 
 	//	!!!  intentionally ommitting virtual destructor, keep these state trivia
 	template<typename T>
@@ -46,6 +47,7 @@ struct FDcReadStateNil : public FDcBaseReadState
 
 	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
+	FString FormatHighlightSegment() override;
 };
 
 struct FDcReadStateClass : public FDcBaseReadState
@@ -90,6 +92,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FString FormatHighlightSegment() override;
 
 	FDcResult EndReadValue();
 	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr);
@@ -130,6 +133,7 @@ struct FDcReadStateStruct : public FDcBaseReadState
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FString FormatHighlightSegment() override;
 
 	FDcResult EndReadValue();
 	FDcResult ReadStructRoot(FName* OutNamePtr);
