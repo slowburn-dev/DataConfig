@@ -729,7 +729,6 @@ void FDcReadStateArray::FormatHighlightSegment(TArray<FString>& OutSegments)
 	check(ArrayProperty);
 	OutSegments.Add(FString::Printf(TEXT("(TArray<%s>)%s[%d]"), 
 		*ArrayProperty->Inner->GetName(),
-		TEXT("<!!ArrName!!>"),
 		Index
 		));
 }

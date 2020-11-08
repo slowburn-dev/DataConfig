@@ -12,6 +12,8 @@ FDcResult FDcPipeVisitor::PipeVisit()
 {
 	while (true)
 	{
+		PreVisit.ExecuteIfBound(this);
+
 		EDcDataEntry PeekEntry;
 		DC_TRY(Reader->ReadNext(&PeekEntry));
 		DC_TRY(Writer->WriteNext(PeekEntry));
@@ -157,6 +159,8 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		{
 			checkNoEntry();
 		}
+
+		PostVisit.ExecuteIfBound(this);
 	}
 }
 

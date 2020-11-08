@@ -1,6 +1,5 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyWriteStates.h"
-#include "DataConfig/Misc/DcTypeUtils.h"
 
 static FORCEINLINE FDcBaseWriteState& GetTopState(FDcPropertyWriter* Self)
 {
@@ -74,7 +73,7 @@ static void PopState(FDcPropertyWriter* Writer)
 template<typename TPrimitive>
 FORCEINLINE FDcResult WriteTopStateProperty(FDcPropertyWriter* Self, const TPrimitive& Value)
 {
-	using TProperty = FDcTypeUtils::TPropertyTypeMap<TPrimitive>::Type;
+	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
 	return WriteValue<TProperty, TPrimitive>(GetTopState(Self), Value);
 }
 

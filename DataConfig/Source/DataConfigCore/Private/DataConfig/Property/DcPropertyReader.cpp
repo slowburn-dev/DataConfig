@@ -3,7 +3,6 @@
 #include "Templates/Casts.h"
 #include "DataConfig/Property/DcPropertyReadStates.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
-#include "DataConfig/Misc/DcTypeUtils.h"
 
 //	need these as readers needs to push states
 
@@ -80,7 +79,7 @@ static void PopState(FDcPropertyReader* Reader)
 template<typename TPrimitive>
 FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
 {
-	using TProperty = FDcTypeUtils::TPropertyTypeMap<TPrimitive>::Type;
+	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
 
 	FDcPropertyDatum Datum;
 	DC_TRY_LAST_DIAG(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum), Self->FormatHighlight());
@@ -351,8 +350,8 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	FDcDiagnosticHighlight OutHighlight;
 	TArray<FString> Segments;
 
-	for (FPropertyState& State : States)
-		AsReadState(&State.ImplStorage).FormatHighlightSegment(Segments);
+	for (int Ix = 1; Ix < States.Num(); Ix++)
+		AsReadState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments);
 
 	OutHighlight.Formatted = FString::Join(Segments, TEXT("."));
 	return OutHighlight;

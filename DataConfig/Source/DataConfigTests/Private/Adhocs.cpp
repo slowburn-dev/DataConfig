@@ -179,6 +179,11 @@ void PropertyVisitorRoundtrip__Basic()
 		Writer.Writers.Add(&WriteWriter);
 
 		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		RoundtripVisit.PostVisit.BindLambda([](FDcPipeVisitor* Self) {
+			FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+		});
+
 		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
