@@ -355,8 +355,13 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	FDcDiagnosticHighlight OutHighlight;
 	TArray<FString> Segments;
 
-	for (int Ix = 1; Ix < States.Num(); Ix++)
-		AsReadState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments);
+	int Num = States.Num();
+	for (int Ix = 1; Ix < Num; Ix++)
+		AsReadState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments,
+			Ix == Num - 1 
+			? FDcBaseReadState::EFormatSeg::Last
+			: FDcBaseReadState::EFormatSeg::Normal
+		);
 
 	OutHighlight.Formatted = FString::Join(Segments, TEXT("."));
 	return OutHighlight;

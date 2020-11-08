@@ -100,6 +100,12 @@ void PropertyVisitorRoundtrip__StructStruct()
 		Writer.Writers.Add(&WriteWriter);
 
 		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+
+		RoundtripVisit.PostVisit.BindLambda([](FDcPipeVisitor* Self) {
+			FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+			});
+
 		FDcResult Ret = RoundtripVisit.PipeVisit();
 		if (!Ret.Ok())
 			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
@@ -146,6 +152,13 @@ void PropertyVisitorRoundtrip__MapStruct()
 	FDcPropertyReader Reader(FDcPropertyDatum(FMapContainer1::StaticStruct(), &MapStruct));
 	FDcPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);
 	FDcPipeVisitor PrettyPrintVisit(&Reader, &Writer);
+
+	PrettyPrintVisit.PostVisit.BindLambda([](FDcPipeVisitor* Self) {
+		FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
+		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+	});
+
+
 	FDcResult Ret = PrettyPrintVisit.PipeVisit();
 	if (!Ret.Ok())
 	{

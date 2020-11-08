@@ -19,7 +19,7 @@ FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcProp
 	return DC_FAIL(DcDCommon, NotImplemented);
 }
 
-void FDcBaseReadState::FormatHighlightSegment(TArray<FString>& OutSegments)
+void FDcBaseReadState::FormatHighlightSegment(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
 	checkNoEntry();
 }
@@ -35,7 +35,7 @@ FDcResult FDcReadStateNil::PeekRead(EDcDataEntry* OutPtr)
 	return DcOk();
 }
 
-void FDcReadStateNil::FormatHighlightSegment(TArray<FString>& OutSegments)
+void FDcReadStateNil::FormatHighlightSegment(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
 	OutSegments.Add(TEXT("<nil>"));
 }
@@ -150,7 +150,7 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	}
 }
 
-void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments)
+void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
 	OutSegments.Add(FString::Printf(TEXT("(U%s)%s"),
 		*GetFormatPropertyName(Class),
@@ -158,7 +158,7 @@ void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments)
 	));
 
 	if (Property != nullptr
-		&& IsScalarProperty(Property))
+		&& (SegType == FDcBaseReadState::EFormatSeg::Last || IsScalarProperty(Property)))
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
 			*GetFormatPropertyName(Property),
@@ -415,7 +415,7 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 	}
 }
 
-void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments)
+void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
 	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyName(StructClass),
@@ -423,7 +423,7 @@ void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments)
 	));
 
 	if (Property != nullptr
-		&& IsScalarProperty(Property))
+		&& (SegType == FDcBaseReadState::EFormatSeg::Last || IsScalarProperty(Property)))
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
 			*GetFormatPropertyName(Property),
@@ -578,15 +578,20 @@ FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 	return DcOk();
 }
 
-void FDcReadStateMap::FormatHighlightSegment(TArray<FString>& OutSegments)
+void FDcReadStateMap::FormatHighlightSegment(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
 	check(MapProperty);
-	OutSegments.Add(FString::Printf(TEXT("(TMap<%s, %s>)%s[%d]"), 
+	FString Seg = FString::Printf(TEXT("(TMap<%s, %s>)%s"),
 		*GetFormatPropertyName(MapProperty->KeyProp),
 		*GetFormatPropertyName(MapProperty->ValueProp),
-		*MapProperty->GetName(),
-		Index
-		));
+		*MapProperty->GetName()
+	);
+
+	if (State == FDcReadStateMap::EState::ExpectKey
+		|| State == FDcReadStateMap::EState::ExpectValue)
+		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
+
+	OutSegments.Add(MoveTemp(Seg));
 }
 
 FDcResult FDcReadStateMap::EndReadValue()
@@ -726,14 +731,18 @@ FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	return DcOk();
 }
 
-void FDcReadStateArray::FormatHighlightSegment(TArray<FString>& OutSegments)
+void FDcReadStateArray::FormatHighlightSegment(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
 	check(ArrayProperty);
-	OutSegments.Add(FString::Printf(TEXT("(%s)%s[%d]"), 
+	FString Seg = FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyName(ArrayProperty),
-		*ArrayProperty->Inner->GetName(),
-		Index
-		));
+		*ArrayProperty->Inner->GetName()
+	);
+
+	if (State == FDcReadStateArray::EState::ExpectItem)
+		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
+
+	OutSegments.Add(MoveTemp(Seg));
 }
 
 FDcResult FDcReadStateArray::EndReadValue()
