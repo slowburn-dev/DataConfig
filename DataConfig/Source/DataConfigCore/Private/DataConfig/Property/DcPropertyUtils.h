@@ -46,6 +46,6 @@ template<> struct TPropertyTypeMap<double> { using Type = UDoubleProperty; };
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
 //	Proprety to string
-static FString GetFormatPropertyName(UProperty* Property);
+static FString GetFormatPropertyName(UField* Property);
 
 

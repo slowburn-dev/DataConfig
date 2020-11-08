@@ -80,17 +80,78 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 {
 	check(Property)
 	if (Property->IsA<UBoolProperty>()) return EDcDataEntry::Bool;
+	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;
+	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
+
+	if (Property->IsA<UInt8Property>()) return EDcDataEntry::Int8;
+	if (Property->IsA<UInt16Property>()) return EDcDataEntry::Int16;
+	if (Property->IsA<UIntProperty>()) return EDcDataEntry::Int32;
+	if (Property->IsA<UInt64Property>()) return EDcDataEntry::Int64;
+
+	if (Property->IsA<UByteProperty>()) return EDcDataEntry::UInt8;
+	if (Property->IsA<UUInt16Property>()) return EDcDataEntry::UInt16;
+	if (Property->IsA<UUInt32Property>()) return EDcDataEntry::UInt32;
+	if (Property->IsA<UUInt64Property>()) return EDcDataEntry::UInt64;
+
 	if (Property->IsA<UFloatProperty>()) return EDcDataEntry::Float;
 	if (Property->IsA<UDoubleProperty>()) return EDcDataEntry::Double;
-	if (Property->IsA<UIntProperty>()) return EDcDataEntry::Int32;
-	if (Property->IsA<UUInt32Property>()) return EDcDataEntry::UInt32;
-	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
-	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;
+
 	if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
 	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
 	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
 	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
+
 	checkNoEntry();
 	return EDcDataEntry::Ended;
+}
+
+FString GetFormatPropertyName(UField* Property)
+{
+	check(Property);
+	if (Property->IsA<UBoolProperty>()) return TEXT("bool");
+	if (Property->IsA<UNameProperty>()) return TEXT("FName");
+	if (Property->IsA<UStrProperty>()) return TEXT("FString");
+
+	if (Property->IsA<UInt8Property>()) return TEXT("int8");
+	if (Property->IsA<UInt16Property>()) return TEXT("int16");
+	if (Property->IsA<UIntProperty>()) return TEXT("int32");
+	if (Property->IsA<UInt64Property>()) return TEXT("int64");
+
+	if (Property->IsA<UByteProperty>()) return TEXT("uint8");
+	if (Property->IsA<UUInt16Property>()) return TEXT("uint16");
+	if (Property->IsA<UUInt32Property>()) return TEXT("uint32");
+	if (Property->IsA<UUInt64Property>()) return TEXT("uint64");
+
+	if (Property->IsA<UFloatProperty>()) return TEXT("float");
+	if (Property->IsA<UDoubleProperty>()) return TEXT("double");
+
+	if (Property->IsA<UStructProperty>()
+		|| Property->IsA<UScriptStruct>())
+	{
+		return FString::Printf(TEXT("F%s"), *Property->GetName());
+	}
+
+	if (Property->IsA<UObjectProperty>()
+		|| Property->IsA<UClass>())
+	{
+		return FString::Printf(TEXT("U%s"), *Property->GetName());
+	}
+
+	if (UMapProperty* MapProperty = Cast<UMapProperty>(Property))
+	{
+		return FString::Printf(TEXT("TMap<%s, %s>"), 
+			*GetFormatPropertyName(MapProperty->KeyProp),
+			*GetFormatPropertyName(MapProperty->ValueProp)
+		);
+	}
+	if (UArrayProperty* ArrayProperty = Cast<UArrayProperty>(Property))
+	{
+		return FString::Printf(TEXT("TArray<%s>"), 
+			*GetFormatPropertyName(ArrayProperty->Inner)
+		);
+	}
+	checkNoEntry();
+
+	return FString();
 }
 

@@ -153,14 +153,14 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
 	OutSegments.Add(FString::Printf(TEXT("(U%s)%s"),
-		*Class->GetName(),
+		*GetFormatPropertyName(Class),
 		*(ClassObject ? ClassObject->GetName() : TEXT("<null>"))
 	));
 
 	if (Property != nullptr)
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
-			TEXT("<!!PrimitiveType!!>"),
+			*GetFormatPropertyName(Property),
 			*Property->GetName()));
 	}
 }
@@ -416,15 +416,15 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 
 void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
-	OutSegments.Add(FString::Printf(TEXT("(F%s)%s"),
-		*StructClass->GetName(),
+	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
+		*GetFormatPropertyName(StructClass),
 		TEXT("<!!StructName!!>")
 	));
 
 	if (Property != nullptr)
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
-			TEXT("<!!PrimitiveType!!>"),
+			*GetFormatPropertyName(Property),
 			*Property->GetName()));
 	}
 }
@@ -580,9 +580,9 @@ void FDcReadStateMap::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
 	check(MapProperty);
 	OutSegments.Add(FString::Printf(TEXT("(TMap<%s, %s>)%s[%d]"), 
-		*MapProperty->KeyProp->GetName(),
-		*MapProperty->ValueProp->GetName(),
-		TEXT("<!!MapName!!>"),
+		*GetFormatPropertyName(MapProperty->KeyProp),
+		*GetFormatPropertyName(MapProperty->ValueProp),
+		*MapProperty->GetName(),
 		Index
 		));
 }
@@ -727,7 +727,8 @@ FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 void FDcReadStateArray::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
 	check(ArrayProperty);
-	OutSegments.Add(FString::Printf(TEXT("(TArray<%s>)%s[%d]"), 
+	OutSegments.Add(FString::Printf(TEXT("(%s)%s[%d]"), 
+		*GetFormatPropertyName(ArrayProperty),
 		*ArrayProperty->Inner->GetName(),
 		Index
 		));
