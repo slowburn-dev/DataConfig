@@ -157,7 +157,8 @@ void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments)
 		*(ClassObject ? ClassObject->GetName() : TEXT("<null>"))
 	));
 
-	if (Property != nullptr)
+	if (Property != nullptr
+		&& IsScalarProperty(Property))
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
 			*GetFormatPropertyName(Property),
@@ -418,10 +419,11 @@ void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments)
 {
 	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyName(StructClass),
-		TEXT("<!!StructName!!>")
+		*StructName.ToString()
 	));
 
-	if (Property != nullptr)
+	if (Property != nullptr
+		&& IsScalarProperty(Property))
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
 			*GetFormatPropertyName(Property),

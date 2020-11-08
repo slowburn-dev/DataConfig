@@ -17,6 +17,17 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<UArrayProperty>();
 }
 
+bool IsScalarProperty(UField* Property)
+{
+	check(Property);
+	bool bIsCompound = Property->IsA<UStructProperty>()
+		|| Property->IsA<UObjectProperty>()
+		|| Property->IsA<UMapProperty>()
+		|| Property->IsA<UArrayProperty>();
+
+	return !bIsCompound;
+}
+
 size_t CountEffectiveProperties(UStruct* Struct)
 {
 	check(Struct);
@@ -108,6 +119,7 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 FString GetFormatPropertyName(UField* Property)
 {
 	check(Property);
+	//	TODO primitive types actually can use `GetCPPType`
 	if (Property->IsA<UBoolProperty>()) return TEXT("bool");
 	if (Property->IsA<UNameProperty>()) return TEXT("FName");
 	if (Property->IsA<UStrProperty>()) return TEXT("FString");

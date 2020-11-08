@@ -43,10 +43,10 @@ FDcReadStateClass& PushClassPropertyState(FDcPropertyReader* Reader, UObject* In
 	return Emplace<FDcReadStateClass>(GetTopStorage(Reader), InClassObject, InClass, InType);
 }
 
-FDcReadStateStruct& PushStructPropertyState(FDcPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass)
+FDcReadStateStruct& PushStructPropertyState(FDcPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass, const FName& InStructName)
 {
 	Reader->States.AddDefaulted();
-	return Emplace<FDcReadStateStruct>(GetTopStorage(Reader), InStructPtr, InStructClass);
+	return Emplace<FDcReadStateStruct>(GetTopStorage(Reader), InStructPtr, InStructClass, InStructName);
 }
 
 FDcReadStateMap& PushMappingPropertyState(FDcPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty)
@@ -112,7 +112,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
-		PushStructPropertyState(this, Datum.DataPtr, CastChecked<UScriptStruct>(Datum.Property));
+		PushStructPropertyState(this, Datum.DataPtr, CastChecked<UScriptStruct>(Datum.Property), FName(TEXT("$root")));
 	}
 	else
 	{
@@ -152,7 +152,12 @@ FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.ReadDataEntry(UStructProperty::StaticClass(), Datum));
 
-		FDcReadStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
+		FDcReadStateStruct& ChildStruct = PushStructPropertyState(
+			this,
+			Datum.DataPtr,
+			Datum.CastChecked<UStructProperty>()->Struct,
+			Datum.Property->GetFName()
+		);
 		DC_TRY(ChildStruct.ReadStructRoot(OutNamePtr));
 	}
 

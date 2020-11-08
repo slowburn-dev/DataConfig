@@ -5,6 +5,8 @@ class UStruct;
 
 bool IsEffectiveProperty(UProperty* Property);
 
+bool IsScalarProperty(UField* Property);
+
 size_t CountEffectiveProperties(UStruct* Struct);
 
 UProperty* NextEffectiveProperty(UProperty* Property);
@@ -13,6 +15,8 @@ UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name);
 
 enum class EDcDataEntry;
 EDcDataEntry PropertyToDataEntry(UField* Property);
+
+FString GetFormatPropertyName(UField* Property);
 
 template<typename TState, typename TStorage, typename... TArgs>
 TState& Emplace(TStorage* Storage, TArgs&&... Args)
@@ -45,7 +49,5 @@ template<> struct TPropertyTypeMap<double> { using Type = UDoubleProperty; };
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
-//	Proprety to string
-static FString GetFormatPropertyName(UField* Property);
 
 

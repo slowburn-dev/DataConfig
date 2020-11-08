@@ -106,6 +106,7 @@ struct FDcReadStateStruct : public FDcBaseReadState
 {
 	static const EDcPropertyReadType ID = EDcPropertyReadType::StructProperty;
 
+	FName StructName;
 	void* StructPtr;
 	UScriptStruct* StructClass;
 	UProperty* Property;
@@ -121,8 +122,9 @@ struct FDcReadStateStruct : public FDcBaseReadState
 
 	EState State;
 
-	FDcReadStateStruct(void* InStructPtr, UScriptStruct* InStructClass)
+	FDcReadStateStruct(void* InStructPtr, UScriptStruct* InStructClass, const FName& InStructName)
 	{
+		StructName = InStructName;
 		StructPtr = InStructPtr;
 		StructClass = InStructClass;
 		Property = nullptr;
