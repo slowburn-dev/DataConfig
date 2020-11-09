@@ -4,6 +4,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
+
 FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr)
 {
 	return DC_FAIL(DcDCommon, NotImplemented);

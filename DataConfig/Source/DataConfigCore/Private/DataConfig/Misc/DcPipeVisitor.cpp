@@ -10,6 +10,9 @@ FDcPipeVisitor::FDcPipeVisitor(FDcReader* InReader, FDcWriter* InWriter)
 
 FDcResult FDcPipeVisitor::PipeVisit()
 {
+	FDcScopedActiveReader ActiveReader(Reader);
+	FDcScopedActiveWriter ActiveWriter(Writer);
+
 	while (true)
 	{
 		PreVisit.ExecuteIfBound(this);

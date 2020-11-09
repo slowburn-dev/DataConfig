@@ -4,11 +4,17 @@
 #include "Containers/BasicArray.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
+struct FDcReader;
+struct FDcWriter;
+
 struct DATACONFIGCORE_API FDcEnv
 {
 	TArray<FDcDiagnostic> Diagnostics;
 
 	TSharedPtr<IDcDiagnosticConsumer> DiagConsumer;
+
+	FDcReader* ActiveReader = nullptr;
+	FDcWriter* ActiveWriter = nullptr;
 
 	FDcDiagnostic& Diag(FDcErrorCode InErr);
 
@@ -25,11 +31,49 @@ DATACONFIGCORE_API void DcPopEnv();
 
 extern TBasicArray<FDcEnv> Envs;	// external linkage for debug watch window
 
+
 struct DATACONFIGCORE_API FDcScopedEnv
 {
 	FDcScopedEnv();
 	~FDcScopedEnv();
 };
+
+template<typename TSelf, typename T, T* FDcEnv::*MemberPtr>
+struct TScopedEnvMemberPtr
+{
+	TScopedEnvMemberPtr(T* InPtr)
+	{
+		Pointer = InPtr;
+
+		check((DcEnv().*MemberPtr) == nullptr);
+		(DcEnv().*MemberPtr) = Pointer;
+	}
+
+	~TScopedEnvMemberPtr()
+	{
+		check((DcEnv().*MemberPtr) == Pointer);
+		(DcEnv().*MemberPtr) = nullptr;
+
+		((TSelf*)(this))->OnOutOfScope();
+	}
+
+	T* Pointer;
+};
+
+struct DATACONFIGCORE_API FDcScopedActiveReader
+	: public TScopedEnvMemberPtr<FDcScopedActiveReader, FDcReader, &FDcEnv::ActiveReader>
+{
+	using TScopedEnvMemberPtr::TScopedEnvMemberPtr;
+	FORCEINLINE void OnOutOfScope() { /* pass */ }
+};
+
+struct DATACONFIGCORE_API FDcScopedActiveWriter 
+	: public TScopedEnvMemberPtr<FDcScopedActiveWriter, FDcWriter, &FDcEnv::ActiveWriter>
+{
+	using TScopedEnvMemberPtr::TScopedEnvMemberPtr;
+	FORCEINLINE void OnOutOfScope() { /* pass */ }
+};
+
 
 #define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
 
@@ -76,6 +120,7 @@ FORCEINLINE FDcResult DcExpect(bool CondToBeTrue, const TThunk& ErrFunc)
 }
 
 FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
+
 
 
 

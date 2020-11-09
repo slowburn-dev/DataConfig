@@ -18,13 +18,16 @@ static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeser
 	}
 }
 
-
 FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 {
 	check(Ctx.Deserializer == this);
 	check(Ctx.Reader != nullptr);
 	check(Ctx.Writer != nullptr);
 	check(Ctx.Properties.Num() > 0);
+
+	FDcScopedActiveReader ActiveReader(Ctx.Reader);
+	//	need this cast to not include `DcPropertyWriter`
+	FDcScopedActiveWriter ActiveWriter((FDcWriter*)Ctx.Writer);
 
 	for (auto& PredPair : PredicatedDeserializers)
 	{
