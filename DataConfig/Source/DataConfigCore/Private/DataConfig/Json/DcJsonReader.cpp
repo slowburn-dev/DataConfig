@@ -71,6 +71,8 @@ bool TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry)
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadNext(EDcDataEntry* OutPtr)
 {
+	QuickSanityCheck();
+
 	DC_TRY(ConsumeEffectiveToken());
 
 	switch (Token.Type)

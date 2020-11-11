@@ -53,6 +53,9 @@ struct DATACONFIGCORE_API FDcReader
 			*OutPtr = Forward<T2>(Value);
 		}
 	}
+
+	//	a fast sanity check that derived class should call on reads
+	void QuickSanityCheck();
 };
 
 

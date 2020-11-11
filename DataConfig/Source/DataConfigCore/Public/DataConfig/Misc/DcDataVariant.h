@@ -29,6 +29,8 @@ template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value
 template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
 template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
 
+//	TODO might need to .. support the whole data model?
+
 
 template<typename T>
 struct TDcIsDataVariantCompatible

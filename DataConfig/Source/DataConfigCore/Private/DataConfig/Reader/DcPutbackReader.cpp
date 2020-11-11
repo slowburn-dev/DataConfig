@@ -1,7 +1,8 @@
 #include "DataConfig/Reader/DcPutbackReader.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 
 template<typename TData>
-FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData* OutPtr)
+FORCEINLINE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData* OutPtr)
 {
 	check(Self->Cached.Num() > 0);
 
@@ -17,6 +18,22 @@ FORCEINLINE_DEBUGGABLE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData
 	return DcOk();
 }
 
+template<typename TData, typename TMethod, typename... TArgs>
+FORCEINLINE FDcResult CachedRead(FDcPutbackReader* Self, TMethod Method, TArgs&&... Args)
+{
+	Self->QuickSanityCheck();
+
+	if (Self->Cached.Num() > 0)
+	{
+		return TryUseCachedValue<TData>(Self, Forward<TArgs>(Args)...);
+	}
+	else
+	{
+		return (Self->*Method)(Forward<TArgs>(Args)...);
+	}
+}
+
+
 FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (Cached.Num() > 0)
@@ -26,6 +43,7 @@ FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
+		TDcRestore<FDcReader*> NestReader(DcEnv().ActiveReader, Reader);
 		return Reader->ReadNext(OutPtr);
 	}
 }
@@ -38,44 +56,24 @@ FDcResult FDcPutbackReader::ReadNil()
 	}
 	else
 	{
+		TDcRestore<FDcReader*> NestReader(DcEnv().ActiveReader, Reader);
 		return Reader->ReadNil();
 	}
 }
 
 FDcResult FDcPutbackReader::ReadBool(bool* OutPtr)
 {
-	if (Cached.Num() > 0)
-	{
-		return TryUseCachedValue<bool>(this, OutPtr);
-	}
-	else
-	{
-		return Reader->ReadBool(OutPtr);
-	}
+	return CachedRead<bool>(this, &FDcReader::ReadBool, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadName(FName* OutPtr)
 {
-	if (Cached.Num() > 0)
-	{
-		return TryUseCachedValue<FName>(this, OutPtr);
-	}
-	else
-	{
-		return Reader->ReadName(OutPtr);
-	}
+	return CachedRead<FName>(this, &FDcReader::ReadName, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadString(FString* OutPtr)
 {
-	if (Cached.Num() > 0)
-	{
-		return TryUseCachedValue<FString>(this, OutPtr);
-	}
-	else
-	{
-		return Reader->ReadString(OutPtr);
-	}
+	return CachedRead<FString>(this, &FDcReader::ReadString, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr)

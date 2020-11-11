@@ -42,6 +42,8 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteFloat(const float& Value);
 	virtual FDcResult WriteDouble(const double& Value);
 
+	//	a fast sanity check that derived class should call on writes
+	void QuickSanityCheck();
 };
 
 

@@ -1,10 +1,19 @@
 #include "DataConfig/Writer/DcCompositeWriters.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 
 template<typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)
 {
+	Self->QuickSanityCheck();
+
+	FDcEnv& Env = DcEnv();
+	TDcRestore<FDcWriter*> RestoreWriter(Env.ActiveWriter);
+
 	for (FDcWriter* Writer : Self->Writers)
+	{
+		Env.ActiveWriter = Writer;
 		DC_TRY((Writer->*Method)(Forward<TArgs>(Args)...));
+	}
 
 	return DcOk();
 }

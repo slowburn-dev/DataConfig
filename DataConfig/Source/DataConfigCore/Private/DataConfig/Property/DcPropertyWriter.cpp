@@ -110,6 +110,7 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 
 FDcResult FDcPropertyWriter::WriteNext(EDcDataEntry Next)
 {
+	QuickSanityCheck();
 	return GetTopState(this).Peek(Next);
 }
 

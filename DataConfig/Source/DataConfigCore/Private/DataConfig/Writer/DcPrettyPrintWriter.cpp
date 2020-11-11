@@ -14,6 +14,7 @@ FDcPrettyPrintWriter::~FDcPrettyPrintWriter()
 
 FDcResult FDcPrettyPrintWriter::WriteNext(EDcDataEntry Next)
 {
+	QuickSanityCheck();
 	return DcOk();	// accepts anything
 }
 
