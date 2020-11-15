@@ -20,6 +20,9 @@ namespace DcDReadWrite
 		CantFindPropertyByName,
 		WriteClassInlineNotCreated,
 		StructNameMismatch,
+		
+		//	putback reader
+		CantUsePutbackValue,
 	};
 
 } // namespace DPropertyReadWrite

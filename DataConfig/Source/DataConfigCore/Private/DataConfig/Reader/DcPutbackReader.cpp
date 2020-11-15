@@ -2,19 +2,36 @@
 #include "DataConfig/Misc/DcTemplateUtils.h"
 
 template<typename TData>
-FORCEINLINE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData* OutPtr)
+FDcResult PopAndCheckCachedValue(FDcPutbackReader* Self, FDcDataVariant& OutValue)
 {
 	check(Self->Cached.Num() > 0);
 
-	FDcDataVariant Value = Self->Cached.Pop();
+	OutValue = Self->Cached.Pop();
 	EDcDataEntry Expected = TDcDataEntryType<TData>::Value;
-	if (Value.DataType != Expected)
+	if (OutValue.DataType != Expected)
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< (int)Expected << (int)Value.DataType;
+			<< (int)Expected << (int)OutValue.DataType;
+
+	return DcOk();
+}
+
+template<typename TData>
+FORCEINLINE FDcResult TryUseCachedValue(FDcPutbackReader* Self, TData* OutPtr)
+{
+	FDcDataVariant Value;
+	DC_TRY(PopAndCheckCachedValue<TData>(Self, Value));
 
 	if (OutPtr)
 		*OutPtr = Value.GetValue<TData>();
 
+	return DcOk();
+}
+
+template<typename TData>
+FORCEINLINE FDcResult TryUseCachedValue(FDcPutbackReader* Self)
+{
+	FDcDataVariant Value;
+	DC_TRY(PopAndCheckCachedValue<TData>(Self, Value));
 	return DcOk();
 }
 
@@ -29,8 +46,20 @@ FORCEINLINE FDcResult CachedRead(FDcPutbackReader* Self, TMethod Method, TArgs&&
 	}
 	else
 	{
+		TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Self->Reader);
 		return (Self->*Method)(Forward<TArgs>(Args)...);
 	}
+}
+
+template<typename TMethod, typename... TArgs>
+FORCEINLINE FDcResult CanNotCachedRead(FDcPutbackReader* Self, EDcDataEntry Entry, TMethod Method, TArgs&&... Args)
+{
+	Self->QuickSanityCheck();
+	if (Self->Cached.Num() > 0)
+		return DC_FAIL(DcDReadWrite, CantUsePutbackValue) << Entry;
+
+	TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Self->Reader);
+	return (Self->*Method)(Forward<TArgs>(Args)...);
 }
 
 
@@ -43,22 +72,14 @@ FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		TDcRestore<FDcReader*> NestReader(DcEnv().ActiveReader, Reader);
+		TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Reader);
 		return Reader->ReadNext(OutPtr);
 	}
 }
 
 FDcResult FDcPutbackReader::ReadNil()
 {
-	if (Cached.Num() > 0)
-	{
-		return TryUseCachedValue<nullptr_t>(this, nullptr);
-	}
-	else
-	{
-		TDcRestore<FDcReader*> NestReader(DcEnv().ActiveReader, Reader);
-		return Reader->ReadNil();
-	}
+	return CachedRead<nullptr_t>(this, &FDcReader::ReadNil);
 }
 
 FDcResult FDcPutbackReader::ReadBool(bool* OutPtr)
@@ -78,47 +99,47 @@ FDcResult FDcPutbackReader::ReadString(FString* OutPtr)
 
 FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr)
 {
-	return Reader->ReadStructRoot(OutNamePtr);
+	return CanNotCachedRead(this, EDcDataEntry::StructRoot, &FDcReader::ReadStructRoot, OutNamePtr);
 }
 
 FDcResult FDcPutbackReader::ReadStructEnd(FName* OutNamePtr)
 {
-	return Reader->ReadStructEnd(OutNamePtr);
+	return CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEnd, OutNamePtr);
 }
 
 FDcResult FDcPutbackReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 {
-	return Reader->ReadClassRoot(OutClassPtr);
+	return CanNotCachedRead(this, EDcDataEntry::ClassRoot, &FDcReader::ReadClassRoot, OutClassPtr);
 }
 
 FDcResult FDcPutbackReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 {
-	return Reader->ReadClassEnd(OutClassPtr);
+	return CanNotCachedRead(this, EDcDataEntry::ClassEnd, &FDcReader::ReadClassEnd, OutClassPtr);
 }
 
 FDcResult FDcPutbackReader::ReadMapRoot()
 {
-	return Reader->ReadMapRoot();
+	return CanNotCachedRead(this, EDcDataEntry::MapRoot, &FDcReader::ReadMapRoot);
 }
 
 FDcResult FDcPutbackReader::ReadMapEnd()
 {
-	return Reader->ReadMapEnd();
+	return CanNotCachedRead(this, EDcDataEntry::MapEnd, &FDcReader::ReadMapEnd);
 }
 
 FDcResult FDcPutbackReader::ReadArrayRoot()
 {
-	return Reader->ReadArrayRoot();
+	return CanNotCachedRead(this, EDcDataEntry::ArrayRoot, &FDcReader::ReadArrayRoot);
 }
 
 FDcResult FDcPutbackReader::ReadArrayEnd()
 {
-	return Reader->ReadArrayEnd();
+	return CanNotCachedRead(this, EDcDataEntry::ArrayEnd, &FDcReader::ReadArrayEnd);
 }
 
 FDcResult FDcPutbackReader::ReadReference(UObject** OutPtr)
 {
-	return Reader->ReadReference(OutPtr);
+	return CanNotCachedRead(this, EDcDataEntry::Reference, &FDcReader::ReadReference, OutPtr);
 }
 
 

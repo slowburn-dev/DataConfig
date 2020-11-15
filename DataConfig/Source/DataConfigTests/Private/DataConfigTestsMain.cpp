@@ -63,7 +63,8 @@ static void Body()
 
 	//PropertyVisitorRoundtrip__Basic();
 	//PropertyVisitorRoundtrip__MapStruct();
-	PropertyVisitorRoundtrip__StructStruct();
+	//PropertyVisitorRoundtrip__StructStruct();
+	TryTemplates();
 
 	return;
 }

@@ -7,7 +7,7 @@ FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Me
 	Self->QuickSanityCheck();
 
 	FDcEnv& Env = DcEnv();
-	TDcRestore<FDcWriter*> RestoreWriter(Env.ActiveWriter);
+	TDcStoreThenReset<FDcWriter*> RestoreWriter(Env.ActiveWriter);
 
 	for (FDcWriter* Writer : Self->Writers)
 	{

@@ -1,20 +1,22 @@
 #pragma once
 
 template<typename T>
-struct TDcRestore
+struct TDcStoreThenReset
 {
-	TDcRestore(T& InRef, const T& NewValue)
+	TDcStoreThenReset(T& InRef, const T& NewValue)
 		: Ref(InRef)
 	{
 		RestoreValue = Ref;
 		Ref = NewValue;
 	}
 
-	TDcRestore(T& InRef)
-		: TDcRestore(InRef, InRef)
-	{}
+	TDcStoreThenReset(T& InRef)
+		: Ref(InRef)
+	{
+		RestoreValue = Ref;
+	}
 
-	~TDcRestore()
+	~TDcStoreThenReset()
 	{
 		Ref = RestoreValue;
 	}

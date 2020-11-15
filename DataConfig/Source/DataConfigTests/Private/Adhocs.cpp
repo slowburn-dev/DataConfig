@@ -11,6 +11,8 @@
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Writer/DcNoopWriter.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 
 void PropertyVisitorRoundtrip_Piped()
 {
@@ -457,6 +459,29 @@ void TryConsoleDiagnosticReports()
 	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << Str;
 	DcEnv().Diag(DC_DIAG(DcDCommon, Unexpected1)) << EDcDataEntry::Bool;
 }
+
+
+void TryTemplates()
+{
+	DcPushEnv();
+
+	{
+		FDcNoopWriter NoopWriter;
+		FDcScopedActiveWriter ScopeWriter(&NoopWriter);
+
+		{
+			FDcNoopWriter InnerWriter;
+			TDcStoreThenReset<FDcWriter*> NestReader(DcEnv().ActiveWriter, &InnerWriter);
+
+			check(DcEnv().ActiveWriter == &InnerWriter);
+		}
+
+		check(DcEnv().ActiveWriter == &NoopWriter);
+	}
+
+	check(DcEnv().ActiveWriter == nullptr);
+}
+
 
 
 
