@@ -32,3 +32,13 @@ FDcScopedObject::~FDcScopedObject()
 }
 
 
+void FDcDeserializeContext::Prepare()
+{
+	check(State == EState::Uninitialized);
+	check(Reader != nullptr);
+	check(Writer != nullptr);
+	check(Deserializer != nullptr);
+	check(Properties.Num() == 1);
+
+	State = EState::Ready;
+}

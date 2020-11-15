@@ -14,4 +14,5 @@ struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 
 	TArray<TTuple<FDcDeserializePredicate, FDcDeserializeDelegate>> PredicatedDeserializers;
 	TMap<UClass*, FDcDeserializeDelegate> DirectDeserializersMap;
+
 };

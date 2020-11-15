@@ -25,3 +25,19 @@ struct TDcStoreThenReset
 	T RestoreValue;
 };
 
+
+struct TDcDefer
+{
+	TDcDefer(TFunctionRef<void()> Call)
+		: InCall(Call)
+	{}
+
+	~TDcDefer()
+	{
+		InCall();
+	}
+
+	TFunctionRef<void()> InCall;
+};
+
+

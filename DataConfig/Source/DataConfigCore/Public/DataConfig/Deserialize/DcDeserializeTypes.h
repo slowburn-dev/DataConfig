@@ -10,6 +10,16 @@ struct FDcDeserializer;
 
 struct DATACONFIGCORE_API FDcDeserializeContext
 {
+	enum class EState
+	{
+		Uninitialized,
+		Ready,
+		DeserializeInProgress,
+		DeserializeEnded,
+	};
+
+	EState State = EState::Uninitialized;
+
 	FString Name;
 	TArray<FName, TInlineAllocator<4>> Pathes;
 	TArray<UObject*, TInlineAllocator<4>> Objects;
@@ -21,6 +31,8 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 
 	FORCEINLINE UField* TopProperty() { return Properties.Top(); }
 	FORCEINLINE UObject* TopObject() { return Objects.Top(); }
+
+	void Prepare();
 };
 
 enum class EDcDeserializeResult

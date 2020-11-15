@@ -1,5 +1,6 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 
 static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
@@ -18,18 +19,9 @@ static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeser
 	}
 }
 
-FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
+static FDcResult _DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& Ctx)
 {
-	check(Ctx.Deserializer == this);
-	check(Ctx.Reader != nullptr);
-	check(Ctx.Writer != nullptr);
-	check(Ctx.Properties.Num() > 0);
-
-	FDcScopedActiveReader ActiveReader(Ctx.Reader);
-	//	need this cast to not include `DcPropertyWriter`
-	FDcScopedActiveWriter ActiveWriter((FDcWriter*)Ctx.Writer);
-
-	for (auto& PredPair : PredicatedDeserializers)
+	for (auto& PredPair : Self.PredicatedDeserializers)
 	{
 		if (PredPair.Key.Execute(Ctx) == EDcDeserializePredicateResult::Process)
 		{
@@ -38,7 +30,7 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	}
 
 	UField* Property = Ctx.TopProperty();
-	FDcDeserializeDelegate* HandlerPtr = DirectDeserializersMap.Find(Property->GetClass());
+	FDcDeserializeDelegate* HandlerPtr = Self.DirectDeserializersMap.Find(Property->GetClass());
 	if (HandlerPtr == nullptr)
 	{
 		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
@@ -46,6 +38,38 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	}
 
 	return _ExecuteDeserializeHandler(Ctx, *HandlerPtr);
+}
+
+FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
+{
+	using ECtxState = FDcDeserializeContext::EState;
+	if (Ctx.State == ECtxState::Uninitialized)
+	{
+		checkf(false, TEXT("need `Ctx.Prepare()`"));
+		return DC_FAIL(DcDCommon, Unreachable);
+	}
+	else if (Ctx.State == ECtxState::Ready)
+	{
+		FDcScopedActiveReader ActiveReader(Ctx.Reader);
+		//	need this cast to not include `DcPropertyWriter`
+		FDcScopedActiveWriter ActiveWriter((FDcWriter*)Ctx.Writer);
+		Ctx.State = FDcDeserializeContext::EState::DeserializeInProgress;
+
+		TDcDefer SetDeserializeDone([&Ctx]() {
+			Ctx.State = ECtxState::DeserializeEnded;
+		});
+
+		return _DeserializeBody(*this, Ctx);
+	}
+	else if (Ctx.State == FDcDeserializeContext::EState::DeserializeInProgress)
+	{
+		return _DeserializeBody(*this, Ctx);
+	}
+	else
+	{
+		checkNoEntry();
+		return DC_FAIL(DcDCommon, Unreachable);
+	}
 }
 
 void FDcDeserializer::AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate)

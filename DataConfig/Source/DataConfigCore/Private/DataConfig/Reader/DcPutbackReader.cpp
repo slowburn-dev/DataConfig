@@ -47,7 +47,7 @@ FORCEINLINE FDcResult CachedRead(FDcPutbackReader* Self, TMethod Method, TArgs&&
 	else
 	{
 		TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Self->Reader);
-		return (Self->*Method)(Forward<TArgs>(Args)...);
+		return (Self->Reader->*Method)(Forward<TArgs>(Args)...);
 	}
 }
 
@@ -59,7 +59,7 @@ FORCEINLINE FDcResult CanNotCachedRead(FDcPutbackReader* Self, EDcDataEntry Entr
 		return DC_FAIL(DcDReadWrite, CantUsePutbackValue) << Entry;
 
 	TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Self->Reader);
-	return (Self->*Method)(Forward<TArgs>(Args)...);
+	return (Self->Reader->*Method)(Forward<TArgs>(Args)...);
 }
 
 

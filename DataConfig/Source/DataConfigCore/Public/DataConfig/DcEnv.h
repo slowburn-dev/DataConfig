@@ -45,7 +45,6 @@ struct TScopedEnvMemberPtr
 	{
 		Pointer = InPtr;
 
-		check((DcEnv().*MemberPtr) == nullptr);
 		(DcEnv().*MemberPtr) = Pointer;
 	}
 

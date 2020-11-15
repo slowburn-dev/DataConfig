@@ -44,6 +44,7 @@ void DeserializeSimple()
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(FTestStruct_Alpha::StaticStruct());
+	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FDcPropertyDatum(FTestStruct_Alpha::StaticStruct(), &OutAlpha));
@@ -79,8 +80,8 @@ void DeserializeNestedStruct()
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(FNestStruct1::StaticStruct());
+	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
-
 
 	Dump(FDcPropertyDatum(FNestStruct1::StaticStruct(), &OutNest));
 }
@@ -113,6 +114,7 @@ void DeserializeObjectRoot()
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(UTestClass_Alpha::StaticClass());
 	Ctx.Objects.Push(Obj);
+	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FDcPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
@@ -145,6 +147,7 @@ void DeserializeObjectRef()
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(FObjReference::StaticStruct());
+	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FDcPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
@@ -182,6 +185,7 @@ void DeserializeSubObject()
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Objects.Push(GetTransientPackage());	// need this as base
 	Ctx.Properties.Push(FShapeContainer::StaticStruct());
+	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
 
 	Dump(FDcPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
