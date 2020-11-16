@@ -122,7 +122,6 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 
 FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 {
-	QuickSanityCheck();
 	return GetTopState(this).PeekRead(OutPtr);
 }
 

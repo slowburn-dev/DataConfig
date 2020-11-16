@@ -223,7 +223,6 @@ void PropertyVisitorRoundtrip_ReadNested()
 	StructAlpha.AStr = FString(TEXT("A L P H A"));
 
 	FDcPropertyReader Reader(FDcPropertyDatum(FNestStruct_OldSchool::StaticStruct(), &NestStruct));
-	FDcScopedActiveReader ActiveReader(&Reader);
 
 	//	Root
 	check(_ReaderPeek(Reader) == EDcDataEntry::StructRoot);
@@ -272,7 +271,6 @@ void PropertyVisitorRoundtrip_WriteNested()
 {
 	FNestStruct1 NestStruct{};
 	FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-	FDcScopedActiveWriter ActiveWriter(&Writer);
 
 	//	Root
 	check(Writer.WriteNext(EDcDataEntry::StructRoot).Ok());
@@ -325,7 +323,6 @@ void PropertyVisitorRoundtrip()
 	FNestStruct1 NestStruct{};
 	{
 		FDcPropertyWriter Writer(FDcPropertyDatum(FNestStruct1::StaticStruct(), &NestStruct));
-		FDcScopedActiveWriter ActiveWriter(&Writer);
 
 		//	Root
 		check(Writer.WriteNext(EDcDataEntry::StructRoot).Ok());
@@ -413,7 +410,6 @@ void TryOutPutback()
 
 	FDcPropertyReader RawReader(FDcPropertyDatum(FEmptyStruct::StaticStruct(), &EmptyObj));
 	FDcPutbackReader Reader(&RawReader);
-	FDcScopedActiveReader ActiveReader(&Reader);
 
 	check(_ReaderPeek(Reader) == EDcDataEntry::StructRoot);
 	check(Reader.ReadStructRoot(nullptr).Ok());
@@ -469,11 +465,11 @@ void TryConsoleDiagnosticReports()
 
 void TryTemplates()
 {
+	/*
 	DcPushEnv();
 
 	{
-		FDcNoopWriter NoopWriter;
-		FDcScopedActiveWriter ScopeWriter(&NoopWriter);
+		FDcNoopWriter NoopWriter; FDcScopedActiveWriter ScopeWriter(&NoopWriter);
 
 		{
 			FDcNoopWriter InnerWriter;
@@ -486,6 +482,7 @@ void TryTemplates()
 	}
 
 	check(DcEnv().ActiveWriter == nullptr);
+	*/
 }
 
 

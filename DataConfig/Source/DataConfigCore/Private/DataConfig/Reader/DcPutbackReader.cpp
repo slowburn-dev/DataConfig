@@ -38,15 +38,12 @@ FORCEINLINE FDcResult TryUseCachedValue(FDcPutbackReader* Self)
 template<typename TData, typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CachedRead(FDcPutbackReader* Self, TMethod Method, TArgs&&... Args)
 {
-	Self->QuickSanityCheck();
-
 	if (Self->Cached.Num() > 0)
 	{
 		return TryUseCachedValue<TData>(Self, Forward<TArgs>(Args)...);
 	}
 	else
 	{
-		TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Self->Reader);
 		return (Self->Reader->*Method)(Forward<TArgs>(Args)...);
 	}
 }
@@ -54,11 +51,9 @@ FORCEINLINE FDcResult CachedRead(FDcPutbackReader* Self, TMethod Method, TArgs&&
 template<typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CanNotCachedRead(FDcPutbackReader* Self, EDcDataEntry Entry, TMethod Method, TArgs&&... Args)
 {
-	Self->QuickSanityCheck();
 	if (Self->Cached.Num() > 0)
 		return DC_FAIL(DcDReadWrite, CantUsePutbackValue) << Entry;
 
-	TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Self->Reader);
 	return (Self->Reader->*Method)(Forward<TArgs>(Args)...);
 }
 
@@ -72,7 +67,6 @@ FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, Reader);
 		return Reader->ReadNext(OutPtr);
 	}
 }

@@ -50,9 +50,6 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	}
 	else if (Ctx.State == ECtxState::Ready)
 	{
-		FDcScopedActiveReader ActiveReader(Ctx.Reader);
-		//	need this cast to not include `DcPropertyWriter`
-		FDcScopedActiveWriter ActiveWriter((FDcWriter*)Ctx.Writer);
 		Ctx.State = FDcDeserializeContext::EState::DeserializeInProgress;
 
 		TDcDefer SetDeserializeDone([&Ctx]() {

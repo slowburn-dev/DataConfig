@@ -245,7 +245,6 @@ EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext
 FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	FDcPutbackReader PutbackReader(Ctx.Reader);
-	TDcStoreThenReset<FDcReader*> NestReader(DcEnv().ActiveReader, &PutbackReader);
 
 	EDcDataEntry Next;
 	DC_TRY(PutbackReader.ReadNext(&Next));
