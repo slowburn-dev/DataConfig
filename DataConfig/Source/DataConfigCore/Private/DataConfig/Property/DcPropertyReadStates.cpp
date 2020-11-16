@@ -3,7 +3,12 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/Property/DcPropertyReader.h"
 
+FDcPropertyReader* _GetStackReader() 
+{
+	return (FDcPropertyReader*)(DcEnv().ReaderStack.Top());
+}
 
 FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr)
 {
@@ -114,7 +119,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
-			<< (int)State;
+			<< (int)State << _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -124,7 +129,8 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	{
 		// should've be already handled in `ReadName`
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State;
+			<< (int)EState::ExpectValue << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -141,13 +147,15 @@ FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 		else
 		{
 			return DC_FAIL(DcDReadWrite, PropertyMismatch)
-				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName();
+				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName()
+				<< _GetStackReader()->FormatHighlight();
 		}
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State;
+			<< (int)EState::ExpectValue << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -185,7 +193,8 @@ FDcResult FDcReadStateClass::EndReadValue()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State;
+			<< (int)EState::ExpectValue << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -251,7 +260,8 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectRoot << (int)State;
+			<< (int)EState::ExpectRoot << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -274,7 +284,8 @@ FDcResult FDcReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectEnd << (int)State;
+			<< (int)EState::ExpectEnd << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -288,7 +299,8 @@ FDcResult FDcReadStateClass::ReadNil()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectNil << (int)State;
+			<< (int)EState::ExpectNil << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -307,7 +319,8 @@ FDcResult FDcReadStateClass::ReadReference(UObject** OutPtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectReference << (int)State;
+			<< (int)EState::ExpectReference << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -379,7 +392,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
-			<< (int)State;
+			<< (int)State << _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -389,7 +402,8 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 	{
 		// should've be already handled in `ReadName`
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State;
+			<< (int)EState::ExpectValue << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 	else if (State == EState::ExpectValue)
 	{
@@ -406,13 +420,16 @@ FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPr
 		else
 		{
 			return DC_FAIL(DcDReadWrite, PropertyMismatch)
-				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName();
+				<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->GetFName()
+				<< _GetStackReader()->FormatHighlight();
+
 		}
 	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State;
+			<< (int)EState::ExpectValue << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -450,7 +467,8 @@ FDcResult FDcReadStateStruct::EndReadValue()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State;
+			<< (int)EState::ExpectValue << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -476,7 +494,8 @@ FDcResult FDcReadStateStruct::ReadStructRoot(FName* OutNamePtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectRoot << (int)State;
+			<< (int)EState::ExpectRoot << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -498,7 +517,8 @@ FDcResult FDcReadStateStruct::ReadStructEnd(FName* OutNamePtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectEnd << (int)State;
+			<< (int)EState::ExpectEnd << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -557,7 +577,7 @@ FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 		|| State == EState::ExpectRoot
 		|| State == EState::ExpectEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
-			<< (int)State;
+			<< (int)State << _GetStackReader()->FormatHighlight();
 
 	FScriptMapHelper MapHelper(MapProperty, MapPtr);
 	if (State == EState::ExpectKey)
@@ -619,7 +639,7 @@ FDcResult FDcReadStateMap::EndReadValue()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
-			<< (int)State;
+			<< (int)State << _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -649,7 +669,8 @@ FDcResult FDcReadStateMap::ReadMapRoot()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectRoot << (int)State;
+			<< (int)EState::ExpectRoot << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -663,7 +684,8 @@ FDcResult FDcReadStateMap::ReadMapEnd()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectEnd << (int)State;
+			<< (int)EState::ExpectEnd << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -721,7 +743,7 @@ FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 		|| State == EState::ExpectRoot
 		|| State == EState::ExpectEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
-			<< (int)State;
+			<< (int)State << _GetStackReader()->FormatHighlight();
 
 	check(State == EState::ExpectItem);
 	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
@@ -765,7 +787,8 @@ FDcResult FDcReadStateArray::EndReadValue()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectItem << (int)State;
+			<< (int)EState::ExpectItem << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -793,7 +816,8 @@ FDcResult FDcReadStateArray::ReadArrayRoot()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectRoot << (int)State;
+			<< (int)EState::ExpectRoot << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 
@@ -807,7 +831,8 @@ FDcResult FDcReadStateArray::ReadArrayEnd()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectEnd << (int)State;
+			<< (int)EState::ExpectEnd << (int)State
+			<< _GetStackReader()->FormatHighlight();
 	}
 }
 

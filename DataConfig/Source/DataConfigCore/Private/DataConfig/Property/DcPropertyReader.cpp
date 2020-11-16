@@ -81,8 +81,10 @@ FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* 
 {
 	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
 
+	FScopedStackedReader StackedReader(Self);
+
 	FDcPropertyDatum Datum;
-	DC_TRY_LAST_DIAG(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum), Self->FormatHighlight());
+	DC_TRY(GetTopState(Self).ReadDataEntry(TProperty::StaticClass(), Datum));
 
 	if (OutPtr)
 	{
@@ -122,6 +124,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 
 FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 {
+	FScopedStackedReader StackedReader(this);
 	return GetTopState(this).PeekRead(OutPtr);
 }
 
@@ -130,6 +133,8 @@ FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStatePr
 
 FDcResult FDcPropertyReader::ReadName(FName* OutPtr)
 {
+	FScopedStackedReader StackedReader(this);
+
 	DC_TRY(GetTopState(this).ReadName(OutPtr));
 
 	return DcOk();
@@ -137,6 +142,8 @@ FDcResult FDcPropertyReader::ReadName(FName* OutPtr)
 
 FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 {
+	FScopedStackedReader StackedReader(this);
+
 	FDcBaseReadState& TopState = GetTopState(this);
 	{
 		FDcReadStateStruct* StructState = TopState.As<FDcReadStateStruct>();
@@ -166,6 +173,8 @@ FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 
 FDcResult FDcPropertyReader::ReadStructEnd(FName* OutNamePtr)
 {
+	FScopedStackedReader StackedReader(this);
+
 	if (FDcReadStateStruct* StructState = TryGetTopState<FDcReadStateStruct>(this))
 	{
 		DC_TRY(StructState->ReadStructEnd(OutNamePtr));
@@ -181,6 +190,8 @@ FDcResult FDcPropertyReader::ReadStructEnd(FName* OutNamePtr)
 
 FDcResult FDcPropertyReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 {
+	FScopedStackedReader StackedReader(this);
+
 	FDcBaseReadState& TopState = GetTopState(this);
 	{
 		FDcReadStateClass* ClassState = TopState.As<FDcReadStateClass>();
@@ -214,6 +225,8 @@ FDcResult FDcPropertyReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 
 FDcResult FDcPropertyReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 {
+	FScopedStackedReader StackedReader(this);
+
 	if (FDcReadStateClass* ClassState = TryGetTopState<FDcReadStateClass>(this))
 	{
 		DC_TRY(ClassState->ReadClassEnd(OutClassPtr));
@@ -229,6 +242,8 @@ FDcResult FDcPropertyReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 
 FDcResult FDcPropertyReader::ReadMapRoot()
 {
+	FScopedStackedReader StackedReader(this);
+
 	FDcBaseReadState& TopState = GetTopState(this);
 	{
 		FDcReadStateMap* MapState = TopState.As<FDcReadStateMap>();
@@ -253,6 +268,8 @@ FDcResult FDcPropertyReader::ReadMapRoot()
 
 FDcResult FDcPropertyReader::ReadMapEnd()
 {
+	FScopedStackedReader StackedReader(this);
+
 	if (FDcReadStateMap* StateMap = TryGetTopState<FDcReadStateMap>(this))
 	{
 		DC_TRY(StateMap->ReadMapEnd());
@@ -268,6 +285,8 @@ FDcResult FDcPropertyReader::ReadMapEnd()
 
 FDcResult FDcPropertyReader::ReadArrayRoot()
 {
+	FScopedStackedReader StackedReader(this);
+
 	FDcBaseReadState& TopState = GetTopState(this);
 
 	{
@@ -293,6 +312,8 @@ FDcResult FDcPropertyReader::ReadArrayRoot()
 
 FDcResult FDcPropertyReader::ReadArrayEnd()
 {
+	FScopedStackedReader StackedReader(this);
+
 	if (FDcReadStateArray* ArrayState = TryGetTopState<FDcReadStateArray>(this))
 	{
 		DC_TRY(ArrayState->ReadArrayEnd());
@@ -310,6 +331,8 @@ FDcResult FDcPropertyReader::ReadArrayEnd()
 
 FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr)
 {
+	FScopedStackedReader StackedReader(this);
+
 	//	only class property reads reference
 	if (FDcReadStateClass* ClassState = TryGetTopState<FDcReadStateClass>(this))
 	{
@@ -338,6 +361,8 @@ FDcResult FDcPropertyReader::ReadDouble(double* OutPtr) { return ReadTopStatePro
 
 FDcResult FDcPropertyReader::ReadNil()
 {
+	FScopedStackedReader StackedReader(this);
+
 	//	only class property accepts nil
 	if (FDcReadStateClass* ClassState = TryGetTopState<FDcReadStateClass>(this))
 	{

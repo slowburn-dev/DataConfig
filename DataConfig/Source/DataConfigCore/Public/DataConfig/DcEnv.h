@@ -13,6 +13,9 @@ struct DATACONFIGCORE_API FDcEnv
 
 	TSharedPtr<IDcDiagnosticConsumer> DiagConsumer;
 
+	TArray<FDcReader*> ReaderStack;
+	TArray<FDcWriter*> WriterStack;
+
 	FDcDiagnostic& Diag(FDcErrorCode InErr);
 
 	void FlushDiags();
@@ -28,6 +31,27 @@ DATACONFIGCORE_API void DcPopEnv();
 
 extern TBasicArray<FDcEnv> Envs;	// external linkage for debug watch window
 
+template<typename T, TArray<T*> FDcEnv::*MemberPtr>
+struct TScopedEnvMemberPtr
+{
+	TScopedEnvMemberPtr(T* InPtr)
+	{
+		Pointer = InPtr;
+		(DcEnv().*MemberPtr).Push(Pointer);
+	}
+
+	~TScopedEnvMemberPtr()
+	{
+		check((DcEnv().*MemberPtr).Top() == Pointer);
+		(DcEnv().*MemberPtr).Pop();
+	}
+
+	T* Pointer;
+};
+
+using FScopedStackedReader = TScopedEnvMemberPtr<FDcReader, &FDcEnv::ReaderStack>;
+using FScopedStackedWriter = TScopedEnvMemberPtr<FDcWriter, &FDcEnv::WriterStack>;
+
 struct DATACONFIGCORE_API FDcScopedEnv
 {
 	FDcScopedEnv();
@@ -37,15 +61,6 @@ struct DATACONFIGCORE_API FDcScopedEnv
 #define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
 
 #define DC_FAIL(DiagNamespace, DiagID) (DcFail(FDcErrorCode{DiagNamespace::Category, DiagNamespace::DiagID}))
-
-#define DC_TRY_LAST_DIAG(Expr, Arg)			\
-	do {									\
-		::FDcResult Ret = (Expr);			\
-		if (!Ret.Ok()) {					\
-			DcEnv().GetLastDiag() << Arg;	\
-			return Ret;						\
-		}									\
-	} while (0)
 
 FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr) {
 
