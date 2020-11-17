@@ -579,7 +579,7 @@ FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 void FDcReadStateMap::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
 	DcPropertyHighlight::FormatMap(OutSegments, SegType, MapProperty, Index,
-		State == FDcReadStateMap::EState::ExpectKey || State == FDcReadStateMap::EState::ExpectValue);
+		State == EState::ExpectKey || State == EState::ExpectValue);
 }
 
 FDcResult FDcReadStateMap::EndReadValue()
@@ -724,7 +724,7 @@ FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPro
 void FDcReadStateArray::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
 	DcPropertyHighlight::FormatArray(OutSegments, SegType, ArrayProperty, Index,
-		State == FDcReadStateArray::EState::ExpectItem);
+		State == EState::ExpectItem);
 }
 
 FDcResult FDcReadStateArray::EndReadValue()

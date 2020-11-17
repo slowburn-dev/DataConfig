@@ -60,6 +60,9 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	};
 
 	TArray<FPropertyState, TInlineAllocator<4>> States;
+
+	FDcDiagnosticHighlight FormatHighlight();
 };
+
 
 

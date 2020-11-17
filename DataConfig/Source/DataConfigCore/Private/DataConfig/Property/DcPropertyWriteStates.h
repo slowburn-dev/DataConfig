@@ -24,6 +24,8 @@ struct FDcBaseWriteState
 	virtual FDcResult SkipWrite();
 	virtual FDcResult PeekWriteProperty(UField** OutProperty);
 
+	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
+
 	template<typename T>
 	T* As();
 
@@ -51,12 +53,14 @@ struct FDcWriteStateNil : public FDcBaseWriteState
 	EDcPropertyWriteType GetType() override;
 	FDcResult Peek(EDcDataEntry Next) override;
 
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
 struct FDcWriteStateStruct : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::StructProperty;
 
+	FName StructName;
 	void* StructPtr;
 	UScriptStruct* StructClass;
 	UProperty* Property;
@@ -70,8 +74,9 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	};
 	EState State;
 
-	FDcWriteStateStruct(void* InStructPtr, UScriptStruct* InStructClass)
+	FDcWriteStateStruct(void* InStructPtr, UScriptStruct* InStructClass, const FName& InStructName)
 	{
+		StructName = InStructName;
 		StructPtr = InStructPtr;
 		StructClass = InStructClass;
 		Property = nullptr;
@@ -88,6 +93,7 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	FDcResult WriteStructRoot(const FName& Name);
 	FDcResult WriteStructEnd(const FName& Name);
 
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
 struct FDcWriteStateClass : public FDcBaseWriteState
@@ -145,6 +151,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult WriteClassRoot(const FDcClassPropertyStat& Class);
 	FDcResult WriteClassEnd(const FDcClassPropertyStat& Class);
 	FDcResult WriteReference(UObject* Value);
+
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
 struct FDcWriteStateMap : public FDcBaseWriteState
@@ -185,6 +193,7 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 	FDcResult WriteMapRoot();
 	FDcResult WriteMapEnd();
 
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
 struct FDcWriteStateArray : public FDcBaseWriteState
@@ -220,6 +229,8 @@ struct FDcWriteStateArray : public FDcBaseWriteState
 
 	FDcResult WriteArrayRoot();
 	FDcResult WriteArrayEnd();
+
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
 template<typename TProperty, typename TValue>

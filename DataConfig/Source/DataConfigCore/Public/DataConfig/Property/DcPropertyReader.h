@@ -53,7 +53,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 		ImplStorageType ImplStorage;
 	};
 
-	TArray<FPropertyState, TInlineAllocator<8>> States;
+	TArray<FPropertyState, TInlineAllocator<4>> States;
 
 	FDcDiagnosticHighlight FormatHighlight();
 };

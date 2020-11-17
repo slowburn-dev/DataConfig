@@ -10,6 +10,11 @@ FDcResult FDcBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPr
 FDcResult FDcBaseWriteState::SkipWrite() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseWriteState::PeekWriteProperty(UField** OutProperty) { return DC_FAIL(DcDCommon, NotImplemented); }
 
+void FDcBaseWriteState::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	checkNoEntry();
+}
+
 EDcPropertyWriteType FDcWriteStateNil::GetType()
 {
 	return EDcPropertyWriteType::Nil;
@@ -20,6 +25,11 @@ FDcResult FDcWriteStateNil::Peek(EDcDataEntry Next)
 	return DcExpect(Next == EDcDataEntry::Ended, [=]{
 		return DC_FAIL(DcDReadWrite, AlreadyEnded);
 	});
+}
+
+void FDcWriteStateNil::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatNil(OutSegments, SegType);
 }
 
 EDcPropertyWriteType FDcWriteStateStruct::GetType()
@@ -170,6 +180,11 @@ FDcResult FDcWriteStateStruct::WriteStructEnd(const FName& Name)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)EState::ExpectKeyOrEnd << (int)State;
 	}
+}
+
+void FDcWriteStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatStruct(OutSegments, SegType, StructName, StructClass, Property);
 }
 
 EDcPropertyWriteType FDcWriteStateClass::GetType()
@@ -399,6 +414,17 @@ FDcResult FDcWriteStateClass::WriteReference(UObject* Value)
 	}
 }
 
+void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatClass(
+		OutSegments,
+		SegType, 
+		reinterpret_cast<UObject*>(Datum.DataPtr),
+		Class,
+		Datum.CastChecked<UProperty>()
+	);
+}
+
 EDcPropertyWriteType FDcWriteStateMap::GetType()
 {
 	return EDcPropertyWriteType::MapProperty;
@@ -560,6 +586,12 @@ FDcResult FDcWriteStateMap::WriteMapEnd()
 	}
 }
 
+void FDcWriteStateMap::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatMap(OutSegments, SegType, MapProperty, Index,
+		State == EState::ExpectKeyOrEnd || State == EState::ExpectValue);
+}
+
 EDcPropertyWriteType FDcWriteStateArray::GetType()
 {
 	return EDcPropertyWriteType::ArrayProperty;
@@ -673,6 +705,11 @@ FDcResult FDcWriteStateArray::WriteArrayEnd()
 	}
 }
 
+void FDcWriteStateArray::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatArray(OutSegments, SegType, ArrayProperty, Index,
+		State == EState::ExpectItemOrEnd);
+}
 
 
 

@@ -1,15 +1,19 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyWriteStates.h"
 
-static FORCEINLINE FDcBaseWriteState& GetTopState(FDcPropertyWriter* Self)
-{
-	return *reinterpret_cast<FDcBaseWriteState*>(&Self->States.Top().ImplStorage);
-}
-
-using WriterStorageType = FDcPropertyWriter::FPropertyState::ImplStorageType;
-static FORCEINLINE WriterStorageType* GetTopStorage(FDcPropertyWriter* Self)
+static FORCEINLINE FDcPropertyWriter::FPropertyState::ImplStorageType* GetTopStorage(FDcPropertyWriter* Self)
 {
 	return &Self->States.Top().ImplStorage;
+}
+
+static FORCEINLINE FDcBaseWriteState& AsWriteState(FDcPropertyWriter::FPropertyState::ImplStorageType* Storage)
+{
+	return *reinterpret_cast<FDcBaseWriteState*>(Storage);
+}
+
+static FORCEINLINE FDcBaseWriteState& GetTopState(FDcPropertyWriter* Self)
+{
+	return AsWriteState(GetTopStorage(Self));
 }
 
 template<typename TState>
@@ -39,10 +43,10 @@ static FDcWriteStateClass& PushClassPropertyState(FDcPropertyWriter* Writer, voi
 	return Emplace<FDcWriteStateClass>(GetTopStorage(Writer), InDataPtr, InObjProperty);
 }
 
-static FDcWriteStateStruct& PushStructPropertyState(FDcPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct)
+static FDcWriteStateStruct& PushStructPropertyState(FDcPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct, const FName& InStructName)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FDcWriteStateStruct>(GetTopStorage(Writer), InStructPtr, InStructStruct);
+	return Emplace<FDcWriteStateStruct>(GetTopStorage(Writer), InStructPtr, InStructStruct, InStructName);
 }
 
 static FDcWriteStateMap& PushMappingPropertyState(FDcPropertyWriter* Writer, void* InMapPtr, UMapProperty* InMapProperty)
@@ -99,7 +103,8 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	{
 		PushStructPropertyState(this,
 			Datum.DataPtr,
-			CastChecked<UScriptStruct>(Datum.Property)
+			CastChecked<UScriptStruct>(Datum.Property),
+			FName(TEXT("$root"))
 		);
 	}
 	else
@@ -137,7 +142,12 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(UStructProperty::StaticClass(), Datum));
 
-		FDcWriteStateStruct& ChildStruct = PushStructPropertyState(this, Datum.DataPtr, Datum.CastChecked<UStructProperty>()->Struct);
+		FDcWriteStateStruct& ChildStruct = PushStructPropertyState(
+			this,
+			Datum.DataPtr,
+			Datum.CastChecked<UStructProperty>()->Struct,
+			Datum.Property->GetFName()
+		);
 		DC_TRY(ChildStruct.WriteStructRoot(Name));
 	}
 
@@ -333,5 +343,22 @@ FDcResult FDcPropertyWriter::PeekWriteProperty(UField** OutProperty)
 FDcResult FDcPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	return GetTopState(this).WriteDataEntry(ExpectedPropertyClass, OutDatum);
+}
+
+FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
+{
+	FDcDiagnosticHighlight OutHighlight;
+	TArray<FString> Segments;
+
+	int Num = States.Num();
+	for (int Ix = 1; Ix < Num; Ix++)
+		AsWriteState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments,
+			Ix == Num - 1
+			? DcPropertyHighlight::EFormatSeg::Last
+			: DcPropertyHighlight::EFormatSeg::Normal
+		);
+
+	OutHighlight.Formatted = FString::Join(Segments, TEXT("."));
+	return OutHighlight;
 }
 
