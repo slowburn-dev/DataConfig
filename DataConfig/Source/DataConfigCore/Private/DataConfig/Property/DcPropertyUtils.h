@@ -50,4 +50,17 @@ template<> struct TPropertyTypeMap<double> { using Type = UDoubleProperty; };
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
 
+namespace DcPropertyHighlight
+{
+	enum class EFormatSeg { Normal, Last, };
+
+	void FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType);
+	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, UObject* ClassObject, UClass* Class, UProperty* Property);
+	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, FName StructName, UScriptStruct* StructClass, UProperty* Property);
+	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, UMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue);;
+	void FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, UArrayProperty* ArrayProperty, uint16 Index, bool bIsItem);
+
+} // namespace DcPropertyHighlight
+
+
 

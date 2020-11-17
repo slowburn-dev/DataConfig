@@ -66,7 +66,9 @@ static void Body()
 	TryTemplates();
 	*/
 
-	JsonCanada();
+	PropertyVisitorRoundtrip__Basic();
+	PropertyVisitorRoundtrip__MapStruct();
+	PropertyVisitorRoundtrip__StructStruct();
 
 	return;
 }

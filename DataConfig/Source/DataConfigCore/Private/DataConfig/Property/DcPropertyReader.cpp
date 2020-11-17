@@ -384,8 +384,8 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	for (int Ix = 1; Ix < Num; Ix++)
 		AsReadState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments,
 			Ix == Num - 1 
-			? FDcBaseReadState::EFormatSeg::Last
-			: FDcBaseReadState::EFormatSeg::Normal
+			? DcPropertyHighlight::EFormatSeg::Last
+			: DcPropertyHighlight::EFormatSeg::Normal
 		);
 
 	OutHighlight.Formatted = FString::Join(Segments, TEXT("."));

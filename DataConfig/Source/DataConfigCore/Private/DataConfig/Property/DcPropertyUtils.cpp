@@ -167,3 +167,68 @@ FString GetFormatPropertyName(UField* Property)
 	return FString();
 }
 
+void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType)
+{
+	OutSegments.Add(TEXT("<nil>"));
+}
+
+void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, UObject* ClassObject, UClass* Class, UProperty* Property)
+{
+	OutSegments.Add(FString::Printf(TEXT("(U%s)%s"),
+		*GetFormatPropertyName(Class),
+		*(ClassObject ? ClassObject->GetName() : TEXT("<null>"))
+	));
+
+	if (Property != nullptr
+		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
+	{
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
+			*GetFormatPropertyName(Property),
+			*Property->GetName()));
+	}
+}
+
+void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, FName StructName, UScriptStruct* StructClass, UProperty* Property)
+{
+	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
+		*GetFormatPropertyName(StructClass),
+		*StructName.ToString()
+	));
+
+	if (Property != nullptr
+		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
+	{
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
+			*GetFormatPropertyName(Property),
+			*Property->GetName()));
+	}
+}
+
+void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, UMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue)
+{
+	check(MapProperty);
+	FString Seg = FString::Printf(TEXT("(TMap<%s, %s>)%s"),
+		*GetFormatPropertyName(MapProperty->KeyProp),
+		*GetFormatPropertyName(MapProperty->ValueProp),
+		*MapProperty->GetName()
+	);
+
+	if (bIsKeyOrValue)
+		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
+
+	OutSegments.Add(MoveTemp(Seg));
+}
+
+void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, UArrayProperty* ArrayProperty, uint16 Index, bool bIsItem)
+{
+	check(ArrayProperty);
+	FString Seg = FString::Printf(TEXT("(%s)%s"),
+		*GetFormatPropertyName(ArrayProperty),
+		*ArrayProperty->Inner->GetName()
+	);
+
+	if (bIsItem)
+		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
+
+	OutSegments.Add(MoveTemp(Seg));
+}
