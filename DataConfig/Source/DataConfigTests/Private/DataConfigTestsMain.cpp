@@ -67,7 +67,7 @@ static void Body()
 	*/
 
 	PropertyVisitorRoundtrip__Basic();
-	PropertyVisitorRoundtrip__MapStruct();
+	//PropertyVisitorRoundtrip__MapStruct();
 	PropertyVisitorRoundtrip__StructStruct();
 
 	return;

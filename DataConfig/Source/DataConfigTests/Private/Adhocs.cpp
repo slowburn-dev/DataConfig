@@ -103,9 +103,11 @@ void PropertyVisitorRoundtrip__StructStruct()
 
 		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
 
-		RoundtripVisit.PostVisit.BindLambda([](FDcPipeVisitor* Self) {
-			FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
-			UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+		RoundtripVisit.PostVisit.BindLambda([&](FDcPipeVisitor* Self) {
+			FString LineRead = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("- Read: %s"), *LineRead);
+			FString LineWrite = WriteWriter.FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("- Write: %s"), *LineWrite);
 			});
 
 		FDcResult Ret = RoundtripVisit.PipeVisit();
@@ -194,9 +196,11 @@ void PropertyVisitorRoundtrip__Basic()
 		Writer.Writers.Add(&WriteWriter);
 
 		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
-		RoundtripVisit.PostVisit.BindLambda([](FDcPipeVisitor* Self) {
+		RoundtripVisit.PostVisit.BindLambda([&](FDcPipeVisitor* Self) {
 			FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
 			UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+			FString LineWrite = WriteWriter.FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("- Write: %s"), *LineWrite);
 		});
 
 		FDcResult Ret = RoundtripVisit.PipeVisit();
