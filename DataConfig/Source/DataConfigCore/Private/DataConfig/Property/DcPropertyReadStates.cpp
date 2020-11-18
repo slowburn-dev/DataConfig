@@ -9,20 +9,9 @@ FDcPropertyReader* _GetStackReader()
 	return (FDcPropertyReader*)(DcEnv().ReaderStack.Top());
 }
 
-FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr)
-{
-	return DC_FAIL(DcDCommon, NotImplemented);
-}
-
-FDcResult FDcBaseReadState::ReadName(FName* OutNamePtr)
-{
-	return DC_FAIL(DcDCommon, NotImplemented);
-}
-
-FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
-{
-	return DC_FAIL(DcDCommon, NotImplemented);
-}
+FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseReadState::ReadName(FName* OutNamePtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
 
 void FDcBaseReadState::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {

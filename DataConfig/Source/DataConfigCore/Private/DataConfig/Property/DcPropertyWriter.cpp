@@ -78,6 +78,9 @@ template<typename TPrimitive>
 FORCEINLINE FDcResult WriteTopStateProperty(FDcPropertyWriter* Self, const TPrimitive& Value)
 {
 	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
+
+	FScopedStackedWriter StackedWriter(Self);
+
 	return WriteValue<TProperty, TPrimitive>(GetTopState(Self), Value);
 }
 
@@ -115,6 +118,7 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 
 FDcResult FDcPropertyWriter::WriteNext(EDcDataEntry Next)
 {
+	FScopedStackedWriter StackedWriter(this);
 	return GetTopState(this).Peek(Next);
 }
 
@@ -123,11 +127,15 @@ FDcResult FDcPropertyWriter::WriteString(const FString& Value) { return WriteTop
 
 FDcResult FDcPropertyWriter::WriteName(const FName& Value)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	return GetTopState(this).WriteName(Value);
 }
 
 FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	FDcBaseWriteState& TopState = GetTopState(this);
 	{
 		FDcWriteStateStruct* StructState = TopState.As<FDcWriteStateStruct>();
@@ -156,6 +164,8 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 
 FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	if (FDcWriteStateStruct* StructState = TryGetTopState<FDcWriteStateStruct>(this))
 	{
 		DC_TRY(StructState->WriteStructEnd(Name));
@@ -165,7 +175,8 @@ FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FDcWriteStateStruct::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateStruct::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
 	}
 }
 
@@ -179,6 +190,8 @@ void FDcPropertyWriter::PushTopClassPropertyState(FDcPropertyDatum& Datum)
 
 FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	FDcBaseWriteState& TopState = GetTopState(this);
 	{
 		FDcWriteStateClass* ClassState = TopState.As<FDcWriteStateClass>();
@@ -202,6 +215,8 @@ FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 
 FDcResult FDcPropertyWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
 		DC_TRY(ClassState->WriteClassEnd(Class));
@@ -211,12 +226,15 @@ FDcResult FDcPropertyWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteMapRoot()
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	FDcBaseWriteState& TopState = GetTopState(this);
 	{
 		FDcWriteStateMap* MapState = TopState.As<FDcWriteStateMap>();
@@ -240,6 +258,8 @@ FDcResult FDcPropertyWriter::WriteMapRoot()
 
 FDcResult FDcPropertyWriter::WriteMapEnd()
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	if (FDcWriteStateMap* MapState = TryGetTopState<FDcWriteStateMap>(this))
 	{
 		DC_TRY(MapState->WriteMapEnd());
@@ -249,12 +269,16 @@ FDcResult FDcPropertyWriter::WriteMapEnd()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FDcWriteStateMap::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateMap::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
+
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteArrayRoot()
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	FDcBaseWriteState& TopState = GetTopState(this);
 	{
 		FDcWriteStateArray* ArrayState = TopState.As<FDcWriteStateArray>();
@@ -278,6 +302,8 @@ FDcResult FDcPropertyWriter::WriteArrayRoot()
 
 FDcResult FDcPropertyWriter::WriteArrayEnd()
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	if (FDcWriteStateArray* ArrayState = TryGetTopState<FDcWriteStateArray>(this))
 	{
 		DC_TRY(ArrayState->WriteArrayEnd());
@@ -287,12 +313,15 @@ FDcResult FDcPropertyWriter::WriteArrayEnd()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FDcWriteStateArray::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateArray::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteNil()
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
 		return ClassState->WriteNil();
@@ -300,12 +329,15 @@ FDcResult FDcPropertyWriter::WriteNil()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
 	}
 }
 
 FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
 		return ClassState->WriteReference(Value);
@@ -313,7 +345,8 @@ FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType();
+			<< (int)FDcWriteStateClass::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
 	}
 }
 
@@ -332,16 +365,22 @@ FDcResult FDcPropertyWriter::WriteDouble(const double& Value) { return WriteTopS
 
 FDcResult FDcPropertyWriter::SkipWrite()
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	return GetTopState(this).SkipWrite();
 }
 
 FDcResult FDcPropertyWriter::PeekWriteProperty(UField** OutProperty)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	return GetTopState(this).PeekWriteProperty(OutProperty);
 }
 
 FDcResult FDcPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
+	FScopedStackedWriter StackedWriter(this);
+
 	return GetTopState(this).WriteDataEntry(ExpectedPropertyClass, OutDatum);
 }
 
