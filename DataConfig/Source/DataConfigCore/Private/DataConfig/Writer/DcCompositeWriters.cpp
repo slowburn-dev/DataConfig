@@ -83,3 +83,53 @@ FDcResult FDcWeakCompositeWriter::WriteReference(UObject* Value)
 	return CompositeDispatch(this, &FDcWriter::WriteReference, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteInt8(const int8& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteInt8, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteInt16(const int16& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteInt16, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteInt32(const int32& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteInt32, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteInt64(const int64& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteInt64, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteUInt8(const uint8& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteUInt8, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteUInt16(const uint16& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteUInt16, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteUInt32(const uint32& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteUInt32, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteUInt64(const uint64& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteUInt64, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteFloat(const float& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteFloat, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteDouble(const double& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteDouble, Value);
+}
+

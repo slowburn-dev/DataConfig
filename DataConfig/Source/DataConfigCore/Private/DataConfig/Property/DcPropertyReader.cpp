@@ -388,7 +388,8 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 			: DcPropertyHighlight::EFormatSeg::Normal
 		);
 
-	OutHighlight.Formatted = FString::Join(Segments, TEXT("."));
+	FString Path = FString::Join(Segments, TEXT("."));
+	OutHighlight.Formatted = FString::Printf(TEXT("Reading property: %s"), *Path);
 	return OutHighlight;
 }
 

@@ -20,8 +20,20 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	FDcResult WriteArrayEnd() override;
 	FDcResult WriteReference(UObject* Value) override;
 
-	TArray<FDcWriter*, TInlineAllocator<4>> Writers;
+	FDcResult WriteInt8(const int8& Value) override;
+	FDcResult WriteInt16(const int16& Value) override;
+	FDcResult WriteInt32(const int32& Value) override;
+	FDcResult WriteInt64(const int64& Value) override;
 
+	FDcResult WriteUInt8(const uint8& Value) override;
+	FDcResult WriteUInt16(const uint16& Value) override;
+	FDcResult WriteUInt32(const uint32& Value) override;
+	FDcResult WriteUInt64(const uint64& Value) override;
+
+	FDcResult WriteFloat(const float& Value) override;
+	FDcResult WriteDouble(const double& Value) override;
+
+	TArray<FDcWriter*, TInlineAllocator<4>> Writers;
 };
 
 
