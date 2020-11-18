@@ -23,13 +23,30 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcResult ReadMapEnd() override;
 	FDcResult ReadArrayRoot() override;
 	FDcResult ReadArrayEnd() override;
+	FDcResult ReadSetRoot() override;
+	FDcResult ReadSetEnd() override;
 	FDcResult ReadReference(UObject** OutPtr) override;
+
+	FDcResult ReadInt8(int8* OutPtr) override;
+	FDcResult ReadInt16(int16* OutPtr) override;
+	FDcResult ReadInt32(int32* OutPtr) override;
+	FDcResult ReadInt64(int64* OutPtr) override;
+
+	FDcResult ReadUInt8(uint8* OutPtr) override;
+	FDcResult ReadUInt16(uint16* OutPtr) override;
+	FDcResult ReadUInt32(uint32* OutPtr) override;
+	FDcResult ReadUInt64(uint64* OutPtr) override;
+
+	FDcResult ReadFloat(float* OutPtr) override;
+	FDcResult ReadDouble(double* OutPtr) override;
 
 	template<typename T>
 	void Putback(T&& InValue);
 
 	TArray<FDcDataVariant> Cached;
 	FDcReader* Reader;
+
+	bool Coercion(EDcDataEntry ToEntry) override;
 };
 
 template<typename T>

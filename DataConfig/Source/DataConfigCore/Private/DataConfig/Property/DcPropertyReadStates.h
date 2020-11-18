@@ -10,6 +10,7 @@ enum class EDcPropertyReadType
 	StructProperty,
 	MapProperty,
 	ArrayProperty,
+	SetProperty,
 };
 
 enum class EDcDataEntry;
@@ -218,12 +219,26 @@ struct FDcReadStateArray : public FDcBaseReadState
 	FDcResult ReadArrayEnd();
 };
 
+struct FDcReadStateSet : public FDcBaseReadState
+{
+	static const EDcPropertyReadType ID = EDcPropertyReadType::SetProperty;
+
+	EDcPropertyReadType GetType() override;
+
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+};
+
+
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway
 //	we'll just needs to assume these types are trivially destructable
 static_assert(TIsTriviallyDestructible<FDcReadStateClass>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcReadStateStruct>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcReadStateMap>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcReadStateArray>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcReadStateSet>::Value, "need trivial destructible");
 
 
 

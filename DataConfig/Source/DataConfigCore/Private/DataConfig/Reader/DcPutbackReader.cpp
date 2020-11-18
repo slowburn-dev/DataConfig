@@ -136,4 +136,71 @@ FDcResult FDcPutbackReader::ReadReference(UObject** OutPtr)
 	return CanNotCachedRead(this, EDcDataEntry::Reference, &FDcReader::ReadReference, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadSetRoot()
+{
+	return CanNotCachedRead(this, EDcDataEntry::SetRoot, &FDcReader::ReadSetRoot);
+}
+
+FDcResult FDcPutbackReader::ReadSetEnd()
+{
+	return CanNotCachedRead(this, EDcDataEntry::SetEnd, &FDcReader::ReadSetEnd);
+}
+
+FDcResult FDcPutbackReader::ReadInt8(int8* OutPtr)
+{
+	return CachedRead<int8>(this, &FDcReader::ReadInt8, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadInt16(int16* OutPtr)
+{
+	return CachedRead<int16>(this, &FDcReader::ReadInt16, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadInt32(int32* OutPtr)
+{
+	return CachedRead<int32>(this, &FDcReader::ReadInt32, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadInt64(int64* OutPtr)
+{
+	return CachedRead<int64>(this, &FDcReader::ReadInt64, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadUInt8(uint8* OutPtr)
+{
+	return CachedRead<uint8>(this, &FDcReader::ReadUInt8, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadUInt16(uint16* OutPtr)
+{
+	return CachedRead<uint16>(this, &FDcReader::ReadUInt16, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadUInt32(uint32* OutPtr)
+{
+	return CachedRead<uint32>(this, &FDcReader::ReadUInt32, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadUInt64(uint64* OutPtr)
+{
+	return CachedRead<uint64>(this, &FDcReader::ReadUInt64, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadFloat(float* OutPtr)
+{
+	return CachedRead<float>(this, &FDcReader::ReadFloat, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadDouble(double* OutPtr)
+{
+	return CachedRead<double>(this, &FDcReader::ReadDouble, OutPtr);
+}
+
+bool FDcPutbackReader::Coercion(EDcDataEntry ToEntry)
+{
+	if (Cached.Num())
+		return false;
+
+	return Reader->Coercion(ToEntry);
+}
 

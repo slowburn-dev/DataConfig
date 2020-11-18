@@ -29,6 +29,9 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadArrayRoot();
 	virtual FDcResult ReadArrayEnd();
 
+	virtual FDcResult ReadSetRoot();
+	virtual FDcResult ReadSetEnd();
+
 	virtual FDcResult ReadReference(UObject** OutPtr);
 
 	virtual FDcResult ReadInt8(int8* OutPtr);

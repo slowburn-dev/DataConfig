@@ -784,3 +784,27 @@ FDcResult FDcReadStateArray::ReadArrayEnd()
 	}
 }
 
+EDcPropertyReadType FDcReadStateSet::GetType()
+{
+	return FDcReadStateSet::ID;
+}
+
+FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
+{
+	return DcOk();
+}
+
+FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
+{
+	return DcOk();
+}
+
+FDcResult FDcReadStateSet::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+{
+	return DcOk();
+}
+
+void FDcReadStateSet::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	return;
+}

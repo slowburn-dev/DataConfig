@@ -103,6 +103,10 @@ enum class EDcDataEntry
 	ArrayRoot,
 	ArrayEnd,
 
+	//	Set,
+	SetRoot,
+	SetEnd,
+
 	//	Reference
 	Reference,
 
