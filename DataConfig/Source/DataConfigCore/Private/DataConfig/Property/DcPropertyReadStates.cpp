@@ -791,20 +791,100 @@ EDcPropertyReadType FDcReadStateSet::GetType()
 
 FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
 {
-	return DcOk();
+	if (State == EState::ExpectRoot)
+	{
+		*OutPtr = EDcDataEntry::SetRoot;
+		return DcOk();
+	}
+	else if (State == EState::ExpectEnd)
+	{
+		*OutPtr = EDcDataEntry::SetEnd;
+		return DcOk();
+	}
+	else if (State == EState::ExpectItem)
+	{
+		check(SetProperty->ElementProp);
+		*OutPtr = PropertyToDataEntry(SetProperty->ElementProp);
+		return DcOk();
+	}
+	else if (State == EState::Ended)
+	{
+		*OutPtr = EDcDataEntry::Ended;
+		return DcOk();
+	}
+	else
+	{
+		checkNoEntry();
+		return DC_FAIL(DcDCommon, Unreachable);
+	}
 }
 
 FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
 {
+	FDcPropertyDatum Datum;
+	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+
+	FDcReader::ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+
 	return DcOk();
 }
 
 FDcResult FDcReadStateSet::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
+	if (State != EState::ExpectItem)
+		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
+			<< (int)State << _GetStackReader()->FormatHighlight();
+
+	check(State == EState::ExpectItem);
+	FScriptSetHelper SetHelper(SetProperty, SetPtr);
+	OutDatum.Property = SetProperty->ElementProp;
+	OutDatum.DataPtr = SetHelper.GetElementPtr(Index);
+
+	if (++Index == SetHelper.Num())
+		State = EState::ExpectEnd;
+
 	return DcOk();
 }
 
 void FDcReadStateSet::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
-	return;
+	DcPropertyHighlight::FormatSet(OutSegments, SegType, SetProperty, Index,
+		State == EState::ExpectItem);
+}
+
+FDcResult FDcReadStateSet::ReadSetRoot()
+{
+	if (State == EState::ExpectRoot)
+	{
+		if (!IsEffectiveProperty(SetProperty->ElementProp))
+		{
+			State = EState::ExpectEnd;
+			return DcOk();
+		}
+
+		FScriptSet* ScriptSet = (FScriptSet*)SetPtr;
+		State = ScriptSet->Num() == 0 ? EState::ExpectEnd : EState::ExpectItem;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State
+			<< _GetStackReader()->FormatHighlight();
+	}
+}
+
+FDcResult FDcReadStateSet::ReadSetEnd()
+{
+	if (State == EState::ExpectEnd)
+	{
+		State = EState::Ended;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectEnd << (int)State
+			<< _GetStackReader()->FormatHighlight();
+	}
 }

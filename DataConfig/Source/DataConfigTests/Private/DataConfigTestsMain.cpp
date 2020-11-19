@@ -32,7 +32,6 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
-	/*
 	PropertyVisitorRoundtrip_Piped();
 	PropertyVisitorRoundtrip__TestObjAlpha();
 	PropertyVisitorRoundtrip__StructStruct();
@@ -64,7 +63,6 @@ static void Body()
 	PropertyVisitorRoundtrip__MapStruct();
 	PropertyVisitorRoundtrip__StructStruct();
 	TryTemplates();
-	*/
 
 	PropertyVisitorRoundtrip__Basic();
 	//PropertyVisitorRoundtrip__MapStruct();

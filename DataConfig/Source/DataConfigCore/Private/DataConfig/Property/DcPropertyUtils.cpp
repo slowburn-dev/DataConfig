@@ -162,6 +162,14 @@ FString GetFormatPropertyName(UField* Property)
 			*GetFormatPropertyName(ArrayProperty->Inner)
 		);
 	}
+
+	if (USetProperty* SetProperty = Cast<USetProperty>(Property))
+	{
+		return FString::Printf(TEXT("TSet<%s>"),
+			*GetFormatPropertyName(SetProperty->ElementProp)
+			);
+	}
+
 	checkNoEntry();
 
 	return FString();
@@ -207,9 +215,8 @@ void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg 
 void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, UMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue)
 {
 	check(MapProperty);
-	FString Seg = FString::Printf(TEXT("(TMap<%s, %s>)%s"),
-		*GetFormatPropertyName(MapProperty->KeyProp),
-		*GetFormatPropertyName(MapProperty->ValueProp),
+	FString Seg = FString::Printf(TEXT("(%s)%s"),
+		*GetFormatPropertyName(MapProperty),
 		*MapProperty->GetName()
 	);
 
@@ -225,6 +232,20 @@ void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg S
 	FString Seg = FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyName(ArrayProperty),
 		*ArrayProperty->Inner->GetName()
+	);
+
+	if (bIsItem)
+		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
+
+	OutSegments.Add(MoveTemp(Seg));
+}
+
+void DcPropertyHighlight::FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, USetProperty* SetProperty, uint16 Index, bool bIsItem)
+{
+	check(SetProperty);
+	FString Seg = FString::Printf(TEXT("(%s)%s"),
+		*GetFormatPropertyName(SetProperty),
+		*SetProperty->ElementProp->GetName()
 	);
 
 	if (bIsItem)

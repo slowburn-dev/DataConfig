@@ -32,6 +32,9 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadArrayRoot() override;
 	FDcResult ReadArrayEnd() override;
 
+	FDcResult ReadSetRoot() override;
+	FDcResult ReadSetEnd() override;
+
 	FDcResult ReadReference(UObject** OutPtr) override;
 
 	FDcResult ReadInt8(int8* OutPtr) override;
@@ -56,6 +59,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	TArray<FPropertyState, TInlineAllocator<4>> States;
 
 	FDcDiagnosticHighlight FormatHighlight();
+
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };

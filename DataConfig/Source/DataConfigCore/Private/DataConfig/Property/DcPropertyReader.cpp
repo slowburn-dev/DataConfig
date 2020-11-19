@@ -61,6 +61,12 @@ FDcReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, void* InArr
 	return Emplace<FDcReadStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);
 }
 
+FDcReadStateSet& PushSetPropertyState(FDcPropertyReader* Reader, void* InSetPtr, USetProperty* InSetProperty)
+{
+	Reader->States.AddDefaulted();
+	return Emplace<FDcReadStateSet>(GetTopStorage(Reader), InSetPtr, InSetProperty);
+}
+
 void PopState(FDcPropertyReader* Reader)
 {
 	Reader->States.Pop();
@@ -250,6 +256,8 @@ FDcResult FDcPropertyReader::ReadMapRoot()
 		if (MapState != nullptr
 			&& MapState->State == FDcReadStateMap::EState::ExpectRoot)
 		{
+			//	TODO this might never get called, figure it out
+			checkNoEntry();
 			DC_TRY(MapState->ReadMapRoot());
 			return DcOk();
 		}
@@ -294,6 +302,8 @@ FDcResult FDcPropertyReader::ReadArrayRoot()
 		if (ArrayState != nullptr
 			&& ArrayState->State == FDcReadStateArray::EState::ExpectRoot)
 		{
+			//	TODO this might never get called, figure it out
+			checkNoEntry();
 			DC_TRY(ArrayState->ReadArrayRoot());
 			return DcOk();
 		}
@@ -324,10 +334,53 @@ FDcResult FDcPropertyReader::ReadArrayEnd()
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FDcReadStateArray::ID << (int)GetTopState(this).GetType();
-
 	}
 }
 
+FDcResult FDcPropertyReader::ReadSetRoot()
+{
+	FScopedStackedReader StackedReader(this);
+
+	FDcBaseReadState& TopState = GetTopState(this);
+
+	{
+		//	TODO this might never get called, figure it out
+		FDcReadStateSet* SetState = TopState.As<FDcReadStateSet>();
+		if (SetState != nullptr
+			&& SetState->State == FDcReadStateSet::EState::ExpectRoot)
+		{
+			DC_TRY(SetState->ReadSetRoot());
+			return DcOk();
+		}
+	}
+
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(USetProperty::StaticClass(), Datum));
+
+		FDcReadStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastChecked<USetProperty>());
+		DC_TRY(ChildSet.ReadSetRoot());
+	}
+
+	return DcOk();
+}
+
+FDcResult FDcPropertyReader::ReadSetEnd()
+{
+	FScopedStackedReader StackedReader(this);
+
+	if (FDcReadStateSet* SetState = TryGetTopState<FDcReadStateSet>(this))
+	{
+		DC_TRY(SetState->ReadSetEnd());
+		PopState<FDcReadStateSet>(this);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)FDcReadStateArray::ID << (int)GetTopState(this).GetType();
+	}
+}
 
 FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr)
 {
@@ -383,7 +436,7 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	int Num = States.Num();
 	for (int Ix = 1; Ix < Num; Ix++)
 		AsReadState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments,
-			Ix == Num - 1 
+			Ix == Num - 1
 			? DcPropertyHighlight::EFormatSeg::Last
 			: DcPropertyHighlight::EFormatSeg::Normal
 		);

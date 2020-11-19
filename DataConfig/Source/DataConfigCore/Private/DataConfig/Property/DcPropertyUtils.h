@@ -59,6 +59,7 @@ namespace DcPropertyHighlight
 	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, FName StructName, UScriptStruct* StructClass, UProperty* Property);
 	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, UMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue);;
 	void FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, UArrayProperty* ArrayProperty, uint16 Index, bool bIsItem);
+	void FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, USetProperty* SetProperty, uint16 Index, bool bIsItem);
 
 } // namespace DcPropertyHighlight
 

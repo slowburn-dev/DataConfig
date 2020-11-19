@@ -97,7 +97,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
-	FDcResult EndReadValue();
+	FDcResult EndReadValue();	// TODO remove this method, called only in 1 place
 	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr);
 	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr);
 	FDcResult ReadNil();
@@ -214,7 +214,7 @@ struct FDcReadStateArray : public FDcBaseReadState
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
-	FDcResult EndReadValue();
+	FDcResult EndReadValue(); // TODO remove this method, called only in 1 place
 	FDcResult ReadArrayRoot();
 	FDcResult ReadArrayEnd();
 };
@@ -223,12 +223,36 @@ struct FDcReadStateSet : public FDcBaseReadState
 {
 	static const EDcPropertyReadType ID = EDcPropertyReadType::SetProperty;
 
+	void* SetPtr;
+	USetProperty* SetProperty;
+	uint16 Index;
+
+	enum class EState : uint16
+	{
+		ExpectRoot,
+		ExpectEnd,
+		ExpectItem,
+		Ended,
+	};
+	EState State;
+
+	FDcReadStateSet(void* InSetPtr, USetProperty* InSetProperty)
+	{
+		SetPtr = InSetPtr;
+		SetProperty = InSetProperty;
+		State = EState::ExpectRoot;
+		Index = 0;
+	}
+
 	EDcPropertyReadType GetType() override;
 
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
 	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+
+	FDcResult ReadSetRoot();
+	FDcResult ReadSetEnd();
 };
 
 
