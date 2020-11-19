@@ -22,6 +22,8 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 	FDcResult WriteMapEnd() override;
 	FDcResult WriteArrayRoot() override;
 	FDcResult WriteArrayEnd() override;
+	FDcResult WriteSetRoot() override;
+	FDcResult WriteSetEnd() override;
 	FDcResult WriteReference(UObject* Value) override;
 
 	FDcResult WriteInt8(const int8& Value) override;

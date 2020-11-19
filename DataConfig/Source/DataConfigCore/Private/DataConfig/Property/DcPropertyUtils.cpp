@@ -14,7 +14,8 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<UStructProperty>()
 		|| Property->IsA<UObjectProperty>()
 		|| Property->IsA<UMapProperty>()
-		|| Property->IsA<UArrayProperty>();
+		|| Property->IsA<UArrayProperty>()
+		|| Property->IsA<USetProperty>();
 }
 
 bool IsScalarProperty(UField* Property)
@@ -23,7 +24,8 @@ bool IsScalarProperty(UField* Property)
 	bool bIsCompound = Property->IsA<UStructProperty>()
 		|| Property->IsA<UObjectProperty>()
 		|| Property->IsA<UMapProperty>()
-		|| Property->IsA<UArrayProperty>();
+		|| Property->IsA<UArrayProperty>()
+		|| Property->IsA<USetProperty>();
 
 	return !bIsCompound;
 }
@@ -111,6 +113,7 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
 	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
 	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
+	if (Property->IsA<USetProperty>()) return EDcDataEntry::SetRoot;
 
 	checkNoEntry();
 	return EDcDataEntry::Ended;

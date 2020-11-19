@@ -85,6 +85,16 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadArrayEnd());
 			DC_TRY(Writer->WriteArrayEnd());
 		}
+		else if (PeekEntry == EDcDataEntry::SetRoot)
+		{
+			DC_TRY(Reader->ReadSetRoot());
+			DC_TRY(Writer->WriteSetRoot());
+		}
+		else if (PeekEntry == EDcDataEntry::SetEnd)
+		{
+			DC_TRY(Reader->ReadSetEnd());
+			DC_TRY(Writer->WriteSetEnd());
+		}
 		else if (PeekEntry == EDcDataEntry::Reference)
 		{
 			UObject* Value;

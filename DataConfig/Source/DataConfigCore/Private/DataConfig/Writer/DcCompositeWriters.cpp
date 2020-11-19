@@ -73,6 +73,16 @@ FDcResult FDcWeakCompositeWriter::WriteArrayEnd()
 	return CompositeDispatch(this, &FDcWriter::WriteArrayEnd);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteSetRoot()
+{
+	return CompositeDispatch(this, &FDcWriter::WriteSetRoot);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteSetEnd()
+{
+	return CompositeDispatch(this, &FDcWriter::WriteSetEnd);
+}
+
 FDcResult FDcWeakCompositeWriter::WriteNil()
 {
 	return CompositeDispatch(this, &FDcWriter::WriteNil);

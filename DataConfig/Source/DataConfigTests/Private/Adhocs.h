@@ -17,6 +17,14 @@ struct FTestStruct_Alpha
 	UPROPERTY(EditAnywhere) TArray<FName> Names;
 };
 
+USTRUCT()
+struct FStructWithSet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) TSet<FName> ASet;
+};
+
 UCLASS()
 class UTestObj_Alpha : public UObject
 {

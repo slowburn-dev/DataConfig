@@ -61,6 +61,12 @@ static FDcWriteStateArray& PushArrayPropertyState(FDcPropertyWriter* Writer, voi
 	return Emplace<FDcWriteStateArray>(GetTopStorage(Writer), InArrayPtr, InArrayProperty);
 }
 
+static FDcWriteStateSet& PushSetPropertyState(FDcPropertyWriter* Writer, void* InSetPtr, USetProperty* InSetProperty)
+{
+	Writer->States.AddDefaulted();
+	return Emplace<FDcWriteStateSet>(GetTopStorage(Writer), InSetPtr, InSetProperty);
+}
+
 static void PopState(FDcPropertyWriter* Writer)
 {
 	Writer->States.Pop();
@@ -241,6 +247,7 @@ FDcResult FDcPropertyWriter::WriteMapRoot()
 		if (MapState != nullptr
 			&& MapState->State == FDcWriteStateMap::EState::ExpectRoot)
 		{
+			checkNoEntry();	// TODO remove if this isn't really used
 			return MapState->WriteMapRoot();
 		}
 	}
@@ -285,6 +292,7 @@ FDcResult FDcPropertyWriter::WriteArrayRoot()
 		if (ArrayState != nullptr
 			&& ArrayState->State == FDcWriteStateArray::EState::ExpectRoot)
 		{
+			checkNoEntry();	// TODO remove if this isn't really used
 			return ArrayState->WriteArrayRoot();
 		}
 	}
@@ -314,6 +322,50 @@ FDcResult FDcPropertyWriter::WriteArrayEnd()
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FDcWriteStateArray::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
+	}
+}
+
+FDcResult FDcPropertyWriter::WriteSetRoot()
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	FDcBaseWriteState& TopState = GetTopState(this);
+	{
+		FDcWriteStateSet* SetState = TopState.As<FDcWriteStateSet>();
+		if (SetState != nullptr
+			&& SetState->State == FDcWriteStateSet::EState::ExpectRoot)
+		{
+			checkNoEntry();	// TODO remove if this isn't really used
+			return SetState->WriteSetRoot();
+		}
+	}
+
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.WriteDataEntry(USetProperty::StaticClass(), Datum));
+
+		FDcWriteStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastChecked<USetProperty>());
+		DC_TRY(ChildSet.WriteSetRoot());
+	}
+
+	return DcOk();
+}
+
+FDcResult FDcPropertyWriter::WriteSetEnd()
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	if (FDcWriteStateSet* SetState = TryGetTopState<FDcWriteStateSet>(this))
+	{
+		DC_TRY(SetState->WriteSetEnd());
+		PopState<FDcWriteStateSet>(this);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)FDcWriteStateSet::ID << (int)GetTopState(this).GetType()
 			<< FormatHighlight();
 	}
 }
@@ -401,4 +453,3 @@ FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 	OutHighlight.Formatted = FString::Printf(TEXT("Writing property: %s"), *Path);
 	return OutHighlight;
 }
-

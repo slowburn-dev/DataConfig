@@ -27,6 +27,9 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteArrayRoot();
 	virtual FDcResult WriteArrayEnd();
 
+	virtual FDcResult WriteSetRoot();
+	virtual FDcResult WriteSetEnd();
+
 	virtual FDcResult WriteReference(UObject* Value);
 
 	virtual FDcResult WriteInt8(const int8& Value);

@@ -489,6 +489,40 @@ void TryTemplates()
 	*/
 }
 
+void PropertyVisitorRoundtrip__Set()
+{
+	FStructWithSet SetStruct{};
+
+	SetStruct.ASet.Add(FName(TEXT("End")));
+	SetStruct.ASet.Add(FName(TEXT("It")));
+	SetStruct.ASet.Add(FName(TEXT("Now")));
+
+	FStructWithSet OutStruct{};
+
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
+		FDcPropertyReader Reader(FDcPropertyDatum(FStructWithSet::StaticStruct(), &SetStruct));
+		FDcPropertyWriter WriteWriter(FDcPropertyDatum(FStructWithSet::StaticStruct(), &OutStruct));
+
+		FDcWeakCompositeWriter Writer;
+		Writer.Writers.Add(&PrettyPrinter);
+		Writer.Writers.Add(&WriteWriter);
+
+		FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+		RoundtripVisit.PostVisit.BindLambda([&](FDcPipeVisitor* Self) {
+			FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+			FString LineWrite = WriteWriter.FormatHighlight().Formatted;
+			UE_LOG(LogDataConfigCore, Display, TEXT("- Write: %s"), *LineWrite);
+			});
+
+		FDcResult Ret = RoundtripVisit.PipeVisit();
+		if (!Ret.Ok())
+			UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
+	}
+}
 
 
 

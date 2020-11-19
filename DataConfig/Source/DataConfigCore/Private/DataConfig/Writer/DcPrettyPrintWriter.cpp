@@ -92,6 +92,20 @@ FDcResult FDcPrettyPrintWriter::WriteArrayEnd()
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteSetRoot()
+{
+	Output.Logf(TEXT("%s- set begin"), *Indent);
+	Indent += _PER_INDENT;
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteSetEnd()
+{
+	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
+	Output.Logf(TEXT("%s- set end"), *Indent);
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteReference(UObject* Value)
 {
 	check(Value);

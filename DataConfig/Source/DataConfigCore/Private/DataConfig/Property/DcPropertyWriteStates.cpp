@@ -760,9 +760,137 @@ void FDcWriteStateArray::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 		State == EState::ExpectItemOrEnd);
 }
 
+EDcPropertyWriteType FDcWriteStateSet::GetType()
+{
+	return EDcPropertyWriteType::SetProperty;
+}
 
+FDcResult FDcWriteStateSet::Peek(EDcDataEntry Next)
+{
+	if (State == EState::ExpectRoot)
+	{
+		return DcExpect(Next == EDcDataEntry::SetRoot, [=]{
+			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+				<< (int)EDcDataEntry::SetRoot << (int)Next
+				<< _GetStackWriter()->FormatHighlight();
+		});
+	}
+	else if (State == EState::ExpectItemOrEnd)
+	{
+		if (Next == EDcDataEntry::SetEnd)
+		{
+			return DcOk();
+		}
+		else
+		{
+			EDcDataEntry Actual = PropertyToDataEntry(SetProperty->ElementProp);
+			if (Next == Actual)
+			{
+				return DcOk();
+			}
+			else
+			{
+				return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+					<< (int)Actual << (int)Next
+					<< _GetStackWriter()->FormatHighlight();
+			}
+		}
+	}
+	else if (State == EState::Ended)
+	{
+		return DC_FAIL(DcDReadWrite, AlreadyEnded)
+			<< _GetStackWriter()->FormatHighlight();
+	}
+	else
+	{
+		checkNoEntry();
+		return DC_FAIL(DcDCommon, Unreachable);
+	}
+}
 
+FDcResult FDcWriteStateSet::WriteName(const FName& Value)
+{
+	return WriteValue<UNameProperty, FName>(*this, Value);
+}
 
+FDcResult FDcWriteStateSet::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+{
+	if (State != EState::ExpectItemOrEnd)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectItemOrEnd << (int)State
+			<< _GetStackWriter()->FormatHighlight();
 
+	FScriptSetHelper SetHelper(SetProperty, SetPtr);
+	SetHelper.AddUninitializedValue();
+	OutDatum.Property = SetProperty->ElementProp;
+	OutDatum.DataPtr = SetHelper.GetElementPtr(Index);
 
+	bNeedsRehash = true;
+	++Index;
+	return DcOk();
+}
 
+FDcResult FDcWriteStateSet::SkipWrite()
+{
+	if (State != EState::ExpectItemOrEnd)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectItemOrEnd << (int)State
+			<< _GetStackWriter()->FormatHighlight();
+
+	++Index;
+	return DcOk();
+}
+
+FDcResult FDcWriteStateSet::PeekWriteProperty(UField** OutProperty)
+{
+	if (State != EState::ExpectItemOrEnd)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectItemOrEnd << (int)State
+			<< _GetStackWriter()->FormatHighlight();
+
+	*OutProperty = SetProperty->ElementProp;
+	return DcOk();
+}
+
+FDcResult FDcWriteStateSet::WriteSetRoot()
+{
+	if (State == EState::ExpectRoot)
+	{
+		State = EState::ExpectItemOrEnd;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State
+			<< _GetStackWriter()->FormatHighlight();
+	}
+}
+
+FDcResult FDcWriteStateSet::WriteSetEnd()
+{
+	if (State == EState::ExpectItemOrEnd)
+	{
+		State = EState::Ended;
+
+		if (bNeedsRehash)
+		{
+			FScriptSetHelper SetHelper(SetProperty, SetPtr);
+			SetHelper.Rehash();
+		}
+
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectItemOrEnd << (int)State
+			<< _GetStackWriter()->FormatHighlight();
+	}
+}
+
+void FDcWriteStateSet::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatSet(OutSegments, SegType, SetProperty, Index,
+		State == EState::ExpectItemOrEnd);
+}

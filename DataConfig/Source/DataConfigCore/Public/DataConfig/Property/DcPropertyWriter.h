@@ -28,6 +28,9 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteArrayRoot() override;
 	FDcResult WriteArrayEnd() override;
 
+	FDcResult WriteSetRoot() override;
+	FDcResult WriteSetEnd() override;
+
 	FDcResult WriteReference(UObject* Value) override;
 
 	FDcResult WriteInt8(const int8& Value) override;
@@ -62,6 +65,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	TArray<FPropertyState, TInlineAllocator<4>> States;
 
 	FDcDiagnosticHighlight FormatHighlight();
+
 };
 
 

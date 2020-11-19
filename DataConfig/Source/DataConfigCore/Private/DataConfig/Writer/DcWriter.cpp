@@ -20,6 +20,8 @@ FDcResult FDcWriter::WriteMapRoot() { return DC_FAIL(DcDCommon, NotImplemented);
 FDcResult FDcWriter::WriteMapEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteArrayRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteArrayEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteSetRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteSetEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteReference(UObject* Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt8(const int8& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt16(const int16& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
