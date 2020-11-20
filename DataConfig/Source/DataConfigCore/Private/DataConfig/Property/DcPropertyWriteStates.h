@@ -161,7 +161,7 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 
 	void* MapPtr;
 	UMapProperty* MapProperty;
-	uint16 Index;
+	int32 Index;
 
 	enum class EState : uint8
 	{
@@ -202,9 +202,9 @@ struct FDcWriteStateArray : public FDcBaseWriteState
 
 	void* ArrayPtr;
 	UArrayProperty* ArrayProperty;
-	uint16 Index;
+	int32 Index;
 
-	enum class EState : uint16
+	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectItemOrEnd,
@@ -239,9 +239,9 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 
 	void *SetPtr;
 	USetProperty* SetProperty;
-	uint16 Index;
+	int32 Index;
 
-	enum class EState : uint16
+	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectItemOrEnd,

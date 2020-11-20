@@ -151,9 +151,9 @@ struct FDcReadStateMap : public FDcBaseReadState
 
 	void* MapPtr;
 	UMapProperty* MapProperty;
-	uint16 Index;
+	int32 Index;
 
-	enum class EState : uint16
+	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectKey,
@@ -189,9 +189,9 @@ struct FDcReadStateArray : public FDcBaseReadState
 
 	void* ArrayPtr;
 	UArrayProperty* ArrayProperty;
-	uint16 Index;
+	int32 Index;
 
-	enum class EState : uint16
+	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectEnd,
@@ -225,9 +225,9 @@ struct FDcReadStateSet : public FDcBaseReadState
 
 	void* SetPtr;
 	USetProperty* SetProperty;
-	uint16 Index;
+	int32 Index;
 
-	enum class EState : uint16
+	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectEnd,
