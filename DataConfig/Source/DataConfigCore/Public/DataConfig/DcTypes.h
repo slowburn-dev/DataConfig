@@ -87,6 +87,8 @@ enum class EDcDataEntry
 	UInt32,
 	UInt64,
 
+	Enum,
+
 	//	Struct
 	StructRoot,
 	StructEnd,
@@ -125,5 +127,17 @@ struct FDcClassPropertyStat
 {
 	FName Name;
 	EDcDataReference Reference;
+};
+
+struct FDcEnumData
+{
+	FName Type;
+	FName Value;
+
+	FORCEINLINE friend FArchive& operator<<(FArchive& Ar, FDcEnumData& Target)
+	{
+		Ar << Target.Type << Target.Value;
+		return Ar;
+	}
 };
 

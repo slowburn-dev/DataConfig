@@ -91,6 +91,11 @@ FDcResult FDcPutbackReader::ReadString(FString* OutPtr)
 	return CachedRead<FString>(this, &FDcReader::ReadString, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadEnum(FDcEnumData* OutPtr)
+{
+	return CachedRead<FDcEnumData>(this, &FDcReader::ReadEnum, OutPtr);
+}
+
 FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::StructRoot, &FDcReader::ReadStructRoot, OutNamePtr);

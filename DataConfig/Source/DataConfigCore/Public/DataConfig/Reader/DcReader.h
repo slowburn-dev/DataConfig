@@ -16,6 +16,7 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadBool(bool* OutPtr);
 	virtual FDcResult ReadName(FName* OutPtr);
 	virtual FDcResult ReadString(FString* OutPtr);
+	virtual FDcResult ReadEnum(FDcEnumData* OutPtr);
 
 	virtual FDcResult ReadStructRoot(FName* OutNamePtr);
 	virtual FDcResult ReadStructEnd(FName* OutNamePtr);

@@ -15,6 +15,7 @@ template<> struct TDcDataEntryType<nullptr_t> { static constexpr EDcDataEntry Va
 template<> struct TDcDataEntryType<bool> { static constexpr EDcDataEntry Value = EDcDataEntry::Bool; };
 template<> struct TDcDataEntryType<FName> { static constexpr EDcDataEntry Value = EDcDataEntry::Name; };
 template<> struct TDcDataEntryType<FString> { static constexpr EDcDataEntry Value = EDcDataEntry::String; };
+template<> struct TDcDataEntryType<FDcEnumData> { static constexpr EDcDataEntry Value = EDcDataEntry::Enum; };
 
 template<> struct TDcDataEntryType<float> { static constexpr EDcDataEntry Value = EDcDataEntry::Float; };
 template<> struct TDcDataEntryType<double> { static constexpr EDcDataEntry Value = EDcDataEntry::Double; };
@@ -106,8 +107,9 @@ struct FDcDataVariant
 	template<typename T>
 	T GetValue() const
 	{
-		check(TDcDataEntryType<T>::Value == DataType);
+		static_assert(TDcDataEntryType<T>::Value != EDcDataEntry::Ended, "[DataConfig] unsupported T type");
 
+		check(TDcDataEntryType<T>::Value == DataType);
 		T Result;
 
 		FMemoryReader Reader(Value, true);
