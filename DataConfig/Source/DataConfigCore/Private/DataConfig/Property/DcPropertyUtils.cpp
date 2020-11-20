@@ -119,7 +119,7 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	return EDcDataEntry::Ended;
 }
 
-FString GetFormatPropertyName(UField* Property)
+FString GetFormatPropertyTypeName(UField* Property)
 {
 	check(Property);
 	//	TODO primitive types actually can use `GetCPPType`
@@ -140,36 +140,44 @@ FString GetFormatPropertyName(UField* Property)
 	if (Property->IsA<UFloatProperty>()) return TEXT("float");
 	if (Property->IsA<UDoubleProperty>()) return TEXT("double");
 
-	if (Property->IsA<UStructProperty>()
-		|| Property->IsA<UScriptStruct>())
+	if (UScriptStruct* Struct = Cast<UScriptStruct>(Property))
 	{
-		return FString::Printf(TEXT("F%s"), *Property->GetName());
+		return FString::Printf(TEXT("F%s"), *Struct->GetName());
 	}
 
-	if (Property->IsA<UObjectProperty>()
-		|| Property->IsA<UClass>())
+	if (UStructProperty* StructField = Cast<UStructProperty>(Property))
 	{
-		return FString::Printf(TEXT("U%s"), *Property->GetName());
+		return FString::Printf(TEXT("F%s"), *StructField->Struct->GetName());
+	}
+
+	if (UClass* Class = Cast<UClass>(Property))
+	{
+		return FString::Printf(TEXT("U%s"), *Class->GetName());
+	}
+
+	if (UObjectProperty* ObjField = Cast<UObjectProperty>(Property))
+	{
+		return FString::Printf(TEXT("U%s"), *ObjField->PropertyClass->GetName());
 	}
 
 	if (UMapProperty* MapProperty = Cast<UMapProperty>(Property))
 	{
 		return FString::Printf(TEXT("TMap<%s, %s>"), 
-			*GetFormatPropertyName(MapProperty->KeyProp),
-			*GetFormatPropertyName(MapProperty->ValueProp)
+			*GetFormatPropertyTypeName(MapProperty->KeyProp),
+			*GetFormatPropertyTypeName(MapProperty->ValueProp)
 		);
 	}
 	if (UArrayProperty* ArrayProperty = Cast<UArrayProperty>(Property))
 	{
 		return FString::Printf(TEXT("TArray<%s>"), 
-			*GetFormatPropertyName(ArrayProperty->Inner)
+			*GetFormatPropertyTypeName(ArrayProperty->Inner)
 		);
 	}
 
 	if (USetProperty* SetProperty = Cast<USetProperty>(Property))
 	{
 		return FString::Printf(TEXT("TSet<%s>"),
-			*GetFormatPropertyName(SetProperty->ElementProp)
+			*GetFormatPropertyTypeName(SetProperty->ElementProp)
 			);
 	}
 
@@ -186,7 +194,7 @@ void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg Seg
 void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, UObject* ClassObject, UClass* Class, UProperty* Property)
 {
 	OutSegments.Add(FString::Printf(TEXT("(U%s)%s"),
-		*GetFormatPropertyName(Class),
+		*GetFormatPropertyTypeName(Class),
 		*(ClassObject ? ClassObject->GetName() : TEXT("<null>"))
 	));
 
@@ -194,7 +202,7 @@ void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg S
 		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-			*GetFormatPropertyName(Property),
+			*GetFormatPropertyTypeName(Property),
 			*Property->GetName()));
 	}
 }
@@ -202,7 +210,7 @@ void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg S
 void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, FName StructName, UScriptStruct* StructClass, UProperty* Property)
 {
 	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyName(StructClass),
+		*GetFormatPropertyTypeName(StructClass),
 		*StructName.ToString()
 	));
 
@@ -210,7 +218,7 @@ void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg 
 		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
 	{
 		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
-			*GetFormatPropertyName(Property),
+			*GetFormatPropertyTypeName(Property),
 			*Property->GetName()));
 	}
 }
@@ -219,7 +227,7 @@ void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg Seg
 {
 	check(MapProperty);
 	FString Seg = FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyName(MapProperty),
+		*GetFormatPropertyTypeName(MapProperty),
 		*MapProperty->GetName()
 	);
 
@@ -233,7 +241,7 @@ void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg S
 {
 	check(ArrayProperty);
 	FString Seg = FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyName(ArrayProperty),
+		*GetFormatPropertyTypeName(ArrayProperty),
 		*ArrayProperty->Inner->GetName()
 	);
 
@@ -247,7 +255,7 @@ void DcPropertyHighlight::FormatSet(TArray<FString>& OutSegments, EFormatSeg Seg
 {
 	check(SetProperty);
 	FString Seg = FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyName(SetProperty),
+		*GetFormatPropertyTypeName(SetProperty),
 		*SetProperty->ElementProp->GetName()
 	);
 

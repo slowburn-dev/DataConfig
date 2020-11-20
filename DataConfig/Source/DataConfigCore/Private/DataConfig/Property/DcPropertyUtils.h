@@ -16,7 +16,7 @@ UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name);
 enum class EDcDataEntry;
 EDcDataEntry PropertyToDataEntry(UField* Property);
 
-FString GetFormatPropertyName(UField* Property);
+FString GetFormatPropertyTypeName(UField* Property);
 
 template<typename TState, typename TStorage, typename... TArgs>
 TState& Emplace(TStorage* Storage, TArgs&&... Args)
