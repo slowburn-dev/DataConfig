@@ -12,6 +12,7 @@ FDcResult FDcWriter::WriteNil(){ return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteBool(bool Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteName(const FName& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteString(const FString& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteEnum(const FDcEnumData& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteStructRoot(const FName& Name) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteStructEnd(const FName& Name) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteClassRoot(const FDcClassPropertyStat& Class) { return DC_FAIL(DcDCommon, NotImplemented); }

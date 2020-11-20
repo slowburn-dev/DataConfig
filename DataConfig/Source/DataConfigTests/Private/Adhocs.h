@@ -208,6 +208,15 @@ enum class EFootbar : int64
 	Foo, Bar, Bart
 };
 
+USTRUCT()
+struct FStructWithEnum
+{
+	GENERATED_BODY()
+
+	UPROPERTY() EFootbar Enum1;
+};
+
+
 void PropertyVisitorRoundtrip();
 void JsonReader1();
 void UEStructSerializer();

@@ -83,7 +83,7 @@ static void PopState(FDcPropertyReader* Reader)
 
 
 template<typename TPrimitive>
-FORCEINLINE FDcResult ReadTopStateProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
+FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
 {
 	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
 
@@ -134,8 +134,8 @@ FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 	return GetTopState(this).PeekRead(OutPtr);
 }
 
-FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadEnum(FDcEnumData* OutPtr)
 { 
@@ -422,18 +422,18 @@ FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr)
 	}
 }
 
-FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadInt32(int32* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadInt64(int64* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt32(int32* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadInt64(int64* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
-FDcResult FDcPropertyReader::ReadUInt8(uint8* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadUInt16(uint16* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadUInt32(uint32* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadUInt64(uint64* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt8(uint8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt16(uint16* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt32(uint32* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadUInt64(uint64* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
-FDcResult FDcPropertyReader::ReadFloat(float* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadDouble(double* OutPtr) { return ReadTopStateProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadFloat(float* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadDouble(double* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadNil()
 {

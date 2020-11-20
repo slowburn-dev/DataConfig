@@ -524,5 +524,45 @@ void PropertyVisitorRoundtrip__Set()
 	}
 }
 
+static void _Roundtrip(FDcPropertyDatum ReadDatum, FDcPropertyDatum WriteDatum)
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+	FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);
+
+	FDcPropertyReader Reader(ReadDatum);
+	FDcPropertyWriter WriteWriter(WriteDatum);
+
+	FDcWeakCompositeWriter Writer;
+	Writer.Writers.Add(&PrettyPrinter);
+	Writer.Writers.Add(&WriteWriter);
+
+	FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+	RoundtripVisit.PostVisit.BindLambda([&](FDcPipeVisitor* Self) {
+		FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
+		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+		FString LineWrite = WriteWriter.FormatHighlight().Formatted;
+		UE_LOG(LogDataConfigCore, Display, TEXT("- Write: %s"), *LineWrite);
+		});
+
+	FDcResult Ret = RoundtripVisit.PipeVisit();
+	if (!Ret.Ok())
+		UE_LOG(LogDataConfigCore, Display, TEXT("- roundtrip visit failed --"));
+}
+
+void PropertyVisitorRoundtrip__Enum()
+{
+	FStructWithEnum Struct;
+
+	Struct.Enum1 = EFootbar::Bart;
+
+	FStructWithEnum OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithEnum::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithEnum::StaticStruct(), &OutStruct)
+	);
+}
+
+
 
 

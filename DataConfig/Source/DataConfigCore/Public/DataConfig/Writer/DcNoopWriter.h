@@ -14,6 +14,8 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteBool(bool) override;
 	FDcResult WriteName(const FName&) override;
 	FDcResult WriteString(const FString&) override;
+	FDcResult WriteEnum(const FDcEnumData& Value) override;
+
 	FDcResult WriteStructRoot(const FName&) override;
 	FDcResult WriteStructEnd(const FName&) override;
 	FDcResult WriteClassRoot(const FDcClassPropertyStat&) override;
@@ -38,7 +40,6 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 
 	FDcResult WriteFloat(const float&) override;
 	FDcResult WriteDouble(const double&) override;
-
 
 };
 

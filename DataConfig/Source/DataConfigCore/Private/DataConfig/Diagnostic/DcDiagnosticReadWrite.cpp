@@ -13,6 +13,9 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DcDReadWrite::WriteClassInlineNotCreated, TEXT("Expand class write need the object to already exist. Property {0} {1}") },
 	{ DcDReadWrite::StructNameMismatch, TEXT("Struct name mismatch, Expect {0}, Actual {1}") },
 	{ DcDReadWrite::UInt64EnumNotSupported, TEXT("Doesn't support uint64 backed enum atm") },
+	{ DcDReadWrite::EnumNameMismatch, TEXT("Enum name mismatch, Expect {0}, Actual {1}") },
+	{ DcDReadWrite::EnumNameNotFound, TEXT("Enum name not found. Enum {0}, Actual {1}") },
+	{ DcDReadWrite::EnumValueInvalid, TEXT("Enum value isn't valid for this enum. Enum {0}, Actual {1}") },
 	//	putback reader
 	{ DcDReadWrite::CantUsePutbackValue, TEXT("Cannot use putback value in {0}") },
 };

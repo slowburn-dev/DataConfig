@@ -5,12 +5,10 @@ bool IsEffectiveProperty(UProperty* Property)
 {
 	check(Property);
 	return Property->IsA<UBoolProperty>()
-		|| Property->IsA<UFloatProperty>()
-		|| Property->IsA<UDoubleProperty>()
-		|| Property->IsA<UIntProperty>()
-		|| Property->IsA<UUInt32Property>()
+		|| Property->IsA<UNumericProperty>()
 		|| Property->IsA<UStrProperty>()
 		|| Property->IsA<UNameProperty>()
+		|| Property->IsA<UEnumProperty>()
 		|| Property->IsA<UStructProperty>()
 		|| Property->IsA<UObjectProperty>()
 		|| Property->IsA<UMapProperty>()
@@ -95,6 +93,7 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	if (Property->IsA<UBoolProperty>()) return EDcDataEntry::Bool;
 	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;
 	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
+	if (Property->IsA<UEnumProperty>()) return EDcDataEntry::Enum;
 
 	if (Property->IsA<UInt8Property>()) return EDcDataEntry::Int8;
 	if (Property->IsA<UInt16Property>()) return EDcDataEntry::Int16;
@@ -139,6 +138,12 @@ FString GetFormatPropertyTypeName(UField* Property)
 
 	if (Property->IsA<UFloatProperty>()) return TEXT("float");
 	if (Property->IsA<UDoubleProperty>()) return TEXT("double");
+
+
+	if (UEnumProperty* EnumProperty = Cast<UEnumProperty>(Property))
+	{
+		return FString::Printf(TEXT("E%s"), *EnumProperty->GetEnum()->GetName());
+	}
 
 	if (UScriptStruct* Struct = Cast<UScriptStruct>(Property))
 	{

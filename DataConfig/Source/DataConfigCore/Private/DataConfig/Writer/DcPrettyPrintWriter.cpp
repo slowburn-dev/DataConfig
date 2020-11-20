@@ -35,6 +35,12 @@ FDcResult FDcPrettyPrintWriter::WriteString(const FString& Value)
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
+{
+	Output.Logf(TEXT("%s- enum: %s,%s,%d"), *Indent, *Value.Type.ToString(), *Value.Name.ToString(), Value.Value);
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FName& Name)
 {
 	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *Name.ToString());

@@ -33,6 +33,11 @@ FDcResult FDcWeakCompositeWriter::WriteString(const FString& Value)
 	return CompositeDispatch(this, &FDcWriter::WriteString, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteEnum(const FDcEnumData& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteEnum, Value);
+}
+
 FDcResult FDcWeakCompositeWriter::WriteStructRoot(const FName& Name)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteStructRoot, Name);
@@ -142,4 +147,3 @@ FDcResult FDcWeakCompositeWriter::WriteDouble(const double& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteDouble, Value);
 }
-

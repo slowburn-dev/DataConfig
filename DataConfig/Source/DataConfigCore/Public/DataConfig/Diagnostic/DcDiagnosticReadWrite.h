@@ -21,6 +21,9 @@ namespace DcDReadWrite
 		WriteClassInlineNotCreated,
 		StructNameMismatch,
 		UInt64EnumNotSupported,
+		EnumNameMismatch,
+		EnumNameNotFound,
+		EnumValueInvalid,
 		
 		//	putback reader
 		CantUsePutbackValue,

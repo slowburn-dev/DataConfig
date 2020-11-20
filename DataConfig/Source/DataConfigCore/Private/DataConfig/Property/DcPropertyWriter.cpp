@@ -81,7 +81,7 @@ static void PopState(FDcPropertyWriter* Writer)
 }
 
 template<typename TPrimitive>
-FORCEINLINE FDcResult WriteTopStateProperty(FDcPropertyWriter* Self, const TPrimitive& Value)
+FORCEINLINE FDcResult WriteTopStateScalarProperty(FDcPropertyWriter* Self, const TPrimitive& Value)
 {
 	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
 
@@ -128,14 +128,54 @@ FDcResult FDcPropertyWriter::WriteNext(EDcDataEntry Next)
 	return GetTopState(this).Peek(Next);
 }
 
-FDcResult FDcPropertyWriter::WriteBool(bool Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteString(const FString& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteBool(bool Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteString(const FString& Value) { return WriteTopStateScalarProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::WriteName(const FName& Value)
 {
 	FScopedStackedWriter StackedWriter(this);
 
 	return GetTopState(this).WriteName(Value);
+}
+
+FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(UEnumProperty::StaticClass(), Datum));
+
+	UEnumProperty* EnumProperty = Datum.CastChecked<UEnumProperty>();
+	UEnum* Enum = EnumProperty->GetEnum();
+
+	if (EnumProperty->GetUnderlyingProperty()->IsA<UUInt64Property>())
+		return DC_FAIL(DcDReadWrite, UInt64EnumNotSupported) << FormatHighlight();
+
+	if (!Value.Type.IsNone()
+		&& Value.Type != Enum->GetFName())
+	{
+		return DC_FAIL(DcDReadWrite, EnumNameMismatch)
+			<< Value.Type.ToString() << Enum->GetName()
+			<< FormatHighlight();
+	}
+
+	if (!Value.Name.IsNone()
+		&& Value.Name != Enum->GetNameByValue(Value.Value))
+	{
+		return DC_FAIL(DcDReadWrite, EnumNameNotFound)
+			<< Enum->GetName() << Value.Name.ToString()
+			<< FormatHighlight();
+	}
+
+	if (!Enum->IsValidEnumValue(Value.Value))
+	{
+		return DC_FAIL(DcDReadWrite, EnumValueInvalid)
+			<< Enum->GetName() << Value.Value
+			<< FormatHighlight();
+	}
+
+	EnumProperty->GetUnderlyingProperty()->SetIntPropertyValue(Datum.DataPtr, Value.Value);
+	return DcOk();
 }
 
 FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
@@ -402,18 +442,18 @@ FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
 	}
 }
 
-FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteInt32(const int32& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteInt64(const int64& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt32(const int32& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInt64(const int64& Value) { return WriteTopStateScalarProperty(this, Value); }
 
-FDcResult FDcPropertyWriter::WriteUInt8(const uint8& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteUInt16(const uint16& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteUInt32(const uint32& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteUInt64(const uint64& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt8(const uint8& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt16(const uint16& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt32(const uint32& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteUInt64(const uint64& Value) { return WriteTopStateScalarProperty(this, Value); }
 
-FDcResult FDcPropertyWriter::WriteFloat(const float& Value) { return WriteTopStateProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteDouble(const double& Value) { return WriteTopStateProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteFloat(const float& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteDouble(const double& Value) { return WriteTopStateScalarProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::SkipWrite()
 {

@@ -41,6 +41,12 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadString(&Value));
 			DC_TRY(Writer->WriteString(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::Enum)
+		{
+			FDcEnumData Value;
+			DC_TRY(Reader->ReadEnum(&Value));
+			DC_TRY(Writer->WriteEnum(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::StructRoot)
 		{
 			FName Name;
