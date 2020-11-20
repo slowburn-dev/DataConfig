@@ -11,7 +11,7 @@ FDcPropertyReader* _GetStackReader()
 
 FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseReadState::ReadName(FName* OutNamePtr) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseReadState::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
 
 void FDcBaseReadState::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
@@ -95,7 +95,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 	else if (State == EState::ExpectValue)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+		DC_TRY(ReadScalarDataEntry(UNameProperty::StaticClass(), Datum));
 
 		if (OutNamePtr)
 		{
@@ -111,7 +111,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 	}
 }
 
-FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateClass::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -357,7 +357,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 	else if (State == EState::ExpectValue)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+		DC_TRY(ReadScalarDataEntry(UNameProperty::StaticClass(), Datum));
 
 		if (OutNamePtr)
 		{
@@ -373,7 +373,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 	}
 }
 
-FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateStruct::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -527,7 +527,7 @@ FDcResult FDcReadStateMap::PeekRead(EDcDataEntry* OutPtr)
 FDcResult FDcReadStateMap::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+	DC_TRY(ReadScalarDataEntry(UNameProperty::StaticClass(), Datum));
 
 	if (OutNamePtr)
 	{
@@ -537,7 +537,7 @@ FDcResult FDcReadStateMap::ReadName(FName* OutNamePtr)
 	return DcOk();
 }
 
-FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateMap::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -683,7 +683,7 @@ FDcResult FDcReadStateArray::PeekRead(EDcDataEntry* OutPtr)
 FDcResult FDcReadStateArray::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+	DC_TRY(ReadScalarDataEntry(UNameProperty::StaticClass(), Datum));
 
 	if (OutNamePtr)
 	{
@@ -693,7 +693,7 @@ FDcResult FDcReadStateArray::ReadName(FName* OutNamePtr)
 	return DcOk();
 }
 
-FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateArray::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -822,14 +822,14 @@ FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
 FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+	DC_TRY(ReadScalarDataEntry(UNameProperty::StaticClass(), Datum));
 
 	FDcReader::ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
 
 	return DcOk();
 }
 
-FDcResult FDcReadStateSet::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateSet::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectItem)
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)

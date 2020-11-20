@@ -20,6 +20,7 @@ namespace DcDReadWrite
 		CantFindPropertyByName,
 		WriteClassInlineNotCreated,
 		StructNameMismatch,
+		UInt64EnumNotSupported,
 		
 		//	putback reader
 		CantUsePutbackValue,

@@ -132,11 +132,15 @@ struct FDcClassPropertyStat
 struct FDcEnumData
 {
 	FName Type;
-	FName Value;
+	FName Name;
+	int64 Value;
 
 	FORCEINLINE friend FArchive& operator<<(FArchive& Ar, FDcEnumData& Target)
 	{
-		Ar << Target.Type << Target.Value;
+		Ar << Target.Type
+			<< Target.Name
+			<< Target.Value;
+
 		return Ar;
 	}
 };
