@@ -107,11 +107,11 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadSetEnd());
 			DC_TRY(Writer->WriteSetEnd());
 		}
-		else if (PeekEntry == EDcDataEntry::Reference)
+		else if (PeekEntry == EDcDataEntry::ObjectReference)
 		{
 			UObject* Value;
-			DC_TRY(Reader->ReadReference(&Value));
-			DC_TRY(Writer->WriteReference(Value));
+			DC_TRY(Reader->ReadObjectReference(&Value));
+			DC_TRY(Writer->WriteObjectReference(Value));
 		}
 		else if (PeekEntry == EDcDataEntry::Int8)
 		{

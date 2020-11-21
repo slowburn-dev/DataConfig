@@ -406,7 +406,7 @@ FDcResult FDcPropertyReader::ReadSetEnd()
 	}
 }
 
-FDcResult FDcPropertyReader::ReadReference(UObject** OutPtr)
+FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
 {
 	FScopedStackedReader StackedReader(this);
 

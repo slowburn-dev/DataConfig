@@ -428,7 +428,7 @@ FDcResult FDcPropertyWriter::WriteNil()
 	}
 }
 
-FDcResult FDcPropertyWriter::WriteReference(UObject* Value)
+FDcResult FDcPropertyWriter::WriteObjectReference(UObject* Value)
 {
 	FScopedStackedWriter StackedWriter(this);
 

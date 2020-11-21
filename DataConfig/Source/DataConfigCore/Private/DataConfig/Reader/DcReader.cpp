@@ -25,7 +25,8 @@ FDcResult FDcReader::ReadArrayRoot() { return DC_FAIL(DcDCommon, NotImplemented)
 FDcResult FDcReader::ReadArrayEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadSetRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadSetEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadReference(UObject** OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadObjectReference(UObject** OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadClassReference(UClass** OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt8(int8* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt16(int16* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt32(int32* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }

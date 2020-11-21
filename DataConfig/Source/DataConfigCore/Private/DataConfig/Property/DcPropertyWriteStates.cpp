@@ -230,9 +230,9 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 	}
 	else if (State == EState::ExpectReference)
 	{
-		return DcExpect(Next == EDcDataEntry::Reference, [=] {
+		return DcExpect(Next == EDcDataEntry::ObjectReference, [=] {
 			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-				<< (int)EDcDataEntry::Reference << (int)Next
+				<< (int)EDcDataEntry::ObjectReference << (int)Next
 				<< _GetStackWriter()->FormatHighlight();
 		});
 	}

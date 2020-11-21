@@ -90,7 +90,6 @@ enum class EDcDataEntry
 	UInt32,
 	UInt64,
 
-
 	//	Struct
 	StructRoot,
 	StructEnd,
@@ -112,7 +111,8 @@ enum class EDcDataEntry
 	SetEnd,
 
 	//	Reference
-	Reference,
+	ObjectReference,	// `ObjectReference` always happen between `ClassRoot/ClassEnd`
+	ClassReference,
 
 	//	Meta
 	Ended, // or error or invalid state, 

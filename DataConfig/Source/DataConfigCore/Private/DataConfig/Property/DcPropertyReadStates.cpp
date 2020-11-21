@@ -58,7 +58,7 @@ FDcResult FDcReadStateClass::PeekRead(EDcDataEntry* OutPtr)
 	}
 	else if (State == EState::ExpectReference)
 	{
-		*OutPtr = EDcDataEntry::Reference;
+		*OutPtr = EDcDataEntry::ObjectReference;
 		return DcOk();
 	}
 	else if (State == EState::ExpectKey)

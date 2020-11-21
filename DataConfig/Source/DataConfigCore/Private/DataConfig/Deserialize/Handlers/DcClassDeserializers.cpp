@@ -148,7 +148,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 				if (Loaded)
 				{
 					DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-					DC_TRY(Ctx.Writer->WriteReference(Loaded));
+					DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
 					DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 					return DcOkWithProcessed(OutRet);
@@ -165,7 +165,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 			DC_TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
 
 			DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-			DC_TRY(Ctx.Writer->WriteReference(Loaded));
+			DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
 			DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 			return DcOkWithProcessed(OutRet);
@@ -206,7 +206,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		DC_TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
 
 		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-		DC_TRY(Ctx.Writer->WriteReference(Loaded));
+		DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
 		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 		return DcOkWithProcessed(OutRet);
