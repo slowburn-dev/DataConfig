@@ -80,14 +80,14 @@ static void PopState(FDcPropertyWriter* Writer)
 	PopState(Writer);
 }
 
-template<typename TPrimitive>
-FORCEINLINE FDcResult WriteTopStateScalarProperty(FDcPropertyWriter* Self, const TPrimitive& Value)
+template<typename TScalar>
+FORCEINLINE FDcResult WriteTopStateScalarProperty(FDcPropertyWriter* Self, const TScalar& Value)
 {
-	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
+	using TProperty = TPropertyTypeMap<TScalar>::Type;
 
 	FScopedStackedWriter StackedWriter(Self);
 
-	return WriteValue<TProperty, TPrimitive>(GetTopState(Self), Value);
+	return WriteValue<TProperty, TScalar>(GetTopState(Self), Value);
 }
 
 FDcPropertyWriter::FDcPropertyWriter()

@@ -54,6 +54,9 @@ template<> struct TDcDataEntryType<uint8> { static constexpr EDcDataEntry Value 
 template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt16; };
 template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
 template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
+
+template<> struct TDcDataEntryType<UObject*> { static constexpr EDcDataEntry Value = EDcDataEntry::ObjectReference; };
+template<> struct TDcDataEntryType<UClass*> { static constexpr EDcDataEntry Value = EDcDataEntry::ClassReference; };
 //	TODO might need to .. support the whole data model?
 
 

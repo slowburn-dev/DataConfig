@@ -4,6 +4,11 @@
 #include "Backends/JsonStructSerializerBackend.h"
 #include "Serialization/JsonWriter.h"
 
+#include "Serialization/MemoryWriter.h"
+#include "Serialization/MemoryReader.h"
+
+#include "CoreMinimal.h"
+
 static void DumpStruct(void* StructPtr, UStruct* StructClass)
 {
 	TArray<uint8> Buffer;
@@ -48,6 +53,14 @@ void UEStructSerializer()
 		DumpStruct(&StructObjRef, FTestStruct_ObjRef::StaticStruct());
 	}
 
+	TArray<uint8> Value;
+	FMemoryWriter Reader(Value, true);
+	UClass* Cls = UTestObj_Alpha::StaticClass();
+	Reader << Cls;
+	int Val = 123;
+	Reader << Val;
+	UObject* Obj = nullptr;
+	Reader << Obj;
 }
 
 

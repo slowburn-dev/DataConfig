@@ -82,10 +82,10 @@ static void PopState(FDcPropertyReader* Reader)
 }
 
 
-template<typename TPrimitive>
-FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TPrimitive* OutPtr)
+template<typename TScalar>
+FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScalar* OutPtr)
 {
-	using TProperty = TPropertyTypeMap<TPrimitive>::Type;
+	using TProperty = TPropertyTypeMap<TScalar>::Type;
 
 	FScopedStackedReader StackedReader(Self);
 
@@ -422,6 +422,13 @@ FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
 
 	}
 }
+
+FDcResult FDcPropertyReader::ReadClassReference(UClass** OutPtr)
+{
+	return DcOk();
+	//return ReadTopStateScalarProperty(this, OutPtr);
+}
+
 
 FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
