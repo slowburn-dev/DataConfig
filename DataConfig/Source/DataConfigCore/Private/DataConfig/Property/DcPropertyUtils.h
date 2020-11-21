@@ -48,6 +48,9 @@ template<> struct TPropertyTypeMap<uint64> { using Type = UUInt64Property; };
 template<> struct TPropertyTypeMap<float> { using Type = UFloatProperty; };
 template<> struct TPropertyTypeMap<double> { using Type = UDoubleProperty; };
 
+template<> struct TPropertyTypeMap<UClass*> { using Type = UClassProperty; };
+template<> struct TPropertyTypeMap<UObject*> { using Type = UObjectProperty; };
+
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
 

@@ -94,7 +94,7 @@ FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScala
 
 	if (OutPtr)
 	{
-		*OutPtr = Datum.CastChecked<TProperty>()->GetPropertyValue(Datum.DataPtr);
+		*OutPtr = (TScalar)Datum.CastChecked<TProperty>()->GetPropertyValue(Datum.DataPtr);
 	}
 
 	return DcOk();
@@ -425,8 +425,7 @@ FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
 
 FDcResult FDcPropertyReader::ReadClassReference(UClass** OutPtr)
 {
-	return DcOk();
-	//return ReadTopStateScalarProperty(this, OutPtr);
+	return ReadTopStateScalarProperty<UClass*>(this, OutPtr);
 }
 
 

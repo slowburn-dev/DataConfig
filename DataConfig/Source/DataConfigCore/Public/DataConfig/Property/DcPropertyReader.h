@@ -40,7 +40,6 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadObjectReference(UObject** OutPtr) override;
 	FDcResult ReadClassReference(UClass** OutPtr) override;
 
-
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;
 	FDcResult ReadInt32(int32* OutPtr) override;
