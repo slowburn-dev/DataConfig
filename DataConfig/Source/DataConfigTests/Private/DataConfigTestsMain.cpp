@@ -23,7 +23,6 @@ static void Body()
 	}
 	*/
 
-	/*
 	//	this is adhoc anyway, figure this out later
 	FPackageName::RegisterMountPoint(
 		TEXT("/Fixture/"),
@@ -68,9 +67,7 @@ static void Body()
 	PropertyVisitorRoundtrip__Basic();
 	//PropertyVisitorRoundtrip__MapStruct();
 	PropertyVisitorRoundtrip__StructStruct();
-	*/
-
-
+	PropertyVisitorRoundtrip__Enum();
 	PropertyVisitorRoundtrip__Text();
 
 	return;

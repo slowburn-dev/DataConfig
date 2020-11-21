@@ -150,7 +150,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult WriteNil();
 	FDcResult WriteClassRoot(const FDcClassPropertyStat& Class);
 	FDcResult WriteClassEnd(const FDcClassPropertyStat& Class);
-	FDcResult WriteReference(UObject* Value);
+	FDcResult WriteReference(const UObject* Value);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };

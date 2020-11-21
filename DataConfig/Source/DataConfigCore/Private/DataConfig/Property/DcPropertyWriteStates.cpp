@@ -429,11 +429,12 @@ FDcResult FDcWriteStateClass::WriteNil()
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteReference(UObject* Value)
+FDcResult FDcWriteStateClass::WriteReference(const UObject* Value)
 {
 	if (State == EState::ExpectReference)
 	{
-		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, Value);
+		//	`UObjectProperty::SetObjectPropertyValue` not taking const pointer 
+		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
 
 		State = EState::ExpectKeyOrEnd;
 		return DcOk();

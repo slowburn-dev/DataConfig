@@ -55,8 +55,12 @@ template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value
 template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
 template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
 
+//	FMemoryReader doesn't support `UObject`, check `MemoryArchive.h`
+//	might need a special pair of Reader/Writer for variant
+/*
 template<> struct TDcDataEntryType<UObject*> { static constexpr EDcDataEntry Value = EDcDataEntry::ObjectReference; };
 template<> struct TDcDataEntryType<UClass*> { static constexpr EDcDataEntry Value = EDcDataEntry::ClassReference; };
+*/
 //	TODO might need to .. support the whole data model?
 
 

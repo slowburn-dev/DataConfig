@@ -55,12 +55,15 @@ void UEStructSerializer()
 
 	TArray<uint8> Value;
 	FMemoryWriter Reader(Value, true);
-	UClass* Cls = UTestObj_Alpha::StaticClass();
-	Reader << Cls;
 	int Val = 123;
 	Reader << Val;
+	/*
+	//	MemoryArchive hard coded doesn't support this one
 	UObject* Obj = nullptr;
 	Reader << Obj;
+	UClass* Cls = UTestObj_Alpha::StaticClass();
+	Reader << Cls;
+	*/
 }
 
 

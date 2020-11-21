@@ -144,12 +144,12 @@ FDcResult FDcPutbackReader::ReadArrayEnd()
 
 FDcResult FDcPutbackReader::ReadObjectReference(UObject** OutPtr)
 {
-	return CachedRead<UObject*>(this, &FDcReader::ReadObjectReference, OutPtr);
+	return CanNotCachedRead(this, EDcDataEntry::ObjectReference, &FDcReader::ReadObjectReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadClassReference(UClass** OutPtr)
 {
-	return CachedRead<UClass*>(this, &FDcReader::ReadClassReference, OutPtr);
+	return CanNotCachedRead(this, EDcDataEntry::ClassReference, &FDcReader::ReadClassReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadSetRoot()

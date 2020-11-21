@@ -98,7 +98,7 @@ FDcResult FDcWeakCompositeWriter::WriteNil()
 	return CompositeDispatch(this, &FDcWriter::WriteNil);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteObjectReference(UObject* Value)
+FDcResult FDcWeakCompositeWriter::WriteObjectReference(const UObject* Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteObjectReference, Value);
 }

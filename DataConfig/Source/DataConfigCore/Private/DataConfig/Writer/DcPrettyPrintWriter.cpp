@@ -118,7 +118,7 @@ FDcResult FDcPrettyPrintWriter::WriteSetEnd()
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteObjectReference(UObject* Value)
+FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 {
 	check(Value);
 	Output.Logf(TEXT("%s- ref: %d"), *Indent, Value->GetUniqueID());

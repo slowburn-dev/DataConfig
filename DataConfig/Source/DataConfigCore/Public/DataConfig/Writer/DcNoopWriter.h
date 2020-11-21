@@ -27,7 +27,7 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteArrayEnd() override;
 	FDcResult WriteSetRoot() override;
 	FDcResult WriteSetEnd() override;
-	FDcResult WriteObjectReference(UObject*) override;
+	FDcResult WriteObjectReference(const UObject*) override;
 
 	FDcResult WriteInt8(const int8&) override;
 	FDcResult WriteInt16(const int16&) override;
