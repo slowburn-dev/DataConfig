@@ -15,6 +15,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::KeyMustBeString, TEXT("Object key must be a string"), },
 	{ DcDJSON::ReadTypeMismatch, TEXT("Reading type mismatch, expecting '{0}' actual '{1}'"), },
 	{ DcDJSON::ExpectComma, TEXT("Expect comma but not found"), },
+	{ DcDJSON::ObjectKeyTooLong, TEXT("Object key string too long, UE4 FName has lengh limitation anyway"), },
 };
 
 FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };

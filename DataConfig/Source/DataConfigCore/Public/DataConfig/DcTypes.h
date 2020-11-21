@@ -5,6 +5,7 @@
 
 DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All);
 
+//	TODO move these into a seperate header
 //	global initializer and shutdown
 enum class EDcInitializeAction
 {
@@ -73,6 +74,8 @@ enum class EDcDataEntry
 	Bool,
 	Name,
 	String,
+	Text,
+	Enum,
 
 	Float,
 	Double,
@@ -87,7 +90,6 @@ enum class EDcDataEntry
 	UInt32,
 	UInt64,
 
-	Enum,
 
 	//	Struct
 	StructRoot,

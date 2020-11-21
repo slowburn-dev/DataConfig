@@ -22,6 +22,7 @@ namespace DcDJSON
 		KeyMustBeString,
 		ReadTypeMismatch,
 		ExpectComma,
+		ObjectKeyTooLong,
 	};
 
 } // namespace DJSON

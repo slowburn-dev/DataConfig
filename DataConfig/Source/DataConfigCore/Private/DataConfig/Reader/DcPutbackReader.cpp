@@ -92,6 +92,11 @@ FDcResult FDcPutbackReader::ReadString(FString* OutPtr)
 	return CachedRead<FString>(this, &FDcReader::ReadString, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadText(FText* OutPtr)
+{
+	return CachedRead<FText>(this, &FDcReader::ReadText, OutPtr);
+}
+
 FDcResult FDcPutbackReader::ReadEnum(FDcEnumData* OutPtr)
 {
 	return CachedRead<FDcEnumData>(this, &FDcReader::ReadEnum, OutPtr);
@@ -209,4 +214,3 @@ bool FDcPutbackReader::Coercion(EDcDataEntry ToEntry)
 
 	return Reader->Coercion(ToEntry);
 }
-

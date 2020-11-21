@@ -62,7 +62,8 @@ bool TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry)
 	}
 	else if (Token.Type == ETokenType::String)
 	{
-		return ToEntry == EDcDataEntry::Name;
+		return ToEntry == EDcDataEntry::Name
+			|| ToEntry == EDcDataEntry::Text;
 	}
 
 	return false;
@@ -167,9 +168,15 @@ FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 		FString ParsedStr;
 		DC_TRY(ParseStringToken(ParsedStr));
 
-		FName ParsedName(*ParsedStr);
+		FName ParsedName;
 		if (IsAtObjectKey())
+		{
+			if (ParsedStr.Len() > _MAX_KEY_LEN)
+				return DC_FAIL(DcDJSON, ObjectKeyTooLong) << FormatHighlight(Token.Ref);
+
+			ParsedName = *ParsedStr;
 			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
+		}
 
 		ReadOut(OutPtr, ParsedName);
 		DC_TRY(EndTopRead());
@@ -193,11 +200,14 @@ FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 
 		if (IsAtObjectKey())
 		{
+			if (ParsedStr.Len() > _MAX_KEY_LEN)
+				return DC_FAIL(DcDJSON, ObjectKeyTooLong) << FormatHighlight(Token.Ref);
+
 			FName ParsedName(*ParsedStr);
 			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
 		}
 
-		ReadOut(OutPtr, ParsedStr);
+		ReadOut(OutPtr, MoveTemp(ParsedStr));
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
@@ -211,6 +221,35 @@ FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
 			<< EDcDataEntry::String << TokenTypeToDataEntry(Token.Type)
+			<< FormatHighlight(Token.Ref);
+	}
+}
+
+template<typename CharType>
+FDcResult TDcJsonReader<CharType>::ReadText(FText* OutPtr)
+{
+	if (Token.Type == ETokenType::String)
+	{
+		FString ParsedStr;
+		DC_TRY(ParseStringToken(ParsedStr));
+
+		if (IsAtObjectKey())
+		{
+			if (ParsedStr.Len() > _MAX_KEY_LEN)
+				return DC_FAIL(DcDJSON, ObjectKeyTooLong) << FormatHighlight(Token.Ref);
+
+			FName ParsedName(*ParsedStr);
+			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
+		}
+
+		ReadOut(OutPtr, FText::FromString(MoveTemp(ParsedStr)));
+		DC_TRY(EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< EDcDataEntry::Text << TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }

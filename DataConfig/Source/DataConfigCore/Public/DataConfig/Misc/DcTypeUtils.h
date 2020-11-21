@@ -39,6 +39,7 @@ template<> struct TDcDataEntryType<nullptr_t> { static constexpr EDcDataEntry Va
 template<> struct TDcDataEntryType<bool> { static constexpr EDcDataEntry Value = EDcDataEntry::Bool; };
 template<> struct TDcDataEntryType<FName> { static constexpr EDcDataEntry Value = EDcDataEntry::Name; };
 template<> struct TDcDataEntryType<FString> { static constexpr EDcDataEntry Value = EDcDataEntry::String; };
+template<> struct TDcDataEntryType<FText> { static constexpr EDcDataEntry Value = EDcDataEntry::Text; };
 template<> struct TDcDataEntryType<FDcEnumData> { static constexpr EDcDataEntry Value = EDcDataEntry::Enum; };
 
 template<> struct TDcDataEntryType<float> { static constexpr EDcDataEntry Value = EDcDataEntry::Float; };
@@ -67,6 +68,7 @@ template<> struct TDcTypeToDataEntry<EDcDataEntry::Nil> { using Type = nullptr_t
 template<> struct TDcTypeToDataEntry<EDcDataEntry::Bool> { using Type = bool; };
 template<> struct TDcTypeToDataEntry<EDcDataEntry::Name> { using Type = FName; };
 template<> struct TDcTypeToDataEntry<EDcDataEntry::String> { using Type = FString; };
+template<> struct TDcTypeToDataEntry<EDcDataEntry::Text> { using Type = FText; };
 template<> struct TDcTypeToDataEntry<EDcDataEntry::Enum> { using Type = FDcEnumData; };
 
 template<> struct TDcTypeToDataEntry<EDcDataEntry::Float> { using Type = float; };

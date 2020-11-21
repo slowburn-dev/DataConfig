@@ -43,6 +43,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	constexpr static CharType _FALSE_LITERAL[] = { 'f','a','l','s','e',0 };
 	constexpr static CharType _NULL_LITERAL[] = { 'n','u','l','l',0 };
 	constexpr static CharType _EOF_CHAR = CharType('\0');
+	constexpr static uint32 _MAX_KEY_LEN = 2048;
 
 	struct FTokenFlag
 	{
@@ -108,6 +109,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;
 	FDcResult ReadString(FString* OutPtr) override;
+	FDcResult ReadText(FText* OutPtr) override;
+
 	FDcResult ReadMapRoot() override;
 	FDcResult ReadMapEnd() override;
 	FDcResult ReadArrayRoot() override;
@@ -180,6 +183,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+
 };
 
 extern template struct TDcJsonReader<ANSICHAR>;
