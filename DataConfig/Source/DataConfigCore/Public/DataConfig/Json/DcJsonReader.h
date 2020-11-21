@@ -73,7 +73,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	template<typename TArrayChar, typename TArrayAllocator>
 	void SetNewString(const TArray<TArrayChar, TArrayAllocator>& InCharArr)
 	{
-		static_assert(FDcTypeUtils::TIsSameSize<TArrayChar, CharType>::Value, "array element type isn't same size as this reader");
+		static_assert(DcTypeUtils::TIsSameSize<TArrayChar, CharType>::Value, "array element type isn't same size as this reader");
 		SetNewString((const CharType*)(InCharArr.GetData()), InCharArr.Num());
 	}
 

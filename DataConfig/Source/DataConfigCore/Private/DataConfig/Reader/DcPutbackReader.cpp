@@ -1,5 +1,6 @@
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 template<typename TData>
 FDcResult PopAndCheckCachedValue(FDcPutbackReader* Self, FDcDataVariant& OutValue)
@@ -7,7 +8,7 @@ FDcResult PopAndCheckCachedValue(FDcPutbackReader* Self, FDcDataVariant& OutValu
 	check(Self->Cached.Num() > 0);
 
 	OutValue = Self->Cached.Pop();
-	EDcDataEntry Expected = TDcDataEntryType<TData>::Value;
+	EDcDataEntry Expected = DcTypeUtils::TDcDataEntryType<TData>::Value;
 	if (OutValue.DataType != Expected)
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
 			<< (int)Expected << (int)OutValue.DataType;

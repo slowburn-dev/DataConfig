@@ -554,6 +554,8 @@ void PropertyVisitorRoundtrip__Enum()
 	FStructWithEnum Struct;
 
 	Struct.Enum1 = EFootbar::Bart;
+	Struct.Enum2 = EIntBased::NegOne;
+	Struct.Enum3 = EBPFlags::Alpha | EBPFlags::Beta | EBPFlags::Gamma;
 
 	FStructWithEnum OutStruct{};
 

@@ -1,6 +1,6 @@
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
-
 #include "DataConfig/Diagnostic/DcDiagnosticAll.inl"
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 static const FDcDiagnosticDetail* SearchDetails(uint16 InID, const FDcDiagnosticGroup& Group)
 {
@@ -59,9 +59,45 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	{
 		return FStringFormatArg(Var.GetValue<FName>().ToString().ReplaceCharWithEscapedChar());
 	}
+	else if (Var.DataType == EDcDataEntry::Int8)
+	{
+		return FStringFormatArg(Var.GetValue<int8>());
+	}
+	else if (Var.DataType == EDcDataEntry::Int16)
+	{
+		return FStringFormatArg(Var.GetValue<int16>());
+	}
 	else if (Var.DataType == EDcDataEntry::Int32)
 	{
 		return FStringFormatArg(Var.GetValue<int32>());
+	}
+	else if (Var.DataType == EDcDataEntry::Int64)
+	{
+		return FStringFormatArg(Var.GetValue<int64>());
+	}
+	else if (Var.DataType == EDcDataEntry::UInt8)
+	{
+		return FStringFormatArg(Var.GetValue<uint8>());
+	}
+	else if (Var.DataType == EDcDataEntry::UInt16)
+	{
+		return FStringFormatArg(Var.GetValue<uint16>());
+	}
+	else if (Var.DataType == EDcDataEntry::UInt32)
+	{
+		return FStringFormatArg(Var.GetValue<uint32>());
+	}
+	else if (Var.DataType == EDcDataEntry::UInt64)
+	{
+		return FStringFormatArg(Var.GetValue<uint64>());
+	}
+	else if (Var.DataType == EDcDataEntry::Float)
+	{
+		return FStringFormatArg(Var.GetValue<float>());
+	}
+	else if (Var.DataType == EDcDataEntry::Double)
+	{
+		return FStringFormatArg(Var.GetValue<double>());
 	}
 	else
 	{

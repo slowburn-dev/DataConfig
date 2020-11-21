@@ -4,39 +4,12 @@
 #include "Serialization/MemoryWriter.h"
 #include "Serialization/MemoryReader.h"
 #include "DataConfig/DcTypes.h"
-
-template<typename T>
-struct TDcDataEntryType
-{
-	static constexpr EDcDataEntry Value = EDcDataEntry::Ended;
-};
-
-template<> struct TDcDataEntryType<nullptr_t> { static constexpr EDcDataEntry Value = EDcDataEntry::Nil; };
-template<> struct TDcDataEntryType<bool> { static constexpr EDcDataEntry Value = EDcDataEntry::Bool; };
-template<> struct TDcDataEntryType<FName> { static constexpr EDcDataEntry Value = EDcDataEntry::Name; };
-template<> struct TDcDataEntryType<FString> { static constexpr EDcDataEntry Value = EDcDataEntry::String; };
-template<> struct TDcDataEntryType<FDcEnumData> { static constexpr EDcDataEntry Value = EDcDataEntry::Enum; };
-
-template<> struct TDcDataEntryType<float> { static constexpr EDcDataEntry Value = EDcDataEntry::Float; };
-template<> struct TDcDataEntryType<double> { static constexpr EDcDataEntry Value = EDcDataEntry::Double; };
-
-template<> struct TDcDataEntryType<int8> { static constexpr EDcDataEntry Value = EDcDataEntry::Int8; };
-template<> struct TDcDataEntryType<int16> { static constexpr EDcDataEntry Value = EDcDataEntry::Int16; };
-template<> struct TDcDataEntryType<int32> { static constexpr EDcDataEntry Value = EDcDataEntry::Int32; };
-template<> struct TDcDataEntryType<int64> { static constexpr EDcDataEntry Value = EDcDataEntry::Int64; };
-
-template<> struct TDcDataEntryType<uint8> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt8; };
-template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt16; };
-template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
-template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
-
-//	TODO might need to .. support the whole data model?
-
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 template<typename T>
 struct TDcIsDataVariantCompatible
 {
-	enum { Value = TDcDataEntryType<T>::Value != EDcDataEntry::Ended };
+	enum { Value = DcTypeUtils::TDcDataEntryType<T>::Value != EDcDataEntry::Ended };
 };
 
 static_assert(TDcIsDataVariantCompatible<int>::Value, "yes");
@@ -72,7 +45,7 @@ struct FDcDataVariant
 	FORCEINLINE void Initialize(T InValue)
 	{
 		using TActual = typename TRemoveConst<TRemoveReference<T>::Type>::Type;
-		DataType = TDcDataEntryType<TActual>::Value;
+		DataType = DcTypeUtils::TDcDataEntryType<TActual>::Value;
 
 		FMemoryWriter MemWriter(Value, true);
 		MemWriter << InValue;
@@ -107,9 +80,9 @@ struct FDcDataVariant
 	template<typename T>
 	T GetValue() const
 	{
-		static_assert(TDcDataEntryType<T>::Value != EDcDataEntry::Ended, "[DataConfig] unsupported T type");
+		static_assert(DcTypeUtils::TDcDataEntryType<T>::Value != EDcDataEntry::Ended, "[DataConfig] unsupported T type");
 
-		check(TDcDataEntryType<T>::Value == DataType);
+		check(DcTypeUtils::TDcDataEntryType<T>::Value == DataType);
 		T Result;
 
 		FMemoryReader Reader(Value, true);

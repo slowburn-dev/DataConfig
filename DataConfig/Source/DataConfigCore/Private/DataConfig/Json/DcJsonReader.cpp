@@ -57,7 +57,7 @@ bool TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry)
 {
 	if (Token.Type == ETokenType::Number)
 	{
-		return FDcTypeUtils::IsNumericDataEntry(ToEntry)
+		return DcTypeUtils::IsNumericDataEntry(ToEntry)
 			|| ToEntry == EDcDataEntry::String;
 	}
 	else if (Token.Type == ETokenType::String)
@@ -609,7 +609,7 @@ FDcResult TDcJsonReader<CharType>::ReadSignedInteger(TInt* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
+			<< DcTypeUtils::TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -631,7 +631,7 @@ FDcResult TDcJsonReader<CharType>::ReadUnsignedInteger(TInt* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
+			<< DcTypeUtils::TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -665,7 +665,7 @@ FDcResult TDcJsonReader<CharType>::ReadFloating(TFloat* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< TDcDataEntryType<TFloat>::Value << TokenTypeToDataEntry(Token.Type)
+			<< DcTypeUtils::TDcDataEntryType<TFloat>::Value << TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }

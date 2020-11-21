@@ -3,6 +3,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
+#include "Templates/IsEnum.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
@@ -208,12 +209,32 @@ enum class EFootbar : int64
 	Foo, Bar, Bart
 };
 
+UENUM()
+enum class EIntBased : int32
+{
+	Zero = 0,
+	NegOne = -1,
+	PosOne = 1,
+};
+
+UENUM(BlueprintType, meta = (BitFlags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EBPFlags : uint8
+{
+	None = 0,
+	Alpha = 0x1 << 0,
+	Beta = 0x1 << 1,
+	Gamma = 0x1 << 2,
+};
+ENUM_CLASS_FLAGS(EBPFlags);
+
 USTRUCT()
 struct FStructWithEnum
 {
 	GENERATED_BODY()
 
 	UPROPERTY() EFootbar Enum1;
+	UPROPERTY() EIntBased Enum2;
+	UPROPERTY() EBPFlags Enum3;
 };
 
 
