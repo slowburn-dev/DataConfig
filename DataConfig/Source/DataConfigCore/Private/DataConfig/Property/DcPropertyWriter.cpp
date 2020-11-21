@@ -165,13 +165,14 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 		return DC_FAIL(DcDReadWrite, EnumNameNotFound)
 			<< Enum->GetName() << Value.Name.ToString()
 			<< FormatHighlight();
-	}
 
-	if (!Enum->IsValidEnumValue(Value.Value))
-	{
-		return DC_FAIL(DcDReadWrite, EnumValueInvalid)
-			<< Enum->GetName() << Value.Value
-			<< FormatHighlight();
+		//	only check validness when there's name, otherwise it might be flags
+		if (!Enum->IsValidEnumValue(Value.Value))
+		{
+			return DC_FAIL(DcDReadWrite, EnumValueInvalid)
+				<< Enum->GetName() << Value.Value
+				<< FormatHighlight();
+		}
 	}
 
 	EnumProperty->GetUnderlyingProperty()->SetIntPropertyValue(Datum.DataPtr, Value.Value);
