@@ -4,6 +4,7 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "Templates/IsEnum.h"
+#include "Templates/SubclassOf.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
@@ -244,6 +245,16 @@ struct FStructWithText
 	GENERATED_BODY()
 
 	UPROPERTY() FText Text1;
+};
+
+USTRUCT()
+struct FStructWithClass
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UClass* Cls1;
+	UPROPERTY() UClass* Cls2;
+	UPROPERTY() TSubclassOf<UBaseShape> Cls3;
 };
 
 void PropertyVisitorRoundtrip();

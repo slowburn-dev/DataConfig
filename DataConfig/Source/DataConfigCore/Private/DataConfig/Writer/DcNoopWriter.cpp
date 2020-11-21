@@ -8,8 +8,8 @@ FDcResult FDcNoopWriter::WriteNil() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteBool(bool) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteName(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteString(const FString&) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteText(const FText& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteEnum(const FDcEnumData& Value) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteText(const FText&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteEnum(const FDcEnumData&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteStructRoot(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteStructEnd(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteClassRoot(const FDcClassPropertyStat&) { return DcOk(); }
@@ -21,6 +21,7 @@ FDcResult FDcNoopWriter::WriteArrayEnd() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSetRoot() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSetEnd() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteObjectReference(const UObject*) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteClassReference(const UClass*) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt8(const int8&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt16(const int16&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt32(const int32&) { return DcOk(); }

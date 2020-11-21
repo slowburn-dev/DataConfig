@@ -444,6 +444,12 @@ FDcResult FDcPropertyWriter::WriteObjectReference(const UObject* Value)
 	}
 }
 
+FDcResult FDcPropertyWriter::WriteClassReference(const UClass* Value)
+{
+	//	ignore constness here for simpler code
+	return WriteTopStateScalarProperty<UClass*>(this, (UClass*)Value);
+}
+
 FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInt32(const int32& Value) { return WriteTopStateScalarProperty(this, Value); }
@@ -495,3 +501,4 @@ FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 	OutHighlight.Formatted = FString::Printf(TEXT("Writing property: %s"), *Path);
 	return OutHighlight;
 }
+

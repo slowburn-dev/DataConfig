@@ -34,6 +34,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteSetEnd() override;
 
 	FDcResult WriteObjectReference(const UObject* Value) override;
+	FDcResult WriteClassReference(const UClass* Value) override;
 
 	FDcResult WriteInt8(const int8& Value) override;
 	FDcResult WriteInt16(const int16& Value) override;

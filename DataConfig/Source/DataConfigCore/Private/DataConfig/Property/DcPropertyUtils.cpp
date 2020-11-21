@@ -90,6 +90,8 @@ UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name)
 	return nullptr;
 }
 
+//	TODO [JUMPTABLE] use a jump table here rather than IsA
+//					 as the inheritance isn't even needed
 EDcDataEntry PropertyToDataEntry(UField* Property)
 {
 	check(Property)
@@ -111,6 +113,9 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 
 	if (Property->IsA<UFloatProperty>()) return EDcDataEntry::Float;
 	if (Property->IsA<UDoubleProperty>()) return EDcDataEntry::Double;
+
+	//	order after this is significant as there's ineheritance
+	if (Property->IsA<UClassProperty>()) return EDcDataEntry::ClassReference;
 
 	if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
 	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;

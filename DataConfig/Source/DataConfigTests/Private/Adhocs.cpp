@@ -581,4 +581,24 @@ void PropertyVisitorRoundtrip__Text()
 }
 
 
+void PropertyVisitorRoundtrip__Class()
+{
+	FStructWithClass Struct;
+
+	Struct.Cls1 = UTestObj_Alpha::StaticClass();
+	Struct.Cls2 = nullptr;
+	Struct.Cls3 = UShapeBox::StaticClass();
+
+	FStructWithClass OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithClass::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithClass::StaticStruct(), &OutStruct)
+	);
+}
+
+
+
+
+
 

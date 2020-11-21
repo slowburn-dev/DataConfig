@@ -23,7 +23,9 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	FDcResult WriteArrayEnd() override;
 	FDcResult WriteSetRoot() override;
 	FDcResult WriteSetEnd() override;
+
 	FDcResult WriteObjectReference(const UObject* Value) override;
+	FDcResult WriteClassReference(const UClass* Value) override;
 
 	FDcResult WriteInt8(const int8& Value) override;
 	FDcResult WriteInt16(const int16& Value) override;

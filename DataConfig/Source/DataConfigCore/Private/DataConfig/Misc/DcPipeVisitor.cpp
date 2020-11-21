@@ -113,6 +113,12 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadObjectReference(&Value));
 			DC_TRY(Writer->WriteObjectReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::ClassReference)
+		{
+			UClass* Value;
+			DC_TRY(Reader->ReadClassReference(&Value));
+			DC_TRY(Writer->WriteClassReference(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Int8)
 		{
 			int8 Value;

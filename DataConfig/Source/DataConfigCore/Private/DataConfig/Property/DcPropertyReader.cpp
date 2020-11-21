@@ -425,7 +425,7 @@ FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
 
 FDcResult FDcPropertyReader::ReadClassReference(UClass** OutPtr)
 {
-	return ReadTopStateScalarProperty<UClass*>(this, OutPtr);
+	return ReadTopStateScalarProperty(this, OutPtr);
 }
 
 

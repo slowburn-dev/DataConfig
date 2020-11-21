@@ -103,6 +103,11 @@ FDcResult FDcWeakCompositeWriter::WriteObjectReference(const UObject* Value)
 	return CompositeDispatch(this, &FDcWriter::WriteObjectReference, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteClassReference(const UClass* Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteClassReference, Value);
+}
+
 FDcResult FDcWeakCompositeWriter::WriteInt8(const int8& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteInt8, Value);

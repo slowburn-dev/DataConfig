@@ -120,8 +120,17 @@ FDcResult FDcPrettyPrintWriter::WriteSetEnd()
 
 FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 {
-	check(Value);
+	check(Value);	// note that this is guarenteed to be non-null 
 	Output.Logf(TEXT("%s- ref: %d"), *Indent, Value->GetUniqueID());
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteClassReference(const UClass* Value)
+{
+	Output.Logf(TEXT("%s- class: \"%s\""), *Indent, Value == nullptr 
+		? TEXT("<null>") 
+		: *Value->GetName()
+	);
 	return DcOk();
 }
 
