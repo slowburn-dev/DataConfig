@@ -33,6 +33,7 @@ struct TPropertyTypeMap
 template<> struct TPropertyTypeMap<bool> { using Type = UBoolProperty; };
 template<> struct TPropertyTypeMap<FName> { using Type = UNameProperty; };
 template<> struct TPropertyTypeMap<FString> { using Type = UStrProperty; };
+template<> struct TPropertyTypeMap<FText> { using Type = UTextProperty; };
 
 template<> struct TPropertyTypeMap<int8> { using Type = UInt8Property; };
 template<> struct TPropertyTypeMap<int16> { using Type = UInt16Property; };

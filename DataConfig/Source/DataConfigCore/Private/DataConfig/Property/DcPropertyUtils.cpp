@@ -1,5 +1,6 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "UObject/UnrealType.h"
+#include "UObject/TextProperty.h"
 
 bool IsEffectiveProperty(UProperty* Property)
 {
@@ -8,6 +9,7 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<UNumericProperty>()
 		|| Property->IsA<UStrProperty>()
 		|| Property->IsA<UNameProperty>()
+		|| Property->IsA<UTextProperty>()
 		|| Property->IsA<UEnumProperty>()
 		|| Property->IsA<UStructProperty>()
 		|| Property->IsA<UObjectProperty>()
@@ -93,6 +95,7 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	if (Property->IsA<UBoolProperty>()) return EDcDataEntry::Bool;
 	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;
 	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
+	if (Property->IsA<UTextProperty>()) return EDcDataEntry::Text;
 	if (Property->IsA<UEnumProperty>()) return EDcDataEntry::Enum;
 
 	if (Property->IsA<UInt8Property>()) return EDcDataEntry::Int8;
@@ -124,6 +127,7 @@ FString GetFormatPropertyTypeName(UField* Property)
 	//	TODO primitive types actually can use `GetCPPType`
 	if (Property->IsA<UBoolProperty>()) return TEXT("bool");
 	if (Property->IsA<UNameProperty>()) return TEXT("FName");
+	if (Property->IsA<UTextProperty>()) return TEXT("FText");
 	if (Property->IsA<UStrProperty>()) return TEXT("FString");
 
 	if (Property->IsA<UInt8Property>()) return TEXT("int8");

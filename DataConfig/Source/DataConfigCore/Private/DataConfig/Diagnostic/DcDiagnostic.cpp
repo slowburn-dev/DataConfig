@@ -55,6 +55,10 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	{
 		return FStringFormatArg(Var.GetValue<FString>().ReplaceCharWithEscapedChar());
 	}
+	else if (Var.DataType == EDcDataEntry::Text)
+	{
+		return FStringFormatArg(Var.GetValue<FText>().ToString().ReplaceCharWithEscapedChar());
+	}
 	else if (Var.DataType == EDcDataEntry::Name)
 	{
 		return FStringFormatArg(Var.GetValue<FName>().ToString().ReplaceCharWithEscapedChar());

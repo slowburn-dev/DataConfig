@@ -238,6 +238,14 @@ struct FStructWithEnum
 };
 
 
+USTRUCT()
+struct FStructWithText
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FText Text1;
+};
+
 void PropertyVisitorRoundtrip();
 void JsonReader1();
 void UEStructSerializer();

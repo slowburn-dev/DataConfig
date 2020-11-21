@@ -10,6 +10,7 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	FDcResult WriteBool(bool Value) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteString(const FString& Value) override;
+	FDcResult WriteText(const FText& Value) override;
 	FDcResult WriteEnum(const FDcEnumData& Value) override;
 
 	FDcResult WriteStructRoot(const FName& Name) override;
@@ -38,8 +39,6 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	FDcResult WriteDouble(const double& Value) override;
 
 	TArray<FDcWriter*, TInlineAllocator<4>> Writers;
-
-
 };
 
 

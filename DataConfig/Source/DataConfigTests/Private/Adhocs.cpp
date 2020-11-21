@@ -2,7 +2,7 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
-#include "DataConfig/Writer/DcCompositeWriters.h"
+#include "DataConfig/Writer/DcWeakCompositeWriter.h"
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "UObject/UnrealType.h"
 #include "DataConfig/DcTypes.h"
@@ -565,6 +565,20 @@ void PropertyVisitorRoundtrip__Enum()
 	);
 }
 
+
+void PropertyVisitorRoundtrip__Text()
+{
+	FStructWithText Struct;
+
+	Struct.Text1 = FText(NSLOCTEXT("DcAdhocs", "T1", "These are my twised words"));
+
+	FStructWithText OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithText::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithText::StaticStruct(), &OutStruct)
+	);
+}
 
 
 

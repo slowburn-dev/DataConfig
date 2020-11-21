@@ -8,6 +8,7 @@ FDcResult FDcNoopWriter::WriteNil() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteBool(bool) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteName(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteString(const FString&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteText(const FText& Value) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteEnum(const FDcEnumData& Value) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteStructRoot(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteStructEnd(const FName&) { return DcOk(); }

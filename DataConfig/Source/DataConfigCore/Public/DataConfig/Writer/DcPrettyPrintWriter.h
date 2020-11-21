@@ -14,6 +14,7 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 	FDcResult WriteBool(bool Value) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteString(const FString& Value) override;
+	FDcResult WriteText(const FText& Value) override;
 	FDcResult WriteEnum(const FDcEnumData& Value) override;
 
 	FDcResult WriteStructRoot(const FName& Name) override;

@@ -130,6 +130,7 @@ FDcResult FDcPropertyWriter::WriteNext(EDcDataEntry Next)
 
 FDcResult FDcPropertyWriter::WriteBool(bool Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteString(const FString& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteText(const FText& Value) { return WriteTopStateScalarProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::WriteName(const FName& Value)
 {

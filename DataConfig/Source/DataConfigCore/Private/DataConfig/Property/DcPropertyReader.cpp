@@ -136,6 +136,7 @@ FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 
 FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadText(FText* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadEnum(FDcEnumData* OutPtr)
 { 

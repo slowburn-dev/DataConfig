@@ -1,4 +1,4 @@
-#include "DataConfig/Writer/DcCompositeWriters.h"
+#include "DataConfig/Writer/DcWeakCompositeWriter.h"
 
 template<typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)
@@ -31,6 +31,11 @@ FDcResult FDcWeakCompositeWriter::WriteName(const FName& Value)
 FDcResult FDcWeakCompositeWriter::WriteString(const FString& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteString, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteText(const FText& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteText, Value);
 }
 
 FDcResult FDcWeakCompositeWriter::WriteEnum(const FDcEnumData& Value)
@@ -147,3 +152,4 @@ FDcResult FDcWeakCompositeWriter::WriteDouble(const double& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteDouble, Value);
 }
+

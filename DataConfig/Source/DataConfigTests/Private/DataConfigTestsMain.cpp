@@ -70,7 +70,8 @@ static void Body()
 	PropertyVisitorRoundtrip__StructStruct();
 	*/
 
-	PropertyVisitorRoundtrip__Enum();
+
+	PropertyVisitorRoundtrip__Text();
 
 	return;
 }
