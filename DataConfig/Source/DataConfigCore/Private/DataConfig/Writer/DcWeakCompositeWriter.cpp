@@ -158,3 +158,14 @@ FDcResult FDcWeakCompositeWriter::WriteDouble(const double& Value)
 	return CompositeDispatch(this, &FDcWriter::WriteDouble, Value);
 }
 
+void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
+{
+	for (FDcWriter* Writer : Writers)
+	{
+		Writer->FormatDiagnostic(Diag);
+		if (Diag.FileContext.IsSet()  
+			|| !Diag.Highlight.IsEmpty())
+			break;
+	}
+}
+

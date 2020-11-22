@@ -502,3 +502,8 @@ FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 	return OutHighlight;
 }
 
+void FDcPropertyWriter::FormatDiagnostic(FDcDiagnostic& Diag)
+{
+	Diag << FormatHighlight();
+}
+

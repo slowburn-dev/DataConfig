@@ -39,3 +39,5 @@ FDcResult FDcReader::ReadUInt64(uint64* OutPtr) { return DC_FAIL(DcDCommon, NotI
 FDcResult FDcReader::ReadFloat(float* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadDouble(double* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 
+void FDcReader::FormatDiagnostic(FDcDiagnostic& Diag) { /*pass*/ }
+

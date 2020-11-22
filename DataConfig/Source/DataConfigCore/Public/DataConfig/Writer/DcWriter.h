@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
 
+struct FDcDiagnostic;
+
 struct DATACONFIGCORE_API FDcWriter
 {
 	FDcWriter();
@@ -47,6 +49,15 @@ struct DATACONFIGCORE_API FDcWriter
 
 	virtual FDcResult WriteFloat(const float& Value);
 	virtual FDcResult WriteDouble(const double& Value);
+
+	virtual void FormatDiagnostic(FDcDiagnostic& Diag);
+
+	FORCEINLINE friend FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcWriter& Self)
+	{
+		Self.FormatDiagnostic(Diag);
+		return Diag;
+	}
+
 };
 
 

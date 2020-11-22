@@ -237,3 +237,14 @@ bool FDcPutbackReader::Coercion(EDcDataEntry ToEntry)
 	return Reader->Coercion(ToEntry);
 }
 
+void FDcPutbackReader::FormatDiagnostic(FDcDiagnostic& Diag)
+{
+	Reader->FormatDiagnostic(Diag);
+	if (Cached.Num())
+	{
+		if (!Diag.Highlight.IsEmpty())
+			Diag.Highlight += TEXT("\n");
+		Diag.Highlight += FString::Printf(TEXT("(Putback: %d)"), Cached.Num());
+	}
+}
+

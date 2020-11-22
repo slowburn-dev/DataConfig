@@ -933,6 +933,13 @@ FDcDiagnosticHighlightWithFileContext TDcJsonReader<CharType>::FormatHighlight(S
 	return OutHighlight;
 }
 
+template<typename CharType>
+void TDcJsonReader<CharType>::FormatDiagnostic(FDcDiagnostic& Diag)
+{
+	Diag << FormatHighlight(Token.Ref);
+}
+
+
 template struct DATACONFIGCORE_API TDcJsonReader<ANSICHAR>;
 template struct DATACONFIGCORE_API TDcJsonReader<WIDECHAR>;
 

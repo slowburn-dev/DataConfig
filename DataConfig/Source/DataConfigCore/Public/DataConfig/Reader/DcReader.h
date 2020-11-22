@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
 
+struct FDcDiagnostic;
+
 struct DATACONFIGCORE_API FDcReader
 {
 	virtual ~FDcReader();
@@ -51,6 +53,14 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadFloat(float* OutPtr);
 	virtual FDcResult ReadDouble(double* OutPtr);
 
+	virtual void FormatDiagnostic(FDcDiagnostic& Diag);
+
+	FORCEINLINE friend FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcReader& Self)
+	{
+		Self.FormatDiagnostic(Diag);
+		return Diag;
+	}
+
 	//	shorthand for optional reading values
 	template<typename T1, typename T2>
 	FORCEINLINE static void ReadOut(T1*& OutPtr, T2&& Value)
@@ -60,6 +70,7 @@ struct DATACONFIGCORE_API FDcReader
 			*OutPtr = Forward<T2>(Value);
 		}
 	}
+
 };
 
 

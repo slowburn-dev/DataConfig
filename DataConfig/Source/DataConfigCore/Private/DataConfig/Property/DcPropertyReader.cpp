@@ -487,3 +487,8 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	return OutHighlight;
 }
 
+void FDcPropertyReader::FormatDiagnostic(FDcDiagnostic& Diag)
+{
+	Diag << FormatHighlight();
+}
+

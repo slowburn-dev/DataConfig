@@ -37,3 +37,5 @@ FDcResult FDcWriter::WriteUInt64(const uint64& Value) { return DC_FAIL(DcDCommon
 FDcResult FDcWriter::WriteFloat(const float& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteDouble(const double& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 
+void FDcWriter::FormatDiagnostic(FDcDiagnostic& Diag) { /*pass*/ }
+

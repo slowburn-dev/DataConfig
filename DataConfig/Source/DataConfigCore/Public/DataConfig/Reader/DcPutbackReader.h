@@ -53,6 +53,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcReader* Reader;
 
 	bool Coercion(EDcDataEntry ToEntry) override;
+	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
 };
 

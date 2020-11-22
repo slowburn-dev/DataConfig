@@ -172,6 +172,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcDiagnosticHighlightWithFileContext FormatHighlight(SourceRef SpanRef);
 	FORCEINLINE FDcDiagnosticHighlightWithFileContext FormatHighlight(int Begin, int Num) { return FormatHighlight(SourceRef{ &Buf, Begin, Num }); }
+	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
 	template<typename TInt>
 	FDcResult ParseInteger(TInt* OutPtr);
@@ -184,7 +185,6 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
-
 
 };
 
