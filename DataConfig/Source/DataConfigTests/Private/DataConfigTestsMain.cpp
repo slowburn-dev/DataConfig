@@ -74,7 +74,9 @@ static void Body()
 	*/
 
 	//PropertyVisitorRoundtrip__ScriptStruct();
-	JsonFail1();
+	//JsonFail1();
+
+	DeserializeObjectRoot();
 
 	return;
 }

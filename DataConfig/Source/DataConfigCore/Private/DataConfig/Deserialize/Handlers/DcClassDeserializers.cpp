@@ -42,6 +42,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 				DC_TRY(Ctx.Reader->ReadName(&Value));
 				if (DcIsMeta(Value))
 				{
+					DC_TRY(DcReadNextExpect(*Ctx.Reader, EDcDataEntry::String));
 					DC_TRY(Ctx.Reader->ReadName(nullptr));
 					continue;
 				}
@@ -58,6 +59,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 				DC_TRY(Ctx.Reader->ReadString(&Value));
 				if (DcIsMeta(Value))
 				{
+					DC_TRY(DcReadNextExpect(*Ctx.Reader, EDcDataEntry::String));
 					DC_TRY(Ctx.Reader->ReadString(nullptr));
 					continue;
 				}

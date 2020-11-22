@@ -1,6 +1,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Source/DcHighlightFormatter.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "Misc/Parse.h"
@@ -72,6 +73,7 @@ bool TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry)
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadNext(EDcDataEntry* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadNext));
 	DC_TRY(ConsumeEffectiveToken());
 
 	switch (Token.Type)
@@ -98,9 +100,10 @@ FDcResult TDcJsonReader<CharType>::ReadNext(EDcDataEntry* OutPtr)
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadNil()
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::Null)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
@@ -115,16 +118,18 @@ FDcResult TDcJsonReader<CharType>::ReadNil()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadBool(bool* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::True)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 		ReadOut(OutPtr, true);
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
 	else if (Token.Type == ETokenType::False)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
+		DC_TRY(CheckNotObjectKey());
 		ReadOut(OutPtr, false);
 		DC_TRY(EndTopRead());
 		return DcOk();
@@ -163,6 +168,7 @@ FDcResult TDcJsonReader<CharType>::CheckObjectDuplicatedKey(const FName& KeyName
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::String)
 	{
 		FString ParsedStr;
@@ -193,6 +199,7 @@ FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::String)
 	{
 		FString ParsedStr;
@@ -228,6 +235,7 @@ FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadText(FText* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::String)
 	{
 		FString ParsedStr;
@@ -454,6 +462,40 @@ FDcResult TDcJsonReader<CharType>::ReadBlockComment()
 }
 
 template<typename CharType>
+FDcResult TDcJsonReader<CharType>::CheckNextReadStateAndFlip(ENextReadState Expect)
+{
+	if (Expect == ENextReadState::ExpectReadNext)
+	{
+		if (NextReadState != Expect)
+		{
+			return DC_FAIL(DcDReadWrite, UnexpectedReadNext) << FormatHighlight(Token.Ref);
+		}
+		else
+		{
+			NextReadState = ENextReadState::ExpectReadValue;
+			return DcOk();
+		}
+	}
+	else if (Expect == ENextReadState::ExpectReadValue)
+	{
+		if (NextReadState != Expect)
+		{
+			return DC_FAIL(DcDReadWrite, UnexpectedReadValue) << FormatHighlight(Token.Ref);
+		}
+		else
+		{
+			NextReadState = ENextReadState::ExpectReadNext;
+			return DcOk();
+		}
+	}
+	else
+	{
+		checkNoEntry();
+		return DC_FAIL(DcDCommon, Unreachable);
+	}
+}
+
+template<typename CharType>
 FDcResult TDcJsonReader<CharType>::EndTopRead()
 {
 	EParseState TopState = GetTopState();
@@ -528,9 +570,10 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadMapRoot()
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::CurlyOpen)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 		PushTopState(EParseState::Object);
 		bTopObjectAtValue = false;
 		Keys.AddDefaulted();
@@ -547,6 +590,7 @@ FDcResult TDcJsonReader<CharType>::ReadMapRoot()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadMapEnd()
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::CurlyClose)
 	{
 		PopTopState(EParseState::Object);
@@ -566,9 +610,10 @@ FDcResult TDcJsonReader<CharType>::ReadMapEnd()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadArrayRoot()
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::SquareOpen)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 		PushTopState(EParseState::Array);
 		return DcOk();
 	}
@@ -583,6 +628,7 @@ FDcResult TDcJsonReader<CharType>::ReadArrayRoot()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadArrayEnd()
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::SquareClose)
 	{
 		PopTopState(EParseState::Array);
@@ -640,9 +686,10 @@ template<typename CharType>
 template<typename TInt>
 FDcResult TDcJsonReader<CharType>::ReadSignedInteger(TInt* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::Number)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 		return ParseInteger<TInt>(OutPtr);
 	}
 	else
@@ -657,9 +704,10 @@ template<typename CharType>
 template<typename TInt>
 FDcResult TDcJsonReader<CharType>::ReadUnsignedInteger(TInt* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::Number)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 
 		if (Token.Flag.bNumberIsNegative)
 			return DC_FAIL(DcDJSON, ReadUnsignedWithNegativeNumber)
@@ -690,9 +738,10 @@ template<typename CharType>
 template<typename TFloat>
 FDcResult TDcJsonReader<CharType>::ReadFloating(TFloat* OutPtr)
 {
+	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 	if (Token.Type == ETokenType::Number)
 	{
-		CheckNotObjectKey();
+		DC_TRY(CheckNotObjectKey());
 
 		TFloat Value;
 		TDcJsonReader_NumericDispatch<CharType>::ParseFloatDispatch(Value, Token.Ref.GetBeginPtr());

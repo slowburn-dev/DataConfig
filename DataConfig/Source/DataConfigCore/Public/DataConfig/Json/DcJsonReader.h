@@ -167,6 +167,15 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FORCEINLINE bool IsAtObjectKey() { return GetTopState() == EParseState::Object && !bTopObjectAtValue; }
 
 	bool bTopObjectAtValue = false;
+
+	enum class ENextReadState : uint8
+	{
+		ExpectReadNext,
+		ExpectReadValue,
+	};
+	ENextReadState NextReadState = ENextReadState::ExpectReadNext;
+
+	FDcResult CheckNextReadStateAndFlip(ENextReadState Expect);
 	FDcResult EndTopRead();
 
 	FDcDiagnosticHighlightWithFileContext FormatHighlight(SourceRef SpanRef);
@@ -186,6 +195,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
 
 };
+
 
 extern template struct TDcJsonReader<ANSICHAR>;
 extern template struct TDcJsonReader<WIDECHAR>;
