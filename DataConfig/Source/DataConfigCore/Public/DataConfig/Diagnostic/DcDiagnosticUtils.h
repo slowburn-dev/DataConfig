@@ -11,5 +11,7 @@ FORCEINLINE FDcResult DcExpect(bool CondToBeTrue, const TThunk& ErrFunc)
 		return ErrFunc();
 }
 
-FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
+DATACONFIGCORE_API FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
+
+DATACONFIGCORE_API FDcResult DcReadNextExpect(FDcReader& Reader, EDcDataEntry Expect);
 

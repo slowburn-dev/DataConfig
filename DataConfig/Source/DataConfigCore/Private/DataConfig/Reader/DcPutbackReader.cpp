@@ -73,22 +73,6 @@ FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 	}
 }
 
-FDcResult FDcPutbackReader::ReadNextExpect(EDcDataEntry Expect)
-{
-	if (Cached.Num() > 0)
-	{
-		EDcDataEntry Actual = Cached.Last().DataType;
-		return DcExpect(Actual == Expect, [=]{
-			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-				<< Expect << Actual;
-		});
-	}
-	else
-	{
-		return Reader->ReadNextExpect(Expect);
-	}
-}
-
 FDcResult FDcPutbackReader::ReadNil()
 {
 	return CachedRead<nullptr_t>(this, &FDcReader::ReadNil);

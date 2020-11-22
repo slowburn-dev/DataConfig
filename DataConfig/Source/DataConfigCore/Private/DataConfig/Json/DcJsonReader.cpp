@@ -96,18 +96,6 @@ FDcResult TDcJsonReader<CharType>::ReadNext(EDcDataEntry* OutPtr)
 }
 
 template<typename CharType>
-FDcResult TDcJsonReader<CharType>::ReadNextExpect(EDcDataEntry Expect)
-{
-	EDcDataEntry Actual;
-	DC_TRY(ReadNext(&Actual));
-	return DcExpect(Actual == Expect, [=] {
-		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< Expect << Actual
-			<< FormatHighlight(Token.Ref);
-	});
-}
-
-template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadNil()
 {
 	if (Token.Type == ETokenType::Null)

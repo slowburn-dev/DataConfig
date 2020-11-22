@@ -12,7 +12,6 @@ struct DATACONFIGCORE_API FDcReader
 	virtual bool Coercion(EDcDataEntry ToEntry);
 
 	virtual FDcResult ReadNext(EDcDataEntry* OutPtr);
-	virtual FDcResult ReadNextExpect(EDcDataEntry Expect);
 
 	virtual FDcResult ReadNil();
 

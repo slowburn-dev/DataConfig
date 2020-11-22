@@ -8,7 +8,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
-#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "Misc/FileHelper.h"
 #include "Misc/ScopeExit.h"
@@ -20,18 +20,17 @@ namespace DataConfigImportFactoryImpls
 
 static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClass)
 {
-	DC_TRY(Reader.ReadNextExpect(EDcDataEntry::MapRoot));
+	DC_TRY(DcReadNextExpect(Reader, EDcDataEntry::MapRoot));
 	DC_TRY(Reader.ReadMapRoot());
 
-	DC_TRY(Reader.ReadNextExpect(EDcDataEntry::String));
+	DC_TRY(DcReadNextExpect(Reader, EDcDataEntry::String));
 	FString Value;
 	DC_TRY(Reader.ReadString(&Value));
 
 	if (Value != TEXT("$type"))
-		return DC_FAIL(DcDDeserialize, ExpectMetaType);
-			// TODO add a .. report at current pos shit
+		return DC_FAIL(DcDDeserialize, ExpectMetaType) << Reader;
 
-	DC_TRY(Reader.ReadNextExpect(EDcDataEntry::String));
+	DC_TRY(DcReadNextExpect(Reader, EDcDataEntry::String));
 	DC_TRY(Reader.ReadString(&Value));
 
 	//	TODO support path and other things, for now just use FindObject<UClass>

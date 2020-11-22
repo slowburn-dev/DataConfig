@@ -134,17 +134,6 @@ FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 	return GetTopState(this).PeekRead(OutPtr);
 }
 
-FDcResult FDcPropertyReader::ReadNextExpect(EDcDataEntry Expect)
-{
-	EDcDataEntry Actual;
-	DC_TRY(ReadNext(&Actual));
-	return DcExpect(Actual == Expect, [=]{
-		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< Expect << Actual
-			<< FormatHighlight();
-	});
-}
-
 FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadText(FText* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }

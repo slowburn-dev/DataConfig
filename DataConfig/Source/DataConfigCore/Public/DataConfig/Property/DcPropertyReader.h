@@ -14,7 +14,6 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcPropertyReader(FDcPropertyDatum Datum);
 
 	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
-	FDcResult ReadNextExpect(EDcDataEntry Expect) override;
 
 	FDcResult ReadNil() override;
 	FDcResult ReadBool(bool* OutPtr) override;
