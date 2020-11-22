@@ -128,7 +128,6 @@ FDcResult TDcJsonReader<CharType>::ReadBool(bool* OutPtr)
 	}
 	else if (Token.Type == ETokenType::False)
 	{
-		DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadValue));
 		DC_TRY(CheckNotObjectKey());
 		ReadOut(OutPtr, false);
 		DC_TRY(EndTopRead());

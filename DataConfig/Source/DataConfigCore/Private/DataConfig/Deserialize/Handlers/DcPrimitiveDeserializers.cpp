@@ -57,7 +57,8 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	else
 	{
 		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
-			<< EDcDataEntry::Name << EDcDataEntry::String << Next;
+			<< EDcDataEntry::Name << EDcDataEntry::String << Next
+			<< *Ctx.Reader;	// TODO [MULHIGHLIGHT]
 	}
 }
 

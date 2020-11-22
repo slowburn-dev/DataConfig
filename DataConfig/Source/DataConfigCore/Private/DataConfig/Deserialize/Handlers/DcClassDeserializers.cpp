@@ -30,11 +30,17 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDcDataEntry CurPeek;
-		DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
-		while (CurPeek != EDcDataEntry::MapEnd)
+		while(true)
 		{
+			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
+
 			//	read key
-			if (CurPeek == EDcDataEntry::Name)
+			if (CurPeek == EDcDataEntry::MapEnd)
+			{
+				DC_TRY(Ctx.Reader->ReadMapEnd());
+				break;
+			}
+			else if (CurPeek == EDcDataEntry::Name)
 			{
 				DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
 
@@ -77,11 +83,8 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			FDcScopedProperty ScopedValueProperty(Ctx);
 			DC_TRY(ScopedValueProperty.PushProperty());
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-
-			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
 		}
 
-		DC_TRY(Ctx.Reader->ReadMapEnd());
 		DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 		return DcOkWithProcessed(OutRet);
