@@ -104,6 +104,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	bool Coercion(EDcDataEntry ToEntry) override;
 	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult ReadNextExpect(EDcDataEntry Expect) override;
 
 	FDcResult ReadNil() override;
 	FDcResult ReadBool(bool* OutPtr) override;
@@ -183,6 +184,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+
 
 };
 

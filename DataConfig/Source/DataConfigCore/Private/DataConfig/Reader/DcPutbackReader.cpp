@@ -1,6 +1,7 @@
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 
 template<typename TData>
 FDcResult PopAndCheckCachedValue(FDcPutbackReader* Self, FDcDataVariant& OutValue)
@@ -69,6 +70,22 @@ FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 	else
 	{
 		return Reader->ReadNext(OutPtr);
+	}
+}
+
+FDcResult FDcPutbackReader::ReadNextExpect(EDcDataEntry Expect)
+{
+	if (Cached.Num() > 0)
+	{
+		EDcDataEntry Actual = Cached.Last().DataType;
+		return DcExpect(Actual == Expect, [=]{
+			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+				<< Expect << Actual;
+		});
+	}
+	else
+	{
+		return Reader->ReadNextExpect(Expect);
 	}
 }
 

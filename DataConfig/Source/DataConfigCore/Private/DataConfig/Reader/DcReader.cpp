@@ -9,6 +9,7 @@ bool FDcReader::Coercion(EDcDataEntry ToEntry)
 }
 
 FDcResult FDcReader::ReadNext(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadNextExpect(EDcDataEntry Expect) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadNil() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadBool(bool* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadName(FName* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }

@@ -29,5 +29,9 @@ namespace DcDReadWrite
 		CantUsePutbackValue,
 	};
 
+
+	struct FDcDiagnostic;
+	enum class EDcDataEntry;
+
 } // namespace DPropertyReadWrite
 

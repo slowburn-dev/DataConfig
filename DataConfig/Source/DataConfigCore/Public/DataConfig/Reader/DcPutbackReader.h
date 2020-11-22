@@ -10,6 +10,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	{}
 
 	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult ReadNextExpect(EDcDataEntry Expect) override;
 
 	FDcResult ReadNil() override;
 	FDcResult ReadBool(bool* OutPtr) override;

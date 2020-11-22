@@ -4,6 +4,7 @@
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "UObject/Package.h"
 
 namespace DcHandlers {

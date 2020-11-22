@@ -3,6 +3,7 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 
 FDcPropertyWriter* _GetStackWriter()
 {

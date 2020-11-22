@@ -53,11 +53,3 @@ FDcEnv::~FDcEnv()
 	FlushDiags();
 }
 
-
-FDcResult DcExpect(bool CondToBeTrue) {
-	if (CondToBeTrue)
-		return DcOk();
-	else
-		return DC_FAIL(DcDCommon, PlaceHoldError);
-}
-

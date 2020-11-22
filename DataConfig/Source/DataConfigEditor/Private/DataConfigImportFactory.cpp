@@ -8,27 +8,30 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "Misc/FileHelper.h"
 #include "Misc/ScopeExit.h"
 
 #define LOCTEXT_NAMESPACE "DataConfigImportFactory"
 
-//	TODO note that this breaks unity build, get rid of it or do it as namespace FOO_Private
-namespace
+namespace DataConfigImportFactoryImpls
 {
 
 static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClass)
 {
-	//EDcDataEntry Next;
-	//DC_TRY(Reader.ReadNext(Next));
+	DC_TRY(Reader.ReadNextExpect(EDcDataEntry::MapRoot));
 	DC_TRY(Reader.ReadMapRoot());
 
+	DC_TRY(Reader.ReadNextExpect(EDcDataEntry::String));
 	FString Value;
 	DC_TRY(Reader.ReadString(&Value));
 
 	if (Value != TEXT("$type"))
-		return DcFail();
+		return DC_FAIL(DcDDeserialize, ExpectMetaType);
+			// TODO add a .. report at current pos shit
 
+	DC_TRY(Reader.ReadNextExpect(EDcDataEntry::String));
 	DC_TRY(Reader.ReadString(&Value));
 
 	//	TODO support path and other things, for now just use FindObject<UClass>
@@ -84,6 +87,7 @@ static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* 
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &DcDeserializer.GetValue();
 	Ctx.Properties.Push(DataClass);
+	Ctx.Prepare();
 
 	return DcDeserializer->Deserialize(Ctx);
 }
@@ -112,6 +116,8 @@ FText UDataConfigImportFactory::GetDisplayName() const
 
 UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn)
 {
+	using namespace DataConfigImportFactoryImpls;
+
 	//	ref: CSVImportFactory
 	//FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, InName, Type);
 	GEditor->GetEditorSubsystem<UImportSubsystem>()->BroadcastAssetPreImport(this, InClass, InParent, InName, Type);
@@ -139,7 +145,7 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	{
 		FDcJsonReader TypeReader;
 		TypeReader.SetNewString(*JSONStr);
-		FDcResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
+		FDcResult Ret =  ReadRootTypeFromMapping(TypeReader, DataClass);
 		if (!Ret.Ok())
 		{
 			return nullptr;
@@ -210,6 +216,8 @@ void UDataConfigImportFactory::SetReimportPaths(UObject* Obj, const TArray<FStri
 
 EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 {
+	using namespace DataConfigImportFactoryImpls;
+
 	ON_SCOPE_EXIT
 	{
 		DcEnv().FlushDiags();

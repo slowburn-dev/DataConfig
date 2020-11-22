@@ -83,18 +83,3 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
 FORCEINLINE FDcResult DcFail() {
 	return FDcResult{ FDcResult::EStatus::Error };
 }
-
-template<typename TThunk>
-FORCEINLINE FDcResult DcExpect(bool CondToBeTrue, const TThunk& ErrFunc)
-{
-	if (CondToBeTrue)
-		return DcOk();
-	else
-		return ErrFunc();
-}
-
-FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
-
-
-
-
