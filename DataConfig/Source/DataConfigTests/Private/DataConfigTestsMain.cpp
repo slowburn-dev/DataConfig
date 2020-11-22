@@ -73,7 +73,8 @@ static void Body()
 	PropertyVisitorRoundtrip__Class();
 	*/
 
-	PropertyVisitorRoundtrip__ScriptStruct();
+	//PropertyVisitorRoundtrip__ScriptStruct();
+	JsonFail1();
 
 	return;
 }

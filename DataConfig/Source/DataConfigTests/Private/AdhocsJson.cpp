@@ -79,6 +79,8 @@ void JsonFail1()
 	)");
 	Reader.SetNewString(*Str);
 
+	Reader.ReadNil();
+
 	{
 		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 		FDcPrettyPrintWriter Writer(*(FOutputDevice*)GWarn);

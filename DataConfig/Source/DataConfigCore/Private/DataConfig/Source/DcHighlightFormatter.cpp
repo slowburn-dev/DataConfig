@@ -58,7 +58,7 @@ FString THightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef
 			Reports.Add(FString::Printf(TEXT("%4d |%s"), Loc.Line, *LineStr));
 			Reports.Add(FString::Printf(TEXT("     |%s%s"),
 				*FString::ChrN(PrefixStr.Len(), TCHAR(' ')),
-				*FString::ChrN(SpanStr.Len(), TCHAR('^'))));
+				*FString::ChrN(FMath::Max(SpanStr.Len(), 1), TCHAR('^'))));
 		}
 
 		for (int Ix = 0; Ix < _LINE_CONTEXT; Ix++)
