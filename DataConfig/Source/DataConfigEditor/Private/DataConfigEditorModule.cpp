@@ -12,12 +12,12 @@
 IMPLEMENT_MODULE(FDataConfigEditorModule, DataConfigEditor);
 
 
-struct FMessageLogDiagnosticConsumer : public DataConfig::IDcDiagnosticConsumer
+struct FMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 {
-	void HandleDiagnostic(DataConfig::FDcDiagnostic& Diag) override;
+	void HandleDiagnostic(FDcDiagnostic& Diag) override;
 };
 
-void FMessageLogDiagnosticConsumer::HandleDiagnostic(DataConfig::FDcDiagnostic& Diag)
+void FMessageLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 {
 	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
 	if (Detail)
@@ -29,6 +29,27 @@ void FMessageLogDiagnosticConsumer::HandleDiagnostic(DataConfig::FDcDiagnostic& 
 
 		FMessageLog MessageLog("AssetReimport");
 		MessageLog.Message(EMessageSeverity::Error, FText::FromString(FString::Format(Detail->Msg, FormatArgs)));
+
+		//	TODO hyperlink the file
+		FString HighlightHeader;
+		if (Diag.FileContext.IsSet())
+		{
+			HighlightHeader = FString::Printf(TEXT("File: %s%d:%d"),
+				*Diag.FileContext->FilePath,
+				Diag.FileContext->Loc.Line,
+				Diag.FileContext->Loc.Column);
+		}
+		else
+		{
+			HighlightHeader = TEXT("<Unkown file>");
+		}
+
+		if (!Diag.Highlight.IsEmpty())
+		{
+			MessageLog.Message(EMessageSeverity::Error, FText::FromString(
+				FString::Printf(TEXT("%s\n%s"), *HighlightHeader, *Diag.Highlight)
+			));
+		}
 	}
 	else
 	{
@@ -109,9 +130,9 @@ void FAssetTypeActions_PrimaryImportedDataAsset::GetResolvedSourceFilePaths(cons
 
 void FDataConfigEditorModule::StartupModule()
 {
-	DataConfig::DcStartUp();
+	DcStartUp();
 
-	DataConfig::DcEnv().DiagConsumer = MakeShareable(new FMessageLogDiagnosticConsumer());
+	DcEnv().DiagConsumer = MakeShareable(new FMessageLogDiagnosticConsumer());
 
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	ImportedDataAssetActions.Emplace(MakeShareable(new FAssetTypeActions_ImportedDataAsset()));
@@ -143,7 +164,7 @@ void FDataConfigEditorModule::ShutdownModule()
 		ImportedDataAssetActions.Empty();
 	}
 
-	DataConfig::DcShutDown();
+	DcShutDown();
 }
 
 bool FDataConfigEditorModule::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)

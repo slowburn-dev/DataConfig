@@ -9,6 +9,7 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "Misc/FileHelper.h"
+#include "Misc/ScopeExit.h"
 
 #define LOCTEXT_NAMESPACE "DataConfigImportFactory"
 
@@ -18,6 +19,8 @@ namespace
 
 static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClass)
 {
+	//EDcDataEntry Next;
+	//DC_TRY(Reader.ReadNext(Next));
 	DC_TRY(Reader.ReadMapRoot());
 
 	FString Value;
@@ -33,7 +36,7 @@ static FDcResult ReadRootTypeFromMapping(FDcReader& Reader, UClass*& OutDataClas
 	return OutDataClass ? DcOk() : DcFail();
 }
 
-static TOptional<DataConfig::FDcDeserializer> DcDeserializer;
+static TOptional<FDcDeserializer> DcDeserializer;
 static int32 LoadJSONAssetCount;
 
 template<typename T>
@@ -72,7 +75,8 @@ static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* 
 
 	LazyInitializeDeserializer();
 
-	FDcJsonReader Reader(&JSONStr);
+	FDcJsonReader Reader;
+	Reader.SetNewString(*JSONStr);
 	FDcPropertyWriter Writer(FDcPropertyDatum(DataClass, NewObj));
 
 	FDcDeserializeContext Ctx;
@@ -133,7 +137,8 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	UClass* DataClass = nullptr;
 
 	{
-		FDcJsonReader TypeReader(&JSONStr);
+		FDcJsonReader TypeReader;
+		TypeReader.SetNewString(*JSONStr);
 		FDcResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
 		if (!Ret.Ok())
 		{
@@ -152,7 +157,7 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	{
 		//	TODO proper destroy the object if import failed
 		NewObj->ConditionalBeginDestroy();
-		DataConfig::DcEnv().FlushDiags();
+		DcEnv().FlushDiags();
 		return nullptr;
 	}
 
@@ -205,6 +210,11 @@ void UDataConfigImportFactory::SetReimportPaths(UObject* Obj, const TArray<FStri
 
 EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 {
+	ON_SCOPE_EXIT
+	{
+		DcEnv().FlushDiags();
+	};
+
 	IImportedInterface* Imported = Cast<IImportedInterface>(Obj);
 	if (!Imported)
 	{
@@ -228,7 +238,8 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 	UClass* DataClass = nullptr;
 
 	{
-		FDcJsonReader TypeReader(&JSONStr);
+		FDcJsonReader TypeReader;
+		TypeReader.SetNewString(*JSONStr);
 		FDcResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
 		if (!Ret.Ok())
 		{
@@ -246,7 +257,7 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj);
 	if (!Ret.Ok())
 	{
-		DataConfig::DcEnv().FlushDiags();
+		DcEnv().FlushDiags();
 		return EReimportResult::Failed;
 	}
 

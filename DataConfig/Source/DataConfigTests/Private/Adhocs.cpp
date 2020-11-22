@@ -598,6 +598,25 @@ void PropertyVisitorRoundtrip__Class()
 }
 
 
+void PropertyVisitorRoundtrip__ScriptStruct()
+{
+	FStructWithScriptStruct Struct;
+
+	Struct.Struct1 = FNestStruct1::StaticStruct();
+
+	FStructWithScriptStruct OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithScriptStruct::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithScriptStruct::StaticStruct(), &OutStruct)
+	);
+}
+
+
+
+
+
+
 
 
 

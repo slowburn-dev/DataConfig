@@ -70,9 +70,10 @@ static void Body()
 	PropertyVisitorRoundtrip__StructStruct();
 	PropertyVisitorRoundtrip__Enum();
 	PropertyVisitorRoundtrip__Text();
+	PropertyVisitorRoundtrip__Class();
 	*/
 
-	PropertyVisitorRoundtrip__Class();
+	PropertyVisitorRoundtrip__ScriptStruct();
 
 	return;
 }

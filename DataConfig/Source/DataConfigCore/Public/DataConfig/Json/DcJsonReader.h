@@ -5,6 +5,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Source/DcSourceTypes.h"
 #include "DataConfig/Source/DcSourceUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
 
 template<typename CharType>
@@ -95,8 +96,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FORCEINLINE void NewLine() { Loc.Line++; Loc.Column = 0; }
 
-	//	current peeking ahead token
-	FToken Token;
+	FToken Token = {};
 	FToken CachedNext;
 
 	int32 Cur = 0;

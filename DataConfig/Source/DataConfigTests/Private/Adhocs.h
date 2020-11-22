@@ -257,6 +257,14 @@ struct FStructWithClass
 	UPROPERTY() TSubclassOf<UBaseShape> Cls3;
 };
 
+USTRUCT()
+struct FStructWithScriptStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UScriptStruct* Struct1;
+};
+
 void PropertyVisitorRoundtrip();
 void JsonReader1();
 void UEStructSerializer();
