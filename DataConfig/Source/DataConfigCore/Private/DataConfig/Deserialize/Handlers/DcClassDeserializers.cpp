@@ -30,7 +30,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDcDataEntry CurPeek;
-		while(true)
+		while (true)
 		{
 			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
 
@@ -39,23 +39,6 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			{
 				DC_TRY(Ctx.Reader->ReadMapEnd());
 				break;
-			}
-			else if (CurPeek == EDcDataEntry::Name)
-			{
-				DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
-
-				FName Value;
-				DC_TRY(Ctx.Reader->ReadName(&Value));
-				if (DcIsMeta(Value))
-				{
-					DC_TRY(DcReadNextExpect(*Ctx.Reader, EDcDataEntry::String));
-					DC_TRY(Ctx.Reader->ReadName(nullptr));
-					continue;
-				}
-				else
-				{
-					DC_TRY(Ctx.Writer->WriteName(Value));
-				}
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{

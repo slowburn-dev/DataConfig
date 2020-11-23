@@ -71,13 +71,14 @@ static void LazyInitializeDeserializer()
 	}
 }
 
-static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* NewObj)
+static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* NewObj, const FString& Filename)
 {
 	TScopedCheckSingleUse<int32> LockDeserailizer(LoadJSONAssetCount);
 
 	LazyInitializeDeserializer();
 
 	FDcJsonReader Reader;
+	Reader.DiagFilePath = Filename;
 	Reader.SetNewString(*JSONStr);
 	FDcPropertyWriter Writer(FDcPropertyDatum(DataClass, NewObj));
 
@@ -157,7 +158,7 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	}
 
 	UDataAsset* NewObj = NewObject<UDataAsset>(InParent, DataClass, InName, Flags);
-	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, NewObj);
+	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, NewObj, CurrentFilename);
 	if (!Ret.Ok())
 	{
 		//	TODO proper destroy the object if import failed
@@ -261,7 +262,7 @@ EReimportResult::Type UDataConfigImportFactory::Reimport(UObject* Obj)
 	}
 
 	//	reimport into existing object
-	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj);
+	FDcResult Ret = TryLoadJSONAsset(JSONStr, DataClass, Obj, SourceFileName);
 	if (!Ret.Ok())
 	{
 		DcEnv().FlushDiags();

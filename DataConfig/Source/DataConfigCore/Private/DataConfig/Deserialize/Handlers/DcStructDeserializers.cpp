@@ -42,16 +42,14 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 		DC_TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
 
 		EDcDataEntry CurPeek;
-		DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
-		while (CurPeek != EDcDataEntry::MapEnd)
+		while (true)
 		{
-			if (CurPeek == EDcDataEntry::Name)
-			{
-				DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
+			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
 
-				FName Value;
-				DC_TRY(Ctx.Reader->ReadName(&Value));
-				DC_TRY(Ctx.Writer->WriteName(Value));
+			if (CurPeek == EDcDataEntry::MapEnd)
+			{
+				DC_TRY(Ctx.Reader->ReadMapEnd());
+				break;
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{
@@ -70,11 +68,8 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			FDcScopedProperty ScopedValueProperty(Ctx);
 			DC_TRY(ScopedValueProperty.PushProperty());
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-
-			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
 		}
 
-		DC_TRY(Ctx.Reader->ReadMapEnd());
 		DC_TRY(Ctx.Writer->WriteStructEnd(GetStructName(Ctx.TopProperty())));
 
 		return DcOkWithProcessed(OutRet);
