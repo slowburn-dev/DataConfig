@@ -100,8 +100,9 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ClassProperty;
 
-	FDcPropertyDatum Datum;
+	UObject* ClassObject;
 	UClass* Class;
+	FDcPropertyDatum Datum;
 
 	enum class EState : uint16
 	{
@@ -124,18 +125,20 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 
 	FDcWriteStateClass(UObject* InClassObject, UClass* InClass)
 	{
+		Class = InClass;
+		ClassObject = InClassObject;
 		Datum.DataPtr = InClassObject;
 		Datum.Property = InClass;
-		Class = InClass;
 		State = EState::ExpectRoot;
 		Type = EType::Root;
 	}
 
 	FDcWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
 	{
+		Class = InObjProperty->PropertyClass;
+		ClassObject = InObjProperty->GetObjectPropertyValue(DataPtr);
 		Datum.DataPtr = DataPtr;
 		Datum.Property = InObjProperty;
-		Class = InObjProperty->PropertyClass;
 		State = EState::ExpectRoot;
 		Type = EType::PropertyNormalOrInstanced;
 	}
@@ -283,3 +286,8 @@ FDcResult WriteValue(FDcBaseWriteState& State, const TValue& Value)
 	return DcOk();
 }
 
+static_assert(TIsTriviallyDestructible<FDcWriteStateClass>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcWriteStateStruct>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcWriteStateMap>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcWriteStateArray>::Value, "need trivial destructible");
+static_assert(TIsTriviallyDestructible<FDcWriteStateSet>::Value, "need trivial destructible");

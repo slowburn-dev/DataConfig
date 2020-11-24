@@ -452,10 +452,12 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 {
 	DcPropertyHighlight::FormatClass(
 		OutSegments,
-		SegType, 
-		reinterpret_cast<UObject*>(Datum.DataPtr),
+		SegType,
+		ClassObject,
 		Class,
-		Datum.CastChecked<UProperty>()
+		State == EState::ExpectRoot
+			? nullptr
+			: Datum.CastChecked<UProperty>()
 	);
 }
 
