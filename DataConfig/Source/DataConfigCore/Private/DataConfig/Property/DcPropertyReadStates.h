@@ -78,7 +78,6 @@ struct FDcReadStateClass : public FDcBaseReadState
 		Root,
 		PropertyNormal,
 		PropertyInstanced,
-		//	TODO soft
 	};
 	EType Type;
 

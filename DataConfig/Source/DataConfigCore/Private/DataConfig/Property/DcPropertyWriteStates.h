@@ -107,7 +107,6 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	enum class EState : uint16
 	{
 		ExpectRoot,
-		ExpectNil,
 		ExpectReference,
 		ExpectKeyOrEnd,
 		ExpectValue,
@@ -136,7 +135,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
 	{
 		Class = InObjProperty->PropertyClass;
-		ClassObject = InObjProperty->GetObjectPropertyValue(DataPtr);
+		//	note that property can be null, referencing something, or even uninitialized
+		ClassObject = nullptr;
 		Datum.DataPtr = DataPtr;
 		Datum.Property = InObjProperty;
 		State = EState::ExpectRoot;

@@ -110,9 +110,6 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	FDcClassPropertyStat RefStat {
 		ObjectProperty->PropertyClass->GetFName(), EDcDataReference::ExternalReference
 	};
-	FDcClassPropertyStat NullStat {
-		ObjectProperty->PropertyClass->GetFName(), EDcDataReference::NullReference
-	};
 
 	if (Next == EDcDataEntry::String)
 	{
@@ -202,9 +199,9 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	}
 	else if (Next == EDcDataEntry::Nil)
 	{
-		DC_TRY(Ctx.Writer->WriteClassRoot(NullStat));
+		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
 		DC_TRY(Ctx.Writer->WriteNil());
-		DC_TRY(Ctx.Writer->WriteClassEnd(NullStat));
+		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 		return DcOkWithProcessed(OutRet);
 	}

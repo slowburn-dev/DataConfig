@@ -221,17 +221,10 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 				<< _GetStackWriter()->FormatHighlight();
 		});
 	}
-	else if (State == EState::ExpectNil)
-	{
-		return DcExpect(Next == EDcDataEntry::Nil, [=] {
-			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-				<< (int)EDcDataEntry::Nil << (int)Next
-				<< _GetStackWriter()->FormatHighlight();
-		});
-	}
 	else if (State == EState::ExpectReference)
 	{
-		return DcExpect(Next == EDcDataEntry::ObjectReference, [=] {
+		return DcExpect(Next == EDcDataEntry::ObjectReference
+			|| Next == EDcDataEntry::Nil, [=] {
 			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
 				<< (int)EDcDataEntry::ObjectReference << (int)Next
 				<< _GetStackWriter()->FormatHighlight();
@@ -354,11 +347,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassSt
 	{
 		//	TODO may pass in derived class already
 		//TRY(Expect(ClassStat.Name == Class->GetFName()));
-		if (ClassStat.Reference == EDcDataReference::NullReference)
-		{
-			State = EState::ExpectNil;
-		}
-		else if (ClassStat.Reference == EDcDataReference::ExternalReference)
+		if (ClassStat.Reference == EDcDataReference::ExternalReference)
 		{
 			State = EState::ExpectReference;
 		}
@@ -367,7 +356,8 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassSt
 			if (Type == EType::PropertyNormalOrInstanced)
 			{
 				UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
-				Datum.DataPtr = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
+				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
+				Datum.DataPtr = ClassObject;
 				Datum.Property = ObjProperty->PropertyClass;
 
 				if (!Datum.DataPtr)
@@ -415,7 +405,7 @@ FDcResult FDcWriteStateClass::WriteClassEnd(const FDcClassPropertyStat& ClassSta
 
 FDcResult FDcWriteStateClass::WriteNil()
 {
-	if (State == EState::ExpectNil)
+	if (State == EState::ExpectReference)
 	{
 		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
 
@@ -425,7 +415,7 @@ FDcResult FDcWriteStateClass::WriteNil()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectNil << (int)State
+			<< (int)EState::ExpectReference << (int)State
 			<< _GetStackWriter()->FormatHighlight();
 	}
 }
@@ -435,6 +425,7 @@ FDcResult FDcWriteStateClass::WriteReference(const UObject* Value)
 	if (State == EState::ExpectReference)
 	{
 		//	`UObjectProperty::SetObjectPropertyValue` not taking const pointer 
+		ClassObject = const_cast<UObject*>(Value);
 		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
 
 		State = EState::ExpectKeyOrEnd;
@@ -455,9 +446,9 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 		SegType,
 		ClassObject,
 		Class,
-		State == EState::ExpectRoot
-			? nullptr
-			: Datum.CastChecked<UProperty>()
+		(State == EState::ExpectKeyOrEnd) 
+			? Datum.CastChecked<UProperty>()
+			: nullptr
 	);
 }
 

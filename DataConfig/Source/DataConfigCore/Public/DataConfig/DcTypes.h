@@ -120,7 +120,6 @@ enum class EDcDataEntry
 
 enum class EDcDataReference
 {
-	NullReference,
 	ExternalReference,
 	ExpandObject,
 };

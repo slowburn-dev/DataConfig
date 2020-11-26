@@ -185,7 +185,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 			if (OutClassPtr)
 			{
 				OutClassPtr->Name = Class->GetFName();
-				OutClassPtr->Reference = EDcDataReference::NullReference;
+				OutClassPtr->Reference = EDcDataReference::ExternalReference;
 			}
 
 			State = EState::ExpectNil;
@@ -251,9 +251,9 @@ FDcResult FDcReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 		if (OutClassPtr)
 		{
 			OutClassPtr->Name = Class->GetFName();
-			OutClassPtr->Reference = ClassObject == nullptr
-				? EDcDataReference::NullReference
-				: EDcDataReference::ExpandObject;
+			OutClassPtr->Reference = Type == EType::Root
+				? EDcDataReference::ExpandObject
+				: EDcDataReference::ExternalReference;
 		}
 
 		return DcOk();
