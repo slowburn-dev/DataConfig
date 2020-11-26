@@ -175,7 +175,7 @@ FDcResult FDcReadStateClass::EndReadValue()
 	}
 }
 
-FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
+FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -185,7 +185,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 			if (OutClassPtr)
 			{
 				OutClassPtr->Name = Class->GetFName();
-				OutClassPtr->Reference = EDcDataReference::ExternalReference;
+				OutClassPtr->Reference = EDcObjectPropertyControl::ExternalReference;
 			}
 
 			State = EState::ExpectNil;
@@ -200,7 +200,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 				if (OutClassPtr)
 				{
 					OutClassPtr->Name = Class->GetFName();
-					OutClassPtr->Reference = EDcDataReference::ExternalReference;
+					OutClassPtr->Reference = EDcObjectPropertyControl::ExternalReference;
 				}
 
 				return DcOk();
@@ -213,7 +213,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 				if (OutClassPtr)
 				{
 					OutClassPtr->Name = Cls->GetFName();
-					OutClassPtr->Reference = EDcDataReference::ExpandObject;
+					OutClassPtr->Reference = EDcObjectPropertyControl::ExpandObject;
 				}
 
 				Property = FirstEffectiveProperty(Cls->PropertyLink);
@@ -242,7 +242,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 	}
 }
 
-FDcResult FDcReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
+FDcResult FDcReadStateClass::ReadClassEnd(FDcObjectPropertyStat* OutClassPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -252,8 +252,8 @@ FDcResult FDcReadStateClass::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
 		{
 			OutClassPtr->Name = Class->GetFName();
 			OutClassPtr->Reference = Type == EType::Root
-				? EDcDataReference::ExpandObject
-				: EDcDataReference::ExternalReference;
+				? EDcObjectPropertyControl::ExpandObject
+				: EDcObjectPropertyControl::ExternalReference;
 		}
 
 		return DcOk();

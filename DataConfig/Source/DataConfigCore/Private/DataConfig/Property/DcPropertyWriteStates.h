@@ -135,7 +135,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
 	{
 		Class = InObjProperty->PropertyClass;
-		//	note that property can be null, referencing something, or even uninitialized
+		//	note that atm can be null, referencing something, or even uninitialized
 		ClassObject = nullptr;
 		Datum.DataPtr = DataPtr;
 		Datum.Property = InObjProperty;
@@ -151,8 +151,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult PeekWriteProperty(UField** OutProperty) override;
 
 	FDcResult WriteNil();
-	FDcResult WriteClassRoot(const FDcClassPropertyStat& Class);
-	FDcResult WriteClassEnd(const FDcClassPropertyStat& Class);
+	FDcResult WriteClassRoot(const FDcObjectPropertyStat& Class);
+	FDcResult WriteClassEnd(const FDcObjectPropertyStat& Class);
 	FDcResult WriteReference(const UObject* Value);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;

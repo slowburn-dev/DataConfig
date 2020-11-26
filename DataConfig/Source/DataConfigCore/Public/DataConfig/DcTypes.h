@@ -118,16 +118,16 @@ enum class EDcDataEntry
 	Ended, // or error or invalid state, 
 };
 
-enum class EDcDataReference
+enum class EDcObjectPropertyControl
 {
 	ExternalReference,
 	ExpandObject,
 };
 
-struct FDcClassPropertyStat
+struct FDcObjectPropertyStat
 {
 	FName Name;
-	EDcDataReference Reference;
+	EDcObjectPropertyControl Reference;
 };
 
 struct FDcEnumData

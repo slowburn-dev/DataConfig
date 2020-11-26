@@ -22,8 +22,8 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteStructRoot(const FName& Name);
 	virtual FDcResult WriteStructEnd(const FName& Name);
 
-	virtual FDcResult WriteClassRoot(const FDcClassPropertyStat& Class);
-	virtual FDcResult WriteClassEnd(const FDcClassPropertyStat& Class);
+	virtual FDcResult WriteClassRoot(const FDcObjectPropertyStat& Class);
+	virtual FDcResult WriteClassEnd(const FDcObjectPropertyStat& Class);
 
 	virtual FDcResult WriteMapRoot();
 	virtual FDcResult WriteMapEnd();

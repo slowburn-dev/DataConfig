@@ -97,8 +97,8 @@ struct FDcReadStateClass : public FDcBaseReadState
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult EndReadValue();	// TODO remove this method, called only in 1 place
-	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr);
-	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr);
+	FDcResult ReadClassRoot(FDcObjectPropertyStat* OutClassPtr);
+	FDcResult ReadClassEnd(FDcObjectPropertyStat* OutClassPtr);
 	FDcResult ReadNil();
 	FDcResult ReadReference(UObject** OutPtr);
 

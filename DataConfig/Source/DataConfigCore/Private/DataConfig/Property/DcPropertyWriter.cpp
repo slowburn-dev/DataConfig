@@ -236,7 +236,7 @@ void FDcPropertyWriter::PushTopClassPropertyState(FDcPropertyDatum& Datum)
 }
 
 
-FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
+FDcResult FDcPropertyWriter::WriteClassRoot(const FDcObjectPropertyStat& Class)
 {
 	FScopedStackedWriter StackedWriter(this);
 
@@ -261,7 +261,7 @@ FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassPropertyStat& Class)
 	return DcOk();
 }
 
-FDcResult FDcPropertyWriter::WriteClassEnd(const FDcClassPropertyStat& Class)
+FDcResult FDcPropertyWriter::WriteClassEnd(const FDcObjectPropertyStat& Class)
 {
 	FScopedStackedWriter StackedWriter(this);
 

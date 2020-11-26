@@ -20,8 +20,8 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 
 	FDcResult ReadStructRoot(FName* OutNamePtr) override;
 	FDcResult ReadStructEnd(FName* OutNamePtr) override;
-	FDcResult ReadClassRoot(FDcClassPropertyStat* OutClassPtr) override;
-	FDcResult ReadClassEnd(FDcClassPropertyStat* OutClassPtr) override;
+	FDcResult ReadClassRoot(FDcObjectPropertyStat* OutClassPtr) override;
+	FDcResult ReadClassEnd(FDcObjectPropertyStat* OutClassPtr) override;
 	FDcResult ReadMapRoot() override;
 	FDcResult ReadMapEnd() override;
 	FDcResult ReadArrayRoot() override;

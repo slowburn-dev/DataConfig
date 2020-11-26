@@ -341,17 +341,17 @@ FDcResult FDcWriteStateClass::PeekWriteProperty(UField** OutProperty)
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassStat)
+FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectRoot)
 	{
 		//	TODO may pass in derived class already
 		//TRY(Expect(ClassStat.Name == Class->GetFName()));
-		if (ClassStat.Reference == EDcDataReference::ExternalReference)
+		if (ClassStat.Reference == EDcObjectPropertyControl::ExternalReference)
 		{
 			State = EState::ExpectReference;
 		}
-		else if (ClassStat.Reference == EDcDataReference::ExpandObject)
+		else if (ClassStat.Reference == EDcObjectPropertyControl::ExpandObject)
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
 			{
@@ -386,7 +386,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassPropertyStat& ClassSt
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteClassEnd(const FDcClassPropertyStat& ClassStat)
+FDcResult FDcWriteStateClass::WriteClassEnd(const FDcObjectPropertyStat& ClassStat)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{

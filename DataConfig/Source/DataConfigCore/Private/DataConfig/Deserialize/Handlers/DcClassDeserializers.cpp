@@ -26,7 +26,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
-		FDcClassPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDcDataReference::ExpandObject };
+		FDcObjectPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDcObjectPropertyControl::ExpandObject };
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDcDataEntry CurPeek;
@@ -107,8 +107,8 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	FDcClassPropertyStat RefStat {
-		ObjectProperty->PropertyClass->GetFName(), EDcDataReference::ExternalReference
+	FDcObjectPropertyStat RefStat {
+		ObjectProperty->PropertyClass->GetFName(), EDcObjectPropertyControl::ExternalReference
 	};
 
 	if (Next == EDcDataEntry::String)
@@ -345,7 +345,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	//	manually setting class state
 	Ctx.Writer->PushTopClassPropertyState(Datum);
 
-	FDcClassPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDcDataReference::ExpandObject };
+	FDcObjectPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDcObjectPropertyControl::ExpandObject };
 	DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 	//	usual read routine

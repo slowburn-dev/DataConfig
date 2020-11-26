@@ -218,7 +218,7 @@ FDcResult FDcPropertyReader::ReadStructEnd(FName* OutNamePtr)
 	}
 }
 
-FDcResult FDcPropertyReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
+FDcResult FDcPropertyReader::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 {
 	FScopedStackedReader StackedReader(this);
 
@@ -253,7 +253,7 @@ FDcResult FDcPropertyReader::ReadClassRoot(FDcClassPropertyStat* OutClassPtr)
 	return DcOk();
 }
 
-FDcResult FDcPropertyReader::ReadClassEnd(FDcClassPropertyStat* OutClassPtr)
+FDcResult FDcPropertyReader::ReadClassEnd(FDcObjectPropertyStat* OutClassPtr)
 {
 	FScopedStackedReader StackedReader(this);
 

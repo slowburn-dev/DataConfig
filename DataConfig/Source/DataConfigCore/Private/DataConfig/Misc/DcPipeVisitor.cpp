@@ -77,13 +77,13 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		}
 		else if (PeekEntry == EDcDataEntry::ClassRoot)
 		{
-			FDcClassPropertyStat ClassStat;
+			FDcObjectPropertyStat ClassStat;
 			DC_TRY(Reader->ReadClassRoot(&ClassStat));
 			DC_TRY(Writer->WriteClassRoot(ClassStat));
 		}
 		else if (PeekEntry == EDcDataEntry::ClassEnd)
 		{
-			FDcClassPropertyStat ClassStat;
+			FDcObjectPropertyStat ClassStat;
 			DC_TRY(Reader->ReadClassEnd(&ClassStat));
 			DC_TRY(Writer->WriteClassEnd(ClassStat));
 		}
