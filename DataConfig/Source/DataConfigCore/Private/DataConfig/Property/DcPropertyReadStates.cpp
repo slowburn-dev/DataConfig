@@ -281,7 +281,7 @@ FDcResult FDcReadStateClass::ReadNil()
 	}
 }
 
-FDcResult FDcReadStateClass::ReadReference(UObject** OutPtr)
+FDcResult FDcReadStateClass::ReadObjectReference(UObject** OutPtr)
 {
 	if (State == EState::ExpectReference)
 	{

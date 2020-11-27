@@ -32,6 +32,7 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
+	/*
 	PropertyVisitorRoundtrip_Piped();
 	PropertyVisitorRoundtrip__TestObjAlpha();
 	PropertyVisitorRoundtrip__StructStruct();
@@ -73,8 +74,16 @@ static void Body()
 
 	//PropertyVisitorRoundtrip__ScriptStruct();
 	//JsonFail1();
+	*/
 
-	PropertyVisitorRoundtrip__ScriptStruct();
+	//PropertyVisitorRoundtrip__ClassReference();
+
+	//{
+	//	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+	//	UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------------"));
+	//}
+
+	PropertyVisitorRoundtrip__Objects();
 
 	return;
 }

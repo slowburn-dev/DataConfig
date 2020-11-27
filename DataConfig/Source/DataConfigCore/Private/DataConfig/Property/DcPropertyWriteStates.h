@@ -104,7 +104,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	UClass* Class;
 	FDcPropertyDatum Datum;
 
-	enum class EState : uint16
+	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectReference,
@@ -114,11 +114,10 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	};
 	EState State;
 
-	enum class EType : uint16
+	enum class EType : uint8
 	{
 		Root,
 		PropertyNormalOrInstanced,
-		//	TODO soft
 	};
 	EType Type;
 
@@ -153,7 +152,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult WriteNil();
 	FDcResult WriteClassRoot(const FDcObjectPropertyStat& Class);
 	FDcResult WriteClassEnd(const FDcObjectPropertyStat& Class);
-	FDcResult WriteReference(const UObject* Value);
+	FDcResult WriteObjectReference(const UObject* Value);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };

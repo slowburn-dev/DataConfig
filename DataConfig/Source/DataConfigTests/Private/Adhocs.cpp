@@ -581,19 +581,19 @@ void PropertyVisitorRoundtrip__Text()
 }
 
 
-void PropertyVisitorRoundtrip__Class()
+void PropertyVisitorRoundtrip__ClassReference()
 {
-	FStructWithClass Struct;
+	FStructWithClassReference Struct;
 
 	Struct.Cls1 = UTestObj_Alpha::StaticClass();
 	Struct.Cls2 = nullptr;
 	Struct.Cls3 = UShapeBox::StaticClass();
 
-	FStructWithClass OutStruct{};
+	FStructWithClassReference OutStruct{};
 
 	_Roundtrip(
-		FDcPropertyDatum(FStructWithClass::StaticStruct(), &Struct),
-		FDcPropertyDatum(FStructWithClass::StaticStruct(), &OutStruct)
+		FDcPropertyDatum(FStructWithClassReference::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithClassReference::StaticStruct(), &OutStruct)
 	);
 }
 
@@ -612,6 +612,21 @@ void PropertyVisitorRoundtrip__ScriptStruct()
 	);
 }
 
+void PropertyVisitorRoundtrip__Objects()
+{
+	FShapeContainer Struct;
+
+	Struct.ShapeAlpha = NewObject<UShapeBox>();
+	Struct.ShapeBeta = NewObject<UShapeSquare>();
+	Struct.ShapeGamma = nullptr;
+
+	FShapeContainer OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FShapeContainer::StaticStruct(), &Struct),
+		FDcPropertyDatum(FShapeContainer::StaticStruct(), &OutStruct)
+	);
+}
 
 
 

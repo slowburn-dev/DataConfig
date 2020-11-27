@@ -434,7 +434,7 @@ FDcResult FDcPropertyWriter::WriteObjectReference(const UObject* Value)
 
 	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
-		return ClassState->WriteReference(Value);
+		return ClassState->WriteObjectReference(Value);
 	}
 	else
 	{

@@ -248,7 +248,7 @@ struct FStructWithText
 };
 
 USTRUCT()
-struct FStructWithClass
+struct FStructWithClassReference
 {
 	GENERATED_BODY()
 

@@ -100,7 +100,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 	FDcResult ReadClassRoot(FDcObjectPropertyStat* OutClassPtr);
 	FDcResult ReadClassEnd(FDcObjectPropertyStat* OutClassPtr);
 	FDcResult ReadNil();
-	FDcResult ReadReference(UObject** OutPtr);
+	FDcResult ReadObjectReference(UObject** OutPtr);
 
 };
 

@@ -355,6 +355,9 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassS
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
 			{
+				//	expand a reference into a root
+				Type = EType::Root;
+
 				UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
 				Datum.DataPtr = ClassObject;
@@ -420,7 +423,7 @@ FDcResult FDcWriteStateClass::WriteNil()
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteReference(const UObject* Value)
+FDcResult FDcWriteStateClass::WriteObjectReference(const UObject* Value)
 {
 	if (State == EState::ExpectReference)
 	{
@@ -446,7 +449,7 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 		SegType,
 		ClassObject,
 		Class,
-		(State == EState::ExpectKeyOrEnd) 
+		(Type == EType::Root) && (State == EState::ExpectKeyOrEnd || State == EState::ExpectValue)
 			? Datum.CastChecked<UProperty>()
 			: nullptr
 	);

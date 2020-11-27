@@ -413,7 +413,7 @@ FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
 	//	only class property reads reference
 	if (FDcReadStateClass* ClassState = TryGetTopState<FDcReadStateClass>(this))
 	{
-		return ClassState->ReadReference(OutPtr);
+		return ClassState->ReadObjectReference(OutPtr);
 	}
 	else
 	{
