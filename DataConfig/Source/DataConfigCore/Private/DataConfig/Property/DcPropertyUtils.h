@@ -51,8 +51,11 @@ template<> struct TPropertyTypeMap<double> { using Type = UDoubleProperty; };
 template<> struct TPropertyTypeMap<UClass*> { using Type = UClassProperty; };
 template<> struct TPropertyTypeMap<UObject*> { using Type = UObjectProperty; };
 
-static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
+template<> struct TPropertyTypeMap<FWeakObjectPtr> { using Type = UWeakObjectProperty; };
+template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = ULazyObjectProperty; };
+template<> struct TPropertyTypeMap<FSoftObjectPtr> { using Type = USoftObjectProperty; };
 
+static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
 namespace DcPropertyHighlight
 {

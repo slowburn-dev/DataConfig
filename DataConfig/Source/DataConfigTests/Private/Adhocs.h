@@ -265,10 +265,19 @@ struct FStructWithScriptStruct
 	UPROPERTY() UScriptStruct* Struct1;
 };
 
-void PropertyVisitorRoundtrip();
-void JsonReader1();
-void UEStructSerializer();
-void DeserializeSimple();
+USTRUCT()
+struct FStructWithSoftObjectPtr
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TWeakObjectPtr<UObject> Weak1;
+	UPROPERTY() TLazyObjectPtr<UObject> Lazy1;
+	UPROPERTY() TSoftObjectPtr<UObject> Soft1;
+
+	//	UHT doesn't recognize this
+	//UPROPERTY() FSoftObjectPtr Soft2;
+};
+
 
 
 

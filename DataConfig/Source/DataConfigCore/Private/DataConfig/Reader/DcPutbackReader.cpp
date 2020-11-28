@@ -153,6 +153,21 @@ FDcResult FDcPutbackReader::ReadClassReference(UClass** OutPtr)
 	return CanNotCachedRead(this, EDcDataEntry::ClassReference, &FDcReader::ReadClassReference, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadWeakObjectReference(FWeakObjectPtr* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::WeakObjectReference, &FDcReader::ReadWeakObjectReference, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::LazyObjectReference, &FDcReader::ReadLazyObjectReference, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::SoftObjectReference, &FDcReader::ReadSoftObjectReference, OutPtr);
+}
+
 FDcResult FDcPutbackReader::ReadSetRoot()
 {
 	return CanNotCachedRead(this, EDcDataEntry::SetRoot, &FDcReader::ReadSetRoot);

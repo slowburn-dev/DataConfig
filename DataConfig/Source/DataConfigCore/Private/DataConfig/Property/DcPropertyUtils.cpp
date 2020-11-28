@@ -16,7 +16,11 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<UObjectProperty>()
 		|| Property->IsA<UMapProperty>()
 		|| Property->IsA<UArrayProperty>()
-		|| Property->IsA<USetProperty>();
+		|| Property->IsA<USetProperty>()
+		|| Property->IsA<UWeakObjectProperty>()
+		|| Property->IsA<ULazyObjectProperty>()
+		|| Property->IsA<USoftObjectProperty>()
+		;
 }
 
 bool IsScalarProperty(UField* Property)

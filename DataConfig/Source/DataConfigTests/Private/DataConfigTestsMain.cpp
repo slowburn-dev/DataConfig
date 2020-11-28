@@ -77,6 +77,7 @@ static void Body()
 	//JsonFail1();
 	*/
 
+	PropertyVisitorRoundtrip_SoftWeakLazy();
 
 	return;
 }

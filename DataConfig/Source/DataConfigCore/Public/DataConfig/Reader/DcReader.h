@@ -39,6 +39,18 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadObjectReference(UObject** OutPtr);
 	virtual FDcResult ReadClassReference(UClass** OutPtr);
 
+	virtual FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr);
+	virtual FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr);
+	virtual FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr);
+
+	/*
+	template<typename TObject>
+	FDcResult ReadWeakObjectReference(TWeakObjectPtr<TObject>* OutPtr)
+	{
+		return ReadWeakObjectReference(OutPtr);
+	}
+	*/
+
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
 	virtual FDcResult ReadInt32(int32* OutPtr);

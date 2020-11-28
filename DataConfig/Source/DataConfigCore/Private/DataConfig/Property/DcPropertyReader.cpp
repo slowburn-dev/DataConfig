@@ -435,6 +435,20 @@ FDcResult FDcPropertyReader::ReadClassReference(UClass** OutPtr)
 	return ReadTopStateScalarProperty(this, OutPtr);
 }
 
+FDcResult FDcPropertyReader::ReadWeakObjectReference(FWeakObjectPtr* OutPtr)
+{
+	return ReadTopStateScalarProperty(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr)
+{
+	return ReadTopStateScalarProperty(this, OutPtr);
+}
+
+FDcResult FDcPropertyReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr)
+{
+	return ReadTopStateScalarProperty(this, OutPtr);
+}
 
 FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }

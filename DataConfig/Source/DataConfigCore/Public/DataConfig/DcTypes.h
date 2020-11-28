@@ -114,6 +114,10 @@ enum class EDcDataEntry
 	ObjectReference,	// `ObjectReference` always happen between `ClassRoot/ClassEnd`
 	ClassReference,
 
+	WeakObjectReference,
+	LazyObjectReference,
+	SoftObjectReference,
+
 	//	Meta
 	Ended, // or error or invalid state, 
 };
