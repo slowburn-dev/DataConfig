@@ -57,6 +57,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 {
 	static const EDcPropertyReadType ID = EDcPropertyReadType::ClassProperty;
 
+	FName ObjectName;
 	UObject* ClassObject;
 	UClass* Class;
 	UProperty* Property;
@@ -81,8 +82,9 @@ struct FDcReadStateClass : public FDcBaseReadState
 	};
 	EType Type;
 
-	FDcReadStateClass(UObject* InClassObject, UClass* InClass, EType InType)
+	FDcReadStateClass(UObject* InClassObject, UClass* InClass, EType InType, const FName& InObjectName)
 	{
+		ObjectName = InObjectName;
 		ClassObject = InClassObject;
 		Class = InClass;
 		Property = nullptr;

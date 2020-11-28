@@ -206,11 +206,11 @@ void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg Seg
 	OutSegments.Add(TEXT("<nil>"));
 }
 
-void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, UObject* ClassObject, UClass* Class, UProperty* Property)
+void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, UProperty* Property)
 {
-	OutSegments.Add(FString::Printf(TEXT("(U%s)%s"),
+	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyTypeName(Class),
-		*(ClassObject ? ClassObject->GetName() : TEXT("<null>"))
+		*ObjectName.ToString()
 	));
 
 	if (Property != nullptr
@@ -222,7 +222,7 @@ void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg S
 	}
 }
 
-void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, FName StructName, UScriptStruct* StructClass, UProperty* Property)
+void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, UProperty* Property)
 {
 	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyTypeName(StructClass),

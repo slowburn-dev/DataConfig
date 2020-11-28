@@ -149,7 +149,7 @@ FDcResult FDcReadStateClass::ReadScalarDataEntry(UClass* ExpectedPropertyClass, 
 
 void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
-	DcPropertyHighlight::FormatClass(OutSegments, SegType, ClassObject, Class, Property);
+	DcPropertyHighlight::FormatClass(OutSegments, SegType, ObjectName, Class, Property);
 }
 
 FDcResult FDcReadStateClass::EndReadValue()

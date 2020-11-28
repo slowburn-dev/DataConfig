@@ -100,6 +100,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ClassProperty;
 
+	FName ObjectName;
 	UObject* ClassObject;
 	UClass* Class;
 	FDcPropertyDatum Datum;
@@ -123,6 +124,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 
 	FDcWriteStateClass(UObject* InClassObject, UClass* InClass)
 	{
+		ObjectName = InClassObject->GetFName();
 		Class = InClass;
 		ClassObject = InClassObject;
 		Datum.DataPtr = InClassObject;
@@ -133,6 +135,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 
 	FDcWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
 	{
+		ObjectName = InObjProperty->GetFName();
 		Class = InObjProperty->PropertyClass;
 		//	note that atm can be null, referencing something, or even uninitialized
 		ClassObject = nullptr;
@@ -290,3 +293,4 @@ static_assert(TIsTriviallyDestructible<FDcWriteStateStruct>::Value, "need trivia
 static_assert(TIsTriviallyDestructible<FDcWriteStateMap>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcWriteStateArray>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcWriteStateSet>::Value, "need trivial destructible");
+

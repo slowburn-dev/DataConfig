@@ -539,9 +539,9 @@ static void _Roundtrip(FDcPropertyDatum ReadDatum, FDcPropertyDatum WriteDatum)
 	FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
 	RoundtripVisit.PostVisit.BindLambda([&](FDcPipeVisitor* Self) {
 		FString Line = ((FDcPropertyReader*)(Self->Reader))->FormatHighlight().Formatted;
-		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Line);
+		UE_LOG(LogDataConfigCore, Display, TEXT("- Read  : %s"), *Line);
 		FString LineWrite = WriteWriter.FormatHighlight().Formatted;
-		UE_LOG(LogDataConfigCore, Display, TEXT("- Write: %s"), *LineWrite);
+		UE_LOG(LogDataConfigCore, Display, TEXT("- Write : %s"), *LineWrite);
 		});
 
 	FDcResult Ret = RoundtripVisit.PipeVisit();
@@ -614,17 +614,18 @@ void PropertyVisitorRoundtrip__ScriptStruct()
 
 void PropertyVisitorRoundtrip__Objects()
 {
-	FShapeContainer Struct;
+	FTestStruct_ObjRef Struct;
 
-	Struct.ShapeAlpha = NewObject<UShapeBox>();
-	Struct.ShapeBeta = NewObject<UShapeSquare>();
-	Struct.ShapeGamma = nullptr;
+	Struct.AlphaRef = NewObject<UTestObj_Alpha>();
+	Struct.BetaRef = nullptr;
 
-	FShapeContainer OutStruct{};
+	FTestStruct_ObjRef OutStruct{};
+	OutStruct.AlphaRef = NewObject<UTestObj_Alpha>();
+	OutStruct.BetaRef = nullptr;
 
 	_Roundtrip(
-		FDcPropertyDatum(FShapeContainer::StaticStruct(), &Struct),
-		FDcPropertyDatum(FShapeContainer::StaticStruct(), &OutStruct)
+		FDcPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &Struct),
+		FDcPropertyDatum(FTestStruct_ObjRef::StaticStruct(), &OutStruct)
 	);
 }
 

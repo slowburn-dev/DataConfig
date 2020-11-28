@@ -37,10 +37,10 @@ FDcReadStateNil& PushNilState(FDcPropertyReader* Reader)
 	return Emplace<FDcReadStateNil>(GetTopStorage(Reader));
 }
 
-FDcReadStateClass& PushClassPropertyState(FDcPropertyReader* Reader, UObject* InClassObject, UClass* InClass, FDcReadStateClass::EType InType)
+FDcReadStateClass& PushClassPropertyState(FDcPropertyReader* Reader, UObject* InClassObject, UClass* InClass, FDcReadStateClass::EType InType, const FName& InObjectName)
 {
 	Reader->States.AddDefaulted();
-	return Emplace<FDcReadStateClass>(GetTopStorage(Reader), InClassObject, InClass, InType);
+	return Emplace<FDcReadStateClass>(GetTopStorage(Reader), InClassObject, InClass, InType, InObjectName);
 }
 
 FDcReadStateStruct& PushStructPropertyState(FDcPropertyReader* Reader, void* InStructPtr, UScriptStruct* InStructClass, const FName& InStructName)
@@ -116,7 +116,13 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	{
 		UObject* Obj = (UObject*)(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassPropertyState(this, Obj, Datum.CastChecked<UClass>(), FDcReadStateClass::EType::Root);
+		PushClassPropertyState(
+			this, 
+			Obj, 
+			Datum.CastChecked<UClass>(),
+			FDcReadStateClass::EType::Root,
+			Obj->GetFName()
+		);
 	}
 	else if (Datum.Property->IsA<UScriptStruct>())
 	{
@@ -245,7 +251,8 @@ FDcResult FDcPropertyReader::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 			ObjProperty->PropertyClass,
 			ObjProperty->HasAnyPropertyFlags(CPF_InstancedReference)
 				? FDcReadStateClass::EType::PropertyInstanced
-				: FDcReadStateClass::EType::PropertyNormal
+				: FDcReadStateClass::EType::PropertyNormal,
+			ObjProperty->GetFName()
 		);
 		DC_TRY(ChildClass.ReadClassRoot(OutClassPtr));
 	}

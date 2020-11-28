@@ -447,11 +447,9 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 	DcPropertyHighlight::FormatClass(
 		OutSegments,
 		SegType,
-		ClassObject,
+		ObjectName,
 		Class,
-		(Type == EType::Root) && (State == EState::ExpectKeyOrEnd || State == EState::ExpectValue)
-			? Datum.CastChecked<UProperty>()
-			: nullptr
+		Datum.Cast<UProperty>()
 	);
 }
 
