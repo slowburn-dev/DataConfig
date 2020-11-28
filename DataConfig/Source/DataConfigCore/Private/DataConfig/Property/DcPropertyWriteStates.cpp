@@ -230,7 +230,15 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 				<< _GetStackWriter()->FormatHighlight();
 		});
 	}
-	else if (State == EState::ExpectKeyOrEnd)
+	else if (State == EState::ExpectEnd)
+	{
+		return DcExpect(Next == EDcDataEntry::ClassEnd, [=] {
+			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+				<< (int)EDcDataEntry::ClassEnd << (int)Next
+				<< _GetStackWriter()->FormatHighlight();
+		});
+	}
+	else if (State == EState::ExpectExpandKeyOrEnd)
 	{
 		return DcExpect(Next == EDcDataEntry::ClassEnd || Next == EDcDataEntry::Name,
 			[=] {
@@ -239,7 +247,7 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 				<< _GetStackWriter()->FormatHighlight();
 		});
 	}
-	else if (State == EState::ExpectValue)
+	else if (State == EState::ExpectExpandValue)
 	{
 		check(!Datum.IsNone());
 		EDcDataEntry Actual = PropertyToDataEntry(Datum.Property);
@@ -268,17 +276,17 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 
 FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 {
-	if (State == EState::ExpectKeyOrEnd)
+	if (State == EState::ExpectExpandKeyOrEnd)
 	{
 		Datum.Property = NextPropertyByName(Class->PropertyLink, Value);
 		if (Datum.Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value.ToString() << _GetStackWriter()->FormatHighlight();
 
-		State = EState::ExpectValue;
+		State = EState::ExpectExpandValue;
 		return DcOk();
 	}
-	else if (State == EState::ExpectValue)
+	else if (State == EState::ExpectExpandValue)
 	{
 		DC_TRY((WriteValue<UNameProperty, FName>(*this, Value)));
 		return DcOk();
@@ -292,9 +300,9 @@ FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 
 FDcResult FDcWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
-	if (State != EState::ExpectValue)
+	if (State != EState::ExpectExpandValue)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State
+			<< (int)EState::ExpectExpandValue << (int)State
 			<< _GetStackWriter()->FormatHighlight();
 
 	if (!Datum.Property->IsA(ExpectedPropertyClass))
@@ -307,18 +315,18 @@ FDcResult FDcWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcP
 	OutDatum.Property = Property;
 	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(Datum.DataPtr);
 
-	State = EState::ExpectKeyOrEnd;
+	State = EState::ExpectExpandKeyOrEnd;
 	return DcOk();
 }
 
 FDcResult FDcWriteStateClass::SkipWrite()
 {
-	if (State != EState::ExpectValue)
+	if (State != EState::ExpectExpandValue)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectValue << (int)State
+			<< (int)EState::ExpectExpandValue << (int)State
 			<< _GetStackWriter()->FormatHighlight();
 
-	State = EState::ExpectKeyOrEnd;
+	State = EState::ExpectExpandKeyOrEnd;
 	return DcOk();
 }
 
@@ -329,7 +337,7 @@ FDcResult FDcWriteStateClass::PeekWriteProperty(UField** OutProperty)
 		*OutProperty = Class;
 		return DcOk();
 	}
-	else if (State == EState::ExpectValue)
+	else if (State == EState::ExpectExpandValue)
 	{
 		*OutProperty = Datum.Property;
 		return DcOk();
@@ -372,7 +380,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassS
 				}
 			}
 
-			State = EState::ExpectKeyOrEnd;
+			State = EState::ExpectExpandKeyOrEnd;
 		}
 		else
 		{
@@ -391,7 +399,8 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassS
 
 FDcResult FDcWriteStateClass::WriteClassEnd(const FDcObjectPropertyStat& ClassStat)
 {
-	if (State == EState::ExpectKeyOrEnd)
+	if (State == EState::ExpectExpandKeyOrEnd
+		|| State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
 		//	TODO now may pass in derived class
@@ -401,7 +410,7 @@ FDcResult FDcWriteStateClass::WriteClassEnd(const FDcObjectPropertyStat& ClassSt
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectKeyOrEnd << (int)State
+			<< (int)EState::ExpectExpandKeyOrEnd << (int)State
 			<< _GetStackWriter()->FormatHighlight();
 	}
 }
@@ -412,7 +421,7 @@ FDcResult FDcWriteStateClass::WriteNil()
 	{
 		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
 
-		State = EState::ExpectKeyOrEnd;
+		State = EState::ExpectEnd;
 		return DcOk();
 	}
 	else
@@ -431,7 +440,7 @@ FDcResult FDcWriteStateClass::WriteObjectReference(const UObject* Value)
 		ClassObject = const_cast<UObject*>(Value);
 		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
 
-		State = EState::ExpectKeyOrEnd;
+		State = EState::ExpectEnd;
 		return DcOk();
 	}
 	else
@@ -449,7 +458,9 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 		SegType,
 		ObjectName,
 		Class,
-		Datum.Cast<UProperty>()
+		State == EState::ExpectExpandKeyOrEnd || State == EState::ExpectExpandValue
+			? Datum.Cast<UProperty>() 
+			: nullptr
 	);
 }
 

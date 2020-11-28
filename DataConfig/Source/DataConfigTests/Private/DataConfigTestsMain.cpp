@@ -70,20 +70,13 @@ static void Body()
 	PropertyVisitorRoundtrip__StructStruct();
 	PropertyVisitorRoundtrip__Enum();
 	PropertyVisitorRoundtrip__Text();
-	PropertyVisitorRoundtrip__Class();
+	PropertyVisitorRoundtrip__ClassReference();
+	PropertyVisitorRoundtrip__Objects();
 
 	//PropertyVisitorRoundtrip__ScriptStruct();
 	//JsonFail1();
 	*/
 
-	//PropertyVisitorRoundtrip__ClassReference();
-
-	//{
-	//	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-	//	UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------------"));
-	//}
-
-	PropertyVisitorRoundtrip__Objects();
 
 	return;
 }

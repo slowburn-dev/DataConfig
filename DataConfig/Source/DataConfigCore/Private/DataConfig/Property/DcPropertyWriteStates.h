@@ -109,8 +109,9 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	{
 		ExpectRoot,
 		ExpectReference,
-		ExpectKeyOrEnd,
-		ExpectValue,
+		ExpectEnd,
+		ExpectExpandKeyOrEnd,
+		ExpectExpandValue,
 		Ended,
 	};
 	EState State;
