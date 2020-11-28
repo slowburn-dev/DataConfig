@@ -120,12 +120,19 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 
 	//	order after this is significant as there's ineheritance
 	if (Property->IsA<UClassProperty>()) return EDcDataEntry::ClassReference;
-
 	if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
+
+	if (Property->IsA<UWeakObjectProperty>()) return EDcDataEntry::WeakObjectReference;
+	if (Property->IsA<ULazyObjectProperty>()) return EDcDataEntry::LazyObjectReference;
+	if (Property->IsA<USoftObjectProperty>()) return EDcDataEntry::SoftObjectReference;
+
 	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
+
 	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
 	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
 	if (Property->IsA<USetProperty>()) return EDcDataEntry::SetRoot;
+
+
 
 	checkNoEntry();
 	return EDcDataEntry::Ended;
@@ -152,7 +159,6 @@ FString GetFormatPropertyTypeName(UField* Property)
 
 	if (Property->IsA<UFloatProperty>()) return TEXT("float");
 	if (Property->IsA<UDoubleProperty>()) return TEXT("double");
-
 
 	if (UEnumProperty* EnumProperty = Cast<UEnumProperty>(Property))
 	{
@@ -198,6 +204,27 @@ FString GetFormatPropertyTypeName(UField* Property)
 		return FString::Printf(TEXT("TSet<%s>"),
 			*GetFormatPropertyTypeName(SetProperty->ElementProp)
 			);
+	}
+
+	if (UWeakObjectProperty* WeakProperty = Cast<UWeakObjectProperty>(Property))
+	{
+		return FString::Printf(TEXT("TWeakObjectPtr<%s>"),
+			*GetFormatPropertyTypeName(WeakProperty->PropertyClass)
+		);
+	}
+
+	if (ULazyObjectProperty* LazyProperty = Cast<ULazyObjectProperty>(Property))
+	{
+		return FString::Printf(TEXT("TLazyObjectPtr<%s>"),
+			*GetFormatPropertyTypeName(LazyProperty->PropertyClass)
+		);
+	}
+
+	if (USoftObjectProperty* SoftProperty = Cast<USoftObjectProperty>(Property))
+	{
+		return FString::Printf(TEXT("TSoftObjectPtr<%s>"),
+			*GetFormatPropertyTypeName(SoftProperty->PropertyClass)
+		);
 	}
 
 	checkNoEntry();

@@ -1,5 +1,6 @@
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "Misc/OutputDevice.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 
 static const FString _PER_INDENT = FString(TEXT("    "));
 
@@ -130,6 +131,39 @@ FDcResult FDcPrettyPrintWriter::WriteClassReference(const UClass* Value)
 	Output.Logf(TEXT("%s- class: \"%s\""), *Indent, Value == nullptr 
 		? TEXT("<null>") 
 		: *Value->GetName()
+	);
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value)
+{
+	struct FView
+	{
+		int32		ObjectIndex;
+		int32		ObjectSerialNumber;
+	};
+	static_assert(DcTypeUtils::TIsSameSize<FView, FWeakObjectPtr>::Value, "should be same size");
+
+	const FView& View = (const FView&)Value;
+	Output.Logf(TEXT("%s- weak object reference: index: %d, gen: %d"), *Indent, 
+		View.ObjectIndex,
+		View.ObjectSerialNumber
+	);
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value)
+{
+	Output.Logf(TEXT("%s- lazy object reference: %s"), *Indent,
+		*Value.GetUniqueID().ToString()
+	);
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
+{
+	Output.Logf(TEXT("%s- soft object reference: %s"), *Indent,
+		*Value.GetUniqueID().ToString()
 	);
 	return DcOk();
 }

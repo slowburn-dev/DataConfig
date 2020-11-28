@@ -37,6 +37,17 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteObjectReference(const UObject* Value);
 	virtual FDcResult WriteClassReference(const UClass* Value);
 
+	virtual FDcResult WriteWeakObjectReference(const FWeakObjectPtr& Value);
+	virtual FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value);
+	virtual FDcResult WriteSoftObjectReference(const FSoftObjectPtr& Value);
+
+	template<typename TObject>
+	FDcResult WriteWeakObjectPtr(const TWeakObjectPtr<TObject>& Value);
+	template<typename TObject>
+	FDcResult WriteLazyObjectPtr(const TLazyObjectPtr<TObject>& Value);
+	template<typename TObject>
+	FDcResult WriteSoftObjectPtr(const TSoftObjectPtr<TObject>& Value);
+
 	virtual FDcResult WriteInt8(const int8& Value);
 	virtual FDcResult WriteInt16(const int16& Value);
 	virtual FDcResult WriteInt32(const int32& Value);
@@ -60,4 +71,29 @@ struct DATACONFIGCORE_API FDcWriter
 
 };
 
+template<typename TObject>
+FDcResult FDcWriter::WriteWeakObjectPtr(const TWeakObjectPtr<TObject>& Value)
+{
+	//	TODO c++20 `is_layout_compatible`
+	static_assert(sizeof(FWeakObjectPtr) == sizeof(TWeakObjectPtr<TObject>), "TWeakkObjectPtr should have same memory layout as FWeakObjectPtr");
+
+	const FWeakObjectPtr& WeakPtr = (const FWeakObjectPtr&)Value;
+	return WriteWeakObjectReference(WeakPtr);
+}
+
+template<typename TObject>
+FDcResult FDcWriter::WriteLazyObjectPtr(const TLazyObjectPtr<TObject>& Value)
+{
+	//	LazyPtr is missing a copy constructor, can only do assign
+	FLazyObjectPtr LazyPtr;
+	LazyPtr = Value.GetUniqueID();
+	return WriteLazyObjectReference(LazyPtr);
+}
+
+template<typename TObject>
+FDcResult FDcWriter::WriteSoftObjectPtr(const TSoftObjectPtr<TObject>& Value)
+{
+	FSoftObjectPtr SoftPtr(Value.GetUniqueID());
+	return WriteSoftObjectReference(SoftPtr);
+}
 

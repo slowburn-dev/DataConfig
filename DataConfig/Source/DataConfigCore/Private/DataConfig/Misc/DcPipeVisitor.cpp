@@ -119,6 +119,24 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadClassReference(&Value));
 			DC_TRY(Writer->WriteClassReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::WeakObjectReference)
+		{
+			FWeakObjectPtr Value;
+			DC_TRY(Reader->ReadWeakObjectReference(&Value));
+			DC_TRY(Writer->WriteWeakObjectReference(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::LazyObjectReference)
+		{
+			FLazyObjectPtr Value;
+			DC_TRY(Reader->ReadLazyObjectReference(&Value));
+			DC_TRY(Writer->WriteLazyObjectReference(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::SoftObjectReference)
+		{
+			FSoftObjectPtr Value;
+			DC_TRY(Reader->ReadSoftObjectReference(&Value));
+			DC_TRY(Writer->WriteSoftObjectReference(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Int8)
 		{
 			int8 Value;

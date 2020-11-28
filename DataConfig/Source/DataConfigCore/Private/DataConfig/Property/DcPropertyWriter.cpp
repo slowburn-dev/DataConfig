@@ -450,6 +450,11 @@ FDcResult FDcPropertyWriter::WriteClassReference(const UClass* Value)
 	return WriteTopStateScalarProperty<UClass*>(this, (UClass*)Value);
 }
 
+
+FDcResult FDcPropertyWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
+
 FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInt32(const int32& Value) { return WriteTopStateScalarProperty(this, Value); }
@@ -506,4 +511,3 @@ void FDcPropertyWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	Diag << FormatHighlight();
 }
-

@@ -22,6 +22,9 @@ FDcResult FDcNoopWriter::WriteSetRoot() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSetEnd() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteObjectReference(const UObject*) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteClassReference(const UClass*) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt8(const int8&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt16(const int16&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt32(const int32&) { return DcOk(); }

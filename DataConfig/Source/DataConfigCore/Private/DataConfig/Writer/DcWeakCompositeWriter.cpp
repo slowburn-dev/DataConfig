@@ -158,6 +158,21 @@ FDcResult FDcWeakCompositeWriter::WriteDouble(const double& Value)
 	return CompositeDispatch(this, &FDcWriter::WriteDouble, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteWeakObjectReference, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteLazyObjectReference, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteSoftObjectReference, Value);
+}
+
 void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	for (FDcWriter* Writer : Writers)

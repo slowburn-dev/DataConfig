@@ -631,46 +631,17 @@ void PropertyVisitorRoundtrip__Objects()
 
 void PropertyVisitorRoundtrip_SoftWeakLazy()
 {
-	//	3 types all need different ways to set it back
-
-
 	FStructWithSoftObjectPtr Struct;
-	Struct.Weak1 = UWeakObjectProperty::StaticClass();
 
-	//	unfortunate situation of missing constructor
-	FLazyObjectPtr LazyPtr;
-	LazyPtr = Struct.Lazy1.GetUniqueID();
+	Struct.Weak1 = UTestObj_Alpha::StaticClass();
+	Struct.Lazy1 = UTestObj_Alpha::StaticClass();
+	Struct.Soft1 = UTestObj_Alpha::StaticClass();
 
-	//	this one won't work do to cpp reasons
-	//FLazyObjectPtr LazyPtr2 = Struct.Lazy1.GetUniqueID();
+	FStructWithSoftObjectPtr OutStruct{};
 
-	//FWeakObjectPtr WeakPtr(Struct.Weak1);
-
-	static_assert(sizeof(FWeakObjectPtr) == sizeof(decltype(Struct.Weak1)), "actually the same thing");
-	//FWeakObjectPtr WeakPtr = reinterpret_cast<const FWeakObjectPtr&>(Struct.Weak1);
-
-	//	this is actually a `reintepret_cast`. a `static_cast` would be enough but the operators are private
-	//	might be the only way to not cause an warning
-	const FWeakObjectPtr& WeakRef = (const FWeakObjectPtr&)(Struct.Weak1);
-
-	{
-		FDcReader Reader;
-		Reader.ReadWeakObjectPtr(&Struct.Weak1);
-		Reader.ReadLazyObjectPtr(&Struct.Lazy1);
-		Reader.ReadSoftObjectPtr(&Struct.Soft1);
-	}
-
-	//FWeakObjectPtr WeakPtr = (FWeakObjectPtr)(Struct.Weak1);
-
-	FSoftObjectPtr SoftPtr(Struct.Soft1.GetUniqueID());
-
-
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithSoftObjectPtr::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithSoftObjectPtr::StaticStruct(), &OutStruct)
+	);
 }
-
-
-
-
-
-
-
 

@@ -31,6 +31,10 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteObjectReference(const UObject*) override;
 	FDcResult WriteClassReference(const UClass* Value) override;
 
+	FDcResult WriteWeakObjectReference(const FWeakObjectPtr& Value) override;
+	FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value) override;
+	FDcResult WriteSoftObjectReference(const FSoftObjectPtr& Value) override;
+
 	FDcResult WriteInt8(const int8&) override;
 	FDcResult WriteInt16(const int16&) override;
 	FDcResult WriteInt32(const int32&) override;
