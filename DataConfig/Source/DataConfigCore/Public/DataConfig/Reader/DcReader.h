@@ -43,13 +43,12 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr);
 	virtual FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr);
 
-	/*
 	template<typename TObject>
-	FDcResult ReadWeakObjectReference(TWeakObjectPtr<TObject>* OutPtr)
-	{
-		return ReadWeakObjectReference(OutPtr);
-	}
-	*/
+	FDcResult ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr);
+	template<typename TObject>
+	FDcResult ReadLazyObjectPtr(TLazyObjectPtr<TObject>* OutPtr);
+	template<typename TObject>
+	FDcResult ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr);
 
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
@@ -84,4 +83,39 @@ struct DATACONFIGCORE_API FDcReader
 
 };
 
+template<typename TObject>
+FDcResult FDcReader::ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr)
+{
+	//	TODO c++20 `is_layout_compatible`
+	static_assert(sizeof(FWeakObjectPtr) == sizeof(TWeakObjectPtr<TObject>), "TWeakkObjectPtr should have same memory layout as FWeakObjectPtr");
+
+	FWeakObjectPtr* WeakOutPtr = (FWeakObjectPtr*)OutPtr;
+	return ReadWeakObjectReference(WeakOutPtr);
+}
+
+template<typename TObject>
+FDcResult FDcReader::ReadLazyObjectPtr(TLazyObjectPtr<TObject>* OutPtr)
+{
+	FLazyObjectPtr LazyPtr;
+	DC_TRY(ReadLazyObjectReference(&LazyPtr));
+
+	if (OutPtr)
+	{
+		*OutPtr = LazyPtr.GetUniqueID();
+	}
+	return DcOk();
+}
+
+template<typename TObject>
+FDcResult FDcReader::ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr)
+{
+	FSoftObjectPtr SoftPtr;
+	DC_TRY(ReadSoftObjectReference(&SoftPtr));
+
+	if (OutPtr)
+	{
+		*OutPtr = SoftPtr.GetUniqueID();
+	}
+	return DcOk();
+}
 

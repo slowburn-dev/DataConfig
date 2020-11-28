@@ -647,7 +647,20 @@ void PropertyVisitorRoundtrip_SoftWeakLazy()
 	//FWeakObjectPtr WeakPtr(Struct.Weak1);
 
 	static_assert(sizeof(FWeakObjectPtr) == sizeof(decltype(Struct.Weak1)), "actually the same thing");
-	FWeakObjectPtr WeakPtr = reinterpret_cast<const FWeakObjectPtr&>(Struct.Weak1);
+	//FWeakObjectPtr WeakPtr = reinterpret_cast<const FWeakObjectPtr&>(Struct.Weak1);
+
+	//	this is actually a `reintepret_cast`. a `static_cast` would be enough but the operators are private
+	//	might be the only way to not cause an warning
+	const FWeakObjectPtr& WeakRef = (const FWeakObjectPtr&)(Struct.Weak1);
+
+	{
+		FDcReader Reader;
+		Reader.ReadWeakObjectPtr(&Struct.Weak1);
+		Reader.ReadLazyObjectPtr(&Struct.Lazy1);
+		Reader.ReadSoftObjectPtr(&Struct.Soft1);
+	}
+
+	//FWeakObjectPtr WeakPtr = (FWeakObjectPtr)(Struct.Weak1);
 
 	FSoftObjectPtr SoftPtr(Struct.Soft1.GetUniqueID());
 
