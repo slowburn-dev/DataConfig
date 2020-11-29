@@ -73,11 +73,12 @@ static void Body()
 	PropertyVisitorRoundtrip__ClassReference();
 	PropertyVisitorRoundtrip__Objects();
 
-	//PropertyVisitorRoundtrip__ScriptStruct();
+	PropertyVisitorRoundtrip__ScriptStruct();
+	PropertyVisitorRoundtrip_SoftWeakLazy();
 	//JsonFail1();
 	*/
 
-	PropertyVisitorRoundtrip_SoftWeakLazy();
+	PropertyVisitorRoundtrip_ScriptInterface();
 
 	return;
 }

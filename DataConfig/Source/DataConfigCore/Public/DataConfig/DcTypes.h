@@ -117,8 +117,8 @@ enum class EDcDataEntry
 	WeakObjectReference,
 	LazyObjectReference,
 	SoftObjectReference,
-
 	SoftClassReference,
+	InterfaceReference,
 
 	//	Meta
 	Ended, // or error or invalid state, 

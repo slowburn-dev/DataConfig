@@ -5,6 +5,7 @@
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "Templates/IsEnum.h"
 #include "Templates/SubclassOf.h"
+#include "UObject/Interface.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
@@ -278,6 +279,56 @@ struct FStructWithSoftObjectPtr
 	//	UHT doesn't recognize this
 	//UPROPERTY() FSoftObjectPtr Soft2;
 };
+
+
+//	Interfaces, never really got into these
+//	!!! need `GENERATED_BODY` or elsewise it would NOT work
+UINTERFACE()
+class UFooInterface : public UInterface
+{ 
+	GENERATED_BODY()
+};
+
+class IFooInterface
+{
+	GENERATED_BODY()
+	
+public:
+
+	virtual FString GetFooName();
+
+	FString FooStr;
+};
+
+
+UCLASS()
+class UInterfacedAlpha : public UObject, public IFooInterface
+{
+public:
+	GENERATED_BODY()
+
+	UInterfacedAlpha();
+};
+
+
+UCLASS()
+class UInterfacedBeta : public UObject, public IFooInterface
+{
+public:
+	GENERATED_BODY()
+
+	UInterfacedBeta();
+};
+
+
+USTRUCT()
+struct FStructWithInterface
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TScriptInterface<IFooInterface> FooInterface;
+};
+
 
 
 

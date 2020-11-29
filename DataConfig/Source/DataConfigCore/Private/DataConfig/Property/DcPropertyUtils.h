@@ -55,6 +55,7 @@ template<> struct TPropertyTypeMap<FWeakObjectPtr> { using Type = UWeakObjectPro
 template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = ULazyObjectProperty; };
 template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = USoftObjectProperty; };
 template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = USoftClassProperty; };
+template<> struct TPropertyTypeMap<FScriptInterface> { using Type = UInterfaceProperty; };
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 

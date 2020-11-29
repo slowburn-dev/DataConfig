@@ -36,6 +36,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr) override;
 	FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr) override;
 	FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr) override;
+	FDcResult ReadInterfaceReference(FScriptInterface* OutPtr) override;
 
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;
@@ -58,6 +59,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 
 	bool Coercion(EDcDataEntry ToEntry) override;
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
 
 };
 

@@ -44,6 +44,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr) override;
 	FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr) override;
 	FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr) override;
+	FDcResult ReadInterfaceReference(FScriptInterface* OutPtr) override;
 
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;
@@ -68,8 +69,6 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
-
-
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };

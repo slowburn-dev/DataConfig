@@ -653,3 +653,40 @@ void PropertyVisitorRoundtrip_SoftWeakLazy()
 	);
 }
 
+FString IFooInterface::GetFooName()
+{
+	return FooStr;
+}
+
+UInterfacedAlpha::UInterfacedAlpha()
+{
+	FooStr = TEXT("I cover the waterfront.");
+}
+
+UInterfacedBeta::UInterfacedBeta()
+{
+	FooStr = TEXT("I'm watching the sea");
+}
+
+
+void PropertyVisitorRoundtrip_ScriptInterface()
+{
+	FStructWithInterface Struct;
+
+	UObject* Alpha = NewObject<UInterfacedAlpha>();
+	Struct.FooInterface = Alpha;
+
+	{
+		FDcReader Reader;
+		//Reader.ReadSoftClassPtr(&Struct.Soft2);
+		Reader.ReadInterfacePtr(&Struct.FooInterface);
+	}
+
+	FStructWithInterface OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithInterface::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithInterface::StaticStruct(), &OutStruct)
+	);
+}
+

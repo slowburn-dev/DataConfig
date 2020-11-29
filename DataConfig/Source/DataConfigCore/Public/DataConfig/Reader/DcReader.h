@@ -43,6 +43,7 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr);
 	virtual FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr);
 	virtual FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr);
+	virtual FDcResult ReadInterfaceReference(FScriptInterface* OutPtr);
 
 	template<typename TObject>
 	FDcResult ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr);
@@ -52,6 +53,8 @@ struct DATACONFIGCORE_API FDcReader
 	FDcResult ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr);
 	template<typename TClass>
 	FDcResult ReadSoftClassPtr(TSoftClassPtr<TClass>* OutPtr);
+	template<typename TInterface>
+	FDcResult ReadInterfacePtr(TScriptInterface<TInterface>* OutPtr);
 
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
@@ -132,6 +135,19 @@ FDcResult FDcReader::ReadSoftClassPtr(TSoftClassPtr<TClass>* OutPtr)
 	if (OutPtr)
 	{
 		*OutPtr = SoftPath;
+	}
+	return DcOk();
+}
+
+template<typename TInterface>
+FDcResult FDcReader::ReadInterfacePtr(TScriptInterface<TInterface>* OutPtr)
+{
+	FScriptInterface ScriptInterface;
+	DC_TRY(ReadInterfaceReference(OutPtr));
+
+	if (OutPtr)
+	{
+		*OutPtr = (const TScriptInterface<TInterface>&)ScriptInterface;
 	}
 	return DcOk();
 }
