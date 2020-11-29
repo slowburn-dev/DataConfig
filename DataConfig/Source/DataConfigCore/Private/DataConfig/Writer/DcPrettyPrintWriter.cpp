@@ -186,6 +186,24 @@ FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& 
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteDelegate(const FScriptDelegate& Value)
+{
+	Output.Logf(TEXT("%s- delegate: %s"), *Indent, *Value.ToString<UObject>());
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value)
+{
+	Output.Logf(TEXT("%s- multicast inline delegate: %s"), *Indent, *Value.ToString<UObject>());
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value)
+{
+	Output.Logf(TEXT("%s- multicast sparse delegate: bound: %d"), *Indent, Value.IsBound());
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteInt8(const int8& Value)
 {
 	Output.Logf(TEXT("%s- int8: \"%d\""), *Indent, Value);

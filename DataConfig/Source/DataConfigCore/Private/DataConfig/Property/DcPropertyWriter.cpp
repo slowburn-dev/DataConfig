@@ -450,6 +450,9 @@ FDcResult FDcPropertyWriter::WriteClassReference(const UClass* Value)
 	return WriteTopStateScalarProperty<UClass*>(this, (UClass*)Value);
 }
 
+FDcResult FDcPropertyWriter::WriteDelegate(const FScriptDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }

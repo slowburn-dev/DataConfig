@@ -31,6 +31,9 @@ FDcResult FDcWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { ret
 FDcResult FDcWriter::WriteSoftObjectReference(const FSoftObjectPath& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteSoftClassReference(const FSoftClassPath& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInterfaceReference(const FScriptInterface& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteDelegate(const FScriptDelegate& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt8(const int8& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt16(const int16& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt32(const int32& Value) { return DC_FAIL(DcDCommon, NotImplemented); }

@@ -149,6 +149,24 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadInterfaceReference(&Value));
 			DC_TRY(Writer->WriteInterfaceReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::Delegate)
+		{
+			FScriptDelegate Value;
+			DC_TRY(Reader->ReadDelegate(&Value));
+			DC_TRY(Writer->WriteDelegate(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::MulticastInlineDelegate)
+		{
+			FMulticastScriptDelegate Value;
+			DC_TRY(Reader->ReadMulticastInlineDelegate(&Value));
+			DC_TRY(Writer->WriteMulticastInlineDelegate(Value));
+		}
+		else if (PeekEntry == EDcDataEntry::MulticastSparseDelegate)
+		{
+			FSparseDelegate Value;
+			DC_TRY(Reader->ReadMulticastSparseDelegate(&Value));
+			DC_TRY(Writer->WriteMulticastSparseDelegate(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Int8)
 		{
 			int8 Value;

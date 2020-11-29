@@ -33,6 +33,10 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	FDcResult WriteSoftClassReference(const FSoftClassPath& Value) override;
 	FDcResult WriteInterfaceReference(const FScriptInterface& Value) override;
 
+	FDcResult WriteDelegate(const FScriptDelegate& Value) override;
+	FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) override;
+	FDcResult WriteMulticastSparseDelegate(const FSparseDelegate& Value) override;
+
 	FDcResult WriteInt8(const int8& Value) override;
 	FDcResult WriteInt16(const int16& Value) override;
 	FDcResult WriteInt32(const int32& Value) override;
@@ -49,6 +53,7 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	TArray<FDcWriter*, TInlineAllocator<4>> Writers;
 
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
 
 };
 

@@ -183,6 +183,21 @@ FDcResult FDcWeakCompositeWriter::WriteInterfaceReference(const FScriptInterface
 	return CompositeDispatch(this, &FDcWriter::WriteInterfaceReference, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteDelegate(const FScriptDelegate& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteDelegate, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteMulticastInlineDelegate, Value);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteMulticastSparseDelegate, Value);
+}
+
 void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	for (FDcWriter* Writer : Writers)
