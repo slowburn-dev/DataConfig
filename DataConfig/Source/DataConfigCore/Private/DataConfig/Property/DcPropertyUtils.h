@@ -58,11 +58,47 @@ template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = USoftClassProp
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
+//	for read datum -> scalar
 template<typename TProperty, typename TScalar>
-void WritePropertyValueConversion(UField* Property, void const* Ptr, TScalar* OutPtr)
+void ReadPropertyValueConversion(UField* Property, void const* Ptr, TScalar* OutPtr)
 {
 	*OutPtr = (const TScalar&)(CastChecked<TProperty>(Property)->GetPropertyValue(Ptr));
 }
+
+template<>
+void ReadPropertyValueConversion<UBoolProperty, bool>(UField* Property, void const* Ptr, bool* OutPtr)
+{
+	*OutPtr = CastChecked<UBoolProperty>(Property)->GetPropertyValue(Ptr);
+}
+
+template<>
+void ReadPropertyValueConversion<USoftObjectProperty, FSoftObjectPath>(UField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
+{
+	*OutPtr = CastChecked<USoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
+}
+
+template<>
+void ReadPropertyValueConversion<USoftClassProperty, FSoftClassPath>(UField* Property, void const* Ptr, FSoftClassPath* OutPtr)
+{
+	static_assert(sizeof(FSoftClassPath) == sizeof(FSoftObjectPath), "should have same layout");
+	*OutPtr = (const FSoftClassPath&)(CastChecked<USoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
+}
+
+//	for writing scalar -> datum
+template<typename TProperty, typename TScalar>
+void WritePropertyValueConversion(UField* Property, void* Ptr, const TScalar& Value)
+{
+	CastChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
+}
+
+template<>
+void WritePropertyValueConversion<USoftObjectProperty, FSoftObjectPath>(UField* Property, void* Ptr, const FSoftObjectPath& Value)
+{
+	FSoftObjectPtr SoftPtr(Value);
+	CastChecked<USoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+}
+
+
 
 
 namespace DcPropertyHighlight

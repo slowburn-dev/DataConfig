@@ -93,8 +93,7 @@ FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScala
 
 	if (OutPtr)
 	{
-		*OutPtr = (TScalar)Datum.CastChecked<TProperty>()->GetPropertyValue(Datum.DataPtr);
-		//*OutPtr = GetPropertyValueConversion<TProperty, TScalar>(Datum.Property, Datum.DataPtr);
+		ReadPropertyValueConversion<TProperty, TScalar>(Datum.Property, Datum.DataPtr, OutPtr);
 	}
 
 	return DcOk();
@@ -430,32 +429,11 @@ FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
 	}
 }
 
-FDcResult FDcPropertyReader::ReadClassReference(UClass** OutPtr)
-{
-	return ReadTopStateScalarProperty(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadWeakObjectReference(FWeakObjectPtr* OutPtr)
-{
-	return ReadTopStateScalarProperty(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr)
-{
-	return ReadTopStateScalarProperty(this, OutPtr);
-}
-
-FDcResult FDcPropertyReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr)
-{
-	//return ReadTopStateScalarProperty(this, OutPtr);
-	return DcOk();
-}
-
-FDcResult FDcPropertyReader::ReadSoftClassReference(FSoftClassPath* OutPtr)
-{
-	//return ReadTopStateScalarProperty(this, OutPtr);
-	return DcOk();
-}
+FDcResult FDcPropertyReader::ReadClassReference(UClass** OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadWeakObjectReference(FWeakObjectPtr* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+FDcResult FDcPropertyReader::ReadSoftClassReference(FSoftClassPath* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }

@@ -638,10 +638,12 @@ void PropertyVisitorRoundtrip_SoftWeakLazy()
 	Struct.Soft1 = UTestObj_Alpha::StaticClass();
 	Struct.Soft2 = UTestObj_Alpha::StaticClass();
 
+	/*
 	{
 		FDcReader Reader;
 		Reader.ReadSoftClassPtr(&Struct.Soft2);
 	}
+	*/
 
 	FStructWithSoftObjectPtr OutStruct{};
 
