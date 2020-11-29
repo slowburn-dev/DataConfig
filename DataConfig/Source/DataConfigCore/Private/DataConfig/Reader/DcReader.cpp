@@ -29,8 +29,8 @@ FDcResult FDcReader::ReadObjectReference(UObject** OutPtr) { return DC_FAIL(DcDC
 FDcResult FDcReader::ReadClassReference(UClass** OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadWeakObjectReference(FWeakObjectPtr* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadSoftClassReference(FSoftObjectPtr* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadSoftClassReference(FSoftClassPath* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt8(int8* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt16(int16* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt32(int32* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }

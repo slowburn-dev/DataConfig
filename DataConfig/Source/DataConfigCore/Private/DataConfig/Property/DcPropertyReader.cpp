@@ -81,7 +81,6 @@ static void PopState(FDcPropertyReader* Reader)
 	PopState(Reader);
 }
 
-
 template<typename TScalar>
 FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScalar* OutPtr)
 {
@@ -95,6 +94,7 @@ FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScala
 	if (OutPtr)
 	{
 		*OutPtr = (TScalar)Datum.CastChecked<TProperty>()->GetPropertyValue(Datum.DataPtr);
+		//*OutPtr = GetPropertyValueConversion<TProperty, TScalar>(Datum.Property, Datum.DataPtr);
 	}
 
 	return DcOk();
@@ -445,14 +445,16 @@ FDcResult FDcPropertyReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr)
 	return ReadTopStateScalarProperty(this, OutPtr);
 }
 
-FDcResult FDcPropertyReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr)
+FDcResult FDcPropertyReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr)
 {
-	return ReadTopStateScalarProperty(this, OutPtr);
+	//return ReadTopStateScalarProperty(this, OutPtr);
+	return DcOk();
 }
 
-FDcResult FDcPropertyReader::ReadSoftClassReference(FSoftObjectPtr* OutPtr)
+FDcResult FDcPropertyReader::ReadSoftClassReference(FSoftClassPath* OutPtr)
 {
-	return ReadTopStateScalarProperty(this, OutPtr);
+	//return ReadTopStateScalarProperty(this, OutPtr);
+	return DcOk();
 }
 
 FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }

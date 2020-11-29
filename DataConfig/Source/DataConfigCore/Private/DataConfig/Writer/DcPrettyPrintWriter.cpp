@@ -160,10 +160,10 @@ FDcResult FDcPrettyPrintWriter::WriteLazyObjectReference(const FLazyObjectPtr& V
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
+FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPath& Value)
 {
 	Output.Logf(TEXT("%s- soft object reference: %s"), *Indent,
-		*Value.GetUniqueID().ToString()
+		*Value.ToString()
 	);
 	return DcOk();
 }

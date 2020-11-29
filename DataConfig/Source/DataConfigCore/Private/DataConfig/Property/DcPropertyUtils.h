@@ -53,9 +53,17 @@ template<> struct TPropertyTypeMap<UObject*> { using Type = UObjectProperty; };
 
 template<> struct TPropertyTypeMap<FWeakObjectPtr> { using Type = UWeakObjectProperty; };
 template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = ULazyObjectProperty; };
-template<> struct TPropertyTypeMap<FSoftObjectPtr> { using Type = USoftObjectProperty; };
+template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = USoftObjectProperty; };
+template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = USoftClassProperty; };
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
+
+template<typename TProperty, typename TScalar>
+void WritePropertyValueConversion(UField* Property, void const* Ptr, TScalar* OutPtr)
+{
+	*OutPtr = (const TScalar&)(CastChecked<TProperty>(Property)->GetPropertyValue(Ptr));
+}
+
 
 namespace DcPropertyHighlight
 {

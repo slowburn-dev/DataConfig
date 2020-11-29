@@ -168,7 +168,7 @@ FDcResult FDcWeakCompositeWriter::WriteLazyObjectReference(const FLazyObjectPtr&
 	return CompositeDispatch(this, &FDcWriter::WriteLazyObjectReference, Value);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
+FDcResult FDcWeakCompositeWriter::WriteSoftObjectReference(const FSoftObjectPath& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteSoftObjectReference, Value);
 }

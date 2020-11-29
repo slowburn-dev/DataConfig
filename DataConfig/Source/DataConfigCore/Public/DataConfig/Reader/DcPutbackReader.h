@@ -34,8 +34,8 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 
 	FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr) override;
 	FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr) override;
-	FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr) override;
-	FDcResult ReadSoftClassReference(FSoftObjectPtr* OutPtr) override;
+	FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr) override;
+	FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr) override;
 
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;

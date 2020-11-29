@@ -163,12 +163,12 @@ FDcResult FDcPutbackReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr)
 	return CanNotCachedRead(this, EDcDataEntry::LazyObjectReference, &FDcReader::ReadLazyObjectReference, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr)
+FDcResult FDcPutbackReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::SoftObjectReference, &FDcReader::ReadSoftObjectReference, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadSoftClassReference(FSoftObjectPtr* OutPtr)
+FDcResult FDcPutbackReader::ReadSoftClassReference(FSoftClassPath* OutPtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::SoftClassReference, &FDcReader::ReadSoftClassReference, OutPtr);
 }

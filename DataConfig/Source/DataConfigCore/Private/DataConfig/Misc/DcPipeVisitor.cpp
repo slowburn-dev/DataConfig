@@ -133,7 +133,7 @@ FDcResult FDcPipeVisitor::PipeVisit()
 		}
 		else if (PeekEntry == EDcDataEntry::SoftObjectReference)
 		{
-			FSoftObjectPtr Value;
+			FSoftObjectPath Value;
 			DC_TRY(Reader->ReadSoftObjectReference(&Value));
 			DC_TRY(Writer->WriteSoftObjectReference(Value));
 		}

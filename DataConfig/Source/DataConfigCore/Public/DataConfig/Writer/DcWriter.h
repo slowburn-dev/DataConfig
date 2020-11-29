@@ -39,7 +39,7 @@ struct DATACONFIGCORE_API FDcWriter
 
 	virtual FDcResult WriteWeakObjectReference(const FWeakObjectPtr& Value);
 	virtual FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value);
-	virtual FDcResult WriteSoftObjectReference(const FSoftObjectPtr& Value);
+	virtual FDcResult WriteSoftObjectReference(const FSoftObjectPath& Value);
 
 	template<typename TObject>
 	FDcResult WriteWeakObjectPtr(const TWeakObjectPtr<TObject>& Value);

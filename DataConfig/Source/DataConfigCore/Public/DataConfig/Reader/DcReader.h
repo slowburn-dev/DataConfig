@@ -41,8 +41,8 @@ struct DATACONFIGCORE_API FDcReader
 
 	virtual FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr);
 	virtual FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr);
-	virtual FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr);
-	virtual FDcResult ReadSoftClassReference(FSoftObjectPtr* OutPtr);
+	virtual FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr);
+	virtual FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr);
 
 	template<typename TObject>
 	FDcResult ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr);
@@ -112,12 +112,13 @@ FDcResult FDcReader::ReadLazyObjectPtr(TLazyObjectPtr<TObject>* OutPtr)
 template<typename TObject>
 FDcResult FDcReader::ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr)
 {
-	FSoftObjectPtr SoftPtr;
-	DC_TRY(ReadSoftObjectReference(&SoftPtr));
+	FSoftObjectPath SoftPath;
+	DC_TRY(ReadSoftObjectReference(&SoftPath));
 
 	if (OutPtr)
 	{
-		*OutPtr = SoftPtr.GetUniqueID();
+		//*OutPtr = MoveTemp(SoftPath);
+		*OutPtr = SoftPath;
 	}
 	return DcOk();
 }
@@ -125,12 +126,12 @@ FDcResult FDcReader::ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr)
 template<typename TClass>
 FDcResult FDcReader::ReadSoftClassPtr(TSoftClassPtr<TClass>* OutPtr)
 {
-	FSoftObjectPtr SoftPtr;
-	DC_TRY(ReadSoftClassReference(&SoftPtr));
+	FSoftClassPath SoftPath;
+	DC_TRY(ReadSoftClassReference(&SoftPath));
 
 	if (OutPtr)
 	{
-		*OutPtr = SoftPtr.GetUniqueID();
+		*OutPtr = SoftPath;
 	}
 	return DcOk();
 }
