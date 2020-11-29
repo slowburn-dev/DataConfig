@@ -21,6 +21,7 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<ULazyObjectProperty>()
 		|| Property->IsA<USoftObjectProperty>()
 		|| Property->IsA<USoftClassProperty>()
+		|| Property->IsA<UInterfaceProperty>()
 		;
 }
 
@@ -132,9 +133,9 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 		//	order significant
 		if (Property->IsA<USoftClassProperty>()) return EDcDataEntry::SoftClassReference;
 		if (Property->IsA<USoftObjectProperty>()) return EDcDataEntry::SoftObjectReference;
+		if (Property->IsA<UInterfaceProperty>()) return EDcDataEntry::InterfaceReference;
+		if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
 	}
-
-	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
 
 	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
 	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
@@ -247,6 +248,13 @@ FString GetFormatPropertyTypeName(UField* Property)
 				*GetFormatPropertyTypeName(SoftProperty->PropertyClass)
 			);
 		}
+	}
+
+	if (UInterfaceProperty* InterfaceProperty = Cast<UInterfaceProperty>(Property))
+	{
+		return FString::Printf(TEXT("TScriptInterface<%s>"),
+			*GetFormatPropertyTypeName(InterfaceProperty->InterfaceClass)
+		);
 	}
 
 	checkNoEntry();

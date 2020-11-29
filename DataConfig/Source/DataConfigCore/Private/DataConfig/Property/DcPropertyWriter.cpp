@@ -455,6 +455,7 @@ FDcResult FDcPropertyWriter::WriteWeakObjectReference(const FWeakObjectPtr& Valu
 FDcResult FDcPropertyWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteSoftObjectReference(const FSoftObjectPath& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteSoftClassReference(const FSoftClassPath& Value) { return WriteTopStateScalarProperty(this, Value); }
+FDcResult FDcPropertyWriter::WriteInterfaceReference(const FScriptInterface& Value) { return WriteTopStateScalarProperty(this, Value); }
 
 FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateScalarProperty(this, Value); }

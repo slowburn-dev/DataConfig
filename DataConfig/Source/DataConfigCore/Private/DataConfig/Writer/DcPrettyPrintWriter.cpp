@@ -176,6 +176,16 @@ FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Va
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& Value)
+{
+	Output.Logf(TEXT("%s- interface reference: %s"), *Indent,
+		Value.GetObject()
+			? *Value.GetObject()->GetName()
+			: TEXT("<null>")
+	);
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteInt8(const int8& Value)
 {
 	Output.Logf(TEXT("%s- int8: \"%d\""), *Indent, Value);

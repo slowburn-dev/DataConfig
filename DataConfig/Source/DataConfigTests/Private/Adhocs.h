@@ -327,6 +327,7 @@ struct FStructWithInterface
 	GENERATED_BODY()
 
 	UPROPERTY() TScriptInterface<IFooInterface> FooInterface;
+	UPROPERTY() TScriptInterface<IFooInterface> BarInterface;
 };
 
 

@@ -30,6 +30,7 @@ FDcResult FDcWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { ret
 FDcResult FDcWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteSoftObjectReference(const FSoftObjectPath& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteSoftClassReference(const FSoftClassPath& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteInterfaceReference(const FScriptInterface& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt8(const int8& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt16(const int16& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt32(const int32& Value) { return DC_FAIL(DcDCommon, NotImplemented); }

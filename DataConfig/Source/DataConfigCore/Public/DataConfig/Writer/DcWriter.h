@@ -41,6 +41,7 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value);
 	virtual FDcResult WriteSoftObjectReference(const FSoftObjectPath& Value);
 	virtual FDcResult WriteSoftClassReference(const FSoftClassPath& Value);
+	virtual FDcResult WriteInterfaceReference(const FScriptInterface& Value);
 
 	template<typename TObject>
 	FDcResult WriteWeakObjectPtr(const TWeakObjectPtr<TObject>& Value);
@@ -48,6 +49,8 @@ struct DATACONFIGCORE_API FDcWriter
 	FDcResult WriteLazyObjectPtr(const TLazyObjectPtr<TObject>& Value);
 	template<typename TObject>
 	FDcResult WriteSoftObjectPtr(const TSoftObjectPtr<TObject>& Value);
+	template<typename TInterface>
+	FDcResult WriteInterfacePtr(const TScriptInterface<TInterface>& Value);
 
 	virtual FDcResult WriteInt8(const int8& Value);
 	virtual FDcResult WriteInt16(const int16& Value);
@@ -96,5 +99,12 @@ FDcResult FDcWriter::WriteSoftObjectPtr(const TSoftObjectPtr<TObject>& Value)
 {
 	FSoftObjectPtr SoftPtr(Value.GetUniqueID());
 	return WriteSoftObjectReference(SoftPtr);
+}
+
+template<typename TInterface>
+FDcResult FDcWriter::WriteInterfacePtr(const TScriptInterface<TInterface>& Value)
+{
+	FScriptInterface ScriptInterface(Value);
+	return WriteInterfaceReference(ScriptInterface);
 }
 

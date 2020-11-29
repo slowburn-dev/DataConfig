@@ -676,12 +676,6 @@ void PropertyVisitorRoundtrip_ScriptInterface()
 	UObject* Alpha = NewObject<UInterfacedAlpha>();
 	Struct.FooInterface = Alpha;
 
-	{
-		FDcReader Reader;
-		//Reader.ReadSoftClassPtr(&Struct.Soft2);
-		Reader.ReadInterfacePtr(&Struct.FooInterface);
-	}
-
 	FStructWithInterface OutStruct{};
 
 	_Roundtrip(

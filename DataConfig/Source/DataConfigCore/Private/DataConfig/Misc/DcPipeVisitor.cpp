@@ -143,6 +143,12 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadSoftClassReference(&Value));
 			DC_TRY(Writer->WriteSoftClassReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::InterfaceReference)
+		{
+			FScriptInterface Value;
+			DC_TRY(Reader->ReadInterfaceReference(&Value));
+			DC_TRY(Writer->WriteInterfaceReference(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Int8)
 		{
 			int8 Value;

@@ -35,6 +35,7 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 	FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value) override;
 	FDcResult WriteSoftObjectReference(const FSoftObjectPath& Value) override;
 	FDcResult WriteSoftClassReference(const FSoftClassPath& Value) override;
+	FDcResult WriteInterfaceReference(const FScriptInterface& Value) override;
 
 	FDcResult WriteInt8(const int8& Value) override;
 	FDcResult WriteInt16(const int16& Value) override;

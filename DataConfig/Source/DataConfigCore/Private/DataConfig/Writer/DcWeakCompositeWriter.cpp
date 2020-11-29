@@ -178,6 +178,10 @@ FDcResult FDcWeakCompositeWriter::WriteSoftClassReference(const FSoftClassPath& 
 	return CompositeDispatch(this, &FDcWriter::WriteSoftClassReference, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteInterfaceReference(const FScriptInterface& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteInterfaceReference, Value);
+}
 
 void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
