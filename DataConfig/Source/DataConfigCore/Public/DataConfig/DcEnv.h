@@ -62,8 +62,8 @@ struct DATACONFIGCORE_API FDcScopedEnv
 
 #define DC_FAIL(DiagNamespace, DiagID) (DcFail(FDcErrorCode{DiagNamespace::Category, DiagNamespace::DiagID}))
 
-FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr) {
-
+FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr)
+{
 #if DO_CHECK
 	UE_DEBUG_BREAK();
 #endif
@@ -71,8 +71,8 @@ FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr) {
 	return DcEnv().Diag(InErr);
 }
 
-FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
-
+FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode)
+{
 #if DO_CHECK
 	UE_DEBUG_BREAK();
 #endif
@@ -80,8 +80,15 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
 	return DcEnv().Diag({InCategory, InCode});
 }
 
-FORCEINLINE FDcResult DcFail() {
+FORCEINLINE FDcResult DcFail() 
+{
 	return FDcResult{ FDcResult::EStatus::Error };
+}
+
+FORCEINLINE FDcResult DcNoEntry() 
+{
+	checkNoEntry();
+	return DcFail(1, 2);	// DcDCommon::Unreachable
 }
 
 //	global initializer and shutdown

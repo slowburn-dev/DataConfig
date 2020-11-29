@@ -84,8 +84,7 @@ FDcResult FDcWriteStateStruct::Peek(EDcDataEntry Next)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -269,8 +268,7 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -384,7 +382,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassS
 		}
 		else
 		{
-			checkNoEntry();
+			return DcNoEntry();
 		}
 
 		return DcOk();
@@ -511,8 +509,7 @@ FDcResult FDcWriteStateMap::Peek(EDcDataEntry Next)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -683,8 +680,7 @@ FDcResult FDcWriteStateArray::Peek(EDcDataEntry Next)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -810,8 +806,7 @@ FDcResult FDcWriteStateSet::Peek(EDcDataEntry Next)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 

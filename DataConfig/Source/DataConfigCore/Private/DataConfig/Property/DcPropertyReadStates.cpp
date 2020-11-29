@@ -74,8 +74,7 @@ FDcResult FDcReadStateClass::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -229,8 +228,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 			}
 			else
 			{
-				checkNoEntry();
-				return DC_FAIL(DcDCommon, Unreachable);
+				return DcNoEntry();
 			}
 		}
 	}
@@ -336,8 +334,7 @@ FDcResult FDcReadStateStruct::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -519,8 +516,7 @@ FDcResult FDcReadStateMap::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -558,7 +554,7 @@ FDcResult FDcReadStateMap::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FD
 	}
 	else
 	{
-		checkNoEntry();
+		return DcNoEntry();
 	}
 
 	DC_TRY(EndReadValue());
@@ -675,8 +671,7 @@ FDcResult FDcReadStateArray::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -814,8 +809,7 @@ FDcResult FDcReadStateSet::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 

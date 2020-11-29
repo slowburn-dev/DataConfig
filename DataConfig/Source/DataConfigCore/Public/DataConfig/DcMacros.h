@@ -9,6 +9,7 @@
 	} while (0)
 
 
+//	TODO doesn't work yet
 #ifndef DC_NODISCARD
 	#if __cplusplus >= 201703L
 	#	define DC_NODISCARD		([[nodiscard]])

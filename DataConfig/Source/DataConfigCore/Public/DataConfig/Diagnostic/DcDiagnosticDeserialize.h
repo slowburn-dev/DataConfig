@@ -9,6 +9,7 @@ namespace DcDDeserialize
 	enum Type : uint16
 	{
 		Unknown = 0,
+		NotPrepared,
 		NoMatchingHandler,
 		DataEntryMismatch,
 		DataEntryMismatch2,

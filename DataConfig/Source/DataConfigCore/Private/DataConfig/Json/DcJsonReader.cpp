@@ -301,8 +301,7 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 		}
 	}
 
-	checkNoEntry();
-	return DC_FAIL(DcDCommon, Unreachable);
+	return DcNoEntry();
 }
 
 template<typename CharType>
@@ -489,8 +488,7 @@ FDcResult TDcJsonReader<CharType>::CheckNextReadStateAndFlip(ENextReadState Expe
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -561,8 +559,7 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
@@ -881,8 +878,7 @@ FDcResult TDcJsonReader<CharType>::ConsumeEffectiveToken()
 			continue;
 	}
 
-	checkNoEntry();
-	return DC_FAIL(DcDCommon, Unreachable);
+	return DcNoEntry();
 }
 
 template<typename CharType>

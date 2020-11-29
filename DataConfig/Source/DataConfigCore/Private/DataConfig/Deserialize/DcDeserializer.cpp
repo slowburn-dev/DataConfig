@@ -46,8 +46,7 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	using ECtxState = FDcDeserializeContext::EState;
 	if (Ctx.State == ECtxState::Uninitialized)
 	{
-		checkf(false, TEXT("need `Ctx.Prepare()`"));
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DC_FAIL(DcDDeserialize, NotPrepared);
 	}
 	else if (Ctx.State == ECtxState::Ready)
 	{
@@ -66,8 +65,7 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	}
 	else
 	{
-		checkNoEntry();
-		return DC_FAIL(DcDCommon, Unreachable);
+		return DcNoEntry();
 	}
 }
 
