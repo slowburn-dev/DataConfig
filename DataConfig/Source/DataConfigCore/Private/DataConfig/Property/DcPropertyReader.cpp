@@ -136,7 +136,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 {
 	FScopedStackedReader StackedReader(this);
-	return GetTopState(this).PeekRead(OutPtr);
+	return GetTopState(this).ReadNext(OutPtr);
 }
 
 FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }

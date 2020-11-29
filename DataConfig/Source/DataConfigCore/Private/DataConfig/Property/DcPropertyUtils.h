@@ -98,8 +98,12 @@ void WritePropertyValueConversion<USoftObjectProperty, FSoftObjectPath>(UField* 
 	CastChecked<USoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
-
-
+template<>
+void WritePropertyValueConversion<USoftClassProperty, FSoftClassPath>(UField* Property, void* Ptr, const FSoftClassPath& Value)
+{
+	FSoftObjectPtr SoftPtr(Value);
+	CastChecked<USoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+}
 
 namespace DcPropertyHighlight
 {

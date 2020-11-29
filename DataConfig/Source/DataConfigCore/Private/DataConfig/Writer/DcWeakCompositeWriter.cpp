@@ -173,6 +173,12 @@ FDcResult FDcWeakCompositeWriter::WriteSoftObjectReference(const FSoftObjectPath
 	return CompositeDispatch(this, &FDcWriter::WriteSoftObjectReference, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteSoftClassReference(const FSoftClassPath& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteSoftClassReference, Value);
+}
+
+
 void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	for (FDcWriter* Writer : Writers)
@@ -183,4 +189,3 @@ void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 			break;
 	}
 }
-

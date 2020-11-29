@@ -9,7 +9,7 @@ FDcPropertyReader* _GetStackReader()
 	return (FDcPropertyReader*)(DcEnv().ReaderStack.Top());
 }
 
-FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseReadState::ReadNext(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseReadState::ReadName(FName* OutNamePtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseReadState::ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
 
@@ -23,7 +23,7 @@ EDcPropertyReadType FDcReadStateNil::GetType()
 	return EDcPropertyReadType::Nil;
 }
 
-FDcResult FDcReadStateNil::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcReadStateNil::ReadNext(EDcDataEntry* OutPtr)
 {
 	*OutPtr = EDcDataEntry::Ended;
 	return DcOk();
@@ -39,7 +39,7 @@ EDcPropertyReadType FDcReadStateClass::GetType()
 	return EDcPropertyReadType::ClassProperty;
 }
 
-FDcResult FDcReadStateClass::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcReadStateClass::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -306,7 +306,7 @@ EDcPropertyReadType FDcReadStateStruct::GetType()
 	return EDcPropertyReadType::StructProperty;
 }
 
-FDcResult FDcReadStateStruct::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcReadStateStruct::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -493,7 +493,7 @@ EDcPropertyReadType FDcReadStateMap::GetType()
 	return EDcPropertyReadType::MapProperty;
 }
 
-FDcResult FDcReadStateMap::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcReadStateMap::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -650,7 +650,7 @@ EDcPropertyReadType FDcReadStateArray::GetType()
 	return EDcPropertyReadType::ArrayProperty;
 }
 
-FDcResult FDcReadStateArray::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcReadStateArray::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -789,7 +789,7 @@ EDcPropertyReadType FDcReadStateSet::GetType()
 	return FDcReadStateSet::ID;
 }
 
-FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
+FDcResult FDcReadStateSet::ReadNext(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{

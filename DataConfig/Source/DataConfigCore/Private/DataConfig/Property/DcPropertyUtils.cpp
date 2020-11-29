@@ -20,6 +20,7 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<UWeakObjectProperty>()
 		|| Property->IsA<ULazyObjectProperty>()
 		|| Property->IsA<USoftObjectProperty>()
+		|| Property->IsA<USoftClassProperty>()
 		;
 }
 
@@ -118,13 +119,20 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	if (Property->IsA<UFloatProperty>()) return EDcDataEntry::Float;
 	if (Property->IsA<UDoubleProperty>()) return EDcDataEntry::Double;
 
-	//	order after this is significant as there's ineheritance
-	if (Property->IsA<UClassProperty>()) return EDcDataEntry::ClassReference;
-	if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
+	{
+		//	order significant
+		if (Property->IsA<UClassProperty>()) return EDcDataEntry::ClassReference;
+		if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
+	}
 
 	if (Property->IsA<UWeakObjectProperty>()) return EDcDataEntry::WeakObjectReference;
 	if (Property->IsA<ULazyObjectProperty>()) return EDcDataEntry::LazyObjectReference;
-	if (Property->IsA<USoftObjectProperty>()) return EDcDataEntry::SoftObjectReference;
+
+	{
+		//	order significant
+		if (Property->IsA<USoftClassProperty>()) return EDcDataEntry::SoftClassReference;
+		if (Property->IsA<USoftObjectProperty>()) return EDcDataEntry::SoftObjectReference;
+	}
 
 	if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
 
@@ -176,14 +184,17 @@ FString GetFormatPropertyTypeName(UField* Property)
 		return FString::Printf(TEXT("F%s"), *StructField->Struct->GetName());
 	}
 
-	if (UClass* Class = Cast<UClass>(Property))
 	{
-		return FString::Printf(TEXT("U%s"), *Class->GetName());
-	}
+		//	order significant
+		if (UClass* Class = Cast<UClass>(Property))
+		{
+			return FString::Printf(TEXT("U%s"), *Class->GetName());
+		}
 
-	if (UObjectProperty* ObjField = Cast<UObjectProperty>(Property))
-	{
-		return FString::Printf(TEXT("U%s"), *ObjField->PropertyClass->GetName());
+		if (UObjectProperty* ObjField = Cast<UObjectProperty>(Property))
+		{
+			return FString::Printf(TEXT("U%s"), *ObjField->PropertyClass->GetName());
+		}
 	}
 
 	if (UMapProperty* MapProperty = Cast<UMapProperty>(Property))
@@ -221,11 +232,21 @@ FString GetFormatPropertyTypeName(UField* Property)
 		);
 	}
 
-	if (USoftObjectProperty* SoftProperty = Cast<USoftObjectProperty>(Property))
 	{
-		return FString::Printf(TEXT("TSoftObjectPtr<%s>"),
-			*GetFormatPropertyTypeName(SoftProperty->PropertyClass)
-		);
+		//	order significant
+		if (USoftClassProperty* SoftProperty = Cast<USoftClassProperty>(Property))
+		{
+			return FString::Printf(TEXT("TSoftClassPtr<%s>"),
+				*GetFormatPropertyTypeName(SoftProperty->MetaClass)
+			);
+		}
+
+		if (USoftObjectProperty* SoftProperty = Cast<USoftObjectProperty>(Property))
+		{
+			return FString::Printf(TEXT("TSoftObjectPtr<%s>"),
+				*GetFormatPropertyTypeName(SoftProperty->PropertyClass)
+			);
+		}
 	}
 
 	checkNoEntry();

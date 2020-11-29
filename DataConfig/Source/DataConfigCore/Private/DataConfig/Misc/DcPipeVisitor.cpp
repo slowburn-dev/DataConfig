@@ -137,6 +137,12 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadSoftObjectReference(&Value));
 			DC_TRY(Writer->WriteSoftObjectReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::SoftClassReference)
+		{
+			FSoftClassPath Value;
+			DC_TRY(Reader->ReadSoftClassReference(&Value));
+			DC_TRY(Writer->WriteSoftClassReference(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Int8)
 		{
 			int8 Value;

@@ -168,6 +168,14 @@ FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPath& 
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Value)
+{
+	Output.Logf(TEXT("%s- soft class reference: %s"), *Indent,
+		*Value.ToString()
+	);
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteInt8(const int8& Value)
 {
 	Output.Logf(TEXT("%s- int8: \"%d\""), *Indent, Value);
