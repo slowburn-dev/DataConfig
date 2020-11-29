@@ -57,6 +57,10 @@ template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = USoftObjectPr
 template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = USoftClassProperty; };
 template<> struct TPropertyTypeMap<FScriptInterface> { using Type = UInterfaceProperty; };
 
+template<> struct TPropertyTypeMap<FScriptDelegate> { using Type = UDelegateProperty; };
+template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = UMulticastInlineDelegateProperty; };
+template<> struct TPropertyTypeMap<FSparseDelegate> { using Type = UMulticastSparseDelegateProperty; };
+
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
 
 //	for read datum -> scalar

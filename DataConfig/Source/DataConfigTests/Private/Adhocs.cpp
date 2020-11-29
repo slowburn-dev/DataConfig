@@ -684,3 +684,38 @@ void PropertyVisitorRoundtrip_ScriptInterface()
 	);
 }
 
+
+void PropertyVisitorRoundtrip_Delegates()
+{
+	UDelegateClass* Cls = NewObject<UDelegateClass>();
+	FStructWithDelegate Struct;
+
+	Struct.Delegate1.BindDynamic(Cls, &UDelegateClass::ReturnOne);
+	Struct.DelgateGroup2.AddDynamic(Cls, &UDelegateClass::ReturnNone);
+
+	FStructWithDelegate OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithDelegate::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithDelegate::StaticStruct(), &OutStruct)
+	);
+
+	Cls->SparseCallback1.AddDynamic(Cls, &UDelegateClass::ReturnNone);
+
+	UDelegateClass* OutCls = NewObject<UDelegateClass>();
+
+	_Roundtrip(
+		FDcPropertyDatum(UDelegateClass::StaticClass(), Cls),
+		FDcPropertyDatum(UDelegateClass::StaticClass(), OutCls)
+	);
+}
+
+int UDelegateClass::ReturnOne(int Int)
+{
+	return Int;
+}
+
+void UDelegateClass::ReturnNone(int Int)
+{
+	/* pass */
+}

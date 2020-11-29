@@ -75,10 +75,11 @@ static void Body()
 
 	PropertyVisitorRoundtrip__ScriptStruct();
 	PropertyVisitorRoundtrip_SoftWeakLazy();
+	PropertyVisitorRoundtrip_ScriptInterface();
 	//JsonFail1();
 	*/
 
-	PropertyVisitorRoundtrip_ScriptInterface();
+	PropertyVisitorRoundtrip_Delegates();
 
 	return;
 }

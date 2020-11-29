@@ -56,6 +56,10 @@ struct DATACONFIGCORE_API FDcReader
 	template<typename TInterface>
 	FDcResult ReadInterfacePtr(TScriptInterface<TInterface>* OutPtr);
 
+	virtual FDcResult ReadDelegate(FScriptDelegate* OutPtr);
+	virtual FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr);
+	virtual FDcResult ReadMulticastSparseDelegate(FSparseDelegate* OutPtr);
+
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
 	virtual FDcResult ReadInt32(int32* OutPtr);

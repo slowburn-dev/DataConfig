@@ -120,6 +120,11 @@ enum class EDcDataEntry
 	SoftClassReference,
 	InterfaceReference,
 
+	//	Delegates
+	Delegate,
+	MulticastInlineDelegate,
+	MulticastSparseDelegate,
+
 	//	Meta
 	Ended, // or error or invalid state, 
 };

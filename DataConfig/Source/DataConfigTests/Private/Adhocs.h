@@ -331,7 +331,36 @@ struct FStructWithInterface
 };
 
 
+DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(int, FIdentityDelegate, int, Value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDynMulticastCallback, int, Value);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FDynMulticastSparseCallback, UDelegateClass, SparseCallback1, int, Value);
 
+UCLASS()
+class UDelegateClass : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION()
+	int ReturnOne(int Int);
+
+	UFUNCTION()
+	void ReturnNone(int Int);
+
+	UPROPERTY()
+	FDynMulticastSparseCallback SparseCallback1;
+};
+
+
+USTRUCT()
+struct FStructWithDelegate
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FIdentityDelegate Delegate1;
+	UPROPERTY() FDynMulticastCallback DelgateGroup2;
+};
 
 
 
