@@ -53,3 +53,31 @@ FDcEnv::~FDcEnv()
 	FlushDiags();
 }
 
+namespace DcEnv_Private{
+
+bool bInitialized = false;
+
+}
+
+void DcStartUp(EDcInitializeAction InAction)
+{
+	DcEnv_Private::bInitialized = true;
+	DcPushEnv();
+
+	if (InAction == EDcInitializeAction::SetAsConsole)
+	{
+		DcEnv().DiagConsumer = MakeShareable(new FDcDefaultLogDiagnosticConsumer());
+	}
+}
+
+void DcShutDown()
+{
+	DcPopEnv();
+	DcEnv_Private::bInitialized = false;
+}
+
+bool DcIsInitialized()
+{
+	return DcEnv_Private::bInitialized;
+}
+

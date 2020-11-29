@@ -1,6 +1,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
+#include "Misc/ScopeExit.h"
 
 static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
@@ -52,9 +53,10 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 	{
 		Ctx.State = FDcDeserializeContext::EState::DeserializeInProgress;
 
-		TDcDefer SetDeserializeDone([&Ctx]() {
+		ON_SCOPE_EXIT
+		{
 			Ctx.State = ECtxState::DeserializeEnded;
-		});
+		};
 
 		return _DeserializeBody(*this, Ctx);
 	}

@@ -1,21 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataConfig/DcMacros.h"
 #include "DcTypes.generated.h"
 
 DATACONFIGCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogDataConfigCore, Log, All);
-
-//	TODO move these into a seperate header
-//	global initializer and shutdown
-enum class EDcInitializeAction
-{
-	Minimal,
-	SetAsConsole,
-};
-
-DATACONFIGCORE_API void DcStartUp(EDcInitializeAction InAction = EDcInitializeAction::Minimal);
-DATACONFIGCORE_API void DcShutDown();
-DATACONFIGCORE_API bool DcIsInitialized();
 
 struct DATACONFIGCORE_API FDcErrorCode
 {
@@ -44,26 +33,6 @@ struct DATACONFIGCORE_API FDcResult
 FORCEINLINE FDcResult DcOk() {
 	return FDcResult{ FDcResult::EStatus::Ok };
 }
-
-#define DC_TRY(expr)						\
-	do {									\
-		::FDcResult Ret = (expr);			\
-		if (!Ret.Ok()) {					\
-			return Ret;						\
-		}									\
-	} while (0)
-
-
-//	std::aligned_storage stub
-//	https://devdocs.io/cpp/types/aligned_storage
-template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
-struct TDcAlignedStorage
-{
-	struct Type
-	{
-		unsigned char Data[Align(_Len, _Align)];
-	};
-};
 
 UENUM()
 enum class EDcDataEntry

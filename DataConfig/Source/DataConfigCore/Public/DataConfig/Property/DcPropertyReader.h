@@ -5,6 +5,7 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 
 class UProperty;
 

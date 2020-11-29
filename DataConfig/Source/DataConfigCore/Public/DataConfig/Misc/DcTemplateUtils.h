@@ -1,5 +1,15 @@
 #pragma once
 
+template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
+struct TDcAlignedStorage
+{
+	struct Type
+	{
+		unsigned char Data[Align(_Len, _Align)];
+	};
+};
+
+
 template<typename T>
 struct TDcStoreThenReset
 {
@@ -23,21 +33,6 @@ struct TDcStoreThenReset
 
 	T& Ref;
 	T RestoreValue;
-};
-
-
-struct TDcDefer
-{
-	TDcDefer(TFunctionRef<void()> Call)
-		: InCall(Call)
-	{}
-
-	~TDcDefer()
-	{
-		InCall();
-	}
-
-	TFunctionRef<void()> InCall;
 };
 
 

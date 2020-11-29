@@ -83,3 +83,14 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode) {
 FORCEINLINE FDcResult DcFail() {
 	return FDcResult{ FDcResult::EStatus::Error };
 }
+
+//	global initializer and shutdown
+enum class EDcInitializeAction
+{
+	Minimal,
+	SetAsConsole,
+};
+
+DATACONFIGCORE_API void DcStartUp(EDcInitializeAction InAction = EDcInitializeAction::Minimal);
+DATACONFIGCORE_API void DcShutDown();
+DATACONFIGCORE_API bool DcIsInitialized();
