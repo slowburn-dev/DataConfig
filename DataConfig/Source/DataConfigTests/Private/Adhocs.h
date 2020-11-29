@@ -273,6 +273,7 @@ struct FStructWithSoftObjectPtr
 	UPROPERTY() TWeakObjectPtr<UObject> Weak1;
 	UPROPERTY() TLazyObjectPtr<UObject> Lazy1;
 	UPROPERTY() TSoftObjectPtr<UObject> Soft1;
+	UPROPERTY() TSoftClassPtr<UBaseShape> Soft2;
 
 	//	UHT doesn't recognize this
 	//UPROPERTY() FSoftObjectPtr Soft2;

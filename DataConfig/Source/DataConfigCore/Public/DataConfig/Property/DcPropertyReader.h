@@ -43,6 +43,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr) override;
 	FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr) override;
 	FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr) override;
+	FDcResult ReadSoftClassReference(FSoftObjectPtr* OutPtr) override;
 
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;
@@ -67,6 +68,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
 
 };
 

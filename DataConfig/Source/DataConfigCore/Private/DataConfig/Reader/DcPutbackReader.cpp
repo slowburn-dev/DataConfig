@@ -168,6 +168,11 @@ FDcResult FDcPutbackReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr)
 	return CanNotCachedRead(this, EDcDataEntry::SoftObjectReference, &FDcReader::ReadSoftObjectReference, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadSoftClassReference(FSoftObjectPtr* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::SoftClassReference, &FDcReader::ReadSoftClassReference, OutPtr);
+}
+
 FDcResult FDcPutbackReader::ReadSetRoot()
 {
 	return CanNotCachedRead(this, EDcDataEntry::SetRoot, &FDcReader::ReadSetRoot);

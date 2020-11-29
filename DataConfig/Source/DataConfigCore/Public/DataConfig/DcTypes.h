@@ -118,6 +118,8 @@ enum class EDcDataEntry
 	LazyObjectReference,
 	SoftObjectReference,
 
+	SoftClassReference,
+
 	//	Meta
 	Ended, // or error or invalid state, 
 };

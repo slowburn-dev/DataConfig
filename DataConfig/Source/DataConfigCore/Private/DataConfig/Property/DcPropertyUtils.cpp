@@ -142,6 +142,7 @@ FString GetFormatPropertyTypeName(UField* Property)
 {
 	check(Property);
 	//	TODO primitive types actually can use `GetCPPType`
+	//	ref: GetCPPTypeCustom
 	if (Property->IsA<UBoolProperty>()) return TEXT("bool");
 	if (Property->IsA<UNameProperty>()) return TEXT("FName");
 	if (Property->IsA<UTextProperty>()) return TEXT("FText");
