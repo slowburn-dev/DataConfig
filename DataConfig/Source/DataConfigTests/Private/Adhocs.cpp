@@ -750,6 +750,10 @@ void PropertyVisitorRoundtrip_Delegates()
 		Reader.ReadMulticastSparseDelegate(&Cls->SparseCallback1);
 
 		//////////////////////
+		FDcWriter Writer;
+		Writer.WriteDelegate(Struct.Delegate1);
+		Writer.WriteMulticastInlineDelegate(Struct.DelgateGroup2);
+		Writer.WriteMulticastSparseDelegate(Cls->SparseCallback1);
 	}
 
 }
