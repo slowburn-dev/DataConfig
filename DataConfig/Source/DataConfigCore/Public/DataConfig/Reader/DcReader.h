@@ -46,19 +46,22 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadInterfaceReference(FScriptInterface* OutPtr);
 
 	template<typename TObject>
-	FDcResult ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr);
+	FDcResult ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr);
 	template<typename TObject>
-	FDcResult ReadLazyObjectPtr(TLazyObjectPtr<TObject>* OutPtr);
+	FDcResult ReadLazyObjectField(TLazyObjectPtr<TObject>* OutPtr);
 	template<typename TObject>
-	FDcResult ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr);
+	FDcResult ReadSoftObjectField(TSoftObjectPtr<TObject>* OutPtr);
 	template<typename TClass>
-	FDcResult ReadSoftClassPtr(TSoftClassPtr<TClass>* OutPtr);
+	FDcResult ReadSoftClassField(TSoftClassPtr<TClass>* OutPtr);
 	template<typename TInterface>
-	FDcResult ReadInterfacePtr(TScriptInterface<TInterface>* OutPtr);
+	FDcResult ReadInterfaceField(TScriptInterface<TInterface>* OutPtr);
 
 	virtual FDcResult ReadDelegate(FScriptDelegate* OutPtr);
 	virtual FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr);
 	virtual FDcResult ReadMulticastSparseDelegate(FSparseDelegate* OutPtr);
+
+	template<typename TWeakPtr>
+	FDcResult ReadDelegateField(TScriptDelegate<TWeakPtr> *OutPtr);
 
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
@@ -94,7 +97,7 @@ struct DATACONFIGCORE_API FDcReader
 };
 
 template<typename TObject>
-FDcResult FDcReader::ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr)
+FDcResult FDcReader::ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr)
 {
 	//	TODO c++20 `is_layout_compatible`
 	static_assert(sizeof(FWeakObjectPtr) == sizeof(TWeakObjectPtr<TObject>), "TWeakkObjectPtr should have same memory layout as FWeakObjectPtr");
@@ -104,7 +107,7 @@ FDcResult FDcReader::ReadWeakObjectPtr(TWeakObjectPtr<TObject>* OutPtr)
 }
 
 template<typename TObject>
-FDcResult FDcReader::ReadLazyObjectPtr(TLazyObjectPtr<TObject>* OutPtr)
+FDcResult FDcReader::ReadLazyObjectField(TLazyObjectPtr<TObject>* OutPtr)
 {
 	FLazyObjectPtr LazyPtr;
 	DC_TRY(ReadLazyObjectReference(&LazyPtr));
@@ -117,7 +120,7 @@ FDcResult FDcReader::ReadLazyObjectPtr(TLazyObjectPtr<TObject>* OutPtr)
 }
 
 template<typename TObject>
-FDcResult FDcReader::ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr)
+FDcResult FDcReader::ReadSoftObjectField(TSoftObjectPtr<TObject>* OutPtr)
 {
 	FSoftObjectPath SoftPath;
 	DC_TRY(ReadSoftObjectReference(&SoftPath));
@@ -131,7 +134,7 @@ FDcResult FDcReader::ReadSoftObjectPtr(TSoftObjectPtr<TObject>* OutPtr)
 }
 
 template<typename TClass>
-FDcResult FDcReader::ReadSoftClassPtr(TSoftClassPtr<TClass>* OutPtr)
+FDcResult FDcReader::ReadSoftClassField(TSoftClassPtr<TClass>* OutPtr)
 {
 	FSoftClassPath SoftPath;
 	DC_TRY(ReadSoftClassReference(&SoftPath));
@@ -144,7 +147,7 @@ FDcResult FDcReader::ReadSoftClassPtr(TSoftClassPtr<TClass>* OutPtr)
 }
 
 template<typename TInterface>
-FDcResult FDcReader::ReadInterfacePtr(TScriptInterface<TInterface>* OutPtr)
+FDcResult FDcReader::ReadInterfaceField(TScriptInterface<TInterface>* OutPtr)
 {
 	FScriptInterface ScriptInterface;
 	DC_TRY(ReadInterfaceReference(OutPtr));
@@ -153,6 +156,20 @@ FDcResult FDcReader::ReadInterfacePtr(TScriptInterface<TInterface>* OutPtr)
 	{
 		*OutPtr = (const TScriptInterface<TInterface>&)ScriptInterface;
 	}
+	return DcOk();
+}
+
+template<typename TWeakPtr>
+FDcResult FDcReader::ReadDelegateField(TScriptDelegate<TWeakPtr> *OutPtr)
+{
+	FScriptDelegate ScriptDelegate;
+	DC_TRY(ReadDelegate(&ScriptDelegate));
+
+	if (OutPtr)
+	{
+		*OutPtr = ScriptDelegate;
+	}
+
 	return DcOk();
 }
 

@@ -651,6 +651,25 @@ void PropertyVisitorRoundtrip_SoftWeakLazy()
 		FDcPropertyDatum(FStructWithSoftObjectPtr::StaticStruct(), &Struct),
 		FDcPropertyDatum(FStructWithSoftObjectPtr::StaticStruct(), &OutStruct)
 	);
+
+
+	if (0)
+	{
+		//	only checks for compilation
+		//////////////////////
+		FDcReader Reader;
+		Reader.ReadWeakObjectField(&Struct.Weak1);
+		Reader.ReadLazyObjectField(&Struct.Lazy1);
+		Reader.ReadSoftObjectField(&Struct.Soft1);
+		Reader.ReadSoftClassField(&Struct.Soft2);
+
+		//////////////////////
+		FDcWriter Writer;
+		Writer.WriteWeakObjectField(Struct.Weak1);
+		Writer.WriteLazyObjectField(Struct.Lazy1);
+		Writer.WriteSoftObjectField(Struct.Soft1);
+		Writer.WriteSoftClassField(Struct.Soft2);
+	}
 }
 
 FString IFooInterface::GetFooName()
@@ -682,6 +701,18 @@ void PropertyVisitorRoundtrip_ScriptInterface()
 		FDcPropertyDatum(FStructWithInterface::StaticStruct(), &Struct),
 		FDcPropertyDatum(FStructWithInterface::StaticStruct(), &OutStruct)
 	);
+
+	if (0)
+	{
+		//	only checks for compilation
+		//////////////////////
+		FDcReader Reader;
+		Reader.ReadInterfaceField(&Struct.FooInterface);
+
+		//////////////////////
+		FDcWriter Writer;
+		Writer.WriteInterfaceField(Struct.FooInterface);
+	}
 }
 
 
@@ -708,6 +739,17 @@ void PropertyVisitorRoundtrip_Delegates()
 		FDcPropertyDatum(UDelegateClass::StaticClass(), Cls),
 		FDcPropertyDatum(UDelegateClass::StaticClass(), OutCls)
 	);
+
+
+	if (0)
+	{
+		//////////////////////
+		FDcReader Reader;
+		Reader.ReadDelegateField(&Struct.Delegate1);
+
+		//////////////////////
+	}
+
 }
 
 int UDelegateClass::ReturnOne(int Int)
