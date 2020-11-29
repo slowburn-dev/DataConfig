@@ -178,6 +178,21 @@ FDcResult FDcPutbackReader::ReadInterfaceReference(FScriptInterface* OutPtr)
 	return CanNotCachedRead(this, EDcDataEntry::InterfaceReference, &FDcReader::ReadInterfaceReference, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadDelegate(FScriptDelegate* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::Delegate, &FDcReader::ReadDelegate, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::MulticastInlineDelegate, &FDcReader::ReadMulticastInlineDelegate, OutPtr);
+}
+
+FDcResult FDcPutbackReader::ReadMulticastSparseDelegate(FSparseDelegate* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::MulticastSparseDelegate, &FDcReader::ReadMulticastSparseDelegate, OutPtr);
+}
+
 FDcResult FDcPutbackReader::ReadSetRoot()
 {
 	return CanNotCachedRead(this, EDcDataEntry::SetRoot, &FDcReader::ReadSetRoot);
@@ -256,3 +271,4 @@ void FDcPutbackReader::FormatDiagnostic(FDcDiagnostic& Diag)
 		Diag.Highlight += FString::Printf(TEXT("(Putback: %d)"), Cached.Num());
 	}
 }
+

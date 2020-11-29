@@ -46,6 +46,10 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr) override;
 	FDcResult ReadInterfaceReference(FScriptInterface* OutPtr) override;
 
+	FDcResult ReadDelegate(FScriptDelegate* OutPtr) override;
+	FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr) override;
+	FDcResult ReadMulticastSparseDelegate(FSparseDelegate* OutPtr) override;
+
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;
 	FDcResult ReadInt32(int32* OutPtr) override;
@@ -69,6 +73,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };

@@ -22,6 +22,9 @@ bool IsEffectiveProperty(UProperty* Property)
 		|| Property->IsA<USoftObjectProperty>()
 		|| Property->IsA<USoftClassProperty>()
 		|| Property->IsA<UInterfaceProperty>()
+		|| Property->IsA<UDelegateProperty>()
+		|| Property->IsA<UMulticastInlineDelegateProperty>()
+		|| Property->IsA<UMulticastSparseDelegateProperty>()
 		;
 }
 
@@ -137,6 +140,10 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 		if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
 	}
 
+	if (Property->IsA<UDelegateProperty>()) return EDcDataEntry::Delegate;
+	if (Property->IsA<UMulticastInlineDelegateProperty>()) return EDcDataEntry::MulticastInlineDelegate;
+	if (Property->IsA<UMulticastSparseDelegateProperty>()) return EDcDataEntry::MulticastSparseDelegate;
+
 	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
 	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
 	if (Property->IsA<USetProperty>()) return EDcDataEntry::SetRoot;
@@ -169,6 +176,10 @@ FString GetFormatPropertyTypeName(UField* Property)
 
 	if (Property->IsA<UFloatProperty>()) return TEXT("float");
 	if (Property->IsA<UDoubleProperty>()) return TEXT("double");
+
+	if (Property->IsA<UDelegateProperty>()) return ((UProperty*)Property)->GetCPPType(nullptr, 0);
+	if (Property->IsA<UMulticastInlineDelegateProperty>()) return ((UProperty*)Property)->GetCPPType(nullptr, 0);
+	if (Property->IsA<UMulticastSparseDelegateProperty>()) return ((UProperty*)Property)->GetCPPType(nullptr, 0);
 
 	if (UEnumProperty* EnumProperty = Cast<UEnumProperty>(Property))
 	{

@@ -60,9 +60,6 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr);
 	virtual FDcResult ReadMulticastSparseDelegate(FSparseDelegate* OutPtr);
 
-	template<typename TWeakPtr>
-	FDcResult ReadDelegateField(TScriptDelegate<TWeakPtr> *OutPtr);
-
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
 	virtual FDcResult ReadInt32(int32* OutPtr);
@@ -156,20 +153,6 @@ FDcResult FDcReader::ReadInterfaceField(TScriptInterface<TInterface>* OutPtr)
 	{
 		*OutPtr = (const TScriptInterface<TInterface>&)ScriptInterface;
 	}
-	return DcOk();
-}
-
-template<typename TWeakPtr>
-FDcResult FDcReader::ReadDelegateField(TScriptDelegate<TWeakPtr> *OutPtr)
-{
-	FScriptDelegate ScriptDelegate;
-	DC_TRY(ReadDelegate(&ScriptDelegate));
-
-	if (OutPtr)
-	{
-		*OutPtr = ScriptDelegate;
-	}
-
 	return DcOk();
 }
 

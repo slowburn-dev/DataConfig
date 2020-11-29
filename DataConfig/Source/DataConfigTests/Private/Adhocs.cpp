@@ -745,7 +745,9 @@ void PropertyVisitorRoundtrip_Delegates()
 	{
 		//////////////////////
 		FDcReader Reader;
-		Reader.ReadDelegateField(&Struct.Delegate1);
+		Reader.ReadDelegate(&Struct.Delegate1);
+		Reader.ReadMulticastInlineDelegate(&Struct.DelgateGroup2);
+		Reader.ReadMulticastSparseDelegate(&Cls->SparseCallback1);
 
 		//////////////////////
 	}
