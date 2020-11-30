@@ -264,6 +264,12 @@ FDcResult FDcPrettyPrintWriter::WriteDouble(const double& Value)
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteBlob(const FDcBlobViewData& Value)
+{
+	Output.Logf(TEXT("%s- blob: 0x%x, size: %d"), *Indent, (UPTRINT)Value.DataPtr, Value.Num);
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteNil()
 {
 	Output.Logf(TEXT("%s- nil"), *Indent);

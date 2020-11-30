@@ -73,6 +73,8 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadFloat(float* OutPtr);
 	virtual FDcResult ReadDouble(double* OutPtr);
 
+	virtual FDcResult ReadBlob(FDcBlobViewData* OutPtr);
+
 	virtual void FormatDiagnostic(FDcDiagnostic& Diag);
 
 	FORCEINLINE friend FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcReader& Self)
@@ -124,7 +126,6 @@ FDcResult FDcReader::ReadSoftObjectField(TSoftObjectPtr<TObject>* OutPtr)
 
 	if (OutPtr)
 	{
-		//*OutPtr = MoveTemp(SoftPath);
 		*OutPtr = SoftPath;
 	}
 	return DcOk();

@@ -53,6 +53,7 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 
 	FDcResult WriteFloat(const float&) override;
 	FDcResult WriteDouble(const double&) override;
+	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
 };
 

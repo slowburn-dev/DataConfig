@@ -22,14 +22,14 @@ FDcResult FDcNoopWriter::WriteSetRoot() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSetEnd() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteObjectReference(const UObject*) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteClassReference(const UClass*) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteSoftObjectReference(const FSoftObjectPath& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteSoftClassReference(const FSoftClassPath& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteInterfaceReference(const FScriptInterface& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteDelegate(const FScriptDelegate& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteWeakObjectReference(const FWeakObjectPtr&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteLazyObjectReference(const FLazyObjectPtr&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteSoftObjectReference(const FSoftObjectPath&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteSoftClassReference(const FSoftClassPath&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteInterfaceReference(const FScriptInterface&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteDelegate(const FScriptDelegate&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteMulticastSparseDelegate(const FSparseDelegate&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt8(const int8&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt16(const int16&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt32(const int32&) { return DcOk(); }
@@ -40,4 +40,5 @@ FDcResult FDcNoopWriter::WriteUInt32(const uint32&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteUInt64(const uint64&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteFloat(const float&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteDouble(const double&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteBlob(const FDcBlobViewData&) { return DcOk(); }
 

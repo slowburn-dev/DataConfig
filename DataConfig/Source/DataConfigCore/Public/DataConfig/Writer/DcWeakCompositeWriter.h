@@ -50,9 +50,12 @@ struct DATACONFIGCORE_API FDcWeakCompositeWriter : public FDcWriter
 	FDcResult WriteFloat(const float& Value) override;
 	FDcResult WriteDouble(const double& Value) override;
 
+	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
+
 	TArray<FDcWriter*, TInlineAllocator<4>> Writers;
 
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
 
 
 };

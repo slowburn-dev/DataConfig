@@ -71,6 +71,8 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteFloat(const float& Value);
 	virtual FDcResult WriteDouble(const double& Value);
 
+	virtual FDcResult WriteBlob(const FDcBlobViewData& Value);
+
 	virtual void FormatDiagnostic(FDcDiagnostic& Diag);
 
 	FORCEINLINE friend FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcWriter& Self)

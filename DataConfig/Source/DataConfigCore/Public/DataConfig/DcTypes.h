@@ -94,6 +94,9 @@ enum class EDcDataEntry
 	MulticastInlineDelegate,
 	MulticastSparseDelegate,
 
+	//	Extension
+	Blob,
+
 	//	Meta
 	Ended, // or error or invalid state, 
 };
@@ -125,4 +128,11 @@ struct FDcEnumData
 		return Ar;
 	}
 };
+
+struct FDcBlobViewData
+{
+	uint8* DataPtr;
+	int32 Num;
+};
+
 

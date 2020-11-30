@@ -253,6 +253,11 @@ FDcResult FDcPutbackReader::ReadDouble(double* OutPtr)
 	return CachedRead<double>(this, &FDcReader::ReadDouble, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadBlob(FDcBlobViewData* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::Blob, &FDcReader::ReadBlob, OutPtr);
+}
+
 bool FDcPutbackReader::Coercion(EDcDataEntry ToEntry)
 {
 	if (Cached.Num())

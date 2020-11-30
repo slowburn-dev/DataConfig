@@ -55,6 +55,8 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcResult ReadFloat(float* OutPtr) override;
 	FDcResult ReadDouble(double* OutPtr) override;
 
+	FDcResult ReadBlob(FDcBlobViewData* OutPtr) override;
+
 	template<typename T>
 	void Putback(T&& InValue);
 

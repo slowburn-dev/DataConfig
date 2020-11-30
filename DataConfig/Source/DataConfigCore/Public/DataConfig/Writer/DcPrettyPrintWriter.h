@@ -53,6 +53,7 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 
 	FDcResult WriteFloat(const float& Value) override;
 	FDcResult WriteDouble(const double& Value) override;
+	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
 	FOutputDevice& Output;
 	FString Indent;

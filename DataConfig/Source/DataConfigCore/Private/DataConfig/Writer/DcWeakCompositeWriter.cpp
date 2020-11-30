@@ -198,6 +198,11 @@ FDcResult FDcWeakCompositeWriter::WriteMulticastSparseDelegate(const FSparseDele
 	return CompositeDispatch(this, &FDcWriter::WriteMulticastSparseDelegate, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteBlob(const FDcBlobViewData& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteBlob, Value);
+}
+
 void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	for (FDcWriter* Writer : Writers)
