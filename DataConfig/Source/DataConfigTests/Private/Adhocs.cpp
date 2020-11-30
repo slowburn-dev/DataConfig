@@ -755,7 +755,6 @@ void PropertyVisitorRoundtrip_Delegates()
 		Writer.WriteMulticastInlineDelegate(Struct.DelgateGroup2);
 		Writer.WriteMulticastSparseDelegate(Cls->SparseCallback1);
 	}
-
 }
 
 int UDelegateClass::ReturnOne(int Int)
@@ -766,4 +765,50 @@ int UDelegateClass::ReturnOne(int Int)
 void UDelegateClass::ReturnNone(int Int)
 {
 	/* pass */
+}
+
+
+
+void PropertyReadWrite_Blob()
+{
+	FStructWithBlob Struct;
+
+	Struct.BlobUint8.Add(1);
+	Struct.BlobUint8.Add(2);
+	Struct.BlobUint8.Add(3);
+
+	Struct.BlobInt64.Add(253);
+	Struct.BlobInt64.Add(254);
+	Struct.BlobInt64.Add(255);
+
+	FStructWithBlob OutStruct;
+
+	FDcPropertyReader Reader(FDcPropertyDatum(FStructWithBlob::StaticStruct(), &Struct));
+	FDcPropertyWriter Writer(FDcPropertyDatum(FStructWithBlob::StaticStruct(), &OutStruct));
+
+	check(Reader.ReadStructRoot(nullptr).Ok());
+	check(Writer.WriteStructRoot(TEXT("StructWithBlob")).Ok());
+
+	{
+		check(Reader.ReadName(nullptr).Ok());
+		check(Writer.WriteName(TEXT("BlobUint8")).Ok());
+
+		FDcBlobViewData BlobView;
+		check(Reader.ReadBlob(&BlobView).Ok());
+		check(Writer.WriteBlob(BlobView).Ok());
+	}
+
+	{
+		check(Reader.ReadName(nullptr).Ok());
+		check(Writer.WriteName(TEXT("BlobInt64")).Ok());
+
+		FDcBlobViewData BlobView;
+		check(Reader.ReadBlob(&BlobView).Ok());
+		check(Writer.WriteBlob(BlobView).Ok());
+	}
+
+	check(Reader.ReadStructEnd(nullptr).Ok());
+	check(Writer.WriteStructEnd(TEXT("StructWithBlob")).Ok());
+
+	DumpStruct(&OutStruct, FStructWithBlob::StaticStruct());
 }

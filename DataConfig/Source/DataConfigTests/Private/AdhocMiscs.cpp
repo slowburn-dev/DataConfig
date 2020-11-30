@@ -9,7 +9,7 @@
 
 #include "CoreMinimal.h"
 
-static void DumpStruct(void* StructPtr, UStruct* StructClass)
+void DumpStruct(void* StructPtr, UStruct* StructClass)
 {
 	TArray<uint8> Buffer;
 	FMemoryWriter Writer(Buffer);

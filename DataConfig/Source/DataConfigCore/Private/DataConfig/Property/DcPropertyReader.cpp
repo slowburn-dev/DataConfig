@@ -465,11 +465,15 @@ FDcResult FDcPropertyReader::ReadBlob(FDcBlobViewData* OutPtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(GetTopState(this).ReadDataEntry(UArrayProperty::StaticClass(), Datum));
 
-		FScriptArray* Array = (FScriptArray*)Datum.DataPtr;
+		UArrayProperty* ArrayProperty = Datum.CastChecked<UArrayProperty>();
+		FScriptArrayHelper ScriptArray(ArrayProperty, Datum.DataPtr);
 
 		if (OutPtr)
 		{
-			*OutPtr = { (uint8*)Array->GetData(), Array->Num() };
+			*OutPtr = { 
+				(uint8*)ScriptArray.GetRawPtr(), ScriptArray.Num()
+				* ArrayProperty->Inner->ElementSize 
+			};
 		}
 
 		return DcOk();

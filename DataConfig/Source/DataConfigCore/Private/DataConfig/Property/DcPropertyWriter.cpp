@@ -485,7 +485,16 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 		FDcPropertyDatum Datum;
 		DC_TRY(GetTopState(this).WriteDataEntry(UArrayProperty::StaticClass(), Datum));
 
-		FScriptArray* Array = (FScriptArray*)Datum.DataPtr;
+		UArrayProperty* ArrayProperty = Datum.CastChecked<UArrayProperty>();
+		FScriptArrayHelper ScriptArray(ArrayProperty, Datum.DataPtr);
+
+		int32 ElementSize = ArrayProperty->Inner->ElementSize;
+		int32 NewCount = Value.Num / ElementSize;
+		if (Value.Num % ElementSize != 0)
+			NewCount += 1;
+		ScriptArray.EmptyAndAddUninitializedValues(NewCount);
+
+		FMemory::Memcpy(ScriptArray.GetRawPtr(), Value.DataPtr, Value.Num);
 		return DcOk();
 	}
 	else

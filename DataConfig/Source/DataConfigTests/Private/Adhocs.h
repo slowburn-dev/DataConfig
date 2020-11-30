@@ -363,4 +363,14 @@ struct FStructWithDelegate
 };
 
 
+USTRUCT()
+struct FStructWithBlob
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TArray<uint8> BlobUint8;
+
+	UPROPERTY() TArray<int64> BlobInt64;
+
+};
 
