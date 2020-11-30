@@ -286,7 +286,6 @@ FDcResult WriteValue(FDcBaseWriteState& State, const TValue& Value)
 	DC_TRY(State.WriteDataEntry(TProperty::StaticClass(), Datum));
 
 	WritePropertyValueConversion<TProperty, TValue>(Datum.Property, Datum.DataPtr, Value);
-	//Datum.CastChecked<TProperty>()->SetPropertyValue(Datum.DataPtr, Value);
 	return DcOk();
 }
 

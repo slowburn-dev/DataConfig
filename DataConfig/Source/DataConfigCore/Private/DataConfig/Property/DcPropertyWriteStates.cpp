@@ -520,6 +520,7 @@ FDcResult FDcWriteStateMap::WriteName(const FName& Value)
 
 FDcResult FDcWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
+	//	TODO check expected property class
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		FScriptMapHelper MapHelper(MapProperty, MapPtr);
@@ -691,6 +692,7 @@ FDcResult FDcWriteStateArray::WriteName(const FName& Value)
 
 FDcResult FDcWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
+	//	TODO check expected property class
 	if (State != EState::ExpectItemOrEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)EState::ExpectItemOrEnd << (int)State
@@ -817,6 +819,7 @@ FDcResult FDcWriteStateSet::WriteName(const FName& Value)
 
 FDcResult FDcWriteStateSet::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
+	//	TODO check expected property class
 	if (State != EState::ExpectItemOrEnd)
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)EState::ExpectItemOrEnd << (int)State

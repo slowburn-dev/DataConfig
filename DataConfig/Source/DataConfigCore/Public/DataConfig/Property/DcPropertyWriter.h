@@ -59,6 +59,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	FDcResult WriteFloat(const float& Value) override;
 	FDcResult WriteDouble(const double& Value) override;
+	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
 	//	skip current write at current position
 	FDcResult SkipWrite();
@@ -80,7 +81,6 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
-
 };
 
 

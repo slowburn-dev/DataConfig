@@ -473,6 +473,28 @@ FDcResult FDcPropertyWriter::WriteUInt64(const uint64& Value) { return WriteTopS
 FDcResult FDcPropertyWriter::WriteFloat(const float& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteDouble(const double& Value) { return WriteTopStateScalarProperty(this, Value); }
 
+FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	UField* NextProperty;
+	DC_TRY(GetTopState(this).PeekWriteProperty(&NextProperty));
+
+	if (NextProperty->IsA<UArrayProperty>())
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(GetTopState(this).WriteDataEntry(UArrayProperty::StaticClass(), Datum));
+
+		FScriptArray* Array = (FScriptArray*)Datum.DataPtr;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+			<< EDcDataEntry::ArrayRoot << PropertyToDataEntry(NextProperty);
+	}
+}
+
 FDcResult FDcPropertyWriter::SkipWrite()
 {
 	FScopedStackedWriter StackedWriter(this);

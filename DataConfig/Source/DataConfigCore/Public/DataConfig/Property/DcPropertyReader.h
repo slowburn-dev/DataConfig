@@ -63,6 +63,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcResult ReadFloat(float* OutPtr) override;
 	FDcResult ReadDouble(double* OutPtr) override;
+	FDcResult ReadBlob(FDcBlobViewData* OutPtr) override;
 
 	struct FPropertyState
 	{

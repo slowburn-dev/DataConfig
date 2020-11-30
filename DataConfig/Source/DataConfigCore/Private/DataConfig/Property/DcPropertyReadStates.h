@@ -19,9 +19,9 @@ struct FDcBaseReadState
 {
 	virtual EDcPropertyReadType GetType() = 0;
 
-	virtual FDcResult ReadNext(EDcDataEntry* OutPtr);
+	virtual FDcResult PeekNext(EDcDataEntry* OutPtr);
 	virtual FDcResult ReadName(FName* OutNamePtr);
-	virtual FDcResult ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
 	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
 
@@ -49,7 +49,7 @@ struct FDcReadStateNil : public FDcBaseReadState
 	static const EDcPropertyReadType ID = EDcPropertyReadType::Nil;
 
 	EDcPropertyReadType GetType() override;
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekNext(EDcDataEntry* OutPtr) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
@@ -93,9 +93,9 @@ struct FDcReadStateClass : public FDcBaseReadState
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekNext(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult EndReadValue();	// TODO remove this method, called only in 1 place
@@ -136,9 +136,9 @@ struct FDcReadStateStruct : public FDcBaseReadState
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekNext(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult EndReadValue();
@@ -174,9 +174,9 @@ struct FDcReadStateMap : public FDcBaseReadState
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekNext(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult EndReadValue();
@@ -210,9 +210,9 @@ struct FDcReadStateArray : public FDcBaseReadState
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekNext(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult EndReadValue(); // TODO remove this method, called only in 1 place
@@ -247,9 +247,9 @@ struct FDcReadStateSet : public FDcBaseReadState
 
 	EDcPropertyReadType GetType() override;
 
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekNext(EDcDataEntry* OutPtr) override;
 	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadScalarDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult ReadSetRoot();
