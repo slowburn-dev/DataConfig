@@ -14,6 +14,7 @@ public class DataConfigTests : ModuleRules
 				//	!! still need these so that it's linked
 				"Core",
 				"CoreUObject",
+				"ApplicationCore",
 				"Projects",
 				//	try out ue4 serialization
 				"Json",
@@ -25,6 +26,8 @@ public class DataConfigTests : ModuleRules
 				"Launch",
 			});
 
+		//	seems `TestPal` is an up to date console application example
+		/*
 		//	ref: UnrealHeaderTool.Build.cs
 		//	ref: ShaderCompilerWorker.Build.cs
 		string EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
@@ -33,6 +36,7 @@ public class DataConfigTests : ModuleRules
 		PrivateIncludePaths.Add(
 			EngineDir + "Source/Runtime/Launch/Private"
 		);
+		*/
 
 
 	}

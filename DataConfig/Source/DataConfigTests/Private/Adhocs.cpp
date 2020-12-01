@@ -768,6 +768,14 @@ void UDelegateClass::ReturnNone(int Int)
 }
 
 
+void DownwardFromHere()
+{
+	FDcReader* Reader = (FDcReader*)(0xFF);
+	Reader->ReadName(nullptr);
+
+
+	return;
+}
 
 void PropertyReadWrite_Blob()
 {

@@ -4,6 +4,8 @@
 #include "DataConfig/DcTypes.h"
 #include "RequiredProgramMainCPPInclude.h"
 #include "Interfaces/IPluginManager.h"
+#include "HAL/PlatformApplicationMisc.h"
+#include "GenericPlatform/GenericApplication.h"
 
 
 #include "Adhocs.h"
@@ -78,11 +80,33 @@ static void Body()
 	PropertyVisitorRoundtrip_ScriptInterface();
 	PropertyVisitorRoundtrip_Delegates();
 	//JsonFail1();
-	*/
 	PropertyReadWrite_Blob();
+	*/
+
+	DownwardFromHere();
 
 	return;
 }
+
+#if !PLATFORM_SEH_EXCEPTIONS_DISABLED
+static int32 _DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
+{
+	const SIZE_T StackTraceSize = 65535;
+	ANSICHAR* StackTrace = (ANSICHAR*)FMemory::SystemMalloc(StackTraceSize);
+
+	StackTrace[0] = 0;
+	FPlatformStackWalk::StackWalkAndDumpEx(
+		StackTrace,
+		StackTraceSize, 
+		7,
+		FGenericPlatformStackWalk::EStackWalkFlags::FlagsUsedWhenHandlingEnsure);
+
+	puts(StackTrace);
+	FMemory::SystemFree(StackTrace);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 
 INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 {
@@ -113,15 +137,35 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 	FString ShortCmdLine = FCommandLine::RemoveExeName(*CmdLine);
 	ShortCmdLine.TrimStartInline();
 
+	//	crash handler
+	//	windows literally doesn't have this funciton implemented, using SEH
+	/*
+	FPlatformMisc::SetCrashHandler([](const FGenericCrashContext& Context) {});
+	*/
+	FPlatformMisc::SetGracefulTerminationHandler();
+
 	if (GEngineLoop.PreInit(*ShortCmdLine) != 0)
 	{
 		UE_LOG(LogDataConfigCore, Error, TEXT("Failed to initialize the engine (PreInit failed)."));
 		return ECompilationResult::CrashOrAssert;
 	}
 
-	DcStartUp(EDcInitializeAction::SetAsConsole);
-	Body();
-	DcShutDown();
+#if !PLATFORM_SEH_EXCEPTIONS_DISABLED
+	__try
+#endif
+
+	{
+		DcStartUp(EDcInitializeAction::SetAsConsole);
+		Body();
+		DcShutDown();
+	}
+
+#if !PLATFORM_SEH_EXCEPTIONS_DISABLED
+	__except (_DumpStackAndExit(GetExceptionInformation()))
+	{
+		FPlatformMisc::RequestExit(true);
+	}
+#endif
 
 	ON_SCOPE_EXIT
 	{
