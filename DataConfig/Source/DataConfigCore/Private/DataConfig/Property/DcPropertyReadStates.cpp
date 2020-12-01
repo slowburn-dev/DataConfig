@@ -4,7 +4,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 
-FDcPropertyReader* _GetStackReader() 
+static FDcPropertyReader* _GetStackReader() 
 {
 	return (FDcPropertyReader*)(DcEnv().ReaderStack.Top());
 }

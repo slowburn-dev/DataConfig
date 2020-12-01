@@ -133,6 +133,22 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	}
 }
 
+bool FDcPropertyReader::Coercion(EDcDataEntry ToEntry)
+{
+	EDcDataEntry Next;
+	if (!ReadNext(&Next).Ok())
+		return false;
+
+	if (Next == EDcDataEntry::ArrayRoot)
+	{
+		return ToEntry == EDcDataEntry::Blob;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
 {
 	FScopedStackedReader StackedReader(this);

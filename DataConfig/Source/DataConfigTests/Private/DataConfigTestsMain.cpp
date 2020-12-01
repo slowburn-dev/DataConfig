@@ -80,10 +80,11 @@ static void Body()
 	PropertyVisitorRoundtrip_ScriptInterface();
 	PropertyVisitorRoundtrip_Delegates();
 	//JsonFail1();
+	//DownwardFromHere();
 	PropertyReadWrite_Blob();
 	*/
 
-	DownwardFromHere();
+	PropertyReadWrite_Blob();
 
 	return;
 }

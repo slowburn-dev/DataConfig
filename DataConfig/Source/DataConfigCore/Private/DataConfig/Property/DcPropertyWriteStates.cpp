@@ -5,9 +5,21 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 
-FDcPropertyWriter* _GetStackWriter()
+static FDcPropertyWriter* _GetStackWriter()
 {
 	return (FDcPropertyWriter*)(DcEnv().WriterStack.Top());
+}
+
+static bool _CheckPropertyCoercion(EDcDataEntry Next, EDcDataEntry Actual)
+{
+	if (Next == EDcDataEntry::Blob && Actual == EDcDataEntry::ArrayRoot)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 FDcResult FDcBaseWriteState::Peek(EDcDataEntry Next) { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -66,7 +78,8 @@ FDcResult FDcWriteStateStruct::Peek(EDcDataEntry Next)
 	{
 		check(Property);
 		EDcDataEntry Actual = PropertyToDataEntry(Property);
-		if (Next == Actual)
+		if (Next == Actual
+			|| _CheckPropertyCoercion(Next, Actual))
 		{
 			return DcOk();
 		}
@@ -250,7 +263,8 @@ FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
 	{
 		check(!Datum.IsNone());
 		EDcDataEntry Actual = PropertyToDataEntry(Datum.Property);
-		if (Next == Actual)
+		if (Next == Actual
+			|| _CheckPropertyCoercion(Next, Actual))
 		{
 			return DcOk();
 		}
@@ -491,7 +505,8 @@ FDcResult FDcWriteStateMap::Peek(EDcDataEntry Next)
 	{
 		check(MapProperty);
 		EDcDataEntry Actual = PropertyToDataEntry(MapProperty->ValueProp);
-		if (Next == Actual)
+		if (Next == Actual
+			|| _CheckPropertyCoercion(Next, Actual))
 		{
 			return DcOk();
 		}
@@ -662,7 +677,8 @@ FDcResult FDcWriteStateArray::Peek(EDcDataEntry Next)
 		else
 		{
 			EDcDataEntry Actual = PropertyToDataEntry(ArrayProperty->Inner);
-			if (Next == Actual)
+			if (Next == Actual
+				|| _CheckPropertyCoercion(Next, Actual))
 			{
 				return DcOk();
 			}
@@ -789,7 +805,8 @@ FDcResult FDcWriteStateSet::Peek(EDcDataEntry Next)
 		else
 		{
 			EDcDataEntry Actual = PropertyToDataEntry(SetProperty->ElementProp);
-			if (Next == Actual)
+			if (Next == Actual
+				|| _CheckPropertyCoercion(Next, Actual))
 			{
 				return DcOk();
 			}

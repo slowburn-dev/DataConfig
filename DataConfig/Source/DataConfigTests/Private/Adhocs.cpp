@@ -802,7 +802,9 @@ void PropertyReadWrite_Blob()
 		check(Writer.WriteName(TEXT("BlobUint8")).Ok());
 
 		FDcBlobViewData BlobView;
+		check(Reader.Coercion(EDcDataEntry::Blob));
 		check(Reader.ReadBlob(&BlobView).Ok());
+		check(Writer.WriteNext(EDcDataEntry::Blob).Ok());
 		check(Writer.WriteBlob(BlobView).Ok());
 	}
 
@@ -811,7 +813,9 @@ void PropertyReadWrite_Blob()
 		check(Writer.WriteName(TEXT("BlobInt64")).Ok());
 
 		FDcBlobViewData BlobView;
+		check(Reader.Coercion(EDcDataEntry::Blob));
 		check(Reader.ReadBlob(&BlobView).Ok());
+		check(Writer.WriteNext(EDcDataEntry::Blob).Ok());
 		check(Writer.WriteBlob(BlobView).Ok());
 	}
 
