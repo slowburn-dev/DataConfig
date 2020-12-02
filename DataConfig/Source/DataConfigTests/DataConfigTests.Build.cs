@@ -10,6 +10,7 @@ public class DataConfigTests : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
 				"DataConfigCore",
+				"DataConfigExtra",
 				//	ref: ShaderCompileWorker.Build.cs
 				//	!! still need these so that it's linked
 				"Core",
