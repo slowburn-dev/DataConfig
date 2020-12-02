@@ -103,7 +103,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FString DiagFilePath = TEXT("<unknown file>");
 
 	bool Coercion(EDcDataEntry ToEntry) override;
-	FDcResult ReadNext(EDcDataEntry* OutPtr) override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadNil() override;
 	FDcResult ReadBool(bool* OutPtr) override;

@@ -122,10 +122,10 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	}
 }
 
-FDcResult FDcPropertyWriter::WriteNext(EDcDataEntry Next)
+FDcResult FDcPropertyWriter::PeekWrite(EDcDataEntry Next)
 {
 	FScopedStackedWriter StackedWriter(this);
-	return GetTopState(this).Peek(Next);
+	return GetTopState(this).PeekWrite(Next);
 }
 
 FDcResult FDcPropertyWriter::WriteBool(bool Value) { return WriteTopStateScalarProperty(this, Value); }

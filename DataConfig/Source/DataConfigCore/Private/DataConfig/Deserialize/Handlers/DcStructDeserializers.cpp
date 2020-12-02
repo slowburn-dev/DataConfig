@@ -26,10 +26,10 @@ static FName GetStructName(UField* Property)
 FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->ReadNext(&Next));
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->WriteNext(EDcDataEntry::StructRoot).Ok();
+	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot).Ok();
 	if (!bRootPeekPass
 		|| !bWritePass)
 	{
@@ -44,7 +44,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 		EDcDataEntry CurPeek;
 		while (true)
 		{
-			DC_TRY(Ctx.Reader->ReadNext(&CurPeek));
+			DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
 
 			if (CurPeek == EDcDataEntry::MapEnd)
 			{
@@ -53,7 +53,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{
-				DC_TRY(Ctx.Writer->WriteNext(EDcDataEntry::Name));
+				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
 
 				FString Value;
 				DC_TRY(Ctx.Reader->ReadString(&Value));

@@ -8,7 +8,7 @@ bool FDcReader::Coercion(EDcDataEntry ToEntry)
 	return false;
 }
 
-FDcResult FDcReader::ReadNext(EDcDataEntry*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::PeekRead(EDcDataEntry*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadNil() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadBool(bool*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadName(FName*) { return DC_FAIL(DcDCommon, NotImplemented); }

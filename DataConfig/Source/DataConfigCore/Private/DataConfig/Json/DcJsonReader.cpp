@@ -71,7 +71,7 @@ bool TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry)
 }
 
 template<typename CharType>
-FDcResult TDcJsonReader<CharType>::ReadNext(EDcDataEntry* OutPtr)
+FDcResult TDcJsonReader<CharType>::PeekRead(EDcDataEntry* OutPtr)
 {
 	DC_TRY(CheckNextReadStateAndFlip(ENextReadState::ExpectReadNext));
 	DC_TRY(ConsumeEffectiveToken());

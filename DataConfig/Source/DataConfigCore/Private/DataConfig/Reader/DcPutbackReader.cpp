@@ -60,7 +60,7 @@ FORCEINLINE FDcResult CanNotCachedRead(FDcPutbackReader* Self, EDcDataEntry Entr
 }
 
 
-FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
+FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
@@ -69,7 +69,7 @@ FDcResult FDcPutbackReader::ReadNext(EDcDataEntry* OutPtr)
 	}
 	else
 	{
-		return Reader->ReadNext(OutPtr);
+		return Reader->PeekRead(OutPtr);
 	}
 }
 

@@ -22,7 +22,7 @@ static bool _CheckPropertyCoercion(EDcDataEntry Next, EDcDataEntry Actual)
 	}
 }
 
-FDcResult FDcBaseWriteState::Peek(EDcDataEntry Next) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseWriteState::PeekWrite(EDcDataEntry Next) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseWriteState::WriteName(const FName& Value){ return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseWriteState::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseWriteState::SkipWrite() { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -38,7 +38,7 @@ EDcPropertyWriteType FDcWriteStateNil::GetType()
 	return EDcPropertyWriteType::Nil;
 }
 
-FDcResult FDcWriteStateNil::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateNil::PeekWrite(EDcDataEntry Next)
 {
 	return DcExpect(Next == EDcDataEntry::Ended, [=]{
 		return DC_FAIL(DcDReadWrite, AlreadyEnded)
@@ -56,7 +56,7 @@ EDcPropertyWriteType FDcWriteStateStruct::GetType()
 	return EDcPropertyWriteType::StructProperty;
 }
 
-FDcResult FDcWriteStateStruct::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateStruct::PeekWrite(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -223,7 +223,7 @@ EDcPropertyWriteType FDcWriteStateClass::GetType()
 	return EDcPropertyWriteType::ClassProperty;
 }
 
-FDcResult FDcWriteStateClass::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateClass::PeekWrite(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -481,7 +481,7 @@ EDcPropertyWriteType FDcWriteStateMap::GetType()
 	return EDcPropertyWriteType::MapProperty;
 }
 
-FDcResult FDcWriteStateMap::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateMap::PeekWrite(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -658,7 +658,7 @@ EDcPropertyWriteType FDcWriteStateArray::GetType()
 	return EDcPropertyWriteType::ArrayProperty;
 }
 
-FDcResult FDcWriteStateArray::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateArray::PeekWrite(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -786,7 +786,7 @@ EDcPropertyWriteType FDcWriteStateSet::GetType()
 	return EDcPropertyWriteType::SetProperty;
 }
 
-FDcResult FDcWriteStateSet::Peek(EDcDataEntry Next)
+FDcResult FDcWriteStateSet::PeekWrite(EDcDataEntry Next)
 {
 	if (State == EState::ExpectRoot)
 	{

@@ -3,7 +3,7 @@
 FDcNoopWriter::FDcNoopWriter() {}
 FDcNoopWriter::~FDcNoopWriter() {}
 
-FDcResult FDcNoopWriter::WriteNext(EDcDataEntry) { return DcOk(); }
+FDcResult FDcNoopWriter::PeekWrite(EDcDataEntry) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteNil() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteBool(bool) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteName(const FName&) { return DcOk(); }

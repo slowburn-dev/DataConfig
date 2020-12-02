@@ -13,7 +13,7 @@ FDcResult DcExpect(bool CondToBeTrue) {
 FDcResult DcReadNextExpect(FDcReader& Reader, EDcDataEntry Expect)
 {
 	EDcDataEntry Actual;
-	DC_TRY(Reader.ReadNext(&Actual));
+	DC_TRY(Reader.PeekRead(&Actual));
 	return DcExpect(Actual == Expect, [&] {
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
 			<< Expect << Actual

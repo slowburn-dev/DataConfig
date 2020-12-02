@@ -10,7 +10,7 @@ struct DATACONFIGCORE_API FDcWriter
 	FDcWriter();
 	virtual ~FDcWriter();
 
-	virtual FDcResult WriteNext(EDcDataEntry Next);
+	virtual FDcResult PeekWrite(EDcDataEntry Next);
 
 	virtual FDcResult WriteNil();
 	virtual FDcResult WriteBool(bool Value);

@@ -136,7 +136,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 bool FDcPropertyReader::Coercion(EDcDataEntry ToEntry)
 {
 	EDcDataEntry Next;
-	if (!ReadNext(&Next).Ok())
+	if (!PeekRead(&Next).Ok())
 		return false;
 
 	if (Next == EDcDataEntry::ArrayRoot)
@@ -149,10 +149,10 @@ bool FDcPropertyReader::Coercion(EDcDataEntry ToEntry)
 	}
 }
 
-FDcResult FDcPropertyReader::ReadNext(EDcDataEntry* OutPtr)
+FDcResult FDcPropertyReader::PeekRead(EDcDataEntry* OutPtr)
 {
 	FScopedStackedReader StackedReader(this);
-	return GetTopState(this).PeekNext(OutPtr);
+	return GetTopState(this).PeekRead(OutPtr);
 }
 
 FDcResult FDcPropertyReader::ReadBool(bool* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
@@ -474,7 +474,7 @@ FDcResult FDcPropertyReader::ReadBlob(FDcBlobViewData* OutPtr)
 	FScopedStackedReader StackedReader(this);
 
 	EDcDataEntry Next;
-	DC_TRY(GetTopState(this).PeekNext(&Next));
+	DC_TRY(GetTopState(this).PeekRead(&Next));
 
 	if (Next == EDcDataEntry::ArrayRoot)
 	{
