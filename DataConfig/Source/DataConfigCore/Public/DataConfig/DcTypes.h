@@ -34,6 +34,14 @@ FORCEINLINE FDcResult DcOk() {
 	return FDcResult{ FDcResult::EStatus::Ok };
 }
 
+#define DC_TRY(expr)						\
+	do {									\
+		::FDcResult Ret = (expr);			\
+		if (!Ret.Ok()) {					\
+			return Ret;						\
+		}									\
+	} while (0)
+
 UENUM()
 enum class EDcDataEntry
 {

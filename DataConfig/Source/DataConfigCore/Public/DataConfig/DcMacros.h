@@ -1,14 +1,5 @@
 #pragma once
 
-#define DC_TRY(expr)						\
-	do {									\
-		::FDcResult Ret = (expr);			\
-		if (!Ret.Ok()) {					\
-			return Ret;						\
-		}									\
-	} while (0)
-
-
 //	TODO doesn't work yet
 #ifndef DC_NODISCARD
 	#if __cplusplus >= 201703L

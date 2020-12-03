@@ -25,7 +25,7 @@ EDcPropertyReadType FDcReadStateNil::GetType()
 
 FDcResult FDcReadStateNil::PeekRead(EDcDataEntry* OutPtr)
 {
-	*OutPtr = EDcDataEntry::Ended;
+	ReadOut(OutPtr, EDcDataEntry::Ended);
 	return DcOk();
 }
 
@@ -43,33 +43,33 @@ FDcResult FDcReadStateClass::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		*OutPtr = EDcDataEntry::ClassRoot;
+		ReadOut(OutPtr, EDcDataEntry::ClassRoot);
 		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		*OutPtr = EDcDataEntry::ClassEnd;
+		ReadOut(OutPtr,EDcDataEntry::ClassEnd);
 		return DcOk();
 	}
 	else if (State == EState::ExpectNil)
 	{
-		*OutPtr = EDcDataEntry::Nil;
+		ReadOut(OutPtr, EDcDataEntry::Nil);
 		return DcOk();
 	}
 	else if (State == EState::ExpectReference)
 	{
-		*OutPtr = EDcDataEntry::ObjectReference;
+		ReadOut(OutPtr, EDcDataEntry::ObjectReference);
 		return DcOk();
 	}
 	else if (State == EState::ExpectKey)
 	{
-		*OutPtr = EDcDataEntry::Name;
+		ReadOut(OutPtr, EDcDataEntry::Name);
 		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		*OutPtr = PropertyToDataEntry(Property);
+		ReadOut(OutPtr, PropertyToDataEntry(Property));
 		return DcOk();
 	}
 	else
@@ -83,10 +83,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 	if (State == EState::ExpectKey)
 	{
 		check(Property);
-		if (OutNamePtr)
-		{
-			*OutNamePtr = Property->GetFName();
-		}
+		ReadOut(OutNamePtr, Property->GetFName());
 
 		State = EState::ExpectValue;
 		return DcOk();
@@ -96,11 +93,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
-		if (OutNamePtr)
-		{
-			*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
-		}
-
+		ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
 		return DcOk();
 	}
 	else
@@ -283,10 +276,7 @@ FDcResult FDcReadStateClass::ReadObjectReference(UObject** OutPtr)
 {
 	if (State == EState::ExpectReference)
 	{
-		if (OutPtr)
-		{
-			*OutPtr = ClassObject;
-		}
+		ReadOut(OutPtr, ClassObject);
 
 		State = EState::ExpectEnd;
 		return DcOk();
@@ -308,28 +298,28 @@ FDcResult FDcReadStateStruct::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		*OutPtr = EDcDataEntry::StructRoot;
+		ReadOut(OutPtr, EDcDataEntry::StructRoot);
 		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		*OutPtr = EDcDataEntry::StructEnd;
+		ReadOut(OutPtr, EDcDataEntry::StructEnd);
 		return DcOk();
 	}
 	else if (State == EState::ExpectKey)
 	{
-		*OutPtr = EDcDataEntry::Name;
+		ReadOut(OutPtr, EDcDataEntry::Name);
 		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		*OutPtr = PropertyToDataEntry(Property);
+		ReadOut(OutPtr, PropertyToDataEntry(Property));
 		return DcOk();
 	}
 	else if (State == EState::Ended)
 	{
-		*OutPtr = EDcDataEntry::Ended;
+		ReadOut(OutPtr, EDcDataEntry::Ended);
 		return DcOk();
 	}
 	else
@@ -343,10 +333,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 	if (State == EState::ExpectKey)
 	{
 		check(Property);
-		if (OutNamePtr)
-		{
-			*OutNamePtr = Property->GetFName();
-		}
+		ReadOut(OutNamePtr, Property->GetFName());
 
 		State = EState::ExpectValue;
 		return DcOk();
@@ -356,11 +343,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
-		if (OutNamePtr)
-		{
-			*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
-		}
-
+		ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
 		return DcOk();
 	}
 	else
@@ -494,24 +477,24 @@ FDcResult FDcReadStateMap::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		*OutPtr = EDcDataEntry::MapRoot;
+		ReadOut(OutPtr, EDcDataEntry::MapRoot);
 		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		*OutPtr = EDcDataEntry::MapEnd;
+		ReadOut(OutPtr, EDcDataEntry::MapEnd);
 		return DcOk();
 	}
 	else if (State == EState::ExpectKey)
 	{
 		check(MapProperty);
-		*OutPtr = PropertyToDataEntry(MapProperty->KeyProp);
+		ReadOut(OutPtr, PropertyToDataEntry(MapProperty->KeyProp));
 		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(MapProperty);
-		*OutPtr = PropertyToDataEntry(MapProperty->ValueProp);
+		ReadOut(OutPtr, PropertyToDataEntry(MapProperty->ValueProp));
 		return DcOk();
 	}
 	else
@@ -525,11 +508,7 @@ FDcResult FDcReadStateMap::ReadName(FName* OutNamePtr)
 	FDcPropertyDatum Datum;
 	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
-	if (OutNamePtr)
-	{
-		*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
-	}
-
+	ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
 	return DcOk();
 }
 
@@ -650,23 +629,23 @@ FDcResult FDcReadStateArray::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		*OutPtr = EDcDataEntry::ArrayRoot;
+		ReadOut(OutPtr, EDcDataEntry::ArrayRoot);
 		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		*OutPtr = EDcDataEntry::ArrayEnd;
+		ReadOut(OutPtr, EDcDataEntry::ArrayEnd);
 		return DcOk();
 	}
 	else if (State == EState::ExpectItem)
 	{
 		check(ArrayProperty->Inner);
-		*OutPtr = PropertyToDataEntry(ArrayProperty->Inner);
+		ReadOut(OutPtr, PropertyToDataEntry(ArrayProperty->Inner));
 		return DcOk();
 	}
 	else if (State == EState::Ended)
 	{
-		*OutPtr = EDcDataEntry::Ended;
+		ReadOut(OutPtr, EDcDataEntry::Ended);
 		return DcOk();
 	}
 	else
@@ -680,11 +659,7 @@ FDcResult FDcReadStateArray::ReadName(FName* OutNamePtr)
 	FDcPropertyDatum Datum;
 	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
-	if (OutNamePtr)
-	{
-		*OutNamePtr = Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr);
-	}
-
+	ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
 	return DcOk();
 }
 
@@ -788,23 +763,23 @@ FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		*OutPtr = EDcDataEntry::SetRoot;
+		ReadOut(OutPtr, EDcDataEntry::SetRoot);
 		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		*OutPtr = EDcDataEntry::SetEnd;
+		ReadOut(OutPtr, EDcDataEntry::SetEnd);
 		return DcOk();
 	}
 	else if (State == EState::ExpectItem)
 	{
 		check(SetProperty->ElementProp);
-		*OutPtr = PropertyToDataEntry(SetProperty->ElementProp);
+		ReadOut(OutPtr, PropertyToDataEntry(SetProperty->ElementProp));
 		return DcOk();
 	}
 	else if (State == EState::Ended)
 	{
-		*OutPtr = EDcDataEntry::Ended;
+		ReadOut(OutPtr, EDcDataEntry::Ended);
 		return DcOk();
 	}
 	else
@@ -818,7 +793,7 @@ FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
 	FDcPropertyDatum Datum;
 	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
 
-	FDcReader::ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
 
 	return DcOk();
 }

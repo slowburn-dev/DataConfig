@@ -9,6 +9,15 @@ struct TDcAlignedStorage
 	};
 };
 
+//	shorthand for optional read to out pointer
+template<typename T1, typename T2>
+FORCEINLINE static void ReadOut(T1*& OutPtr, T2&& Value)
+{
+	if (OutPtr)
+	{
+		*OutPtr = Forward<T2>(Value);
+	}
+}
 
 template<typename T>
 struct TDcStoreThenReset

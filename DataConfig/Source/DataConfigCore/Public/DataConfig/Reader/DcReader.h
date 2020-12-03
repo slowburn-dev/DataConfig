@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/DcTypes.h"
 
 struct FDcDiagnostic;
@@ -83,16 +84,6 @@ struct DATACONFIGCORE_API FDcReader
 		return Diag;
 	}
 
-	//	shorthand for optional reading values
-	template<typename T1, typename T2>
-	FORCEINLINE static void ReadOut(T1*& OutPtr, T2&& Value)
-	{
-		if (OutPtr)
-		{
-			*OutPtr = Forward<T2>(Value);
-		}
-	}
-
 };
 
 template<typename TObject>
@@ -111,10 +102,7 @@ FDcResult FDcReader::ReadLazyObjectField(TLazyObjectPtr<TObject>* OutPtr)
 	FLazyObjectPtr LazyPtr;
 	DC_TRY(ReadLazyObjectReference(&LazyPtr));
 
-	if (OutPtr)
-	{
-		*OutPtr = LazyPtr.GetUniqueID();
-	}
+	ReadOut(OutPtr, LazyPtr.GetUniqueID());
 	return DcOk();
 }
 
@@ -124,10 +112,7 @@ FDcResult FDcReader::ReadSoftObjectField(TSoftObjectPtr<TObject>* OutPtr)
 	FSoftObjectPath SoftPath;
 	DC_TRY(ReadSoftObjectReference(&SoftPath));
 
-	if (OutPtr)
-	{
-		*OutPtr = SoftPath;
-	}
+	ReadOut(OutPtr, SoftPath);
 	return DcOk();
 }
 
@@ -137,10 +122,7 @@ FDcResult FDcReader::ReadSoftClassField(TSoftClassPtr<TClass>* OutPtr)
 	FSoftClassPath SoftPath;
 	DC_TRY(ReadSoftClassReference(&SoftPath));
 
-	if (OutPtr)
-	{
-		*OutPtr = SoftPath;
-	}
+	ReadOut(OutPtr, SoftPath);
 	return DcOk();
 }
 
@@ -150,10 +132,7 @@ FDcResult FDcReader::ReadInterfaceField(TScriptInterface<TInterface>* OutPtr)
 	FScriptInterface ScriptInterface;
 	DC_TRY(ReadInterfaceReference(OutPtr));
 
-	if (OutPtr)
-	{
-		*OutPtr = (const TScriptInterface<TInterface>&)ScriptInterface;
-	}
+	ReadOut(OutPtr, (const TScriptInterface<TInterface>&)ScriptInterface);
 	return DcOk();
 }
 
