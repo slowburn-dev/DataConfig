@@ -371,6 +371,15 @@ struct FStructWithBlob
 	UPROPERTY() TArray<uint8> BlobUint8;
 
 	UPROPERTY() TArray<int64> BlobInt64;
+};
+
+USTRUCT()
+struct FStructExtraColor
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FName Blz;
+	UPROPERTY() FColor Blue;
 
 };
 

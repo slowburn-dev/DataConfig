@@ -34,6 +34,7 @@ static void Body()
 	//	TODO this doesn't work yet
 	//WriteFixtureAsset();
 
+	/*
 	PropertyVisitorRoundtrip_Piped();
 	PropertyVisitorRoundtrip__TestObjAlpha();
 	PropertyVisitorRoundtrip__StructStruct();
@@ -78,7 +79,9 @@ static void Body()
 	//JsonFail1();
 	//DownwardFromHere();
 	PropertyReadWrite_Blob();
+	*/
 
+	DeserializeExtra_Color();
 
 	return;
 }

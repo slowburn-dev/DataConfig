@@ -231,25 +231,25 @@ FDcResult FDcPrettyPrintWriter::WriteInt64(const int64& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteUInt8(const uint8& Value)
 {
-	Output.Logf(TEXT("%s- uint8: \"%o\""), *Indent, Value);
+	Output.Logf(TEXT("%s- uint8: \"%u\""), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt16(const uint16& Value)
 {
-	Output.Logf(TEXT("%s- uint16: \"%o\""), *Indent, Value);
+	Output.Logf(TEXT("%s- uint16: \"%u\""), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt32(const uint32& Value)
 {
-	Output.Logf(TEXT("%s- uint32: \"%o\""), *Indent, Value);
+	Output.Logf(TEXT("%s- uint32: \"%u\""), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt64(const uint64& Value)
 {
-	Output.Logf(TEXT("%s- uint64: \"%o\""), *Indent, Value);
+	Output.Logf(TEXT("%s- uint64: \"%u\""), *Indent, Value);
 	return DcOk();
 }
 

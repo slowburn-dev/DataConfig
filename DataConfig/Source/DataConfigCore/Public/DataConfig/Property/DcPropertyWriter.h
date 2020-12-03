@@ -4,6 +4,7 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
 {

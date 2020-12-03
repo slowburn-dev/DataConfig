@@ -9,7 +9,7 @@
 
 namespace DcExtra {
 
-EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx);
+EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsColorStruct(FDcDeserializeContext& Ctx);
 
 FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
