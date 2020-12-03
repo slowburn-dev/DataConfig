@@ -24,11 +24,12 @@ namespace DcDReadWrite
 		EnumNameMismatch,
 		EnumNameNotFound,
 		EnumValueInvalid,
-		UnexpectedReadNext,
-		UnexpectedReadValue,
 		
 		//	putback reader
 		CantUsePutbackValue,
+
+		//	pipe visitor
+		PipeReadWriteMismatch,
 	};
 
 } // namespace DPropertyReadWrite

@@ -29,7 +29,9 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot).Ok();
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
+
 	if (!bRootPeekPass
 		|| !bWritePass)
 	{
@@ -53,8 +55,6 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{
-				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
-
 				FString Value;
 				DC_TRY(Ctx.Reader->ReadString(&Value));
 				DC_TRY(Ctx.Writer->WriteName(FName(*Value)));

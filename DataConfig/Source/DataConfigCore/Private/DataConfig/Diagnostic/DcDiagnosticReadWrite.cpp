@@ -17,10 +17,10 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DcDReadWrite::EnumNameMismatch, TEXT("Enum name mismatch, Expect {0}, Actual {1}") },
 	{ DcDReadWrite::EnumNameNotFound, TEXT("Enum name not found. Enum {0}, Actual {1}") },
 	{ DcDReadWrite::EnumValueInvalid, TEXT("Enum value isn't valid for this enum. Enum {0}, Actual {1}") },
-	{ DcDReadWrite::UnexpectedReadNext, TEXT("Unexpected 'ReadNext', last read 'ReadNext' value isn't consumed"), },
-	{ DcDReadWrite::UnexpectedReadValue, TEXT("Unexpected 'ReadXXX' which reads value, needs to call 'ReadNext' first"), },
 	//	putback reader
 	{ DcDReadWrite::CantUsePutbackValue, TEXT("Cannot use putback value in {0}") },
+	//	pipe visitor
+	{ DcDReadWrite::PipeReadWriteMismatch, TEXT("Pipe visit read write mismatch. Actual {0}") },
 };
 
 FDcDiagnosticGroup DPropertyReadWriteDetails = { DcDimOf(_ReadWriteDetails), _ReadWriteDetails };

@@ -1,6 +1,7 @@
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 FDcPipeVisitor::FDcPipeVisitor(FDcReader* InReader, FDcWriter* InWriter)
 {
@@ -16,7 +17,11 @@ FDcResult FDcPipeVisitor::PipeVisit()
 
 		EDcDataEntry PeekEntry;
 		DC_TRY(Reader->PeekRead(&PeekEntry));
-		DC_TRY(Writer->PeekWrite(PeekEntry));
+
+		bool bWriteOK;
+		DC_TRY(Writer->PeekWrite(PeekEntry, &bWriteOK));
+		if (!bWriteOK)
+			return DC_FAIL(DcDReadWrite, PipeReadWriteMismatch) << PeekEntry;
 
 		if (PeekEntry == EDcDataEntry::Nil)
 		{

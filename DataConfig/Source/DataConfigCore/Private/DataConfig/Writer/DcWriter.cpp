@@ -7,7 +7,7 @@ FDcWriter::FDcWriter()
 FDcWriter::~FDcWriter()
 {}
 
-FDcResult FDcWriter::PeekWrite(EDcDataEntry) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteNil(){ return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteBool(bool) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteName(const FName&) { return DC_FAIL(DcDCommon, NotImplemented); }

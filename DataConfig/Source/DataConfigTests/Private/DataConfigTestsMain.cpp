@@ -56,9 +56,6 @@ static void Body()
 
 	SourceTypes();
 	JsonReader1();
-
-	JsonFail1();
-	JsonReader1();
 	JsonCanada();
 
 	PropertyVisitorRoundtrip__Basic();

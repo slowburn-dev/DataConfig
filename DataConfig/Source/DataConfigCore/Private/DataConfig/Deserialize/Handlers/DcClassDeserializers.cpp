@@ -15,9 +15,10 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot).Ok();
-	bool bPropertyPass = Ctx.TopProperty()->IsA<UClass>();
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
+	bool bPropertyPass = Ctx.TopProperty()->IsA<UClass>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
 		return DcOkWithCanNotProcess(OutRet);
@@ -42,8 +43,6 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 			}
 			else if (CurPeek == EDcDataEntry::String)
 			{
-				DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
-
 				FString Value;
 				DC_TRY(Ctx.Reader->ReadString(&Value));
 				if (DcIsMeta(Value))
@@ -98,14 +97,16 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		|| Next == EDcDataEntry::Nil
 		|| Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot).Ok();
-	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
-	bool bPropertyPass = Ctx.TopProperty()->IsA<UObjectProperty>();
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
+	bool bPropertyPass = Ctx.TopProperty()->IsA<UObjectProperty>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
+
+	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
 
 	FDcObjectPropertyStat RefStat {
 		ObjectProperty->PropertyClass->GetFName(), EDcObjectPropertyControl::ExternalReference
@@ -236,7 +237,9 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	DC_TRY(PutbackReader.PeekRead(&Next));
 
 	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
-	bool bWritePass = Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot).Ok();
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
 	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
 	bool bPropertyPass = ObjectProperty != nullptr;
@@ -355,16 +358,12 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	{
 		if (CurPeek == EDcDataEntry::Name)
 		{
-			DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
-
 			FName Value;
 			DC_TRY(PutbackReader.ReadName(&Value));
 			DC_TRY(Ctx.Writer->WriteName(Value));
 		}
 		else if (CurPeek == EDcDataEntry::String)
 		{
-			DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
-
 			FString Value;
 			DC_TRY(PutbackReader.ReadString(&Value));
 			DC_TRY(Ctx.Writer->WriteName(FName(*Value)));

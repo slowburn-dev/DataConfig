@@ -19,7 +19,6 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
 			<< EDcDataEntry::Bool << Next;
 	}
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Bool));
 
 	bool Value;
 	DC_TRY(Ctx.Reader->ReadBool(&Value));
@@ -35,8 +34,6 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
-
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Name));
 
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
@@ -68,8 +65,6 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
-
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::String));
 
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));

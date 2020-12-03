@@ -8,7 +8,7 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 	FDcPrettyPrintWriter(FOutputDevice& InOutput);
 	~FDcPrettyPrintWriter();
 
-	FDcResult PeekWrite(EDcDataEntry Next) override;
+	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 
 	FDcResult WriteNil() override;
 	FDcResult WriteBool(bool Value) override;

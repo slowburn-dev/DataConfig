@@ -8,7 +8,7 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcNoopWriter();
 	~FDcNoopWriter();
 
-	FDcResult PeekWrite(EDcDataEntry) override;
+	FDcResult PeekWrite(EDcDataEntry, bool* bOutOk) override;
 
 	FDcResult WriteNil() override;
 	FDcResult WriteBool(bool) override;
