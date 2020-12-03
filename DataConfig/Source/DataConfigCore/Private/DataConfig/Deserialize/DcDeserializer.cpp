@@ -22,6 +22,7 @@ static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeser
 
 static FDcResult _DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& Ctx)
 {
+	//	use predicated deserializers first, if it's not handled then try direct handlers
 	for (auto& PredPair : Self.PredicatedDeserializers)
 	{
 		if (PredPair.Key.Execute(Ctx) == EDcDeserializePredicateResult::Process)
