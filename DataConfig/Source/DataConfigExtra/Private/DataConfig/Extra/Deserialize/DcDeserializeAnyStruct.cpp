@@ -10,6 +10,7 @@
 
 #include "DataConfig/Extra/Types/DcAnyStruct.h"
 #include "DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.h"
+#include "DataConfig/Reader/DcPutbackReader.h"
 
 namespace DcExtra
 {
@@ -53,36 +54,22 @@ FDcResult DATACONFIGEXTRA_API HandlerDcAnyStructDeserialize(FDcDeserializeContex
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(UStructProperty::StaticClass(), Datum));
 
+	void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
+	LoadStruct->InitializeStruct(DataPtr);
+	FDcAnyStruct TmpAny{DataPtr, LoadStruct};
+
 	FDcAnyStruct* AnyStructPtr = (FDcAnyStruct*)Datum.DataPtr;
-	AnyStructPtr->DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
-	LoadStruct->InitializeStruct(AnyStructPtr->DataPtr);
-	AnyStructPtr->StructClass = LoadStruct;
+	*AnyStructPtr = MoveTemp(TmpAny);
 
 	Ctx.Writer->PushTopStructPropertyState({LoadStruct, (void*)AnyStructPtr->DataPtr}, Ctx.TopProperty()->GetFName());
 
-	//	TODO can never get it right
-	//		 need to swap the reader right in here, and continue on reading, then switch the reader back
+	FDcPutbackReader PutbackReader(Ctx.Reader);
+	PutbackReader.Putback(EDcDataEntry::MapRoot);
+	TDcStoreThenReset<FDcReader*> RestoreReader(Ctx.Reader, &PutbackReader);
 
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-		if (CurPeek == EDcDataEntry::MapEnd)
-		{
-			DC_TRY(Ctx.Reader->ReadMapEnd());
-			break;
-		}
-		else if (CurPeek == EDcDataEntry::String)
-		{
-			FString Value;
-			DC_TRY(Ctx.Reader->ReadString(&Value));
-			DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
-		}
-
-		FDcScopedProperty ScopedValueProperty(Ctx);
-		DC_TRY(ScopedValueProperty.PushProperty());
-		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-	}
+	FDcScopedProperty ScopedValueProperty(Ctx);
+	DC_TRY(ScopedValueProperty.PushProperty());
+	DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 
 	return DcOkWithProcessed(OutRet);
 }

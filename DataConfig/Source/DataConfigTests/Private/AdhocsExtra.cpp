@@ -89,6 +89,11 @@ void DeserializeExtra_AnyStruct()
 		FDcDeserializePredicate::CreateStatic(PredicateIsDcAnyStruct),
 		FDcDeserializeDelegate::CreateStatic(HandlerDcAnyStructDeserialize)
 	);
+	//	and color
+	Deserializer.AddPredicatedHandler(
+		FDcDeserializePredicate::CreateStatic(PredicateIsColorStruct),
+		FDcDeserializeDelegate::CreateStatic(HandlerColorDeserialize)
+	);
 
 	FStructExtraAny Struct;
 	FDcPropertyWriter Writer(FDcPropertyDatum(FStructExtraAny::StaticStruct(), &Struct));
@@ -103,13 +108,10 @@ void DeserializeExtra_AnyStruct()
 				"AStr" : "these are my twisted words",
 			},
 			"Any2" : {
-				"$type" : "FStructWithSet",
-				"ASet" : [
-					"a",
-					"list",
-					"of",
-					"names",
-				]
+				"$type" : "StructExtraColor",
+				"Pre" : "<Pre>",
+				"Post" : "<Post>",
+				"Blue" : "#0000FF00",
 			}
 		}
 	)");
@@ -124,9 +126,9 @@ void DeserializeExtra_AnyStruct()
 	Deserializer.Deserialize(Ctx);
 
 	if (Struct.Any1.IsValid())
-		Dump(FDcPropertyDatum(Struct.Any1.StructClass, &Struct.Any1));
+		Dump(FDcPropertyDatum(Struct.Any1.StructClass, Struct.Any1.DataPtr));
 	if (Struct.Any2.IsValid())
-		Dump(FDcPropertyDatum(Struct.Any2.StructClass, &Struct.Any2));
+		Dump(FDcPropertyDatum(Struct.Any2.StructClass, Struct.Any2.DataPtr));
 }
 
 

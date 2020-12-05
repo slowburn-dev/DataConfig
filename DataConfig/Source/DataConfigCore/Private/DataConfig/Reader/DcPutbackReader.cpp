@@ -59,6 +59,25 @@ FORCEINLINE FDcResult CanNotCachedRead(FDcPutbackReader* Self, EDcDataEntry Entr
 	return (Self->Reader->*Method)(Forward<TArgs>(Args)...);
 }
 
+template<typename TMethod>
+FORCEINLINE FDcResult CachedReadDataTypeOnly(FDcPutbackReader* Self, EDcDataEntry Entry, TMethod Method)
+{
+	if (Self->Cached.Num() > 0)
+	{
+		FDcDataVariant Value = Self->Cached.Pop();
+		check(Value.bDataTypeOnly);
+		if (Value.DataType != Entry)
+			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+				<< Entry << Value.DataType;
+
+		return DcOk();
+	}
+	else
+	{
+		return (Self->Reader->*Method)();
+	}
+}
+
 
 FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 {
@@ -125,22 +144,22 @@ FDcResult FDcPutbackReader::ReadClassEnd(FDcObjectPropertyStat* OutClassPtr)
 
 FDcResult FDcPutbackReader::ReadMapRoot()
 {
-	return CanNotCachedRead(this, EDcDataEntry::MapRoot, &FDcReader::ReadMapRoot);
+	return CachedReadDataTypeOnly(this, EDcDataEntry::MapRoot, &FDcReader::ReadMapRoot);
 }
 
 FDcResult FDcPutbackReader::ReadMapEnd()
 {
-	return CanNotCachedRead(this, EDcDataEntry::MapEnd, &FDcReader::ReadMapEnd);
+	return CachedReadDataTypeOnly(this, EDcDataEntry::MapEnd, &FDcReader::ReadMapEnd);
 }
 
 FDcResult FDcPutbackReader::ReadArrayRoot()
 {
-	return CanNotCachedRead(this, EDcDataEntry::ArrayRoot, &FDcReader::ReadArrayRoot);
+	return CachedReadDataTypeOnly(this, EDcDataEntry::ArrayRoot, &FDcReader::ReadArrayRoot);
 }
 
 FDcResult FDcPutbackReader::ReadArrayEnd()
 {
-	return CanNotCachedRead(this, EDcDataEntry::ArrayEnd, &FDcReader::ReadArrayEnd);
+	return CachedReadDataTypeOnly(this, EDcDataEntry::ArrayEnd, &FDcReader::ReadArrayEnd);
 }
 
 FDcResult FDcPutbackReader::ReadObjectReference(UObject** OutPtr)

@@ -80,6 +80,8 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 		if (this != &InOther)
 		{
 			DataPtr = InOther.DataPtr;
+			StructClass = InOther.StructClass;
+
 			InOther.DataPtr = nullptr;
 			InOther.StructClass = nullptr;
 			SharedReferenceCount = MoveTemp(InOther.SharedReferenceCount);

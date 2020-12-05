@@ -12,7 +12,7 @@ enum class EDcPropertyWriteType
 	SetProperty,
 };
 
-enum class EDcDataEntry;
+enum class EDcDataEntry : uint16;
 
 struct FDcBaseWriteState
 {

@@ -43,7 +43,7 @@ FORCEINLINE FDcResult DcOk() {
 	} while (0)
 
 UENUM()
-enum class EDcDataEntry
+enum class EDcDataEntry : uint16
 {
 	//	Data Type
 	Nil,	 //	!! note that this actually doesn't exist in UE4 property data model

@@ -15,6 +15,7 @@ struct TDcIsDataVariantCompatible
 static_assert(TDcIsDataVariantCompatible<int>::Value, "yes");
 static_assert(!TDcIsDataVariantCompatible<EDcDataEntry>::Value, "no");
 
+//	TODO we'll need a new archive type for this anyway
 
 struct FDcDataVariant
 {
@@ -46,6 +47,7 @@ struct FDcDataVariant
 	{
 		using TActual = typename TRemoveConst<TRemoveReference<T>::Type>::Type;
 		DataType = DcTypeUtils::TDcDataEntryType<TActual>::Value;
+		bDataTypeOnly = false;
 
 		FMemoryWriter MemWriter(Value, true);
 		MemWriter << InValue;
@@ -55,6 +57,14 @@ struct FDcDataVariant
 	FORCEINLINE void Initialize<nullptr_t>(nullptr_t InValue)
 	{
 		DataType = EDcDataEntry::Nil;
+		bDataTypeOnly = false;
+	}
+
+	template<> 
+	FORCEINLINE void Initialize<EDcDataEntry>(EDcDataEntry InDataEntry)
+	{
+		DataType = InDataEntry;
+		bDataTypeOnly = true;
 	}
 
 	FDcDataVariant(const WIDECHAR* InString)
@@ -100,6 +110,7 @@ struct FDcDataVariant
 	}
 
 	EDcDataEntry DataType;
+	bool bDataTypeOnly;
 	TArray<uint8> Value;
 };
 
