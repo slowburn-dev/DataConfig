@@ -44,21 +44,38 @@ FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx
 
 	FColor Color = FColor::FromHex(ColorStr);
 
-	DC_TRY(Ctx.Writer->WriteStructRoot(TEXT("Color")));
+	enum class EDeserializeType
+	{
+		WriterAPI,
+		WriteDataEntry,
+	};
+	const EDeserializeType Type = EDeserializeType::WriteDataEntry;
 
-	DC_TRY(Ctx.Writer->WriteName(TEXT("B")));
-	DC_TRY(Ctx.Writer->WriteUInt8(Color.B));
+	if (Type == EDeserializeType::WriteDataEntry)
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(Ctx.Writer->WriteDataEntry(UStructProperty::StaticClass(), Datum));
 
-	DC_TRY(Ctx.Writer->WriteName(TEXT("G")));
-	DC_TRY(Ctx.Writer->WriteUInt8(Color.G));
+		Datum.CastChecked<UStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
+	}
+	else if (Type == EDeserializeType::WriterAPI)
+	{
+		DC_TRY(Ctx.Writer->WriteStructRoot(TEXT("Color")));
 
-	DC_TRY(Ctx.Writer->WriteName(TEXT("R")));
-	DC_TRY(Ctx.Writer->WriteUInt8(Color.R));
+		DC_TRY(Ctx.Writer->WriteName(TEXT("B")));
+		DC_TRY(Ctx.Writer->WriteUInt8(Color.B));
 
-	DC_TRY(Ctx.Writer->WriteName(TEXT("A")));
-	DC_TRY(Ctx.Writer->WriteUInt8(Color.A));
+		DC_TRY(Ctx.Writer->WriteName(TEXT("G")));
+		DC_TRY(Ctx.Writer->WriteUInt8(Color.G));
 
-	DC_TRY(Ctx.Writer->WriteStructEnd(TEXT("Color")));
+		DC_TRY(Ctx.Writer->WriteName(TEXT("R")));
+		DC_TRY(Ctx.Writer->WriteUInt8(Color.R));
+
+		DC_TRY(Ctx.Writer->WriteName(TEXT("A")));
+		DC_TRY(Ctx.Writer->WriteUInt8(Color.A));
+
+		DC_TRY(Ctx.Writer->WriteStructEnd(TEXT("Color")));
+	}
 
 	return DcOk();
 }

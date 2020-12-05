@@ -1,5 +1,7 @@
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 
+namespace DcDeserializeUtils {
+
 //	TODO move statics to StartUp
 FString DC_STR_META_TYPE = FString(TEXT("$type"));
 FString DC_STR_META_PATH = FString(TEXT("$path"));
@@ -19,7 +21,7 @@ const TBasicArray<FName>& DcGetAllNameMetas()
 }
 
 
-const TBasicArray<FString>& DcGetAllStringMetas()
+const TBasicArray<FString>& GetAllStringMetas()
 {
 	static TBasicArray<FString> ALL_STR_METAS;
 	if (ALL_STR_METAS.Num() == 0)
@@ -30,7 +32,7 @@ const TBasicArray<FString>& DcGetAllStringMetas()
 	return ALL_STR_METAS;
 }
 
-bool DcIsMeta(const FName& Name)
+bool IsMeta(const FName& Name)
 {
 	for (const FName& Cur : DcGetAllNameMetas())
 	{
@@ -41,9 +43,9 @@ bool DcIsMeta(const FName& Name)
 	return false;
 }
 
-bool DcIsMeta(const FString& Str)
+bool IsMeta(const FString& Str)
 {
-	for (const FString& Cur : DcGetAllStringMetas())
+	for (const FString& Cur : GetAllStringMetas())
 	{
 		if (Str == Cur)
 			return true;
@@ -52,4 +54,5 @@ bool DcIsMeta(const FString& Str)
 	return false;
 }
 
+}	// namespace DcDeserializeUtils
 

@@ -79,6 +79,8 @@ static void Body()
 	//JsonFail1();
 	//DownwardFromHere();
 	PropertyReadWrite_Blob();
+
+	DeserializeExtra_Color();
 	*/
 
 	DeserializeExtra_Color();
