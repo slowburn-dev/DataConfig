@@ -4,7 +4,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
-#include "DataConfig/Extra/Deserialize/DeserializeColor.h"
+#include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
 
 void DeserializeExtra_Color()
 {
