@@ -497,6 +497,19 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 		FMemory::Memcpy(ScriptArray.GetRawPtr(), Value.DataPtr, Value.Num);
 		return DcOk();
 	}
+	else if (NextProperty->IsA<UStructProperty>())
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(GetTopState(this).WriteDataEntry(UStructProperty::StaticClass(), Datum));
+
+		UStructProperty* StructProperty = Datum.CastChecked<UStructProperty>();
+
+		if (Value.Num > StructProperty->ElementSize)
+			return DC_FAIL(DcDReadWrite, WriteBlobOverrun) << StructProperty->ElementSize << Value.Num;
+
+		StructProperty->CopySingleValue(Datum.DataPtr, Value.DataPtr);
+		return DcOk();
+	}
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)

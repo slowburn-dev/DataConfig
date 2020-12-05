@@ -3,6 +3,7 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Extra/Deserialize/DeserializeColor.h"
+#include "DataConfig/DcEnv.h"
 
 namespace DcExtra
 {
@@ -46,10 +47,11 @@ FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx
 
 	enum class EDeserializeType
 	{
-		WriterAPI,
 		WriteDataEntry,
+		WriteBlob,
+		WriterAPI,
 	};
-	const EDeserializeType Type = EDeserializeType::WriteDataEntry;
+	const EDeserializeType Type = EDeserializeType::WriteBlob;
 
 	if (Type == EDeserializeType::WriteDataEntry)
 	{
@@ -57,6 +59,13 @@ FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx
 		DC_TRY(Ctx.Writer->WriteDataEntry(UStructProperty::StaticClass(), Datum));
 
 		Datum.CastChecked<UStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
+	}
+	else if (Type == EDeserializeType::WriteBlob)
+	{
+		DC_TRY(Ctx.Writer->WriteBlob({
+			(uint8*)&Color,
+			sizeof(FColor)
+		}));
 	}
 	else if (Type == EDeserializeType::WriterAPI)
 	{
@@ -76,6 +85,11 @@ FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx
 
 		DC_TRY(Ctx.Writer->WriteStructEnd(TEXT("Color")));
 	}
+	else
+	{
+		return DcNoEntry();
+	}
+
 
 	return DcOk();
 }

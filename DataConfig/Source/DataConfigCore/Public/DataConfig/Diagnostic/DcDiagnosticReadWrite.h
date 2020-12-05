@@ -24,6 +24,7 @@ namespace DcDReadWrite
 		EnumNameMismatch,
 		EnumNameNotFound,
 		EnumValueInvalid,
+		WriteBlobOverrun,
 		
 		//	putback reader
 		CantUsePutbackValue,

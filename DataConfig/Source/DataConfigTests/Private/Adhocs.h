@@ -378,8 +378,9 @@ struct FStructExtraColor
 {
 	GENERATED_BODY()
 
-	UPROPERTY() FName Blz;
+	UPROPERTY() FName Pre;
 	UPROPERTY() FColor Blue;
+	UPROPERTY() FName Post;
 
 };
 

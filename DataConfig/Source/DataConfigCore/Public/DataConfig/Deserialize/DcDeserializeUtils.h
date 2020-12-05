@@ -3,12 +3,6 @@
 #include "CoreMinimal.h"
 #include "Containers/BasicArray.h"
 
-struct FDcScriptStruct
-{
-	UScriptStruct* StructClass;
-	void* DataPtr;
-};
-
 namespace DcDeserializeUtils {
 
 extern FString DC_STR_META_TYPE;

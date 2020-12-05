@@ -17,7 +17,11 @@ static bool CheckPropertyCoercion(EDcDataEntry Next, EDcDataEntry Actual)
 {
 	if (Next == EDcDataEntry::Blob && Actual == EDcDataEntry::ArrayRoot)
 	{
-		return true;
+		return true;	//	write array as blob	
+	}
+	else if (Next == EDcDataEntry::Blob && Actual == EDcDataEntry::StructRoot)
+	{
+		return true;	//	write struct as blob
 	}
 	else
 	{
@@ -228,7 +232,7 @@ FDcResult FDcWriteStateClass::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	}
 	else if (State == EState::ExpectReference)
 	{
-		ReadOut(bOutOk, Next == EDcDataEntry::ObjectReference);
+		ReadOut(bOutOk, Next == EDcDataEntry::ObjectReference || Next == EDcDataEntry::Nil);
 		return DcOk();
 	}
 	else if (State == EState::ExpectEnd)

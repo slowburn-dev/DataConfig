@@ -17,6 +17,7 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DcDReadWrite::EnumNameMismatch, TEXT("Enum name mismatch, Expect {0}, Actual {1}") },
 	{ DcDReadWrite::EnumNameNotFound, TEXT("Enum name not found. Enum {0}, Actual {1}") },
 	{ DcDReadWrite::EnumValueInvalid, TEXT("Enum value isn't valid for this enum. Enum {0}, Actual {1}") },
+	{ DcDReadWrite::WriteBlobOverrun, TEXT("Writing blob overrun, Expected len {0}, Actual len {1}") },
 	//	putback reader
 	{ DcDReadWrite::CantUsePutbackValue, TEXT("Cannot use putback value in {0}") },
 	//	pipe visitor

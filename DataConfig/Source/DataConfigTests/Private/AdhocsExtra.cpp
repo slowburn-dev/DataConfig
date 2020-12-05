@@ -24,7 +24,8 @@ void DeserializeExtra_Color()
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
-			"Blz" : "ColorDes",
+			"Pre" : "<Pre>",
+			"Post" : "<Post>",
 			"Blue" : "#0000FF00",
 		}
 	)");

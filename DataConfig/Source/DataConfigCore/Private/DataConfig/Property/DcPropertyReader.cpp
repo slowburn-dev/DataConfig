@@ -143,6 +143,10 @@ bool FDcPropertyReader::Coercion(EDcDataEntry ToEntry)
 	{
 		return ToEntry == EDcDataEntry::Blob;
 	}
+	else if (Next == EDcDataEntry::StructRoot)
+	{
+		return ToEntry == EDcDataEntry::Blob;
+	}
 	else
 	{
 		return false;
@@ -487,8 +491,24 @@ FDcResult FDcPropertyReader::ReadBlob(FDcBlobViewData* OutPtr)
 		if (OutPtr)
 		{
 			*OutPtr = { 
-				(uint8*)ScriptArray.GetRawPtr(), ScriptArray.Num()
-				* ArrayProperty->Inner->ElementSize 
+				(uint8*)ScriptArray.GetRawPtr(),
+				ScriptArray.Num() * ArrayProperty->Inner->ElementSize 
+			};
+		}
+
+		return DcOk();
+	}
+	else if (Next == EDcDataEntry::StructRoot)
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(GetTopState(this).ReadDataEntry(UStructProperty::StaticClass(), Datum));
+
+		UStructProperty* StructProperty = Datum.CastChecked<UStructProperty>();
+		if (OutPtr)
+		{
+			*OutPtr = {
+				(uint8*)Datum.DataPtr,
+				StructProperty->ElementSize
 			};
 		}
 
