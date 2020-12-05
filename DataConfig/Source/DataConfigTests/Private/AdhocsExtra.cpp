@@ -52,7 +52,7 @@ static FDcAnyStruct IdentityByValue(FDcAnyStruct Handle)
 	return Handle;
 }
 
-void DeserializeExtra_Usage()
+void DeserializeExtra_AnyStructUsage()
 {
 	{
 		FDcAnyStruct Alhpa(new FTestStruct_Alpha());
@@ -76,6 +76,57 @@ void DeserializeExtra_Usage()
 
 		check(DestructCalledCount == 1);
 	}
+}
+
+void DeserializeExtra_AnyStruct()
+{
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
+
+	//	any
+	using namespace DcExtra;
+	Deserializer.AddPredicatedHandler(
+		FDcDeserializePredicate::CreateStatic(PredicateIsDcAnyStruct),
+		FDcDeserializeDelegate::CreateStatic(HandlerDcAnyStructDeserialize)
+	);
+
+	FStructExtraAny Struct;
+	FDcPropertyWriter Writer(FDcPropertyDatum(FStructExtraAny::StaticStruct(), &Struct));
+
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+		{
+			"Any1" : {
+				"$type" : "TestStruct_Alpha",
+				"AName" : "Foo",
+				"ABool" : true,
+				"AStr" : "these are my twisted words",
+			},
+			"Any2" : {
+				"$type" : "FStructWithSet",
+				"ASet" : [
+					"a",
+					"list",
+					"of",
+					"names",
+				]
+			}
+		}
+	)");
+	Reader.SetNewString(*Str);
+
+	FDcDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Push(FStructExtraAny::StaticStruct());
+	Ctx.Prepare();
+	Deserializer.Deserialize(Ctx);
+
+	if (Struct.Any1.IsValid())
+		Dump(FDcPropertyDatum(Struct.Any1.StructClass, &Struct.Any1));
+	if (Struct.Any2.IsValid())
+		Dump(FDcPropertyDatum(Struct.Any2.StructClass, &Struct.Any2));
 }
 
 

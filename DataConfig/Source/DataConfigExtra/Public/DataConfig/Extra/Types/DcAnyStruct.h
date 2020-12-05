@@ -112,8 +112,8 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 		return (T*)(DataPtr);
 	}
 
-	void* DataPtr;
-	UScriptStruct* StructClass;
+	void* DataPtr = nullptr;
+	UScriptStruct* StructClass = nullptr;
 	SharedPointerInternals::FSharedReferencer<ESPMode::Fast> SharedReferenceCount;
 };
 

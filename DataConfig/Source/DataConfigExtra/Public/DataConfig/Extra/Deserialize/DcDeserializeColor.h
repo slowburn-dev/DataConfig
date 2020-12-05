@@ -1,10 +1,6 @@
 #pragma once
 
-/*
- *	Deserialize `FColor` from a hex string like `#FFGGBBAA`
- *
- */
-
+///	Deserialize `FColor` from a hex string like `#FFGGBBAA`
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
 namespace DcExtra {

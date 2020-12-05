@@ -81,9 +81,9 @@ static void Body()
 	PropertyReadWrite_Blob();
 
 	DeserializeExtra_Color();
+	DeserializeExtra_AnyStructUsage();
 	*/
-
-	DeserializeExtra_Usage();
+	DeserializeExtra_AnyStruct();
 
 	return;
 }

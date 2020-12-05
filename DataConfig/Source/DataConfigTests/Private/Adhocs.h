@@ -6,6 +6,7 @@
 #include "Templates/IsEnum.h"
 #include "Templates/SubclassOf.h"
 #include "UObject/Interface.h"
+#include "DataConfig/Extra/Types/DcAnyStruct.h"
 #include "Adhocs.generated.h"
 
 USTRUCT()
@@ -396,5 +397,15 @@ struct FDestructDelegateContainer
 	{
 		DestructAction.ExecuteIfBound();
 	}
+};
+
+
+USTRUCT()
+struct FStructExtraAny
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FDcAnyStruct Any1;
+	UPROPERTY() FDcAnyStruct Any2;
 };
 

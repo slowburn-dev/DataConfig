@@ -71,6 +71,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	//	manual writing supporting
 	void PushTopClassPropertyState(FDcPropertyDatum& Datum);
+	void PushTopStructPropertyState(FDcPropertyDatum& Datum, const FName& StructName);
 
 	struct FPropertyState
 	{
