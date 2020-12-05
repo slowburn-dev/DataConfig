@@ -4,6 +4,9 @@
 #include "Templates/SharedPointerInternals.h"
 #include "DcAnyStruct.generated.h"
 
+///	A struct that contains a heap stored struct of any type.
+//	behaves like `TSharedRef`
+
 USTRUCT(BlueprintType)
 struct DATACONFIGEXTRA_API FDcAnyStruct
 {
@@ -12,11 +15,18 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 	struct DATACONFIGEXTRA_API AnyStructReferenceController : public SharedPointerInternals::FReferenceControllerBase
 	{
 		AnyStructReferenceController(FDcAnyStruct* InAnyStruct)
-			: AnyStruct(InAnyStruct)
-		{}
+		{
+			DataPtr = InAnyStruct->DataPtr;
+			StructClass = InAnyStruct->StructClass;
+		}
 
 		void DestroyObject() override;
-		FDcAnyStruct* AnyStruct;
+
+		AnyStructReferenceController(const AnyStructReferenceController&) = delete;
+		AnyStructReferenceController& operator=(const AnyStructReferenceController&) = delete;
+
+		void* DataPtr;
+		UScriptStruct* StructClass;
 	};
 
 	FDcAnyStruct(SharedPointerInternals::FNullTag* = nullptr)
@@ -105,8 +115,6 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 	void* DataPtr;
 	UScriptStruct* StructClass;
 	SharedPointerInternals::FSharedReferencer<ESPMode::Fast> SharedReferenceCount;
-
-	TCHAR* GetTypeNameLiteral();
 };
 
 

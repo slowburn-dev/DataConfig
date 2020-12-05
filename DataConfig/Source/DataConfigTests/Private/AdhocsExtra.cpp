@@ -65,7 +65,7 @@ void DeserializeExtra_Usage()
 		uint32 DestructCalledCount = 0;
 		{
 			FDcAnyStruct Any1(new FDestructDelegateContainer());
-			Any1.GetChecked<FDestructDelegateContainer>()->DestructAction.BindLambda([&] {
+			Any1.GetChecked<FDestructDelegateContainer>()->DestructAction.BindLambda([&DestructCalledCount] {
 				DestructCalledCount++;
 				});
 

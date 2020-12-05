@@ -2,23 +2,13 @@
 
 void FDcAnyStruct::AnyStructReferenceController::DestroyObject()
 {
-	check(AnyStruct);
-
 	//	handle delete nullptr, which is valid
-	if (AnyStruct->DataPtr == nullptr)
+	if (DataPtr == nullptr)
 	{
-		check(AnyStruct->StructClass == nullptr);
+		check(StructClass == nullptr);
 		return;
 	}
 
-	AnyStruct->StructClass->DestroyStruct(AnyStruct->DataPtr);
-	FMemory::Free(AnyStruct->DataPtr);
-}
-
-TCHAR* FDcAnyStruct::GetTypeNameLiteral()
-{
-	if (!StructClass)
-		return nullptr;
-
-	return StructClass->GetName().GetCharArray().GetData();
+	StructClass->DestroyStruct(DataPtr);
+	FMemory::Free(DataPtr);
 }
