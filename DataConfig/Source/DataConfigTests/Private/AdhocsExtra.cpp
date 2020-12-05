@@ -5,6 +5,8 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 
 #include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
+#include "DataConfig/Extra/Types/DcAnyStruct.h"
+#include "DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.h"
 
 void DeserializeExtra_Color()
 {
@@ -42,8 +44,38 @@ void DeserializeExtra_Color()
 	check(Struct.Blue.B == 0xFF);
 
 	Dump(FDcPropertyDatum(FStructExtraColor::StaticStruct(), &Struct));
-
 }
 
+
+static FDcAnyStruct IdentityByValue(FDcAnyStruct Handle)
+{
+	return Handle;
+}
+
+void DeserializeExtra_Usage()
+{
+	{
+		FDcAnyStruct Alhpa(new FTestStruct_Alpha());
+		FDcAnyStruct Beta = Alhpa;
+
+		check(Alhpa.GetSharedReferenceCount() == 2);
+	}
+
+	{
+		uint32 DestructCalledCount = 0;
+		{
+			FDcAnyStruct Any1(new FDestructDelegateContainer());
+			Any1.GetChecked<FDestructDelegateContainer>()->DestructAction.BindLambda([&] {
+				DestructCalledCount++;
+				});
+
+			FDcAnyStruct Any2{ Any1 };
+			FDcAnyStruct Any3 = MoveTemp(Any1);
+			FDcAnyStruct Any4 = IdentityByValue(Any1);
+		}
+
+		check(DestructCalledCount == 1);
+	}
+}
 
 

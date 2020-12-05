@@ -83,7 +83,7 @@ static void Body()
 	DeserializeExtra_Color();
 	*/
 
-	DeserializeExtra_Color();
+	DeserializeExtra_Usage();
 
 	return;
 }

@@ -381,6 +381,20 @@ struct FStructExtraColor
 	UPROPERTY() FName Pre;
 	UPROPERTY() FColor Blue;
 	UPROPERTY() FName Post;
+};
 
+DECLARE_DELEGATE(FSingularAction);
+
+USTRUCT()
+struct FDestructDelegateContainer
+{
+	GENERATED_BODY()
+
+	FSingularAction DestructAction;
+
+	~FDestructDelegateContainer()
+	{
+		DestructAction.ExecuteIfBound();
+	}
 };
 
