@@ -70,8 +70,8 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
 	//	manual writing supporting
-	void PushTopClassPropertyState(FDcPropertyDatum& Datum);
-	void PushTopStructPropertyState(FDcPropertyDatum& Datum, const FName& StructName);
+	void PushTopClassPropertyState(const FDcPropertyDatum& Datum);
+	void PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
 
 	struct FPropertyState
 	{

@@ -228,14 +228,14 @@ FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
 	}
 }
 
-void FDcPropertyWriter::PushTopClassPropertyState(FDcPropertyDatum& Datum)
+void FDcPropertyWriter::PushTopClassPropertyState(const FDcPropertyDatum& Datum)
 {
 	UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
 	PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
 }
 
 
-void FDcPropertyWriter::PushTopStructPropertyState(FDcPropertyDatum& Datum, const FName& StructName)
+void FDcPropertyWriter::PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName)
 {
 	UScriptStruct* StructClass = Datum.CastChecked<UScriptStruct>();
 	PushStructPropertyState(this, Datum.DataPtr, StructClass, StructName);

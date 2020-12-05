@@ -15,26 +15,26 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 	FDcPropertyDatum(UObject* ClassObject);
 	FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
 
-	FORCEINLINE bool IsNone()
+	FORCEINLINE bool IsNone() const
 	{
 		check((Property == nullptr && DataPtr == nullptr) || (Property != nullptr && DataPtr != nullptr));
 		return Property == nullptr;
 	}
 
 	template<typename TProperty>
-	FORCEINLINE TProperty* CastChecked()
+	FORCEINLINE TProperty* CastChecked() const
 	{
 		return ::CastChecked<TProperty>(Property);
 	}
 
 	template<typename TProperty>
-	FORCEINLINE TProperty* Cast()
+	FORCEINLINE TProperty* Cast() const
 	{
 		return ::Cast<TProperty>(Property);
 	}
 
 	template<typename TProperty>
-	FORCEINLINE bool IsA()
+	FORCEINLINE bool IsA() const
 	{
 		check(Property);
 		return Property->IsA<TProperty>();
