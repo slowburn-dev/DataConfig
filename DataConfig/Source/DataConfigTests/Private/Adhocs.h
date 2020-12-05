@@ -406,6 +406,9 @@ struct FStructExtraAny
 	GENERATED_BODY()
 
 	UPROPERTY() FDcAnyStruct Any1;
+
+	UPROPERTY() FString StrInBetween;
+
 	UPROPERTY() FDcAnyStruct Any2;
 };
 

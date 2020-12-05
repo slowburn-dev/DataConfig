@@ -107,6 +107,7 @@ void DeserializeExtra_AnyStruct()
 				"ABool" : true,
 				"AStr" : "these are my twisted words",
 			},
+			"StrInBetween" : "woooooot",
 			"Any2" : {
 				"$type" : "StructExtraColor",
 				"Pre" : "<Pre>",
@@ -125,6 +126,10 @@ void DeserializeExtra_AnyStruct()
 	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
 
+	check(Struct.Any1.SharedReferenceCount.GetSharedReferenceCount() == 1);
+	check(Struct.Any2.SharedReferenceCount.GetSharedReferenceCount() == 1);
+
+	Dump(FDcPropertyDatum(FStructExtraAny::StaticStruct(), &Struct));
 	if (Struct.Any1.IsValid())
 		Dump(FDcPropertyDatum(Struct.Any1.StructClass, Struct.Any1.DataPtr));
 	if (Struct.Any2.IsValid())
