@@ -420,4 +420,5 @@ struct FStructWithContainers
 
 	UPROPERTY(EditAnywhere) TArray<FTestStruct_OldSchool> ArrayOfStructs;
 	UPROPERTY(EditAnywhere) TSet<FKeyableStruct> SetOfStructs;
+	UPROPERTY(EditAnywhere) TMap<FString, FTestStruct_OldSchool> StrStructMap;
 };

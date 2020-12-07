@@ -59,6 +59,41 @@ FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult
 
 FDcResult DATACONFIGCORE_API HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::MapRoot, &bWritePass));
+
+	if (!(bRootPeekPass && bWritePass))
+		return DcOkWithCanNotProcess(OutRet);
+
+	check(Next == EDcDataEntry::MapRoot);
+
+	DC_TRY(Ctx.Reader->ReadMapRoot());
+	DC_TRY(Ctx.Writer->WriteMapRoot());
+
+	EDcDataEntry CurPeek;
+	while (true)
+	{
+		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
+		if (CurPeek == EDcDataEntry::MapEnd)
+			break;
+
+		//	allow only string key
+		FString Key;
+		DC_TRY(Ctx.Reader->ReadString(&Key));
+		DC_TRY(Ctx.Writer->WriteString(Key));
+
+		FDcScopedProperty ScopedValueProperty(Ctx);
+		DC_TRY(ScopedValueProperty.PushProperty());
+		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+	}
+
+	DC_TRY(Ctx.Reader->ReadMapEnd());
+	DC_TRY(Ctx.Writer->WriteMapEnd());
+
 	return DcOkWithProcessed(OutRet);
 }
 

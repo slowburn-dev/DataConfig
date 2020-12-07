@@ -20,6 +20,7 @@ void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 	//	Containers
 	Deserializer.AddDirectHandler(UArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));
 	Deserializer.AddDirectHandler(USetProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerSetDeserialize));
+	Deserializer.AddDirectHandler(UMapProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerMapDeserialize));
 
 	//	Struct
 	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));

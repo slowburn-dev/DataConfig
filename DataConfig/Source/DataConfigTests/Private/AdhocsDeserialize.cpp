@@ -201,6 +201,7 @@ void DeserializeContainers()
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
+
         {
             "ArrayOfStructs" :
             [
@@ -223,8 +224,20 @@ void DeserializeContainers()
                     "Name" : "Star",
                     "Index" : false
                 }
-            ]
+            ],
+            "StrStructMap" : 
+            {
+                "Foo" : {
+                    "AName" : "Foo",
+                    "ABool" : true,
+                },
+                "Bar" : {
+                    "AName" : "Bar",
+                    "AStr" : "These are my twisted words.",
+                }
+            }
         }   
+
 	)");
 	Reader.SetNewString(*Str);
 
