@@ -49,10 +49,8 @@ FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 
 FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayEnd>(Ctx, OutRet, &FDcWriter::WriteArrayRoot, &FDcWriter::WriteArrayEnd);
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayRoot>(Ctx, OutRet, &FDcWriter::WriteArrayRoot, &FDcWriter::WriteArrayEnd);
 }
-
-
 
 FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {

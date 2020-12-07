@@ -10,7 +10,7 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DcDReadWrite::DataTypeMismatch2, TEXT("Datatype mismatch. Expected {0}, {1}, Actual {2}") },
 	{ DcDReadWrite::PropertyMismatch, TEXT("Unexpected Property type. Expected type {0}, Property {0} {1}") },
 	{ DcDReadWrite::AlreadyEnded, TEXT("Invalid access after already ended.") },
-	{ DcDReadWrite::CantFindPropertyByName, TEXT("Can't find property by name. Name {0}") },
+	{ DcDReadWrite::CantFindPropertyByName, TEXT("Can't find property by name. Name '{0}'") },
 	{ DcDReadWrite::WriteClassInlineNotCreated, TEXT("Expand class write need the object to already exist. Property {0} {1}") },
 	{ DcDReadWrite::StructNameMismatch, TEXT("Struct name mismatch, Expect {0}, Actual {1}") },
 	{ DcDReadWrite::UInt64EnumNotSupported, TEXT("Doesn't support uint64 backed enum atm") },

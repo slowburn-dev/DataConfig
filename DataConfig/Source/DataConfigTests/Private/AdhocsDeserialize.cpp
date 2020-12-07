@@ -216,11 +216,11 @@ void DeserializeContainers()
             "SetOfStructs" :
             [
                 {
-                    "AName" : "Radio",
+                    "Name" : "Radio",
                     "Index" : true
                 },
                 {
-                    "AName" : "Star",
+                    "Name" : "Star",
                     "Index" : false
                 }
             ]

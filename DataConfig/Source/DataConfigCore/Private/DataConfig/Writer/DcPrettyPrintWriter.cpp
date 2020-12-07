@@ -27,7 +27,7 @@ FDcResult FDcPrettyPrintWriter::WriteBool(bool Value)
 
 FDcResult FDcPrettyPrintWriter::WriteName(const FName& Value)
 {
-	Output.Logf(TEXT("%s- name: \"%s\""), *Indent, *Value.ToString());
+	Output.Logf(TEXT("%s- name: \"%s\""), *Indent, *DcTypeUtils::SafeNameToString(Value));
 	return DcOk();
 }
 

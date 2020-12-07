@@ -91,5 +91,11 @@ template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt16> { using Type = uint16
 template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt32> { using Type = uint32; };
 template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt64> { using Type = uint64; };
 
+FORCEINLINE FString SafeNameToString(const FName& Value)
+{
+	return Value.IsValid() ? Value.ToString() : TEXT("<invalid-name>");
+}
+
+
 }	// namespace FDcTypeUtils
 
