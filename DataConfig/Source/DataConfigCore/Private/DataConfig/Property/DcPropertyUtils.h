@@ -112,7 +112,12 @@ void WritePropertyValueConversion<USoftClassProperty, FSoftClassPath>(UField* Pr
 
 namespace DcPropertyHighlight
 {
-	enum class EFormatSeg { Normal, Last, };
+	enum class EFormatSeg
+	{ 
+		Normal,
+		ParentIsContainer,
+		Last, 
+	};
 
 	void FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType);
 	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, UProperty* Property);

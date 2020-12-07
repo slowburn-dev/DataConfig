@@ -542,13 +542,26 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	FDcDiagnosticHighlight OutHighlight;
 	TArray<FString> Segments;
 
+	bool bLastIsContainer = false;
 	int Num = States.Num();
 	for (int Ix = 1; Ix < Num; Ix++)
-		AsReadState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments,
-			Ix == Num - 1
-			? DcPropertyHighlight::EFormatSeg::Last
-			: DcPropertyHighlight::EFormatSeg::Normal
-		);
+	{
+		FDcBaseReadState& ReadState = AsReadState(&States[Ix].ImplStorage);
+		DcPropertyHighlight::EFormatSeg Seg;
+		if (bLastIsContainer)
+			Seg = DcPropertyHighlight::EFormatSeg::ParentIsContainer;
+		else if (Ix == Num - 1)
+			Seg = DcPropertyHighlight::EFormatSeg::Last;
+		else
+			Seg = DcPropertyHighlight::EFormatSeg::Normal;
+
+		ReadState.FormatHighlightSegment(Segments, Seg);
+
+		EDcPropertyReadType StateType = ReadState.GetType();
+		bLastIsContainer = StateType == EDcPropertyReadType::ArrayProperty
+			|| StateType == EDcPropertyReadType::SetProperty
+			|| StateType == EDcPropertyReadType::MapProperty;
+	}
 
 	FString Path = FString::Join(Segments, TEXT("."));
 	OutHighlight.Formatted = FString::Printf(TEXT("Reading property: %s"), *Path);

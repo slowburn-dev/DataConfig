@@ -280,10 +280,13 @@ void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg Seg
 
 void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, UProperty* Property)
 {
-	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyTypeName(Class),
-		*DcTypeUtils::SafeNameToString(ObjectName)
-	));
+	if (SegType != EFormatSeg::ParentIsContainer)
+	{
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
+			*GetFormatPropertyTypeName(Class),
+			*DcTypeUtils::SafeNameToString(ObjectName)
+		));
+	}
 
 	if (Property != nullptr
 		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
@@ -296,10 +299,13 @@ void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg S
 
 void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, UProperty* Property)
 {
-	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyTypeName(StructClass),
-		*DcTypeUtils::SafeNameToString(StructName)
-	));
+	if (SegType != EFormatSeg::ParentIsContainer)
+	{
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
+			*GetFormatPropertyTypeName(StructClass),
+			*DcTypeUtils::SafeNameToString(StructName)
+		));
+	}
 
 	if (Property != nullptr
 		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))

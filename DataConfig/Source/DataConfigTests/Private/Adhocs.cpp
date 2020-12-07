@@ -526,7 +526,7 @@ void PropertyVisitorRoundtrip__Set()
 	}
 }
 
-static void _Roundtrip(FDcPropertyDatum ReadDatum, FDcPropertyDatum WriteDatum)
+void _Roundtrip(FDcPropertyDatum ReadDatum, FDcPropertyDatum WriteDatum)
 {
 	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 	FDcPrettyPrintWriter PrettyPrinter(*(FOutputDevice*)GWarn);

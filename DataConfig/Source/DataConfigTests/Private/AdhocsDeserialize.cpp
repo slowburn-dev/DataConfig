@@ -249,6 +249,12 @@ void DeserializeContainers()
 	Ctx.Prepare();
 	Deserializer.Deserialize(Ctx);
 
+	FStructWithContainers OutStruct;
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithContainers::StaticStruct(), &Obj),
+		FDcPropertyDatum(FStructWithContainers::StaticStruct(), &OutStruct)
+	);
+
 	Dump(FDcPropertyDatum(FStructWithContainers::StaticStruct(), &Obj));
 }
 
