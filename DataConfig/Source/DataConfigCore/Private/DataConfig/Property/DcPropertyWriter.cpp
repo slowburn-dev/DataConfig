@@ -156,7 +156,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 		&& Value.Type != Enum->GetFName())
 	{
 		return DC_FAIL(DcDReadWrite, EnumNameMismatch)
-			<< Value.Type.ToString() << Enum->GetName()
+			<< Value.Type << Enum->GetName()
 			<< FormatHighlight();
 	}
 
@@ -164,7 +164,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 		&& Value.Name != Enum->GetNameByValue(Value.Value))
 	{
 		return DC_FAIL(DcDReadWrite, EnumNameNotFound)
-			<< Enum->GetName() << Value.Name.ToString()
+			<< Enum->GetName() << Value.Name
 			<< FormatHighlight();
 
 		//	only check validness when there's name, otherwise it might be flags

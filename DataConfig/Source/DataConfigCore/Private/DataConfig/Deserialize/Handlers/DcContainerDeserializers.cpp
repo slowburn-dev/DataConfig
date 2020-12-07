@@ -57,5 +57,10 @@ FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult
 	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot>(Ctx, OutRet, &FDcWriter::WriteSetRoot, &FDcWriter::WriteSetEnd);
 }
 
+FDcResult DATACONFIGCORE_API HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	return DcOkWithProcessed(OutRet);
+}
+
 }	// namespace DcHandlers
 

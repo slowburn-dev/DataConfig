@@ -270,7 +270,7 @@ FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 		Datum.Property = NextPropertyByName(Class->PropertyLink, Value);
 		if (Datum.Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
-				<< Value.ToString() << _GetPropertyWriter()->FormatHighlight();
+				<< Value << _GetPropertyWriter()->FormatHighlight();
 
 		State = EState::ExpectExpandValue;
 		return DcOk();

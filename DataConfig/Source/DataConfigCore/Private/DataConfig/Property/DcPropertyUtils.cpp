@@ -298,7 +298,7 @@ void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg 
 {
 	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
 		*GetFormatPropertyTypeName(StructClass),
-		*StructName.ToString()
+		*DcTypeUtils::SafeNameToString(StructName)
 	));
 
 	if (Property != nullptr
