@@ -422,3 +422,27 @@ struct FStructWithContainers
 	UPROPERTY(EditAnywhere) TSet<FKeyableStruct> SetOfStructs;
 	UPROPERTY(EditAnywhere) TMap<FString, FTestStruct_OldSchool> StrStructMap;
 };
+
+
+USTRUCT()
+struct FStructMoreNest1
+{
+	GENERATED_BODY()
+	UPROPERTY() TMap<FString, FNestStruct_OldSchool> MapOfStruct;
+};
+
+USTRUCT()
+struct FStructMoreNest2
+{
+	GENERATED_BODY()
+	UPROPERTY() FStructMoreNest1 Nest1;
+};
+
+USTRUCT()
+struct FStructMoreNest3
+{
+	GENERATED_BODY()
+	UPROPERTY() TArray<FStructMoreNest2> ArrayOfStruct;
+};
+
+

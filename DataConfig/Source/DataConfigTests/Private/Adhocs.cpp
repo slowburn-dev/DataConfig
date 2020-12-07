@@ -828,3 +828,31 @@ void PropertyReadWrite_Blob()
 
 	DumpStruct(&OutStruct, FStructWithBlob::StaticStruct());
 }
+
+void PropertyHighlights()
+{
+	FStructMoreNest3 Struct;
+
+	Struct.ArrayOfStruct.AddDefaulted(2);
+	FStructMoreNest2& Item0 = Struct.ArrayOfStruct[0];
+	FStructMoreNest2& Item1 = Struct.ArrayOfStruct[1];
+
+	FNestStruct_OldSchool& MapItem0 = Item0.Nest1.MapOfStruct.Add("Foo");
+	MapItem0.AName = TEXT("MapItem0");
+	MapItem0.AStruct.AStr = TEXT("What a fucking crazy world this is.");
+
+	FNestStruct_OldSchool& MapItem1 = Item1.Nest1.MapOfStruct.Add("Foo");
+	MapItem1.AName = TEXT("MapItem1");
+	MapItem1.AStruct.AStr = TEXT("Everything you know and believed in is just wrong.");
+
+	FStructMoreNest3 OutStruct;
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructMoreNest3::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructMoreNest3::StaticStruct(), &OutStruct)
+	);
+}
+
+
+
+

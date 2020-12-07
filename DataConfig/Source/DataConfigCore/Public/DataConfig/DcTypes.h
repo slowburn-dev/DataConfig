@@ -46,7 +46,7 @@ UENUM()
 enum class EDcDataEntry : uint16
 {
 	//	Data Type
-	Nil,	 //	!! note that this actually doesn't exist in UE4 property data model
+	Nil,
 
 	Bool,
 	Name,

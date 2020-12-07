@@ -548,13 +548,26 @@ FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 	FDcDiagnosticHighlight OutHighlight;
 	TArray<FString> Segments;
 
+	bool bLastIsContainer = false;
 	int Num = States.Num();
 	for (int Ix = 1; Ix < Num; Ix++)
-		AsWriteState(&States[Ix].ImplStorage).FormatHighlightSegment(Segments,
-			Ix == Num - 1
-			? DcPropertyHighlight::EFormatSeg::Last
-			: DcPropertyHighlight::EFormatSeg::Normal
-		);
+	{
+		FDcBaseWriteState& WriteState = AsWriteState(&States[Ix].ImplStorage);
+		DcPropertyHighlight::EFormatSeg Seg;
+		if (bLastIsContainer)
+			Seg = DcPropertyHighlight::EFormatSeg::ParentIsContainer;
+		else if (Ix == Num - 1)
+			Seg = DcPropertyHighlight::EFormatSeg::Last;
+		else
+			Seg = DcPropertyHighlight::EFormatSeg::Normal;
+
+		WriteState.FormatHighlightSegment(Segments, Seg);
+
+		EDcPropertyWriteType StateType = WriteState.GetType();
+		bLastIsContainer = StateType == EDcPropertyWriteType::ArrayProperty
+			|| StateType == EDcPropertyWriteType::SetProperty
+			|| StateType == EDcPropertyWriteType::MapProperty;
+	}
 
 	FString Path = FString::Join(Segments, TEXT("."));
 	OutHighlight.Formatted = FString::Printf(TEXT("Writing property: %s"), *Path);
