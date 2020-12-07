@@ -1,3 +1,4 @@
+#include "DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
@@ -7,9 +8,7 @@
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/DcEnv.h"
-
 #include "DataConfig/Extra/Types/DcAnyStruct.h"
-#include "DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
 
 namespace DcExtra

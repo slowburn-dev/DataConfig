@@ -1,9 +1,9 @@
+#include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/DcEnv.h"
-#include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
 
 namespace DcExtra
 {

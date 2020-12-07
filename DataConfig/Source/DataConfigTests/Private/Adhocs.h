@@ -412,3 +412,11 @@ struct FStructExtraAny
 	UPROPERTY() FDcAnyStruct Any2;
 };
 
+
+USTRUCT()
+struct FStructWithContainers
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) TArray<FTestStruct_OldSchool> ArrayOfStructs;
+};

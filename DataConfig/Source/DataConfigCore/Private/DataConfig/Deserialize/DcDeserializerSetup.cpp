@@ -6,6 +6,7 @@
 #include "DataConfig/Deserialize/Handlers/DcPrimitiveDeserializers.h"
 #include "DataConfig/Deserialize/Handlers/DcStructDeserializers.h"
 #include "DataConfig/Deserialize/Handlers/DcClassDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/DcContainerDeserializers.h"
 
 void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 {
@@ -15,6 +16,9 @@ void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(UBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
 	Deserializer.AddDirectHandler(UNameProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
 	Deserializer.AddDirectHandler(UStrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStringDeserialize));
+
+	//	Containers
+	Deserializer.AddDirectHandler(UArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));
 
 	//	Struct
 	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStructRootDeserialize));

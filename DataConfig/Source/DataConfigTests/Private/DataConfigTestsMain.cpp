@@ -82,8 +82,10 @@ static void Body()
 
 	DeserializeExtra_Color();
 	DeserializeExtra_AnyStructUsage();
-	*/
 	DeserializeExtra_AnyStruct();
+	*/
+
+	DeserializeContainers();
 
 	return;
 }
