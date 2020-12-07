@@ -419,4 +419,5 @@ struct FStructWithContainers
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere) TArray<FTestStruct_OldSchool> ArrayOfStructs;
+	UPROPERTY(EditAnywhere) TSet<FKeyableStruct> SetOfStructs;
 };

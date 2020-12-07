@@ -7,16 +7,19 @@
 
 namespace DcHandlers {
 
-
-FDcResult DATACONFIGCORE_API HandlerArrayDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+template<EDcDataEntry EntryStart, typename TMethodStart, typename TMethodEnd>
+FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
+	FDcDeserializeContext& Ctx,
+	EDcDeserializeResult& OutRet,
+	TMethodStart MethodStart,
+	TMethodEnd MethodEnd)
 {
-	//	TOOO [DESERIALIZEUTILS] share code between deserializers, this happnes migrate to 4.25
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	bool bRootPeekPass = Next == EDcDataEntry::ArrayRoot;
 
 	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ArrayRoot, &bWritePass));
+	DC_TRY(Ctx.Writer->PeekWrite(EntryStart, &bWritePass));
 
 	if (!(bRootPeekPass && bWritePass))
 		return DcOkWithCanNotProcess(OutRet);
@@ -24,7 +27,7 @@ FDcResult DATACONFIGCORE_API HandlerArrayDeserialize(FDcDeserializeContext& Ctx,
 	check(Next == EDcDataEntry::ArrayRoot);
 
 	DC_TRY(Ctx.Reader->ReadArrayRoot());
-	DC_TRY(Ctx.Writer->WriteArrayRoot());
+	DC_TRY((Ctx.Writer->*MethodStart)());
 
 	EDcDataEntry CurPeek;
 	while (true)
@@ -39,12 +42,22 @@ FDcResult DATACONFIGCORE_API HandlerArrayDeserialize(FDcDeserializeContext& Ctx,
 	}
 
 	DC_TRY(Ctx.Reader->ReadArrayEnd());
-	DC_TRY(Ctx.Writer->WriteArrayEnd());
+	DC_TRY((Ctx.Writer->*MethodEnd)());
 
 	return DcOkWithProcessed(OutRet);
 }
 
+FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayEnd>(Ctx, OutRet, &FDcWriter::WriteArrayRoot, &FDcWriter::WriteArrayEnd);
+}
 
+
+
+FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot>(Ctx, OutRet, &FDcWriter::WriteSetRoot, &FDcWriter::WriteSetEnd);
+}
 
 }	// namespace DcHandlers
 
