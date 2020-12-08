@@ -4,7 +4,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 
-static FDcPropertyReader* _GetPropertyReader() 
+static FDcPropertyReader* _GetPropertyReader()
 {
 	return (FDcPropertyReader*)(DcEnv().ReaderStack.Top());
 }
@@ -12,7 +12,7 @@ static FDcPropertyReader* _GetPropertyReader()
 namespace DcPropertyReadStateDetails
 {
 
-static FDcResult CheckExpectedProperty(UProperty* Property, UClass* ExpectedPropertyClass)
+static FDcResult CheckExpectedProperty(FProperty* Property, UClass* ExpectedPropertyClass)
 {
 	if (!Property->IsA(ExpectedPropertyClass))
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)
@@ -107,9 +107,9 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 	else if (State == EState::ExpectValue)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+		DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-		ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+		ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 		return DcOk();
 	}
 	else
@@ -351,9 +351,9 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 	else if (State == EState::ExpectValue)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+		DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-		ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+		ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 		return DcOk();
 	}
 	else
@@ -509,9 +509,9 @@ FDcResult FDcReadStateMap::PeekRead(EDcDataEntry* OutPtr)
 FDcResult FDcReadStateMap::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-	ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 	return DcOk();
 }
 
@@ -526,7 +526,7 @@ FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 	FScriptMapHelper MapHelper(MapProperty, MapPtr);
 	if (State == EState::ExpectKey)
 	{
-		UProperty* KeyProperty = MapHelper.GetKeyProperty();
+		FProperty* KeyProperty = MapHelper.GetKeyProperty();
 		DC_TRY(DcPropertyReadStateDetails::CheckExpectedProperty(KeyProperty, ExpectedPropertyClass));
 
 		OutDatum.Property = KeyProperty;
@@ -534,7 +534,7 @@ FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPrope
 	}
 	else if (State == EState::ExpectValue)
 	{
-		UProperty* ValueProperty = MapHelper.GetValueProperty();
+		FProperty* ValueProperty = MapHelper.GetValueProperty();
 		DC_TRY(DcPropertyReadStateDetails::CheckExpectedProperty(ValueProperty, ExpectedPropertyClass));
 
 		OutDatum.Property = ValueProperty;
@@ -666,9 +666,9 @@ FDcResult FDcReadStateArray::PeekRead(EDcDataEntry* OutPtr)
 FDcResult FDcReadStateArray::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-	ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 	return DcOk();
 }
 
@@ -803,9 +803,9 @@ FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
 FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(ReadDataEntry(UNameProperty::StaticClass(), Datum));
+	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-	ReadOut(OutNamePtr, Datum.CastChecked<UNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 
 	return DcOk();
 }

@@ -9,7 +9,7 @@ namespace DcHandlers {
 
 static FName GetStructName(UField* Property)
 {
-	if (UStructProperty* StructProperty = Cast<UStructProperty>(Property))
+	if (FStructProperty* StructProperty = Cast<FStructProperty>(Property))
 	{
 		return StructProperty->Struct->GetFName();
 	}

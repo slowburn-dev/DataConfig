@@ -63,7 +63,7 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	FName StructName;
 	void* StructPtr;
 	UScriptStruct* StructClass;
-	UProperty* Property;
+	FProperty* Property;
 
 	enum class EState
 	{
@@ -134,7 +134,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 		Type = EType::Root;
 	}
 
-	FDcWriteStateClass(void* DataPtr, UObjectProperty* InObjProperty)
+	FDcWriteStateClass(void* DataPtr, FObjectProperty* InObjProperty)
 	{
 		ObjectName = InObjProperty->GetFName();
 		Class = InObjProperty->PropertyClass;
@@ -166,7 +166,7 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::MapProperty;
 
 	void* MapPtr;
-	UMapProperty* MapProperty;
+	FMapProperty* MapProperty;
 	int32 Index;
 
 	enum class EState : uint8
@@ -180,7 +180,7 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 
 	bool bNeedsRehash;
 
-	FDcWriteStateMap(void* InMapPtr, UMapProperty* InMapProperty)
+	FDcWriteStateMap(void* InMapPtr, FMapProperty* InMapProperty)
 	{
 		MapPtr = InMapPtr;
 		MapProperty = InMapProperty;
@@ -207,7 +207,7 @@ struct FDcWriteStateArray : public FDcBaseWriteState
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ArrayProperty;
 
 	void* ArrayPtr;
-	UArrayProperty* ArrayProperty;
+	FArrayProperty* ArrayProperty;
 	int32 Index;
 
 	enum class EState : uint8
@@ -218,7 +218,7 @@ struct FDcWriteStateArray : public FDcBaseWriteState
 	};
 	EState State;
 
-	FDcWriteStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
+	FDcWriteStateArray(void* InArrayPtr, FArrayProperty* InArrayProperty)
 	{
 		ArrayPtr = InArrayPtr;
 		ArrayProperty = InArrayProperty;
@@ -244,7 +244,7 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::SetProperty;
 
 	void *SetPtr;
-	USetProperty* SetProperty;
+	FSetProperty* SetProperty;
 	int32 Index;
 
 	enum class EState : uint8
@@ -257,7 +257,7 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 
 	bool bNeedsRehash;
 
-	FDcWriteStateSet(void* InSetPtr, USetProperty* InSetProperty)
+	FDcWriteStateSet(void* InSetPtr, FSetProperty* InSetProperty)
 	{
 		SetPtr = InSetPtr;
 		SetProperty = InSetProperty;

@@ -17,7 +17,7 @@ static bool CheckPropertyCoercion(EDcDataEntry Next, EDcDataEntry Actual)
 {
 	if (Next == EDcDataEntry::Blob && Actual == EDcDataEntry::ArrayRoot)
 	{
-		return true;	//	write array as blob	
+		return true;	//	write array as blob
 	}
 	else if (Next == EDcDataEntry::Blob && Actual == EDcDataEntry::StructRoot)
 	{
@@ -29,7 +29,7 @@ static bool CheckPropertyCoercion(EDcDataEntry Next, EDcDataEntry Actual)
 	}
 }
 
-static FDcResult CheckExpectedProperty(UProperty* Property, UClass* ExpectedPropertyClass)
+static FDcResult CheckExpectedProperty(FProperty* Property, UClass* ExpectedPropertyClass)
 {
 	if (!Property->IsA(ExpectedPropertyClass))
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)
@@ -118,7 +118,7 @@ FDcResult FDcWriteStateStruct::WriteName(const FName& Value)
 	}
 	else if (State == EState::ExpectValue)
 	{
-		DC_TRY((WriteValue<UNameProperty, FName>(*this, Value)));
+		DC_TRY((WriteValue<FNameProperty, FName>(*this, Value)));
 		return DcOk();
 	}
 	else
@@ -277,7 +277,7 @@ FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 	}
 	else if (State == EState::ExpectExpandValue)
 	{
-		DC_TRY((WriteValue<UNameProperty, FName>(*this, Value)));
+		DC_TRY((WriteValue<FNameProperty, FName>(*this, Value)));
 		return DcOk();
 	}
 	else
@@ -294,7 +294,7 @@ FDcResult FDcWriteStateClass::WriteDataEntry(UClass* ExpectedPropertyClass, FDcP
 			<< (int)EState::ExpectExpandValue << (int)State
 			<< _GetPropertyWriter()->FormatHighlight();
 
-	UProperty* Property = CastChecked<UProperty>(Datum.Property);
+	FProperty* Property = CastChecked<FProperty>(Datum.Property);
 	DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(Property, ExpectedPropertyClass));
 
 	OutDatum.Property = Property;
@@ -351,7 +351,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassS
 				//	expand a reference into a root
 				Type = EType::Root;
 
-				UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
+				FObjectProperty* ObjProperty = Datum.CastChecked<FObjectProperty>();
 				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
 				Datum.DataPtr = ClassObject;
 				Datum.Property = ObjProperty->PropertyClass;
@@ -404,7 +404,7 @@ FDcResult FDcWriteStateClass::WriteNil()
 {
 	if (State == EState::ExpectReference)
 	{
-		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
+		Datum.CastChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
 
 		State = EState::ExpectEnd;
 		return DcOk();
@@ -421,9 +421,9 @@ FDcResult FDcWriteStateClass::WriteObjectReference(const UObject* Value)
 {
 	if (State == EState::ExpectReference)
 	{
-		//	`UObjectProperty::SetObjectPropertyValue` not taking const pointer 
+		//	`FObjectProperty::SetObjectPropertyValue` not taking const pointer
 		ClassObject = const_cast<UObject*>(Value);
-		Datum.CastChecked<UObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
+		Datum.CastChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
 
 		State = EState::ExpectEnd;
 		return DcOk();
@@ -444,7 +444,7 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 		ObjectName,
 		Class,
 		State == EState::ExpectExpandKeyOrEnd || State == EState::ExpectExpandValue
-			? Datum.Cast<UProperty>() 
+			? Datum.Cast<FProperty>()
 			: nullptr
 	);
 }
@@ -487,7 +487,7 @@ FDcResult FDcWriteStateMap::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 
 FDcResult FDcWriteStateMap::WriteName(const FName& Value)
 {
-	return WriteValue<UNameProperty, FName>(*this, Value);
+	return WriteValue<FNameProperty, FName>(*this, Value);
 }
 
 FDcResult FDcWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
@@ -500,7 +500,7 @@ FDcResult FDcWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPro
 		bNeedsRehash = true;
 		MapHelper.GetKeyPtr(Index);
 
-		UProperty* KeyProperty = MapHelper.GetKeyProperty();
+		FProperty* KeyProperty = MapHelper.GetKeyProperty();
 		DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(KeyProperty, ExpectedPropertyClass));
 
 		OutDatum.Property = KeyProperty;
@@ -513,7 +513,7 @@ FDcResult FDcWriteStateMap::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPro
 	{
 		FScriptMapHelper MapHelper(MapProperty, MapPtr);
 
-		UProperty* ValueProperty = MapHelper.GetValueProperty();
+		FProperty* ValueProperty = MapHelper.GetValueProperty();
 		DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(ValueProperty, ExpectedPropertyClass));
 
 		OutDatum.Property = ValueProperty;
@@ -665,7 +665,7 @@ FDcResult FDcWriteStateArray::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 
 FDcResult FDcWriteStateArray::WriteName(const FName& Value)
 {
-	return WriteValue<UNameProperty, FName>(*this, Value);
+	return WriteValue<FNameProperty, FName>(*this, Value);
 }
 
 FDcResult FDcWriteStateArray::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
@@ -794,7 +794,7 @@ FDcResult FDcWriteStateSet::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 
 FDcResult FDcWriteStateSet::WriteName(const FName& Value)
 {
-	return WriteValue<UNameProperty, FName>(*this, Value);
+	return WriteValue<FNameProperty, FName>(*this, Value);
 }
 
 FDcResult FDcWriteStateSet::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)

@@ -7,7 +7,7 @@
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
-class UProperty;
+class FProperty;
 
 struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopyable
 {

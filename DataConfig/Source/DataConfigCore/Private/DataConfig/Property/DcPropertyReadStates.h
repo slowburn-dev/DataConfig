@@ -60,7 +60,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 	FName ObjectName;
 	UObject* ClassObject;
 	UClass* Class;
-	UProperty* Property;
+	FProperty* Property;
 
 	enum class EState : uint16
 	{
@@ -113,7 +113,7 @@ struct FDcReadStateStruct : public FDcBaseReadState
 	FName StructName;
 	void* StructPtr;
 	UScriptStruct* StructClass;
-	UProperty* Property;
+	FProperty* Property;
 
 	enum class EState
 	{
@@ -151,7 +151,7 @@ struct FDcReadStateMap : public FDcBaseReadState
 	static const EDcPropertyReadType ID = EDcPropertyReadType::MapProperty;
 
 	void* MapPtr;
-	UMapProperty* MapProperty;
+	FMapProperty* MapProperty;
 	int32 Index;
 
 	enum class EState : uint8
@@ -165,7 +165,7 @@ struct FDcReadStateMap : public FDcBaseReadState
 
 	EState State;
 
-	FDcReadStateMap(void* InMapPtr, UMapProperty* InMapProperty)
+	FDcReadStateMap(void* InMapPtr, FMapProperty* InMapProperty)
 	{
 		MapPtr = InMapPtr;
 		MapProperty = InMapProperty;
@@ -189,7 +189,7 @@ struct FDcReadStateArray : public FDcBaseReadState
 	static const EDcPropertyReadType ID = EDcPropertyReadType::ArrayProperty;
 
 	void* ArrayPtr;
-	UArrayProperty* ArrayProperty;
+	FArrayProperty* ArrayProperty;
 	int32 Index;
 
 	enum class EState : uint8
@@ -201,7 +201,7 @@ struct FDcReadStateArray : public FDcBaseReadState
 	};
 	EState State;
 
-	FDcReadStateArray(void* InArrayPtr, UArrayProperty* InArrayProperty)
+	FDcReadStateArray(void* InArrayPtr, FArrayProperty* InArrayProperty)
 	{
 		ArrayPtr = InArrayPtr;
 		ArrayProperty = InArrayProperty;
@@ -225,7 +225,7 @@ struct FDcReadStateSet : public FDcBaseReadState
 	static const EDcPropertyReadType ID = EDcPropertyReadType::SetProperty;
 
 	void* SetPtr;
-	USetProperty* SetProperty;
+	FSetProperty* SetProperty;
 	int32 Index;
 
 	enum class EState : uint8
@@ -237,7 +237,7 @@ struct FDcReadStateSet : public FDcBaseReadState
 	};
 	EState State;
 
-	FDcReadStateSet(void* InSetPtr, USetProperty* InSetProperty)
+	FDcReadStateSet(void* InSetPtr, FSetProperty* InSetProperty)
 	{
 		SetPtr = InSetPtr;
 		SetProperty = InSetProperty;

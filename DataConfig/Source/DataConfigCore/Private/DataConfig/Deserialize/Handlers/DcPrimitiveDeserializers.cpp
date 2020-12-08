@@ -6,7 +6,7 @@ namespace DcHandlers {
 
 FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	if (!Ctx.TopProperty()->IsA<UBoolProperty>())
+	if (!Ctx.TopProperty()->IsA<FBoolProperty>())
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
@@ -30,7 +30,7 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 
 FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	if (!Ctx.TopProperty()->IsA<UNameProperty>())
+	if (!Ctx.TopProperty()->IsA<FNameProperty>())
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
@@ -61,7 +61,7 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 
 FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	if (!Ctx.TopProperty()->IsA<UStrProperty>())
+	if (!Ctx.TopProperty()->IsA<FStrProperty>())
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}

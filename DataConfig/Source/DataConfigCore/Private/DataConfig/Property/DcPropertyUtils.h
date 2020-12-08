@@ -1,17 +1,17 @@
 #pragma once
 
-class UProperty;
+class FProperty;
 class UStruct;
 
-bool IsEffectiveProperty(UProperty* Property);
+bool IsEffectiveProperty(FProperty* Property);
 
 bool IsScalarProperty(UField* Property);
 
 size_t CountEffectiveProperties(UStruct* Struct);
 
-UProperty* NextEffectiveProperty(UProperty* Property);
-UProperty* FirstEffectiveProperty(UProperty* Property);
-UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name);
+FProperty* NextEffectiveProperty(FProperty* Property);
+FProperty* FirstEffectiveProperty(FProperty* Property);
+FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
 
 enum class EDcDataEntry : uint16;
 EDcDataEntry PropertyToDataEntry(UField* Property);
@@ -30,38 +30,38 @@ template<typename T>
 struct TPropertyTypeMap
 {};
 
-template<> struct TPropertyTypeMap<bool> { using Type = UBoolProperty; };
-template<> struct TPropertyTypeMap<FName> { using Type = UNameProperty; };
-template<> struct TPropertyTypeMap<FString> { using Type = UStrProperty; };
-template<> struct TPropertyTypeMap<FText> { using Type = UTextProperty; };
+template<> struct TPropertyTypeMap<bool> { using Type = FBoolProperty; };
+template<> struct TPropertyTypeMap<FName> { using Type = FNameProperty; };
+template<> struct TPropertyTypeMap<FString> { using Type = FStrProperty; };
+template<> struct TPropertyTypeMap<FText> { using Type = FTextProperty; };
 
-template<> struct TPropertyTypeMap<int8> { using Type = UInt8Property; };
-template<> struct TPropertyTypeMap<int16> { using Type = UInt16Property; };
-template<> struct TPropertyTypeMap<int32> { using Type = UIntProperty; };
-template<> struct TPropertyTypeMap<int64> { using Type = UInt64Property; };
+template<> struct TPropertyTypeMap<int8> { using Type = FInt8Property; };
+template<> struct TPropertyTypeMap<int16> { using Type = FInt16Property; };
+template<> struct TPropertyTypeMap<int32> { using Type = FIntProperty; };
+template<> struct TPropertyTypeMap<int64> { using Type = FInt64Property; };
 
-template<> struct TPropertyTypeMap<uint8> { using Type = UByteProperty; };
-template<> struct TPropertyTypeMap<uint16> { using Type = UUInt16Property; };
-template<> struct TPropertyTypeMap<uint32> { using Type = UUInt32Property; };
-template<> struct TPropertyTypeMap<uint64> { using Type = UUInt64Property; };
+template<> struct TPropertyTypeMap<uint8> { using Type = FByteProperty; };
+template<> struct TPropertyTypeMap<uint16> { using Type = FUInt16Property; };
+template<> struct TPropertyTypeMap<uint32> { using Type = FUInt32Property; };
+template<> struct TPropertyTypeMap<uint64> { using Type = FUInt64Property; };
 
-template<> struct TPropertyTypeMap<float> { using Type = UFloatProperty; };
-template<> struct TPropertyTypeMap<double> { using Type = UDoubleProperty; };
+template<> struct TPropertyTypeMap<float> { using Type = FFloatProperty; };
+template<> struct TPropertyTypeMap<double> { using Type = FDoubleProperty; };
 
-template<> struct TPropertyTypeMap<UClass*> { using Type = UClassProperty; };
-template<> struct TPropertyTypeMap<UObject*> { using Type = UObjectProperty; };
+template<> struct TPropertyTypeMap<UClass*> { using Type = FClassProperty; };
+template<> struct TPropertyTypeMap<UObject*> { using Type = FObjectProperty; };
 
-template<> struct TPropertyTypeMap<FWeakObjectPtr> { using Type = UWeakObjectProperty; };
-template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = ULazyObjectProperty; };
-template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = USoftObjectProperty; };
-template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = USoftClassProperty; };
-template<> struct TPropertyTypeMap<FScriptInterface> { using Type = UInterfaceProperty; };
+template<> struct TPropertyTypeMap<FWeakObjectPtr> { using Type = FWeakObjectProperty; };
+template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = FLazyObjectProperty; };
+template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = FSoftObjectProperty; };
+template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = FSoftClassProperty; };
+template<> struct TPropertyTypeMap<FScriptInterface> { using Type = FInterfaceProperty; };
 
-template<> struct TPropertyTypeMap<FScriptDelegate> { using Type = UDelegateProperty; };
-template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = UMulticastInlineDelegateProperty; };
-template<> struct TPropertyTypeMap<FSparseDelegate> { using Type = UMulticastSparseDelegateProperty; };
+template<> struct TPropertyTypeMap<FScriptDelegate> { using Type = FDelegateProperty; };
+template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = FMulticastInlineDelegateProperty; };
+template<> struct TPropertyTypeMap<FSparseDelegate> { using Type = FMulticastSparseDelegateProperty; };
 
-static_assert(TIsSame<TPropertyTypeMap<int32>::Type, UIntProperty>::Value, "yes");
+static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes");
 
 //	for read datum -> scalar
 template<typename TProperty, typename TScalar>
@@ -71,22 +71,22 @@ void ReadPropertyValueConversion(UField* Property, void const* Ptr, TScalar* Out
 }
 
 template<>
-void ReadPropertyValueConversion<UBoolProperty, bool>(UField* Property, void const* Ptr, bool* OutPtr)
+void ReadPropertyValueConversion<FBoolProperty, bool>(UField* Property, void const* Ptr, bool* OutPtr)
 {
-	*OutPtr = CastChecked<UBoolProperty>(Property)->GetPropertyValue(Ptr);
+	*OutPtr = CastChecked<FBoolProperty>(Property)->GetPropertyValue(Ptr);
 }
 
 template<>
-void ReadPropertyValueConversion<USoftObjectProperty, FSoftObjectPath>(UField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
+void ReadPropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(UField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
 {
-	*OutPtr = CastChecked<USoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
+	*OutPtr = CastChecked<FSoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
 }
 
 template<>
-void ReadPropertyValueConversion<USoftClassProperty, FSoftClassPath>(UField* Property, void const* Ptr, FSoftClassPath* OutPtr)
+void ReadPropertyValueConversion<FSoftClassProperty, FSoftClassPath>(UField* Property, void const* Ptr, FSoftClassPath* OutPtr)
 {
 	static_assert(sizeof(FSoftClassPath) == sizeof(FSoftObjectPath), "should have same layout");
-	*OutPtr = (const FSoftClassPath&)(CastChecked<USoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
+	*OutPtr = (const FSoftClassPath&)(CastChecked<FSoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
 }
 
 //	for writing scalar -> datum
@@ -97,34 +97,34 @@ void WritePropertyValueConversion(UField* Property, void* Ptr, const TScalar& Va
 }
 
 template<>
-void WritePropertyValueConversion<USoftObjectProperty, FSoftObjectPath>(UField* Property, void* Ptr, const FSoftObjectPath& Value)
+void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(UField* Property, void* Ptr, const FSoftObjectPath& Value)
 {
 	FSoftObjectPtr SoftPtr(Value);
-	CastChecked<USoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+	CastChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
 template<>
-void WritePropertyValueConversion<USoftClassProperty, FSoftClassPath>(UField* Property, void* Ptr, const FSoftClassPath& Value)
+void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(UField* Property, void* Ptr, const FSoftClassPath& Value)
 {
 	FSoftObjectPtr SoftPtr(Value);
-	CastChecked<USoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+	CastChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
 namespace DcPropertyHighlight
 {
 	enum class EFormatSeg
-	{ 
+	{
 		Normal,
 		ParentIsContainer,
-		Last, 
+		Last,
 	};
 
 	void FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType);
-	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, UProperty* Property);
-	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, UProperty* Property);
-	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, UMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue);;
-	void FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, UArrayProperty* ArrayProperty, uint16 Index, bool bIsItem);
-	void FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, USetProperty* SetProperty, uint16 Index, bool bIsItem);
+	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property);
+	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, FProperty* Property);
+	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, FMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue);;
+	void FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, FArrayProperty* ArrayProperty, uint16 Index, bool bIsItem);
+	void FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, FSetProperty* SetProperty, uint16 Index, bool bIsItem);
 
 } // namespace DcPropertyHighlight
 

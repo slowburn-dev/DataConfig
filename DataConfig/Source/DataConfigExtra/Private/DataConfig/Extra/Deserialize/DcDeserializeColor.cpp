@@ -10,7 +10,7 @@ namespace DcExtra
 
 EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
-	if (UStructProperty* StructProperty = Cast<UStructProperty>(Ctx.TopProperty()))
+	if (FStructProperty* StructProperty = Cast<FStructProperty>(Ctx.TopProperty()))
 	{
 		return StructProperty->Struct->GetFName() == TEXT("Color")
 			? EDcDeserializePredicateResult::Process
@@ -56,9 +56,9 @@ FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx
 	if (Type == EDeserializeType::WriteDataEntry)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(Ctx.Writer->WriteDataEntry(UStructProperty::StaticClass(), Datum));
+		DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
-		Datum.CastChecked<UStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
+		Datum.CastChecked<FStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
 	}
 	else if (Type == EDeserializeType::WriteBlob)
 	{

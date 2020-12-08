@@ -49,19 +49,19 @@ FDcReadStateStruct& PushStructPropertyState(FDcPropertyReader* Reader, void* InS
 	return Emplace<FDcReadStateStruct>(GetTopStorage(Reader), InStructPtr, InStructClass, InStructName);
 }
 
-FDcReadStateMap& PushMappingPropertyState(FDcPropertyReader* Reader, void* InMapPtr, UMapProperty* InMapProperty)
+FDcReadStateMap& PushMappingPropertyState(FDcPropertyReader* Reader, void* InMapPtr, FMapProperty* InMapProperty)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FDcReadStateMap>(GetTopStorage(Reader), InMapPtr, InMapProperty);
 }
 
-FDcReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, void* InArrayPtr, UArrayProperty* InArrayProperty)
+FDcReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, void* InArrayPtr, FArrayProperty* InArrayProperty)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FDcReadStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);
 }
 
-FDcReadStateSet& PushSetPropertyState(FDcPropertyReader* Reader, void* InSetPtr, USetProperty* InSetProperty)
+FDcReadStateSet& PushSetPropertyState(FDcPropertyReader* Reader, void* InSetPtr, FSetProperty* InSetProperty)
 {
 	Reader->States.AddDefaulted();
 	return Emplace<FDcReadStateSet>(GetTopStorage(Reader), InSetPtr, InSetProperty);
@@ -116,8 +116,8 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 		UObject* Obj = (UObject*)(Datum.DataPtr);
 		check(IsValid(Obj));
 		PushClassPropertyState(
-			this, 
-			Obj, 
+			this,
+			Obj,
 			Datum.CastChecked<UClass>(),
 			FDcReadStateClass::EType::Root,
 			Obj->GetFName()
@@ -164,17 +164,17 @@ FDcResult FDcPropertyReader::ReadString(FString* OutPtr) { return ReadTopStateSc
 FDcResult FDcPropertyReader::ReadText(FText* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
 FDcResult FDcPropertyReader::ReadEnum(FDcEnumData* OutPtr)
-{ 
+{
 	FScopedStackedReader StackedReader(this);
 
 	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).ReadDataEntry(UEnumProperty::StaticClass(), Datum));
+	DC_TRY(GetTopState(this).ReadDataEntry(FEnumProperty::StaticClass(), Datum));
 
 	if (OutPtr)
 	{
-		UEnumProperty* EnumProperty = Datum.CastChecked<UEnumProperty>();
+		FEnumProperty* EnumProperty = Datum.CastChecked<FEnumProperty>();
 		//	atm UENum API suports int32/int64 so use int64 for all enum for now
-		if (EnumProperty->GetUnderlyingProperty()->IsA<UUInt64Property>())
+		if (EnumProperty->GetUnderlyingProperty()->IsA<FUInt64Property>())
 			return DC_FAIL(DcDReadWrite, UInt64EnumNotSupported) << FormatHighlight();
 
 		UEnum* Enum = EnumProperty->GetEnum();
@@ -212,12 +212,12 @@ FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(TopState.ReadDataEntry(UStructProperty::StaticClass(), Datum));
+		DC_TRY(TopState.ReadDataEntry(FStructProperty::StaticClass(), Datum));
 
 		FDcReadStateStruct& ChildStruct = PushStructPropertyState(
 			this,
 			Datum.DataPtr,
-			Datum.CastChecked<UStructProperty>()->Struct,
+			Datum.CastChecked<FStructProperty>()->Struct,
 			Datum.Property->GetFName()
 		);
 		DC_TRY(ChildStruct.ReadStructRoot(OutNamePtr));
@@ -260,9 +260,9 @@ FDcResult FDcPropertyReader::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(TopState.ReadDataEntry(UObjectProperty::StaticClass(), Datum));
+		DC_TRY(TopState.ReadDataEntry(FObjectProperty::StaticClass(), Datum));
 
-		UObjectProperty* ObjProperty = Datum.CastChecked<UObjectProperty>();
+		FObjectProperty* ObjProperty = Datum.CastChecked<FObjectProperty>();
 		check(ObjProperty);
 		FDcReadStateClass& ChildClass = PushClassPropertyState(
 			this,
@@ -315,9 +315,9 @@ FDcResult FDcPropertyReader::ReadMapRoot()
 
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(TopState.ReadDataEntry(UMapProperty::StaticClass(), Datum));
+		DC_TRY(TopState.ReadDataEntry(FMapProperty::StaticClass(), Datum));
 
-		FDcReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<UMapProperty>());
+		FDcReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<FMapProperty>());
 		DC_TRY(ChildMap.ReadMapRoot());
 	}
 
@@ -361,9 +361,9 @@ FDcResult FDcPropertyReader::ReadArrayRoot()
 
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(TopState.ReadDataEntry(UArrayProperty::StaticClass(), Datum));
+		DC_TRY(TopState.ReadDataEntry(FArrayProperty::StaticClass(), Datum));
 
-		FDcReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<UArrayProperty>());
+		FDcReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<FArrayProperty>());
 		DC_TRY(ChildArray.ReadArrayRoot());
 	}
 
@@ -406,9 +406,9 @@ FDcResult FDcPropertyReader::ReadSetRoot()
 
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(TopState.ReadDataEntry(USetProperty::StaticClass(), Datum));
+		DC_TRY(TopState.ReadDataEntry(FSetProperty::StaticClass(), Datum));
 
-		FDcReadStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastChecked<USetProperty>());
+		FDcReadStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastChecked<FSetProperty>());
 		DC_TRY(ChildSet.ReadSetRoot());
 	}
 
@@ -483,16 +483,16 @@ FDcResult FDcPropertyReader::ReadBlob(FDcBlobViewData* OutPtr)
 	if (Next == EDcDataEntry::ArrayRoot)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(GetTopState(this).ReadDataEntry(UArrayProperty::StaticClass(), Datum));
+		DC_TRY(GetTopState(this).ReadDataEntry(FArrayProperty::StaticClass(), Datum));
 
-		UArrayProperty* ArrayProperty = Datum.CastChecked<UArrayProperty>();
+		FArrayProperty* ArrayProperty = Datum.CastChecked<FArrayProperty>();
 		FScriptArrayHelper ScriptArray(ArrayProperty, Datum.DataPtr);
 
 		if (OutPtr)
 		{
-			*OutPtr = { 
+			*OutPtr = {
 				(uint8*)ScriptArray.GetRawPtr(),
-				ScriptArray.Num() * ArrayProperty->Inner->ElementSize 
+				ScriptArray.Num() * ArrayProperty->Inner->ElementSize
 			};
 		}
 
@@ -501,9 +501,9 @@ FDcResult FDcPropertyReader::ReadBlob(FDcBlobViewData* OutPtr)
 	else if (Next == EDcDataEntry::StructRoot)
 	{
 		FDcPropertyDatum Datum;
-		DC_TRY(GetTopState(this).ReadDataEntry(UStructProperty::StaticClass(), Datum));
+		DC_TRY(GetTopState(this).ReadDataEntry(FStructProperty::StaticClass(), Datum));
 
-		UStructProperty* StructProperty = Datum.CastChecked<UStructProperty>();
+		FStructProperty* StructProperty = Datum.CastChecked<FStructProperty>();
 		if (OutPtr)
 		{
 			*OutPtr = {

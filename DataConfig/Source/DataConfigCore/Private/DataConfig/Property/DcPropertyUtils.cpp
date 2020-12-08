@@ -2,40 +2,40 @@
 #include "UObject/UnrealType.h"
 #include "UObject/TextProperty.h"
 
-bool IsEffectiveProperty(UProperty* Property)
+bool IsEffectiveProperty(FProperty* Property)
 {
 	check(Property);
-	return Property->IsA<UBoolProperty>()
-		|| Property->IsA<UNumericProperty>()
-		|| Property->IsA<UStrProperty>()
-		|| Property->IsA<UNameProperty>()
-		|| Property->IsA<UTextProperty>()
-		|| Property->IsA<UEnumProperty>()
-		|| Property->IsA<UStructProperty>()
-		|| Property->IsA<UClassProperty>()
-		|| Property->IsA<UObjectProperty>()
-		|| Property->IsA<UMapProperty>()
-		|| Property->IsA<UArrayProperty>()
-		|| Property->IsA<USetProperty>()
-		|| Property->IsA<UWeakObjectProperty>()
-		|| Property->IsA<ULazyObjectProperty>()
-		|| Property->IsA<USoftObjectProperty>()
-		|| Property->IsA<USoftClassProperty>()
-		|| Property->IsA<UInterfaceProperty>()
-		|| Property->IsA<UDelegateProperty>()
-		|| Property->IsA<UMulticastInlineDelegateProperty>()
-		|| Property->IsA<UMulticastSparseDelegateProperty>()
+	return Property->IsA<FBoolProperty>()
+		|| Property->IsA<FNumericProperty>()
+		|| Property->IsA<FStrProperty>()
+		|| Property->IsA<FNameProperty>()
+		|| Property->IsA<FTextProperty>()
+		|| Property->IsA<FEnumProperty>()
+		|| Property->IsA<FStructProperty>()
+		|| Property->IsA<FClassProperty>()
+		|| Property->IsA<FObjectProperty>()
+		|| Property->IsA<FMapProperty>()
+		|| Property->IsA<FArrayProperty>()
+		|| Property->IsA<FSetProperty>()
+		|| Property->IsA<FWeakObjectProperty>()
+		|| Property->IsA<FLazyObjectProperty>()
+		|| Property->IsA<FSoftObjectProperty>()
+		|| Property->IsA<FSoftClassProperty>()
+		|| Property->IsA<FInterfaceProperty>()
+		|| Property->IsA<FDelegateProperty>()
+		|| Property->IsA<FMulticastInlineDelegateProperty>()
+		|| Property->IsA<FMulticastSparseDelegateProperty>()
 		;
 }
 
 bool IsScalarProperty(UField* Property)
 {
 	check(Property);
-	bool bIsCompound = Property->IsA<UStructProperty>()
-		|| Property->IsA<UObjectProperty>()
-		|| Property->IsA<UMapProperty>()
-		|| Property->IsA<UArrayProperty>()
-		|| Property->IsA<USetProperty>();
+	bool bIsCompound = Property->IsA<FStructProperty>()
+		|| Property->IsA<FObjectProperty>()
+		|| Property->IsA<FMapProperty>()
+		|| Property->IsA<FArrayProperty>()
+		|| Property->IsA<FSetProperty>();
 
 	return !bIsCompound;
 }
@@ -44,7 +44,7 @@ size_t CountEffectiveProperties(UStruct* Struct)
 {
 	check(Struct);
 	size_t EffectiveCount = 0;
-	for (UProperty* Property = Struct->PropertyLink; Property; Property = Property->PropertyLinkNext)
+	for (FProperty* Property = Struct->PropertyLink; Property; Property = Property->PropertyLinkNext)
 	{
 		if (IsEffectiveProperty(Property))
 		{
@@ -55,7 +55,7 @@ size_t CountEffectiveProperties(UStruct* Struct)
 	return EffectiveCount;
 }
 
-UProperty* NextEffectiveProperty(UProperty* Property)
+FProperty* NextEffectiveProperty(FProperty* Property)
 {
 	while (true)
 	{
@@ -75,7 +75,7 @@ UProperty* NextEffectiveProperty(UProperty* Property)
 	return nullptr;
 }
 
-UProperty* FirstEffectiveProperty(UProperty* Property)
+FProperty* FirstEffectiveProperty(FProperty* Property)
 {
 	if (Property == nullptr)
 		return nullptr;
@@ -85,9 +85,9 @@ UProperty* FirstEffectiveProperty(UProperty* Property)
 		: NextEffectiveProperty(Property);
 }
 
-UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name)
+FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name)
 {
-	for (UProperty* Property = InProperty; Property; Property = Property->PropertyLinkNext)
+	for (FProperty* Property = InProperty; Property; Property = Property->PropertyLinkNext)
 	{
 		if (Property->GetFName() == Name
 			&& IsEffectiveProperty(Property))
@@ -104,49 +104,49 @@ UProperty* NextPropertyByName(UProperty* InProperty, const FName& Name)
 EDcDataEntry PropertyToDataEntry(UField* Property)
 {
 	check(Property)
-	if (Property->IsA<UBoolProperty>()) return EDcDataEntry::Bool;
-	if (Property->IsA<UNameProperty>()) return EDcDataEntry::Name;
-	if (Property->IsA<UStrProperty>()) return EDcDataEntry::String;
-	if (Property->IsA<UTextProperty>()) return EDcDataEntry::Text;
-	if (Property->IsA<UEnumProperty>()) return EDcDataEntry::Enum;
+	if (Property->IsA<FBoolProperty>()) return EDcDataEntry::Bool;
+	if (Property->IsA<FNameProperty>()) return EDcDataEntry::Name;
+	if (Property->IsA<FStrProperty>()) return EDcDataEntry::String;
+	if (Property->IsA<FTextProperty>()) return EDcDataEntry::Text;
+	if (Property->IsA<FEnumProperty>()) return EDcDataEntry::Enum;
 
-	if (Property->IsA<UInt8Property>()) return EDcDataEntry::Int8;
-	if (Property->IsA<UInt16Property>()) return EDcDataEntry::Int16;
-	if (Property->IsA<UIntProperty>()) return EDcDataEntry::Int32;
-	if (Property->IsA<UInt64Property>()) return EDcDataEntry::Int64;
+	if (Property->IsA<FInt8Property>()) return EDcDataEntry::Int8;
+	if (Property->IsA<FInt16Property>()) return EDcDataEntry::Int16;
+	if (Property->IsA<FIntProperty>()) return EDcDataEntry::Int32;
+	if (Property->IsA<FInt64Property>()) return EDcDataEntry::Int64;
 
-	if (Property->IsA<UByteProperty>()) return EDcDataEntry::UInt8;
-	if (Property->IsA<UUInt16Property>()) return EDcDataEntry::UInt16;
-	if (Property->IsA<UUInt32Property>()) return EDcDataEntry::UInt32;
-	if (Property->IsA<UUInt64Property>()) return EDcDataEntry::UInt64;
+	if (Property->IsA<FByteProperty>()) return EDcDataEntry::UInt8;
+	if (Property->IsA<FUInt16Property>()) return EDcDataEntry::UInt16;
+	if (Property->IsA<FUInt32Property>()) return EDcDataEntry::UInt32;
+	if (Property->IsA<FUInt64Property>()) return EDcDataEntry::UInt64;
 
-	if (Property->IsA<UFloatProperty>()) return EDcDataEntry::Float;
-	if (Property->IsA<UDoubleProperty>()) return EDcDataEntry::Double;
-
-	{
-		//	order significant
-		if (Property->IsA<UClassProperty>()) return EDcDataEntry::ClassReference;
-		if (Property->IsA<UStructProperty>()) return EDcDataEntry::StructRoot;
-	}
-
-	if (Property->IsA<UWeakObjectProperty>()) return EDcDataEntry::WeakObjectReference;
-	if (Property->IsA<ULazyObjectProperty>()) return EDcDataEntry::LazyObjectReference;
+	if (Property->IsA<FFloatProperty>()) return EDcDataEntry::Float;
+	if (Property->IsA<FDoubleProperty>()) return EDcDataEntry::Double;
 
 	{
 		//	order significant
-		if (Property->IsA<USoftClassProperty>()) return EDcDataEntry::SoftClassReference;
-		if (Property->IsA<USoftObjectProperty>()) return EDcDataEntry::SoftObjectReference;
-		if (Property->IsA<UInterfaceProperty>()) return EDcDataEntry::InterfaceReference;
-		if (Property->IsA<UObjectProperty>()) return EDcDataEntry::ClassRoot;
+		if (Property->IsA<FClassProperty>()) return EDcDataEntry::ClassReference;
+		if (Property->IsA<FStructProperty>()) return EDcDataEntry::StructRoot;
 	}
 
-	if (Property->IsA<UDelegateProperty>()) return EDcDataEntry::Delegate;
-	if (Property->IsA<UMulticastInlineDelegateProperty>()) return EDcDataEntry::MulticastInlineDelegate;
-	if (Property->IsA<UMulticastSparseDelegateProperty>()) return EDcDataEntry::MulticastSparseDelegate;
+	if (Property->IsA<FWeakObjectProperty>()) return EDcDataEntry::WeakObjectReference;
+	if (Property->IsA<FLazyObjectProperty>()) return EDcDataEntry::LazyObjectReference;
 
-	if (Property->IsA<UMapProperty>()) return EDcDataEntry::MapRoot;
-	if (Property->IsA<UArrayProperty>()) return EDcDataEntry::ArrayRoot;
-	if (Property->IsA<USetProperty>()) return EDcDataEntry::SetRoot;
+	{
+		//	order significant
+		if (Property->IsA<FSoftClassProperty>()) return EDcDataEntry::SoftClassReference;
+		if (Property->IsA<FSoftObjectProperty>()) return EDcDataEntry::SoftObjectReference;
+		if (Property->IsA<FInterfaceProperty>()) return EDcDataEntry::InterfaceReference;
+		if (Property->IsA<FObjectProperty>()) return EDcDataEntry::ClassRoot;
+	}
+
+	if (Property->IsA<FDelegateProperty>()) return EDcDataEntry::Delegate;
+	if (Property->IsA<FMulticastInlineDelegateProperty>()) return EDcDataEntry::MulticastInlineDelegate;
+	if (Property->IsA<FMulticastSparseDelegateProperty>()) return EDcDataEntry::MulticastSparseDelegate;
+
+	if (Property->IsA<FMapProperty>()) return EDcDataEntry::MapRoot;
+	if (Property->IsA<FArrayProperty>()) return EDcDataEntry::ArrayRoot;
+	if (Property->IsA<FSetProperty>()) return EDcDataEntry::SetRoot;
 
 
 
@@ -159,29 +159,29 @@ FString GetFormatPropertyTypeName(UField* Property)
 	check(Property);
 	//	TODO primitive types actually can use `GetCPPType`
 	//	ref: GetCPPTypeCustom
-	if (Property->IsA<UBoolProperty>()) return TEXT("bool");
-	if (Property->IsA<UNameProperty>()) return TEXT("FName");
-	if (Property->IsA<UTextProperty>()) return TEXT("FText");
-	if (Property->IsA<UStrProperty>()) return TEXT("FString");
+	if (Property->IsA<FBoolProperty>()) return TEXT("bool");
+	if (Property->IsA<FNameProperty>()) return TEXT("FName");
+	if (Property->IsA<FTextProperty>()) return TEXT("FText");
+	if (Property->IsA<FStrProperty>()) return TEXT("FString");
 
-	if (Property->IsA<UInt8Property>()) return TEXT("int8");
-	if (Property->IsA<UInt16Property>()) return TEXT("int16");
-	if (Property->IsA<UIntProperty>()) return TEXT("int32");
-	if (Property->IsA<UInt64Property>()) return TEXT("int64");
+	if (Property->IsA<FInt8Property>()) return TEXT("int8");
+	if (Property->IsA<FInt16Property>()) return TEXT("int16");
+	if (Property->IsA<FIntProperty>()) return TEXT("int32");
+	if (Property->IsA<FInt64Property>()) return TEXT("int64");
 
-	if (Property->IsA<UByteProperty>()) return TEXT("uint8");
-	if (Property->IsA<UUInt16Property>()) return TEXT("uint16");
-	if (Property->IsA<UUInt32Property>()) return TEXT("uint32");
-	if (Property->IsA<UUInt64Property>()) return TEXT("uint64");
+	if (Property->IsA<FByteProperty>()) return TEXT("uint8");
+	if (Property->IsA<FUInt16Property>()) return TEXT("uint16");
+	if (Property->IsA<FUInt32Property>()) return TEXT("uint32");
+	if (Property->IsA<FUInt64Property>()) return TEXT("uint64");
 
-	if (Property->IsA<UFloatProperty>()) return TEXT("float");
-	if (Property->IsA<UDoubleProperty>()) return TEXT("double");
+	if (Property->IsA<FFloatProperty>()) return TEXT("float");
+	if (Property->IsA<FDoubleProperty>()) return TEXT("double");
 
-	if (Property->IsA<UDelegateProperty>()) return ((UProperty*)Property)->GetCPPType(nullptr, 0);
-	if (Property->IsA<UMulticastInlineDelegateProperty>()) return ((UProperty*)Property)->GetCPPType(nullptr, 0);
-	if (Property->IsA<UMulticastSparseDelegateProperty>()) return ((UProperty*)Property)->GetCPPType(nullptr, 0);
+	if (Property->IsA<FDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
+	if (Property->IsA<FMulticastInlineDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
+	if (Property->IsA<FMulticastSparseDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
 
-	if (UEnumProperty* EnumProperty = Cast<UEnumProperty>(Property))
+	if (FEnumProperty* EnumProperty = Cast<FEnumProperty>(Property))
 	{
 		return FString::Printf(TEXT("E%s"), *EnumProperty->GetEnum()->GetName());
 	}
@@ -191,7 +191,7 @@ FString GetFormatPropertyTypeName(UField* Property)
 		return FString::Printf(TEXT("F%s"), *Struct->GetName());
 	}
 
-	if (UStructProperty* StructField = Cast<UStructProperty>(Property))
+	if (FStructProperty* StructField = Cast<FStructProperty>(Property))
 	{
 		return FString::Printf(TEXT("F%s"), *StructField->Struct->GetName());
 	}
@@ -203,41 +203,41 @@ FString GetFormatPropertyTypeName(UField* Property)
 			return FString::Printf(TEXT("U%s"), *Class->GetName());
 		}
 
-		if (UObjectProperty* ObjField = Cast<UObjectProperty>(Property))
+		if (FObjectProperty* ObjField = Cast<FObjectProperty>(Property))
 		{
 			return FString::Printf(TEXT("U%s"), *ObjField->PropertyClass->GetName());
 		}
 	}
 
-	if (UMapProperty* MapProperty = Cast<UMapProperty>(Property))
+	if (FMapProperty* MapProperty = Cast<FMapProperty>(Property))
 	{
-		return FString::Printf(TEXT("TMap<%s, %s>"), 
+		return FString::Printf(TEXT("TMap<%s, %s>"),
 			*GetFormatPropertyTypeName(MapProperty->KeyProp),
 			*GetFormatPropertyTypeName(MapProperty->ValueProp)
 		);
 	}
-	if (UArrayProperty* ArrayProperty = Cast<UArrayProperty>(Property))
+	if (FArrayProperty* ArrayProperty = Cast<FArrayProperty>(Property))
 	{
-		return FString::Printf(TEXT("TArray<%s>"), 
+		return FString::Printf(TEXT("TArray<%s>"),
 			*GetFormatPropertyTypeName(ArrayProperty->Inner)
 		);
 	}
 
-	if (USetProperty* SetProperty = Cast<USetProperty>(Property))
+	if (FSetProperty* SetProperty = Cast<FSetProperty>(Property))
 	{
 		return FString::Printf(TEXT("TSet<%s>"),
 			*GetFormatPropertyTypeName(SetProperty->ElementProp)
 			);
 	}
 
-	if (UWeakObjectProperty* WeakProperty = Cast<UWeakObjectProperty>(Property))
+	if (FWeakObjectProperty* WeakProperty = Cast<FWeakObjectProperty>(Property))
 	{
 		return FString::Printf(TEXT("TWeakObjectPtr<%s>"),
 			*GetFormatPropertyTypeName(WeakProperty->PropertyClass)
 		);
 	}
 
-	if (ULazyObjectProperty* LazyProperty = Cast<ULazyObjectProperty>(Property))
+	if (FLazyObjectProperty* LazyProperty = Cast<FLazyObjectProperty>(Property))
 	{
 		return FString::Printf(TEXT("TLazyObjectPtr<%s>"),
 			*GetFormatPropertyTypeName(LazyProperty->PropertyClass)
@@ -246,14 +246,14 @@ FString GetFormatPropertyTypeName(UField* Property)
 
 	{
 		//	order significant
-		if (USoftClassProperty* SoftProperty = Cast<USoftClassProperty>(Property))
+		if (FSoftClassProperty* SoftProperty = Cast<FSoftClassProperty>(Property))
 		{
 			return FString::Printf(TEXT("TSoftClassPtr<%s>"),
 				*GetFormatPropertyTypeName(SoftProperty->MetaClass)
 			);
 		}
 
-		if (USoftObjectProperty* SoftProperty = Cast<USoftObjectProperty>(Property))
+		if (FSoftObjectProperty* SoftProperty = Cast<FSoftObjectProperty>(Property))
 		{
 			return FString::Printf(TEXT("TSoftObjectPtr<%s>"),
 				*GetFormatPropertyTypeName(SoftProperty->PropertyClass)
@@ -261,7 +261,7 @@ FString GetFormatPropertyTypeName(UField* Property)
 		}
 	}
 
-	if (UInterfaceProperty* InterfaceProperty = Cast<UInterfaceProperty>(Property))
+	if (FInterfaceProperty* InterfaceProperty = Cast<FInterfaceProperty>(Property))
 	{
 		return FString::Printf(TEXT("TScriptInterface<%s>"),
 			*GetFormatPropertyTypeName(InterfaceProperty->InterfaceClass)
@@ -278,7 +278,7 @@ void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg Seg
 	OutSegments.Add(TEXT("<nil>"));
 }
 
-void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, UProperty* Property)
+void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property)
 {
 	if (SegType != EFormatSeg::ParentIsContainer)
 	{
@@ -297,7 +297,7 @@ void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg S
 	}
 }
 
-void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, UProperty* Property)
+void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, FProperty* Property)
 {
 	if (SegType != EFormatSeg::ParentIsContainer)
 	{
@@ -310,13 +310,13 @@ void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg 
 	if (Property != nullptr
 		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
 	{
-		OutSegments.Add(FString::Printf(TEXT("(%s)%s"), 
+		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
 			*GetFormatPropertyTypeName(Property),
 			*Property->GetName()));
 	}
 }
 
-void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, UMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue)
+void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, FMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue)
 {
 	check(MapProperty);
 	FString Seg = FString::Printf(TEXT("(%s)%s"),
@@ -330,7 +330,7 @@ void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg Seg
 	OutSegments.Add(MoveTemp(Seg));
 }
 
-void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, UArrayProperty* ArrayProperty, uint16 Index, bool bIsItem)
+void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, FArrayProperty* ArrayProperty, uint16 Index, bool bIsItem)
 {
 	check(ArrayProperty);
 	FString Seg = FString::Printf(TEXT("(%s)%s"),
@@ -344,7 +344,7 @@ void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg S
 	OutSegments.Add(MoveTemp(Seg));
 }
 
-void DcPropertyHighlight::FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, USetProperty* SetProperty, uint16 Index, bool bIsItem)
+void DcPropertyHighlight::FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, FSetProperty* SetProperty, uint16 Index, bool bIsItem)
 {
 	check(SetProperty);
 	FString Seg = FString::Printf(TEXT("(%s)%s"),

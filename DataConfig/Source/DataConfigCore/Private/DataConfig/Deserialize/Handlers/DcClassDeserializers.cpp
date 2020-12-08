@@ -78,7 +78,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	}
 }
 
-static FDcResult LoadObjectByPath(UObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDcDeserializeContext& Ctx, UObject*& OutLoaded)
+static FDcResult LoadObjectByPath(FObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDcDeserializeContext& Ctx, UObject*& OutLoaded)
 {
 	DC_TRY(DcExpect(LoadClass != nullptr));
 	DC_TRY(DcExpect(LoadClass->IsChildOf(ObjectProperty->PropertyClass)));
@@ -100,13 +100,13 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
-	bool bPropertyPass = Ctx.TopProperty()->IsA<UObjectProperty>();
+	bool bPropertyPass = Ctx.TopProperty()->IsA<FObjectProperty>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
+	FObjectProperty* ObjectProperty = Cast<FObjectProperty>(Ctx.TopProperty());
 
 	FDcObjectPropertyStat RefStat {
 		ObjectProperty->PropertyClass->GetFName(), EDcObjectPropertyControl::ExternalReference
@@ -124,7 +124,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 			//	ref: FPropertyHandleObject::SetValueFromFormattedString
 			UObject* Loaded = nullptr;
 			const TCHAR* ValueBuffer = *Value;
-			if (UObjectPropertyBase::ParseObjectPropertyValue(
+			if (FObjectPropertyBase::ParseObjectPropertyValue(
 				ObjectProperty,
 				nullptr,	// see PropertyHandleImpl.cpp it's using nullptr
 				ObjectProperty->PropertyClass,
@@ -213,7 +213,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	}
 }
 
-static bool IsSubObjectProperty(UObjectProperty* ObjectProperty)
+static bool IsSubObjectProperty(FObjectProperty* ObjectProperty)
 {
 	//	check `UPROPERTY(Instanced)`
 	return ObjectProperty->HasAnyPropertyFlags(CPF_InstancedReference)
@@ -223,7 +223,7 @@ static bool IsSubObjectProperty(UObjectProperty* ObjectProperty)
 
 EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx)
 {
-	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
+	FObjectProperty* ObjectProperty = Cast<FObjectProperty>(Ctx.TopProperty());
 	return ObjectProperty && IsSubObjectProperty(ObjectProperty)
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
@@ -241,7 +241,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
-	UObjectProperty* ObjectProperty = Cast<UObjectProperty>(Ctx.TopProperty());
+	FObjectProperty* ObjectProperty = Cast<FObjectProperty>(Ctx.TopProperty());
 	bool bPropertyPass = ObjectProperty != nullptr;
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
@@ -323,9 +323,9 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 
 	//	construct the item
 	FDcPropertyDatum Datum;
-	DC_TRY(Ctx.Writer->WriteDataEntry(UObjectProperty::StaticClass(), Datum));
+	DC_TRY(Ctx.Writer->WriteDataEntry(FObjectProperty::StaticClass(), Datum));
 
-	UObjectProperty* SubObjectProperty = Datum.Cast<UObjectProperty>();
+	FObjectProperty* SubObjectProperty = Datum.Cast<FObjectProperty>();
 	if (!SubObjectProperty)
 		return DcFail();
 

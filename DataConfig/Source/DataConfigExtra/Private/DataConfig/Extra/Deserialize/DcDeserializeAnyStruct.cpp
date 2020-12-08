@@ -15,7 +15,7 @@ namespace DcExtra
 {
 EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsDcAnyStruct(FDcDeserializeContext& Ctx)
 {
-	if (UStructProperty* StructProperty = Cast<UStructProperty>(Ctx.TopProperty()))
+	if (FStructProperty* StructProperty = Cast<FStructProperty>(Ctx.TopProperty()))
 	{
 		return StructProperty->Struct == FDcAnyStruct::StaticStruct()
 			? EDcDeserializePredicateResult::Process
@@ -51,7 +51,7 @@ FDcResult DATACONFIGEXTRA_API HandlerDcAnyStructDeserialize(FDcDeserializeContex
 		return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << MoveTemp(Str);
 
 	FDcPropertyDatum Datum;
-	DC_TRY(Ctx.Writer->WriteDataEntry(UStructProperty::StaticClass(), Datum));
+	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
 	void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
 	LoadStruct->InitializeStruct(DataPtr);
