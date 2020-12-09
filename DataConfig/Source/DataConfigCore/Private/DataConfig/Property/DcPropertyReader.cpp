@@ -111,7 +111,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	{
 		//	pass
 	}
-	else if (Datum.Property->IsA<UClass>())
+	else if (Datum.Property.IsA<UClass>())
 	{
 		UObject* Obj = (UObject*)(Datum.DataPtr);
 		check(IsValid(Obj));
@@ -123,9 +123,9 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 			Obj->GetFName()
 		);
 	}
-	else if (Datum.Property->IsA<UScriptStruct>())
+	else if (Datum.Property.IsA<UScriptStruct>())
 	{
-		PushStructPropertyState(this, Datum.DataPtr, CastChecked<UScriptStruct>(Datum.Property), FName(TEXT("$root")));
+		PushStructPropertyState(this, Datum.DataPtr, Datum.CastUScriptStructChecked(), FName(TEXT("$root")));
 	}
 	else
 	{
@@ -214,11 +214,12 @@ FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.ReadDataEntry(FStructProperty::StaticClass(), Datum));
 
+		FStructProperty* StructProperty = Datum.CastChecked<FStructProperty>();
 		FDcReadStateStruct& ChildStruct = PushStructPropertyState(
 			this,
 			Datum.DataPtr,
-			Datum.CastChecked<FStructProperty>()->Struct,
-			Datum.Property->GetFName()
+			StructProperty->Struct,
+			StructProperty->GetFName()
 		);
 		DC_TRY(ChildStruct.ReadStructRoot(OutNamePtr));
 	}

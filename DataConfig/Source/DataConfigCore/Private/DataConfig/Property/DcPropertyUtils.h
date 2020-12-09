@@ -17,6 +17,8 @@ FProperty* FirstEffectiveProperty(FProperty* Property);
 FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
 
 enum class EDcDataEntry : uint16;
+
+EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
 EDcDataEntry PropertyToDataEntry(FField* Property);
 
 FString GetFormatPropertyTypeName(FField* Property);

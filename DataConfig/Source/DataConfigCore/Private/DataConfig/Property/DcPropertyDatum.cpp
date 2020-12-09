@@ -10,20 +10,20 @@ FDcPropertyDatum::FDcPropertyDatum()
 
 FDcPropertyDatum::FDcPropertyDatum(FField* InProperty, void* InDataPtr)
 {
-	Property = FFieldVariant(InProperty);
+	Property = InProperty;
 	DataPtr = InDataPtr;
 }
 
 FDcPropertyDatum::FDcPropertyDatum(UObject* ClassObject)
 {
 	check(ClassObject);
-	Property = FFieldVariant(ClassObject->GetClass());
+	Property = ClassObject->GetClass();
 	DataPtr = ClassObject;
 }
 
 FDcPropertyDatum::FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
 {
 	check(StructClass);
-	Property = FFieldVariant(StructClass);
+	Property = StructClass;
 	DataPtr = StructPtr;
 }

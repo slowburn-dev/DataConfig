@@ -102,17 +102,17 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	{
 		//	pass
 	}
-	else if (Datum.Property->IsA<UClass>())
+	else if (Datum.Property.IsA<UClass>())
 	{
 		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
 		check(IsValid(Obj));
 		PushClassRootState(this, Obj, Datum.CastChecked<UClass>());
 	}
-	else if (Datum.Property->IsA<UScriptStruct>())
+	else if (Datum.Property.IsA<UScriptStruct>())
 	{
 		PushStructPropertyState(this,
 			Datum.DataPtr,
-			CastChecked<UScriptStruct>(Datum.Property),
+			Datum.CastUScriptStructChecked(),
 			FName(TEXT("$root"))
 		);
 	}
@@ -198,11 +198,12 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
+		FStructProperty* StructProperty = Datum.CastChecked<FStructProperty>();
 		FDcWriteStateStruct& ChildStruct = PushStructPropertyState(
 			this,
 			Datum.DataPtr,
-			Datum.CastChecked<FStructProperty>()->Struct,
-			Datum.Property->GetFName()
+			StructProperty->Struct,
+			StructProperty->GetFName()
 		);
 		DC_TRY(ChildStruct.WriteStructRoot(Name));
 	}
@@ -482,10 +483,10 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 {
 	FScopedStackedWriter StackedWriter(this);
 
-	FField* NextProperty;
+	FFieldVariant NextProperty;
 	DC_TRY(GetTopState(this).PeekWriteProperty(&NextProperty));
 
-	if (NextProperty->IsA<FArrayProperty>())
+	if (NextProperty.IsA<FArrayProperty>())
 	{
 		FDcPropertyDatum Datum;
 		DC_TRY(GetTopState(this).WriteDataEntry(FArrayProperty::StaticClass(), Datum));
@@ -502,7 +503,7 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 		FMemory::Memcpy(ScriptArray.GetRawPtr(), Value.DataPtr, Value.Num);
 		return DcOk();
 	}
-	else if (NextProperty->IsA<FStructProperty>())
+	else if (NextProperty.IsA<FStructProperty>())
 	{
 		FDcPropertyDatum Datum;
 		DC_TRY(GetTopState(this).WriteDataEntry(FStructProperty::StaticClass(), Datum));
@@ -529,14 +530,14 @@ FDcResult FDcPropertyWriter::SkipWrite()
 	return GetTopState(this).SkipWrite();
 }
 
-FDcResult FDcPropertyWriter::PeekWriteProperty(UField** OutProperty)
+FDcResult FDcPropertyWriter::PeekWriteProperty(FFieldVariant* OutProperty)
 {
 	FScopedStackedWriter StackedWriter(this);
 
 	return GetTopState(this).PeekWriteProperty(OutProperty);
 }
 
-FDcResult FDcPropertyWriter::WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcPropertyWriter::WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	FScopedStackedWriter StackedWriter(this);
 

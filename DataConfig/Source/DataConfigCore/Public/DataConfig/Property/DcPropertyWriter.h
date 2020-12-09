@@ -65,9 +65,9 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	//	skip current write at current position
 	FDcResult SkipWrite();
 	//	get the next write property
-	FDcResult PeekWriteProperty(UField** OutProperty);
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty);
 	//	manual writing
-	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
 	//	manual writing supporting
 	void PushTopClassPropertyState(const FDcPropertyDatum& Datum);

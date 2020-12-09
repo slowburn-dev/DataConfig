@@ -152,6 +152,32 @@ EDcDataEntry PropertyToDataEntry(FField* Property)
 	return EDcDataEntry::Ended;
 }
 
+EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field)
+{
+	check(Field.IsValid());
+	if (Field.IsUObject())
+	{
+		UObject* Obj = Field.ToUObjectUnsafe();
+		if (Obj.IsA<UScriptStruct>())
+		{
+			return EDcDataEntry::StructRoot;
+		}
+		else if (Obj.IsA<UClass>())
+		{
+			return EDcDataEntry::ClassRoot;
+		}
+		else
+		{
+			checkNoEntry();
+			return EDcDataEntry::Ended;
+		}
+	}
+	else
+	{
+		return PropertyToDataEntry(Field.ToFieldUnsafe());
+	}
+}
+
 FString GetFormatPropertyTypeName(FField* Property)
 {
 	check(Property);
