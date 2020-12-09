@@ -248,7 +248,7 @@ FDcResult FDcWriteStateClass::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	else if (State == EState::ExpectExpandValue)
 	{
 		check(!Datum.IsNone());
-		EDcDataEntry Actual = PropertyToDataEntry(Datum.Property);
+		EDcDataEntry Actual = PropertyToDataEntry(Datum.CastChecked());
 		ReadOut(bOutOk, Next == Actual || DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual));
 		return DcOk();
 	}

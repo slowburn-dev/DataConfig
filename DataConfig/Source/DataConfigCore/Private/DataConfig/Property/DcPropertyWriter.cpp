@@ -482,7 +482,7 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 {
 	FScopedStackedWriter StackedWriter(this);
 
-	UField* NextProperty;
+	FField* NextProperty;
 	DC_TRY(GetTopState(this).PeekWriteProperty(&NextProperty));
 
 	if (NextProperty->IsA<FArrayProperty>())

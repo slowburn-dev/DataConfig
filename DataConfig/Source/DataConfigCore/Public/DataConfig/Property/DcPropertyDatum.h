@@ -6,38 +6,47 @@ class UField;
 
 struct DATACONFIGCORE_API FDcPropertyDatum
 {
-	UField* Property;
+	FFieldVariant Property;
 	void* DataPtr;
 
 	FDcPropertyDatum();
-	FDcPropertyDatum(UField* InProperty, void* InDataPtr);
+	FDcPropertyDatum(FField* InProperty, void* InDataPtr);
 
 	FDcPropertyDatum(UObject* ClassObject);
 	FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
 
 	FORCEINLINE bool IsNone() const
 	{
-		check((Property == nullptr && DataPtr == nullptr) || (Property != nullptr && DataPtr != nullptr));
+		check((!Property.IsValid() && DataPtr == nullptr) || (Property.IsValid() && DataPtr != nullptr));
 		return Property == nullptr;
 	}
 
-	template<typename TProperty>
+	//	TODO rename to `CastField` as we're expecting field
+	template<typename TProperty = FField>
 	FORCEINLINE TProperty* CastChecked() const
 	{
-		return ::CastChecked<TProperty>(Property);
+		static_assert(TIsDerivedFrom<TProperty, FField>::Value, "expect TProperty to be a field");
+		return ::CastFieldChecked<TProperty>(Property.ToField());
 	}
 
-	template<typename TProperty>
+	//	TODO rename to `CastField` as we're expecting field
+	template<typename TProperty = FField>
 	FORCEINLINE TProperty* Cast() const
 	{
-		return ::Cast<TProperty>(Property);
+		static_assert(TIsDerivedFrom<TProperty, FField>::Value, "expect TProperty to be a field");
+		return ::CastField<TProperty>(Property.ToField());
 	}
 
-	template<typename TProperty>
-	FORCEINLINE bool IsA() const
+	FORCEINLINE UScriptStruct* CastUScriptStructChecked()
 	{
-		check(Property);
-		return Property->IsA<TProperty>();
+		check(Property.IsUObject());
+		return ::CastChecked<UScriptStruct>(Property.ToUObject());
+	}
+
+	FORCEINLINE UClass* CastUClassChecked()
+	{
+		check(Property.IsUObject());
+		return ::CastChecked<UClass>(Property.ToUObject());
 	}
 
 	static const FDcPropertyDatum NONE;

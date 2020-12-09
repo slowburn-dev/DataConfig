@@ -4,27 +4,26 @@ const FDcPropertyDatum FDcPropertyDatum::NONE = FDcPropertyDatum();
 
 FDcPropertyDatum::FDcPropertyDatum()
 {
-	Property = nullptr;
+	Property = FFieldVariant();
 	DataPtr = nullptr;
 }
 
-FDcPropertyDatum::FDcPropertyDatum(UField* InProperty, void* InDataPtr)
+FDcPropertyDatum::FDcPropertyDatum(FField* InProperty, void* InDataPtr)
 {
-	Property = InProperty;
+	Property = FFieldVariant(InProperty);
 	DataPtr = InDataPtr;
-}
-
-FDcPropertyDatum::FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
-{
-	check(StructClass);
-	Property = StructClass;
-	DataPtr = StructPtr;
 }
 
 FDcPropertyDatum::FDcPropertyDatum(UObject* ClassObject)
 {
 	check(ClassObject);
-	Property = ClassObject->GetClass();
+	Property = FFieldVariant(ClassObject->GetClass());
 	DataPtr = ClassObject;
 }
 
+FDcPropertyDatum::FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
+{
+	check(StructClass);
+	Property = FFieldVariant(StructClass);
+	DataPtr = StructPtr;
+}

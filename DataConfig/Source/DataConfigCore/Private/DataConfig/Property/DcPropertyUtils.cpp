@@ -28,7 +28,7 @@ bool IsEffectiveProperty(FProperty* Property)
 		;
 }
 
-bool IsScalarProperty(UField* Property)
+bool IsScalarProperty(FField* Property)
 {
 	check(Property);
 	bool bIsCompound = Property->IsA<FStructProperty>()
@@ -101,7 +101,7 @@ FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name)
 
 //	TODO [JUMPTABLE] use a jump table here rather than IsA
 //					 as the inheritance isn't even needed
-EDcDataEntry PropertyToDataEntry(UField* Property)
+EDcDataEntry PropertyToDataEntry(FField* Property)
 {
 	check(Property)
 	if (Property->IsA<FBoolProperty>()) return EDcDataEntry::Bool;
@@ -148,13 +148,11 @@ EDcDataEntry PropertyToDataEntry(UField* Property)
 	if (Property->IsA<FArrayProperty>()) return EDcDataEntry::ArrayRoot;
 	if (Property->IsA<FSetProperty>()) return EDcDataEntry::SetRoot;
 
-
-
 	checkNoEntry();
 	return EDcDataEntry::Ended;
 }
 
-FString GetFormatPropertyTypeName(UField* Property)
+FString GetFormatPropertyTypeName(FField* Property)
 {
 	check(Property);
 	//	TODO primitive types actually can use `GetCPPType`
@@ -181,63 +179,50 @@ FString GetFormatPropertyTypeName(UField* Property)
 	if (Property->IsA<FMulticastInlineDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
 	if (Property->IsA<FMulticastSparseDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
 
-	if (FEnumProperty* EnumProperty = Cast<FEnumProperty>(Property))
+	if (FEnumProperty* EnumProperty = CastField<FEnumProperty>(Property))
 	{
 		return FString::Printf(TEXT("E%s"), *EnumProperty->GetEnum()->GetName());
 	}
 
-	if (UScriptStruct* Struct = Cast<UScriptStruct>(Property))
-	{
-		return FString::Printf(TEXT("F%s"), *Struct->GetName());
-	}
-
-	if (FStructProperty* StructField = Cast<FStructProperty>(Property))
+	if (FStructProperty* StructField = CastField<FStructProperty>(Property))
 	{
 		return FString::Printf(TEXT("F%s"), *StructField->Struct->GetName());
 	}
 
+	if (FObjectProperty* ObjField = CastField<FObjectProperty>(Property))
 	{
-		//	order significant
-		if (UClass* Class = Cast<UClass>(Property))
-		{
-			return FString::Printf(TEXT("U%s"), *Class->GetName());
-		}
-
-		if (FObjectProperty* ObjField = Cast<FObjectProperty>(Property))
-		{
-			return FString::Printf(TEXT("U%s"), *ObjField->PropertyClass->GetName());
-		}
+		return FString::Printf(TEXT("U%s"), *ObjField->PropertyClass->GetName());
 	}
 
-	if (FMapProperty* MapProperty = Cast<FMapProperty>(Property))
+	if (FMapProperty* MapProperty = CastField<FMapProperty>(Property))
 	{
 		return FString::Printf(TEXT("TMap<%s, %s>"),
 			*GetFormatPropertyTypeName(MapProperty->KeyProp),
 			*GetFormatPropertyTypeName(MapProperty->ValueProp)
 		);
 	}
-	if (FArrayProperty* ArrayProperty = Cast<FArrayProperty>(Property))
+	if (FArrayProperty* ArrayProperty = CastField<FArrayProperty>(Property))
 	{
 		return FString::Printf(TEXT("TArray<%s>"),
 			*GetFormatPropertyTypeName(ArrayProperty->Inner)
 		);
 	}
 
-	if (FSetProperty* SetProperty = Cast<FSetProperty>(Property))
+	if (FSetProperty* SetProperty = CastField<FSetProperty>(Property))
 	{
 		return FString::Printf(TEXT("TSet<%s>"),
 			*GetFormatPropertyTypeName(SetProperty->ElementProp)
 			);
 	}
 
-	if (FWeakObjectProperty* WeakProperty = Cast<FWeakObjectProperty>(Property))
+	if (FWeakObjectProperty* WeakProperty = CastField<FWeakObjectProperty>(Property))
 	{
 		return FString::Printf(TEXT("TWeakObjectPtr<%s>"),
 			*GetFormatPropertyTypeName(WeakProperty->PropertyClass)
 		);
 	}
 
-	if (FLazyObjectProperty* LazyProperty = Cast<FLazyObjectProperty>(Property))
+	if (FLazyObjectProperty* LazyProperty = CastField<FLazyObjectProperty>(Property))
 	{
 		return FString::Printf(TEXT("TLazyObjectPtr<%s>"),
 			*GetFormatPropertyTypeName(LazyProperty->PropertyClass)
@@ -246,14 +231,14 @@ FString GetFormatPropertyTypeName(UField* Property)
 
 	{
 		//	order significant
-		if (FSoftClassProperty* SoftProperty = Cast<FSoftClassProperty>(Property))
+		if (FSoftClassProperty* SoftProperty = CastField<FSoftClassProperty>(Property))
 		{
 			return FString::Printf(TEXT("TSoftClassPtr<%s>"),
 				*GetFormatPropertyTypeName(SoftProperty->MetaClass)
 			);
 		}
 
-		if (FSoftObjectProperty* SoftProperty = Cast<FSoftObjectProperty>(Property))
+		if (FSoftObjectProperty* SoftProperty = CastField<FSoftObjectProperty>(Property))
 		{
 			return FString::Printf(TEXT("TSoftObjectPtr<%s>"),
 				*GetFormatPropertyTypeName(SoftProperty->PropertyClass)
@@ -261,7 +246,7 @@ FString GetFormatPropertyTypeName(UField* Property)
 		}
 	}
 
-	if (FInterfaceProperty* InterfaceProperty = Cast<FInterfaceProperty>(Property))
+	if (FInterfaceProperty* InterfaceProperty = CastField<FInterfaceProperty>(Property))
 	{
 		return FString::Printf(TEXT("TScriptInterface<%s>"),
 			*GetFormatPropertyTypeName(InterfaceProperty->InterfaceClass)
@@ -269,8 +254,45 @@ FString GetFormatPropertyTypeName(UField* Property)
 	}
 
 	checkNoEntry();
-
 	return FString();
+}
+
+FString GetFormatPropertyTypeName(UScriptStruct* Struct)
+{
+	check(Struct);
+	return FString::Printf(TEXT("F%s"), *Struct->GetName());
+}
+
+FString GetFormatPropertyTypeName(UClass* Class)
+{
+	check(Class);
+	return FString::Printf(TEXT("U%s"), *Class->GetName());
+}
+
+FString GetFormatPropertyTypeName(const FFieldVariant& Field)
+{
+	check(Field.IsValid());
+	if (Field.IsUObject())
+	{
+		UObject* Obj = Field.ToUObjectUnsafe();
+		if (UScriptStruct* Struct = Cast<UScriptStruct>(Obj))
+		{
+			return GetFormatPropertyTypeName(Struct);
+		}
+		else if (UClass* Class = Cast<UClass>(Obj))
+		{
+			return GetFormatPropertyTypeName(Class);
+		}
+		else
+		{
+			checkNoEntry();
+			return TEXT("<invalid>");
+		}
+	}
+	else
+	{
+		return GetFormatPropertyTypeName(Field.ToFieldUnsafe());
+	}
 }
 
 void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType)

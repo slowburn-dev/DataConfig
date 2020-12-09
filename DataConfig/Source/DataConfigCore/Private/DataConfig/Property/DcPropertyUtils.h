@@ -1,11 +1,14 @@
 #pragma once
 
+//	TODO namespace this and expose to Public
+//		as user deserialize code obviously need all these
 class FProperty;
 class UStruct;
 
+//	TODO eventually remove this method, because we support all property
 bool IsEffectiveProperty(FProperty* Property);
 
-bool IsScalarProperty(UField* Property);
+bool IsScalarProperty(FField* Property);
 
 size_t CountEffectiveProperties(UStruct* Struct);
 
@@ -14,9 +17,12 @@ FProperty* FirstEffectiveProperty(FProperty* Property);
 FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
 
 enum class EDcDataEntry : uint16;
-EDcDataEntry PropertyToDataEntry(UField* Property);
+EDcDataEntry PropertyToDataEntry(FField* Property);
 
-FString GetFormatPropertyTypeName(UField* Property);
+FString GetFormatPropertyTypeName(FField* Property);
+FString GetFormatPropertyTypeName(UScriptStruct* Struct);
+FString GetFormatPropertyTypeName(UClass* Class);
+FString GetFormatPropertyTypeName(const FFieldVariant& Field);
 
 template<typename TState, typename TStorage, typename... TArgs>
 TState& Emplace(TStorage* Storage, TArgs&&... Args)
@@ -65,49 +71,49 @@ static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes"
 
 //	for read datum -> scalar
 template<typename TProperty, typename TScalar>
-void ReadPropertyValueConversion(UField* Property, void const* Ptr, TScalar* OutPtr)
+void ReadPropertyValueConversion(FField* Property, void const* Ptr, TScalar* OutPtr)
 {
-	*OutPtr = (const TScalar&)(CastChecked<TProperty>(Property)->GetPropertyValue(Ptr));
+	*OutPtr = (const TScalar&)(CastFieldChecked<TProperty>(Property)->GetPropertyValue(Ptr));
 }
 
 template<>
-void ReadPropertyValueConversion<FBoolProperty, bool>(UField* Property, void const* Ptr, bool* OutPtr)
+void ReadPropertyValueConversion<FBoolProperty, bool>(FField* Property, void const* Ptr, bool* OutPtr)
 {
-	*OutPtr = CastChecked<FBoolProperty>(Property)->GetPropertyValue(Ptr);
+	*OutPtr = CastFieldChecked<FBoolProperty>(Property)->GetPropertyValue(Ptr);
 }
 
 template<>
-void ReadPropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(UField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
+void ReadPropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
 {
-	*OutPtr = CastChecked<FSoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
+	*OutPtr = CastFieldChecked<FSoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
 }
 
 template<>
-void ReadPropertyValueConversion<FSoftClassProperty, FSoftClassPath>(UField* Property, void const* Ptr, FSoftClassPath* OutPtr)
+void ReadPropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void const* Ptr, FSoftClassPath* OutPtr)
 {
 	static_assert(sizeof(FSoftClassPath) == sizeof(FSoftObjectPath), "should have same layout");
-	*OutPtr = (const FSoftClassPath&)(CastChecked<FSoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
+	*OutPtr = (const FSoftClassPath&)(CastFieldChecked<FSoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
 }
 
 //	for writing scalar -> datum
 template<typename TProperty, typename TScalar>
-void WritePropertyValueConversion(UField* Property, void* Ptr, const TScalar& Value)
+void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)
 {
-	CastChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
+	CastFieldChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
 }
 
 template<>
-void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(UField* Property, void* Ptr, const FSoftObjectPath& Value)
+void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void* Ptr, const FSoftObjectPath& Value)
 {
 	FSoftObjectPtr SoftPtr(Value);
-	CastChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+	CastFieldChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
 template<>
-void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(UField* Property, void* Ptr, const FSoftClassPath& Value)
+void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void* Ptr, const FSoftClassPath& Value)
 {
 	FSoftObjectPtr SoftPtr(Value);
-	CastChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+	CastFieldChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
 namespace DcPropertyHighlight
