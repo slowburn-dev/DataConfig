@@ -20,9 +20,9 @@ struct FDcBaseWriteState
 
 	virtual FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk);
 	virtual FDcResult WriteName(const FName& Value);
-	virtual FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 	virtual FDcResult SkipWrite();
-	virtual FDcResult PeekWriteProperty(UField** OutProperty);
+	virtual FDcResult PeekWriteProperty(FFieldVariant* OutProperty);
 
 	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
 
@@ -86,9 +86,9 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	EDcPropertyWriteType GetType() override;
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteStructRoot(const FName& Name);
 	FDcResult WriteStructEnd(const FName& Name);
@@ -149,9 +149,9 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	EDcPropertyWriteType GetType() override;
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteNil();
 	FDcResult WriteClassRoot(const FDcObjectPropertyStat& Class);
@@ -192,9 +192,9 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 	EDcPropertyWriteType GetType() override;
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteMapRoot();
 	FDcResult WriteMapEnd();
@@ -229,9 +229,9 @@ struct FDcWriteStateArray : public FDcBaseWriteState
 	EDcPropertyWriteType GetType() override;
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteArrayRoot();
 	FDcResult WriteArrayEnd();
@@ -269,9 +269,9 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 	EDcPropertyWriteType GetType() override;
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(UField** OutProperty) override;
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteSetRoot();
 	FDcResult WriteSetEnd();

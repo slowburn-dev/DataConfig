@@ -9,6 +9,7 @@ struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 {
 	FDcResult Deserialize(FDcDeserializeContext& Ctx);
 
+	//	TODO overload it to take FField/UClass/UScriptStruct 
 	void AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate);
 	void AddPredicatedHandler(FDcDeserializePredicate&& Predicate, FDcDeserializeDelegate&& Delegate);
 

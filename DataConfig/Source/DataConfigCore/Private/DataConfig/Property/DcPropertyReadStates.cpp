@@ -12,11 +12,11 @@ static FDcPropertyReader* _GetPropertyReader()
 namespace DcPropertyReadStateDetails
 {
 
-static FDcResult CheckExpectedProperty(FProperty* Property, UClass* ExpectedPropertyClass)
+static FDcResult CheckExpectedProperty(FProperty* Property, FFieldClass* ExpectedPropertyClass)
 {
 	if (!Property->IsA(ExpectedPropertyClass))
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)
-		<< ExpectedPropertyClass->ClassConfigName << Property->GetFName() << Property->GetClass()->ClassConfigName
+		<< ExpectedPropertyClass->GetFName() << Property->GetFName() << Property->GetClass()->GetFName()
 		<< _GetPropertyReader()->FormatHighlight();
 	else
 		return DcOk();
@@ -27,7 +27,7 @@ static FDcResult CheckExpectedProperty(FProperty* Property, UClass* ExpectedProp
 
 FDcResult FDcBaseReadState::PeekRead(EDcDataEntry* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseReadState::ReadName(FName* OutNamePtr) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcBaseReadState::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseReadState::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) { return DC_FAIL(DcDCommon, NotImplemented); }
 
 void FDcBaseReadState::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
@@ -119,7 +119,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 	}
 }
 
-FDcResult FDcReadStateClass::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateClass::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -363,7 +363,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 	}
 }
 
-FDcResult FDcReadStateStruct::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateStruct::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::ExpectKey)
 	{
@@ -425,6 +425,7 @@ FDcResult FDcReadStateStruct::ReadStructRoot(FName* OutNamePtr)
 {
 	if (State == EState::ExpectRoot)
 	{
+		//	TODO ReadOut
 		if (OutNamePtr)
 			*OutNamePtr = StructClass->GetFName();
 
@@ -454,6 +455,7 @@ FDcResult FDcReadStateStruct::ReadStructEnd(FName* OutNamePtr)
 	{
 		State = EState::Ended;
 
+		//	TODO ReadOut
 		if (OutNamePtr)
 		{
 			*OutNamePtr = StructClass->GetFName();
@@ -515,7 +517,7 @@ FDcResult FDcReadStateMap::ReadName(FName* OutNamePtr)
 	return DcOk();
 }
 
-FDcResult FDcReadStateMap::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateMap::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -672,7 +674,7 @@ FDcResult FDcReadStateArray::ReadName(FName* OutNamePtr)
 	return DcOk();
 }
 
-FDcResult FDcReadStateArray::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateArray::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State == EState::Ended
 		|| State == EState::ExpectRoot
@@ -810,7 +812,7 @@ FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
 	return DcOk();
 }
 
-FDcResult FDcReadStateSet::ReadDataEntry(UClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+FDcResult FDcReadStateSet::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
 {
 	if (State != EState::ExpectItem)
 		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
