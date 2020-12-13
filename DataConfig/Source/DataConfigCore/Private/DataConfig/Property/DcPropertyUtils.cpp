@@ -2,9 +2,14 @@
 #include "UObject/UnrealType.h"
 #include "UObject/TextProperty.h"
 
+namespace DcPropertyUtils
+{
+
 bool IsEffectiveProperty(FProperty* Property)
 {
 	check(Property);
+#if DC_BUILD_DEBUG
+	//	this is for handling cases that UE4 added new property and we're not supporting it yet
 	return Property->IsA<FBoolProperty>()
 		|| Property->IsA<FNumericProperty>()
 		|| Property->IsA<FStrProperty>()
@@ -26,6 +31,9 @@ bool IsEffectiveProperty(FProperty* Property)
 		|| Property->IsA<FMulticastInlineDelegateProperty>()
 		|| Property->IsA<FMulticastSparseDelegateProperty>()
 		;
+#else
+	return true;
+#endif
 }
 
 bool IsScalarProperty(FField* Property)
@@ -321,87 +329,24 @@ FString GetFormatPropertyTypeName(const FFieldVariant& Field)
 	}
 }
 
-void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType)
+FName GetStructTypeName(FFieldVariant& Property)
 {
-	OutSegments.Add(TEXT("<nil>"));
-}
-
-void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property)
-{
-	if (SegType != EFormatSeg::ParentIsContainer)
+	if (!Property.IsValid())
 	{
-		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-			*GetFormatPropertyTypeName(Class),
-			*DcTypeUtils::SafeNameToString(ObjectName)
-		));
+		return FName();
 	}
-
-	if (Property != nullptr
-		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
+	else if (Property.IsA<FStructProperty>())
 	{
-		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-			*GetFormatPropertyTypeName(Property),
-			*Property->GetName()));
+		return CastFieldChecked<FStructProperty>(Property.ToFieldUnsafe())->Struct->GetFName();
+	}
+	else if (Property.IsA<UScriptStruct>())
+	{
+		return CastChecked<UScriptStruct>(Property.ToUObjectUnsafe())->GetFName();
+	}
+	else
+	{
+		return FName();
 	}
 }
 
-void DcPropertyHighlight::FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, FProperty* Property)
-{
-	if (SegType != EFormatSeg::ParentIsContainer)
-	{
-		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-			*GetFormatPropertyTypeName(StructClass),
-			*DcTypeUtils::SafeNameToString(StructName)
-		));
-	}
-
-	if (Property != nullptr
-		&& (SegType == EFormatSeg::Last || IsScalarProperty(Property)))
-	{
-		OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
-			*GetFormatPropertyTypeName(Property),
-			*Property->GetName()));
-	}
-}
-
-void DcPropertyHighlight::FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, FMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue)
-{
-	check(MapProperty);
-	FString Seg = FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyTypeName(MapProperty),
-		*MapProperty->GetName()
-	);
-
-	if (bIsKeyOrValue)
-		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
-
-	OutSegments.Add(MoveTemp(Seg));
-}
-
-void DcPropertyHighlight::FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, FArrayProperty* ArrayProperty, uint16 Index, bool bIsItem)
-{
-	check(ArrayProperty);
-	FString Seg = FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyTypeName(ArrayProperty),
-		*ArrayProperty->Inner->GetName()
-	);
-
-	if (bIsItem)
-		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
-
-	OutSegments.Add(MoveTemp(Seg));
-}
-
-void DcPropertyHighlight::FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, FSetProperty* SetProperty, uint16 Index, bool bIsItem)
-{
-	check(SetProperty);
-	FString Seg = FString::Printf(TEXT("(%s)%s"),
-		*GetFormatPropertyTypeName(SetProperty),
-		*SetProperty->ElementProp->GetName()
-	);
-
-	if (bIsItem)
-		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
-
-	OutSegments.Add(MoveTemp(Seg));
-}
+}	// namespace DcPropertyUtils

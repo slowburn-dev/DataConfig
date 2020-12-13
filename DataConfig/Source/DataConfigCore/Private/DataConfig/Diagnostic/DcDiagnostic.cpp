@@ -61,7 +61,7 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	}
 	else if (Var.DataType == EDcDataEntry::Name)
 	{
-		return FStringFormatArg(DcTypeUtils::SafeNameToString(Var.GetValue<FName>()).ReplaceCharWithEscapedChar());
+		return FStringFormatArg(DcPropertyUtils::SafeNameToString(Var.GetValue<FName>()).ReplaceCharWithEscapedChar());
 	}
 	else if (Var.DataType == EDcDataEntry::Int8)
 	{

@@ -83,7 +83,7 @@ static void PopState(FDcPropertyWriter* Writer)
 template<typename TScalar>
 FORCEINLINE FDcResult WriteTopStateScalarProperty(FDcPropertyWriter* Self, const TScalar& Value)
 {
-	using TProperty = TPropertyTypeMap<TScalar>::Type;
+	using TProperty = DcPropertyUtils::TPropertyTypeMap<TScalar>::Type;
 
 	FScopedStackedWriter StackedWriter(Self);
 
@@ -519,7 +519,7 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::ArrayRoot << PropertyToDataEntry(NextProperty);
+			<< EDcDataEntry::ArrayRoot << DcPropertyUtils::PropertyToDataEntry(NextProperty);
 	}
 }
 

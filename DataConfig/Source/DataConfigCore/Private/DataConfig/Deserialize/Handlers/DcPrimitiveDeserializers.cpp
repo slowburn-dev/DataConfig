@@ -1,6 +1,7 @@
 #include "DataConfig/Deserialize/Handlers/DcPrimitiveDeserializers.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 
 namespace DcHandlers {
 
@@ -72,7 +73,7 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 	{
 		FName Value;
 		DC_TRY(Ctx.Reader->ReadName(&Value));
-		DC_TRY(Ctx.Writer->WriteString(DcTypeUtils::SafeNameToString(Value)));
+		DC_TRY(Ctx.Writer->WriteString(DcPropertyUtils::SafeNameToString(Value)));
 		return DcOkWithProcessed(OutRet);
 	}
 	else if (Next == EDcDataEntry::String)

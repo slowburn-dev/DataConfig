@@ -85,7 +85,7 @@ FDcResult FDcReadStateClass::PeekRead(EDcDataEntry* OutPtr)
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		ReadOut(OutPtr, PropertyToDataEntry(Property));
+		ReadOut(OutPtr, DcPropertyUtils::PropertyToDataEntry(Property));
 		return DcOk();
 	}
 	else
@@ -158,7 +158,7 @@ FDcResult FDcReadStateClass::EndReadValue()
 {
 	if (State == EState::ExpectValue)
 	{
-		Property = NextEffectiveProperty(Property);
+		Property = DcPropertyUtils::NextEffectiveProperty(Property);
 		if (Property == nullptr)
 		{
 			State = EState::ExpectEnd;
@@ -218,7 +218,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 					OutClassPtr->Reference = EDcObjectPropertyControl::ExpandObject;
 				}
 
-				Property = FirstEffectiveProperty(Cls->PropertyLink);
+				Property = DcPropertyUtils::FirstEffectiveProperty(Cls->PropertyLink);
 				if (Property == nullptr)
 				{
 					State = EState::ExpectEnd;
@@ -324,7 +324,7 @@ FDcResult FDcReadStateStruct::PeekRead(EDcDataEntry* OutPtr)
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		ReadOut(OutPtr, PropertyToDataEntry(Property));
+		ReadOut(OutPtr, DcPropertyUtils::PropertyToDataEntry(Property));
 		return DcOk();
 	}
 	else if (State == EState::Ended)
@@ -402,7 +402,7 @@ FDcResult FDcReadStateStruct::EndReadValue()
 {
 	if (State == EState::ExpectValue)
 	{
-		Property = NextEffectiveProperty(Property);
+		Property = DcPropertyUtils::NextEffectiveProperty(Property);
 		if (Property == nullptr)
 		{
 			State = EState::ExpectEnd;
@@ -429,7 +429,7 @@ FDcResult FDcReadStateStruct::ReadStructRoot(FName* OutNamePtr)
 		if (OutNamePtr)
 			*OutNamePtr = StructClass->GetFName();
 
-		Property = FirstEffectiveProperty(StructClass->PropertyLink);
+		Property = DcPropertyUtils::FirstEffectiveProperty(StructClass->PropertyLink);
 		if (Property == nullptr)
 		{
 			State = EState::ExpectEnd;
@@ -493,13 +493,13 @@ FDcResult FDcReadStateMap::PeekRead(EDcDataEntry* OutPtr)
 	else if (State == EState::ExpectKey)
 	{
 		check(MapProperty);
-		ReadOut(OutPtr, PropertyToDataEntry(MapProperty->KeyProp));
+		ReadOut(OutPtr, DcPropertyUtils::PropertyToDataEntry(MapProperty->KeyProp));
 		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(MapProperty);
-		ReadOut(OutPtr, PropertyToDataEntry(MapProperty->ValueProp));
+		ReadOut(OutPtr, DcPropertyUtils::PropertyToDataEntry(MapProperty->ValueProp));
 		return DcOk();
 	}
 	else
@@ -590,8 +590,8 @@ FDcResult FDcReadStateMap::ReadMapRoot()
 	if (State == EState::ExpectRoot)
 	{
 		//	check map effectiveness
-		if (!IsEffectiveProperty(MapProperty->KeyProp)
-			|| !IsEffectiveProperty(MapProperty->ValueProp))
+		if (!DcPropertyUtils::IsEffectiveProperty(MapProperty->KeyProp)
+			|| !DcPropertyUtils::IsEffectiveProperty(MapProperty->ValueProp))
 		{
 			State = EState::ExpectEnd;
 			return DcOk();
@@ -651,7 +651,7 @@ FDcResult FDcReadStateArray::PeekRead(EDcDataEntry* OutPtr)
 	else if (State == EState::ExpectItem)
 	{
 		check(ArrayProperty->Inner);
-		ReadOut(OutPtr, PropertyToDataEntry(ArrayProperty->Inner));
+		ReadOut(OutPtr, DcPropertyUtils::PropertyToDataEntry(ArrayProperty->Inner));
 		return DcOk();
 	}
 	else if (State == EState::Ended)
@@ -728,7 +728,7 @@ FDcResult FDcReadStateArray::ReadArrayRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
-		if (!IsEffectiveProperty(ArrayProperty->Inner))
+		if (!DcPropertyUtils::IsEffectiveProperty(ArrayProperty->Inner))
 		{
 			State = EState::ExpectEnd;
 			return DcOk();
@@ -788,7 +788,7 @@ FDcResult FDcReadStateSet::PeekRead(EDcDataEntry* OutPtr)
 	else if (State == EState::ExpectItem)
 	{
 		check(SetProperty->ElementProp);
-		ReadOut(OutPtr, PropertyToDataEntry(SetProperty->ElementProp));
+		ReadOut(OutPtr, DcPropertyUtils::PropertyToDataEntry(SetProperty->ElementProp));
 		return DcOk();
 	}
 	else if (State == EState::Ended)
@@ -842,7 +842,7 @@ FDcResult FDcReadStateSet::ReadSetRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
-		if (!IsEffectiveProperty(SetProperty->ElementProp))
+		if (!DcPropertyUtils::IsEffectiveProperty(SetProperty->ElementProp))
 		{
 			State = EState::ExpectEnd;
 			return DcOk();

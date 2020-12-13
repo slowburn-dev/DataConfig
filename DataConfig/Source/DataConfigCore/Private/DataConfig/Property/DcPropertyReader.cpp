@@ -110,7 +110,7 @@ void ReadPropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Pro
 template<typename TScalar>
 FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScalar* OutPtr)
 {
-	using TProperty = TPropertyTypeMap<TScalar>::Type;
+	using TProperty = DcPropertyUtils::TPropertyTypeMap<TScalar>::Type;
 
 	FScopedStackedReader StackedReader(Self);
 

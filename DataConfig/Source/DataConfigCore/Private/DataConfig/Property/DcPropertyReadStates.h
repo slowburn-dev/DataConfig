@@ -2,6 +2,7 @@
 
 #include "UObject/UnrealType.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Property/DcPropertyStatesCommon.h"
 
 enum class EDcPropertyReadType
 {

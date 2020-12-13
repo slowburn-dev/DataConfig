@@ -1,6 +1,6 @@
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "Misc/OutputDevice.h"
-#include "DataConfig/Misc/DcTypeUtils.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 
 static const FString _PER_INDENT = FString(TEXT("    "));
 
@@ -27,7 +27,7 @@ FDcResult FDcPrettyPrintWriter::WriteBool(bool Value)
 
 FDcResult FDcPrettyPrintWriter::WriteName(const FName& Value)
 {
-	Output.Logf(TEXT("%s- name: \"%s\""), *Indent, *DcTypeUtils::SafeNameToString(Value));
+	Output.Logf(TEXT("%s- name: \"%s\""), *Indent, *DcPropertyUtils::SafeNameToString(Value));
 	return DcOk();
 }
 
@@ -45,13 +45,13 @@ FDcResult FDcPrettyPrintWriter::WriteText(const FText& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
 {
-	Output.Logf(TEXT("%s- enum: %s,%s,%d"), *Indent, *DcTypeUtils::SafeNameToString(Value.Type), *DcTypeUtils::SafeNameToString(Value.Name), Value.Value);
+	Output.Logf(TEXT("%s- enum: %s,%s,%d"), *Indent, *DcPropertyUtils::SafeNameToString(Value.Type), *DcPropertyUtils::SafeNameToString(Value.Name), Value.Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FName& Name)
 {
-	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *DcTypeUtils::SafeNameToString(Name));
+	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Name));
 	Indent += _PER_INDENT;
 	return DcOk();
 }
@@ -59,13 +59,13 @@ FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FName& Name)
 FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FName& Name)
 {
 	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- struct end: <%s>"), *Indent, *DcTypeUtils::SafeNameToString(Name));
+	Output.Logf(TEXT("%s- struct end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Name));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcObjectPropertyStat& Class)
 {
-	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *DcTypeUtils::SafeNameToString(Class.Name));
+	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
 	Indent += _PER_INDENT;
 	return DcOk();
 }
@@ -73,7 +73,7 @@ FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcObjectPropertyStat& Clas
 FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcObjectPropertyStat& Class)
 {
 	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *DcTypeUtils::SafeNameToString(Class.Name));
+	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
 	return DcOk();
 }
 

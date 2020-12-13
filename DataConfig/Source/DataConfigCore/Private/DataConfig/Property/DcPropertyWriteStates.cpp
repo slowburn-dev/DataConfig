@@ -88,7 +88,7 @@ FDcResult FDcWriteStateStruct::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	else if (State == EState::ExpectValue)
 	{
 		check(Property);
-		EDcDataEntry Actual = PropertyToDataEntry(Property);
+		EDcDataEntry Actual = DcPropertyUtils::PropertyToDataEntry(Property);
 
 		ReadOut(bOutOk, Next == Actual || DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual));
 		return DcOk();
@@ -108,7 +108,7 @@ FDcResult FDcWriteStateStruct::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
-		Property = NextPropertyByName(StructClass->PropertyLink, Value);
+		Property = DcPropertyUtils::NextPropertyByName(StructClass->PropertyLink, Value);
 		if (Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value << _GetPropertyWriter()->FormatHighlight();
@@ -248,7 +248,7 @@ FDcResult FDcWriteStateClass::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	else if (State == EState::ExpectExpandValue)
 	{
 		check(!Datum.IsNone());
-		EDcDataEntry Actual = PropertyToDataEntry(Datum.CastFieldChecked());
+		EDcDataEntry Actual = DcPropertyUtils::PropertyToDataEntry(Datum.CastFieldChecked());
 		ReadOut(bOutOk, Next == Actual || DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual));
 		return DcOk();
 	}
@@ -267,7 +267,7 @@ FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectExpandKeyOrEnd)
 	{
-		Datum.Property = NextPropertyByName(Class->PropertyLink, Value);
+		Datum.Property = DcPropertyUtils::NextPropertyByName(Class->PropertyLink, Value);
 		if (Datum.Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value << _GetPropertyWriter()->FormatHighlight();
@@ -464,13 +464,13 @@ FDcResult FDcWriteStateMap::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	else if (State == EState::ExpectKeyOrEnd)
 	{
 		check(MapProperty);
-		ReadOut(bOutOk, Next == EDcDataEntry::MapEnd || Next == PropertyToDataEntry(MapProperty->KeyProp));
+		ReadOut(bOutOk, Next == EDcDataEntry::MapEnd || Next == DcPropertyUtils::PropertyToDataEntry(MapProperty->KeyProp));
 		return DcOk();
 	}
 	else if (State == EState::ExpectValue)
 	{
 		check(MapProperty);
-		EDcDataEntry Actual = PropertyToDataEntry(MapProperty->ValueProp);
+		EDcDataEntry Actual = DcPropertyUtils::PropertyToDataEntry(MapProperty->ValueProp);
 		ReadOut(bOutOk, Next == Actual || DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual));
 		return DcOk();
 	}
@@ -638,7 +638,7 @@ FDcResult FDcWriteStateArray::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 		}
 		else
 		{
-			EDcDataEntry Actual = PropertyToDataEntry(ArrayProperty->Inner);
+			EDcDataEntry Actual = DcPropertyUtils::PropertyToDataEntry(ArrayProperty->Inner);
 			if (Next == Actual
 				|| DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual))
 			{
@@ -767,7 +767,7 @@ FDcResult FDcWriteStateSet::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 		}
 		else
 		{
-			EDcDataEntry Actual = PropertyToDataEntry(SetProperty->ElementProp);
+			EDcDataEntry Actual = DcPropertyUtils::PropertyToDataEntry(SetProperty->ElementProp);
 			if (Next == Actual
 				|| DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual))
 			{

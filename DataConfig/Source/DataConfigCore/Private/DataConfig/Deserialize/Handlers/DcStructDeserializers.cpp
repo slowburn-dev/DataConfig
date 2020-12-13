@@ -7,26 +7,6 @@
 
 namespace DcHandlers {
 
-static FName GetStructName(FFieldVariant& Property)
-{
-	if (!Property.IsValid())
-	{
-		return FName();
-	}
-	else if (Property.IsA<FStructProperty>())
-	{
-		return CastFieldChecked<FStructProperty>(Property.ToFieldUnsafe())->Struct->GetFName();
-	}
-	else if (Property.IsA<UScriptStruct>())
-	{
-		return CastChecked<UScriptStruct>(Property.ToUObjectUnsafe())->GetFName();
-	}
-	else
-	{
-		return FName();
-	}
-}
-
 FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
@@ -45,7 +25,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 	if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
-		DC_TRY(Ctx.Writer->WriteStructRoot(GetStructName(Ctx.TopProperty())));
+		DC_TRY(Ctx.Writer->WriteStructRoot(DcPropertyUtils::GetStructTypeName(Ctx.TopProperty())));
 
 		EDcDataEntry CurPeek;
 		while (true)
@@ -74,7 +54,7 @@ FDcResult DATACONFIGCORE_API HandlerStructRootDeserialize(FDcDeserializeContext&
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 		}
 
-		DC_TRY(Ctx.Writer->WriteStructEnd(GetStructName(Ctx.TopProperty())));
+		DC_TRY(Ctx.Writer->WriteStructEnd(DcPropertyUtils::GetStructTypeName(Ctx.TopProperty())));
 
 		return DcOkWithProcessed(OutRet);
 	}

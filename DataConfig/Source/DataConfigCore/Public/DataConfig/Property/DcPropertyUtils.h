@@ -1,13 +1,13 @@
 #pragma once
 
-//	TODO namespace this and expose to Public
-//		as user deserialize code obviously need all these
 class FProperty;
 class UStruct;
+enum class EDcDataEntry : uint16;
 
-//	TODO eventually remove this method, because we support all property
+namespace DcPropertyUtils
+{
+
 bool IsEffectiveProperty(FProperty* Property);
-
 bool IsScalarProperty(FField* Property);
 
 size_t CountEffectiveProperties(UStruct* Struct);
@@ -16,8 +16,6 @@ FProperty* NextEffectiveProperty(FProperty* Property);
 FProperty* FirstEffectiveProperty(FProperty* Property);
 FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
 
-enum class EDcDataEntry : uint16;
-
 EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
 EDcDataEntry PropertyToDataEntry(FField* Property);
 
@@ -25,13 +23,6 @@ FString GetFormatPropertyTypeName(FField* Property);
 FString GetFormatPropertyTypeName(UScriptStruct* Struct);
 FString GetFormatPropertyTypeName(UClass* Class);
 FString GetFormatPropertyTypeName(const FFieldVariant& Field);
-
-template<typename TState, typename TStorage, typename... TArgs>
-TState& Emplace(TStorage* Storage, TArgs&&... Args)
-{
-	static_assert(sizeof(TState) <= sizeof(TStorage), "storage too small");
-	return *(new (Storage) TState(Forward<TArgs>(Args)...));
-}
 
 //	Cpp type to Property
 template<typename T>
@@ -71,9 +62,6 @@ template<> struct TPropertyTypeMap<FSparseDelegate> { using Type = FMulticastSpa
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes");
 
-namespace DcPropertyUtils
-{
-
 template<typename T>
 FORCEINLINE T* CastFieldVariant(FFieldVariant& FieldVariant)
 {
@@ -93,26 +81,12 @@ FORCEINLINE UScriptStruct* CastFieldVariant<UScriptStruct>(FFieldVariant& FieldV
 	return ::Cast<UScriptStruct>(FieldVariant.ToUObject());
 }
 
-}	// namespace DcPropertyUtils
-
-namespace DcPropertyHighlight
+FORCEINLINE FString SafeNameToString(const FName& Value)
 {
-	enum class EFormatSeg
-	{
-		Normal,
-		ParentIsContainer,
-		Last,
-	};
+	return Value.IsValid() ? Value.ToString() : TEXT("<invalid-name>");
+}
 
-	void FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType);
-	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property);
-	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, FProperty* Property);
-	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, FMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue);;
-	void FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, FArrayProperty* ArrayProperty, uint16 Index, bool bIsItem);
-	void FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, FSetProperty* SetProperty, uint16 Index, bool bIsItem);
+FName GetStructTypeName(FFieldVariant& Property);
 
-} // namespace DcPropertyHighlight
-
-
-
+}	// namespace DcPropertyUtils
 

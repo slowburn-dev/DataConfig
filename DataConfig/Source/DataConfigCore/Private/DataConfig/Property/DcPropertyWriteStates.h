@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UObject/UnrealType.h"
+#include "DataConfig/Property/DcPropertyStatesCommon.h"
 
 enum class EDcPropertyWriteType
 {
