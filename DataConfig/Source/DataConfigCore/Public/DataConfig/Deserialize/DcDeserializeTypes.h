@@ -23,13 +23,13 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 	FString Name;
 	TArray<FName, TInlineAllocator<4>> Pathes;
 	TArray<UObject*, TInlineAllocator<4>> Objects;
-	TArray<UField*, TInlineAllocator<8>> Properties;
+	TArray<FFieldVariant, TInlineAllocator<8>> Properties;
 
 	FDcDeserializer* Deserializer;
 	FDcReader* Reader;
 	FDcPropertyWriter* Writer;
 
-	FORCEINLINE UField* TopProperty() { return Properties.Top(); }
+	FORCEINLINE FFieldVariant& TopProperty() { return Properties.Top(); }
 	FORCEINLINE UObject* TopObject() { return Objects.Top(); }
 
 	void Prepare();
@@ -70,15 +70,12 @@ DECLARE_DELEGATE_RetVal_OneParam(EDcDeserializePredicateResult, FDcDeserializePr
 
 struct DATACONFIGCORE_API FDcScopedProperty
 {
-	FDcScopedProperty(FDcDeserializeContext& InCtx)
-		: Property(nullptr)
-		, Ctx(InCtx)
-	{}
-
-	FDcResult PushProperty();
+	FDcScopedProperty(FDcDeserializeContext& InCtx);
 	~FDcScopedProperty();
 
-	UField* Property;
+	FDcResult PushProperty();
+
+	FFieldVariant Property;
 	FDcDeserializeContext& Ctx;
 };
 

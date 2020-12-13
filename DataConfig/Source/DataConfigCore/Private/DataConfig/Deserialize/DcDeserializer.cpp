@@ -3,7 +3,10 @@
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "Misc/ScopeExit.h"
 
-static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
+namespace DcDeserializerDetails
+{
+
+static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
 	EDcDeserializeResult HandlerRet;
 	DC_TRY(Handler.Execute(Ctx, HandlerRet));
@@ -12,7 +15,7 @@ static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeser
 	if (HandlerRet == EDcDeserializeResult::CanNotProcess)
 	{
 		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
-			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
+			<< Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
 	}
 	else
 	{
@@ -20,27 +23,42 @@ static FDcResult _ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeser
 	}
 }
 
-static FDcResult _DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& Ctx)
+static FDcResult DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& Ctx)
 {
 	//	use predicated deserializers first, if it's not handled then try direct handlers
 	for (auto& PredPair : Self.PredicatedDeserializers)
 	{
 		if (PredPair.Key.Execute(Ctx) == EDcDeserializePredicateResult::Process)
 		{
-			return _ExecuteDeserializeHandler(Ctx, PredPair.Value);
+			return ExecuteDeserializeHandler(Ctx, PredPair.Value);
 		}
 	}
 
-	UField* Property = Ctx.TopProperty();
-	FDcDeserializeDelegate* HandlerPtr = Self.DirectDeserializersMap.Find(Property->GetClass());
-	if (HandlerPtr == nullptr)
+	FFieldVariant& Property = Ctx.TopProperty();
+	FDcDeserializeDelegate* HandlerPtr;
+	if (Property.IsUObject())
 	{
-		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
-			<< Ctx.TopProperty()->GetFName() << Ctx.TopProperty()->GetClass()->GetFName();
+		UClass* Class = CastChecked<UClass>(Property.ToUObjectUnsafe());
+		HandlerPtr = Self.UClassDeserializerMap.Find(Class);
+		if (HandlerPtr == nullptr)
+			return DC_FAIL(DcDDeserialize, NoMatchingHandler)
+				<< Ctx.TopProperty().GetFName() << Class->GetFName();
+	}
+	else
+	{
+		FField* Field = Property.ToFieldUnsafe();
+		check(Field->IsValidLowLevel());
+		FFieldClass* FieldClass = Field->GetClass();
+		HandlerPtr = Self.FieldClassDeserializerMap.Find(FieldClass);
+		if (HandlerPtr == nullptr)
+			return DC_FAIL(DcDDeserialize, NoMatchingHandler)
+				<< Ctx.TopProperty().GetFName() << FieldClass->GetFName();
 	}
 
-	return _ExecuteDeserializeHandler(Ctx, *HandlerPtr);
+	return ExecuteDeserializeHandler(Ctx, *HandlerPtr);
 }
+
+}	// namespace DcDeserializerDetails
 
 FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 {
@@ -58,11 +76,11 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 			Ctx.State = ECtxState::DeserializeEnded;
 		};
 
-		return _DeserializeBody(*this, Ctx);
+		return DcDeserializerDetails::DeserializeBody(*this, Ctx);
 	}
 	else if (Ctx.State == FDcDeserializeContext::EState::DeserializeInProgress)
 	{
-		return _DeserializeBody(*this, Ctx);
+		return DcDeserializerDetails::DeserializeBody(*this, Ctx);
 	}
 	else
 	{
@@ -72,8 +90,14 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 
 void FDcDeserializer::AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate)
 {
-	check(!DirectDeserializersMap.Contains(PropertyClass));
-	DirectDeserializersMap.Add(PropertyClass, MoveTemp(Delegate));
+	check(!UClassDeserializerMap.Contains(PropertyClass));
+	UClassDeserializerMap.Add(PropertyClass, MoveTemp(Delegate));
+}
+
+void FDcDeserializer::AddDirectHandler(FFieldClass* PropertyClass, FDcDeserializeDelegate&& Delegate)
+{
+	check(!FieldClassDeserializerMap.Contains(PropertyClass));
+	FieldClassDeserializerMap.Add(PropertyClass, MoveTemp(Delegate));
 }
 
 void FDcDeserializer::AddPredicatedHandler(FDcDeserializePredicate&& Predicate, FDcDeserializeDelegate&& Delegate)

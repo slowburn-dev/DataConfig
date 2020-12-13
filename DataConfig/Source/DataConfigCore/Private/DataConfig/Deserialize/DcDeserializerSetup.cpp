@@ -13,6 +13,7 @@ void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 	using namespace DcHandlers;
 
 	//	Primitives
+	//	TODO numerics
 	Deserializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
 	Deserializer.AddDirectHandler(FNameProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
 	Deserializer.AddDirectHandler(FStrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStringDeserialize));

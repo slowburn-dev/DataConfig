@@ -7,15 +7,19 @@
 
 namespace DcHandlers {
 
-static FName GetStructName(UField* Property)
+static FName GetStructName(FFieldVariant& Property)
 {
-	if (FStructProperty* StructProperty = Cast<FStructProperty>(Property))
+	if (!Property.IsValid())
 	{
-		return StructProperty->Struct->GetFName();
+		return FName();
 	}
-	else if (UScriptStruct* StructClass = Cast<UScriptStruct>(Property))
+	if (Property.IsA<FStructProperty>())
 	{
-		return StructClass->GetFName();
+		return CastFieldChecked<FStructProperty>(Property.ToFieldUnsafe()).GetFName();
+	}
+	else if (Property.IsA<UScriptStruct>())
+	{
+		return CastChecked<UScriptStruct>(Property.ToUObjectUnsafe().GetFName());
 	}
 	else
 	{

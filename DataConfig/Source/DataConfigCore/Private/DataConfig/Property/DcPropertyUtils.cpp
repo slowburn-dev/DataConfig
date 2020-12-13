@@ -158,11 +158,11 @@ EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field)
 	if (Field.IsUObject())
 	{
 		UObject* Obj = Field.ToUObjectUnsafe();
-		if (Obj.IsA<UScriptStruct>())
+		if (Obj->IsA<UScriptStruct>())
 		{
 			return EDcDataEntry::StructRoot;
 		}
-		else if (Obj.IsA<UClass>())
+		else if (Obj->IsA<UClass>())
 		{
 			return EDcDataEntry::ClassRoot;
 		}

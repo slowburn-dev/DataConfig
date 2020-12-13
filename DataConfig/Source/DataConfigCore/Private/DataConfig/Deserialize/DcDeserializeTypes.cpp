@@ -1,6 +1,10 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
+FDcScopedProperty::FDcScopedProperty(FDcDeserializeContext& InCtx)
+	: Ctx(InCtx)
+{}
+
 FDcResult FDcScopedProperty::PushProperty()
 {
 	DC_TRY(Ctx.Writer->PeekWriteProperty(&Property));
@@ -12,8 +16,8 @@ FDcScopedProperty::~FDcScopedProperty()
 {
 	if (Property != nullptr)
 	{
-		UField* Popped = Ctx.Properties.Pop();
-		check(Popped == Property);
+		check(Property == Ctx.Properties.Top());
+		Ctx.Properties.Pop();
 	}
 }
 

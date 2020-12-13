@@ -75,7 +75,9 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	struct FPropertyState
 	{
-		using ImplStorageType = TDcAlignedStorage<64>::Type;
+		using ImplStorageType = TDcAlignedStorage<96>::Type;
+		//	TODO get this back next
+		//using ImplStorageType = TDcAlignedStorage<64>::Type;
 		ImplStorageType ImplStorage;
 	};
 

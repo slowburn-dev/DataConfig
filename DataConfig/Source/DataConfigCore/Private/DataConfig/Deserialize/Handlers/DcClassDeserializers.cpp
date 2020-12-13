@@ -18,7 +18,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
-	bool bPropertyPass = Ctx.TopProperty()->IsA<UClass>();
+	bool bPropertyPass = Ctx.TopProperty().IsA<UClass>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
 		return DcOkWithCanNotProcess(OutRet);
@@ -27,7 +27,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
-		FDcObjectPropertyStat WriteClassStat{ Ctx.TopProperty()->GetFName(), EDcObjectPropertyControl::ExpandObject };
+		FDcObjectPropertyStat WriteClassStat{ Ctx.TopProperty().GetFName(), EDcObjectPropertyControl::ExpandObject };
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDcDataEntry CurPeek;
@@ -100,13 +100,13 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
-	bool bPropertyPass = Ctx.TopProperty()->IsA<FObjectProperty>();
+	bool bPropertyPass = Ctx.TopProperty().IsA<FObjectProperty>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
-	FObjectProperty* ObjectProperty = Cast<FObjectProperty>(Ctx.TopProperty());
+	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 
 	FDcObjectPropertyStat RefStat {
 		ObjectProperty->PropertyClass->GetFName(), EDcObjectPropertyControl::ExternalReference
@@ -223,7 +223,10 @@ static bool IsSubObjectProperty(FObjectProperty* ObjectProperty)
 
 EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx)
 {
-	FObjectProperty* ObjectProperty = Cast<FObjectProperty>(Ctx.TopProperty());
+	if (Ctx.TopProperty().IsUObject())
+		return EDcDeserializePredicateResult::Pass;
+
+	FObjectProperty* ObjectProperty = CastField<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 	return ObjectProperty && IsSubObjectProperty(ObjectProperty)
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
@@ -241,14 +244,14 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
 
-	FObjectProperty* ObjectProperty = Cast<FObjectProperty>(Ctx.TopProperty());
-	bool bPropertyPass = ObjectProperty != nullptr;
+	bool bPropertyPass = Ctx.TopProperty().IsA<FObjectProperty>();
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
 		return DcOkWithCanNotProcess(OutRet);
 	}
 
+	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 	if (!IsSubObjectProperty(ObjectProperty))
 	{
 		return DcFail();
