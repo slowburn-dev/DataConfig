@@ -248,7 +248,7 @@ FDcResult FDcWriteStateClass::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	else if (State == EState::ExpectExpandValue)
 	{
 		check(!Datum.IsNone());
-		EDcDataEntry Actual = PropertyToDataEntry(Datum.CastChecked());
+		EDcDataEntry Actual = PropertyToDataEntry(Datum.CastFieldChecked());
 		ReadOut(bOutOk, Next == Actual || DcPropertyWriteStatesDetails::CheckPropertyCoercion(Next, Actual));
 		return DcOk();
 	}
@@ -294,7 +294,7 @@ FDcResult FDcWriteStateClass::WriteDataEntry(FFieldClass* ExpectedPropertyClass,
 			<< (int)EState::ExpectExpandValue << (int)State
 			<< _GetPropertyWriter()->FormatHighlight();
 
-	FProperty* Property = Datum.CastChecked<FProperty>();
+	FProperty* Property = Datum.CastFieldChecked<FProperty>();
 	DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(Property, ExpectedPropertyClass));
 
 	OutDatum.Property = Property;
@@ -351,7 +351,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcObjectPropertyStat& ClassS
 				//	expand a reference into a root
 				Type = EType::Root;
 
-				FObjectProperty* ObjProperty = Datum.CastChecked<FObjectProperty>();
+				FObjectProperty* ObjProperty = Datum.CastFieldChecked<FObjectProperty>();
 				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
 				Datum.DataPtr = ClassObject;
 				Datum.Property = ObjProperty->PropertyClass;
@@ -404,7 +404,7 @@ FDcResult FDcWriteStateClass::WriteNil()
 {
 	if (State == EState::ExpectReference)
 	{
-		Datum.CastChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
+		Datum.CastFieldChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, nullptr);
 
 		State = EState::ExpectEnd;
 		return DcOk();
@@ -423,7 +423,7 @@ FDcResult FDcWriteStateClass::WriteObjectReference(const UObject* Value)
 	{
 		//	`FObjectProperty::SetObjectPropertyValue` not taking const pointer
 		ClassObject = const_cast<UObject*>(Value);
-		Datum.CastChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
+		Datum.CastFieldChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));
 
 		State = EState::ExpectEnd;
 		return DcOk();
@@ -444,7 +444,7 @@ void FDcWriteStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 		ObjectName,
 		Class,
 		State == EState::ExpectExpandKeyOrEnd || State == EState::ExpectExpandValue
-			? Datum.Cast<FProperty>()
+			? Datum.CastField<FProperty>()
 			: nullptr
 	);
 }

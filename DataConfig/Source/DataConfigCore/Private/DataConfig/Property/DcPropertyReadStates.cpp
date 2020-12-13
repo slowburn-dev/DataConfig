@@ -109,7 +109,7 @@ FDcResult FDcReadStateClass::ReadName(FName* OutNamePtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-		ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
+		ReadOut(OutNamePtr, Datum.CastFieldChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 		return DcOk();
 	}
 	else
@@ -353,7 +353,7 @@ FDcResult FDcReadStateStruct::ReadName(FName* OutNamePtr)
 		FDcPropertyDatum Datum;
 		DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-		ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
+		ReadOut(OutNamePtr, Datum.CastFieldChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 		return DcOk();
 	}
 	else
@@ -513,7 +513,7 @@ FDcResult FDcReadStateMap::ReadName(FName* OutNamePtr)
 	FDcPropertyDatum Datum;
 	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-	ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastFieldChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 	return DcOk();
 }
 
@@ -670,7 +670,7 @@ FDcResult FDcReadStateArray::ReadName(FName* OutNamePtr)
 	FDcPropertyDatum Datum;
 	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-	ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastFieldChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 	return DcOk();
 }
 
@@ -807,7 +807,7 @@ FDcResult FDcReadStateSet::ReadName(FName* OutNamePtr)
 	FDcPropertyDatum Datum;
 	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
 
-	ReadOut(OutNamePtr, Datum.CastChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	ReadOut(OutNamePtr, Datum.CastFieldChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
 
 	return DcOk();
 }

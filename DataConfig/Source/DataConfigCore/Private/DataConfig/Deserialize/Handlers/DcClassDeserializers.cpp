@@ -328,7 +328,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FObjectProperty::StaticClass(), Datum));
 
-	FObjectProperty* SubObjectProperty = Datum.Cast<FObjectProperty>();
+	FObjectProperty* SubObjectProperty = Datum.CastField<FObjectProperty>();
 	if (!SubObjectProperty)
 		return DcFail();
 

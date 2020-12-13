@@ -22,17 +22,15 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 		return Property == nullptr;
 	}
 
-	//	TODO rename to `CastField` as we're expecting field
 	template<typename TProperty = FField>
-	FORCEINLINE TProperty* CastChecked() const
+	FORCEINLINE TProperty* CastFieldChecked() const
 	{
 		static_assert(TIsDerivedFrom<TProperty, FField>::Value, "expect TProperty to be a field");
 		return ::CastFieldChecked<TProperty>(Property.ToField());
 	}
 
-	//	TODO rename to `CastField` as we're expecting field
 	template<typename TProperty = FField>
-	FORCEINLINE TProperty* Cast() const
+	FORCEINLINE TProperty* CastField() const
 	{
 		static_assert(TIsDerivedFrom<TProperty, FField>::Value, "expect TProperty to be a field");
 		return ::CastField<TProperty>(Property.ToField());

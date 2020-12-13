@@ -146,7 +146,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 	FDcPropertyDatum Datum;
 	DC_TRY(GetTopState(this).WriteDataEntry(FEnumProperty::StaticClass(), Datum));
 
-	FEnumProperty* EnumProperty = Datum.CastChecked<FEnumProperty>();
+	FEnumProperty* EnumProperty = Datum.CastFieldChecked<FEnumProperty>();
 	UEnum* Enum = EnumProperty->GetEnum();
 
 	if (EnumProperty->GetUnderlyingProperty()->IsA<FUInt64Property>())
@@ -198,7 +198,7 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
-		FStructProperty* StructProperty = Datum.CastChecked<FStructProperty>();
+		FStructProperty* StructProperty = Datum.CastFieldChecked<FStructProperty>();
 		FDcWriteStateStruct& ChildStruct = PushStructPropertyState(
 			this,
 			Datum.DataPtr,
@@ -231,7 +231,7 @@ FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
 
 void FDcPropertyWriter::PushTopClassPropertyState(const FDcPropertyDatum& Datum)
 {
-	FObjectProperty* ObjProperty = Datum.CastChecked<FObjectProperty>();
+	FObjectProperty* ObjProperty = Datum.CastFieldChecked<FObjectProperty>();
 	PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
 }
 
@@ -304,7 +304,7 @@ FDcResult FDcPropertyWriter::WriteMapRoot()
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(FMapProperty::StaticClass(), Datum));
 
-		FDcWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastChecked<FMapProperty>());
+		FDcWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
 		DC_TRY(ChildMap.WriteMapRoot());
 	}
 
@@ -349,7 +349,7 @@ FDcResult FDcPropertyWriter::WriteArrayRoot()
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(FArrayProperty::StaticClass(), Datum));
 
-		FDcWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastChecked<FArrayProperty>());
+		FDcWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
 		DC_TRY(ChildArray.WriteArrayRoot());
 	}
 
@@ -393,7 +393,7 @@ FDcResult FDcPropertyWriter::WriteSetRoot()
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(FSetProperty::StaticClass(), Datum));
 
-		FDcWriteStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastChecked<FSetProperty>());
+		FDcWriteStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
 		DC_TRY(ChildSet.WriteSetRoot());
 	}
 
@@ -491,7 +491,7 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 		FDcPropertyDatum Datum;
 		DC_TRY(GetTopState(this).WriteDataEntry(FArrayProperty::StaticClass(), Datum));
 
-		FArrayProperty* ArrayProperty = Datum.CastChecked<FArrayProperty>();
+		FArrayProperty* ArrayProperty = Datum.CastFieldChecked<FArrayProperty>();
 		FScriptArrayHelper ScriptArray(ArrayProperty, Datum.DataPtr);
 
 		int32 ElementSize = ArrayProperty->Inner->ElementSize;
@@ -508,7 +508,7 @@ FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 		FDcPropertyDatum Datum;
 		DC_TRY(GetTopState(this).WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
-		FStructProperty* StructProperty = Datum.CastChecked<FStructProperty>();
+		FStructProperty* StructProperty = Datum.CastFieldChecked<FStructProperty>();
 
 		if (Value.Num > StructProperty->ElementSize)
 			return DC_FAIL(DcDReadWrite, WriteBlobOverrun) << StructProperty->ElementSize << Value.Num;

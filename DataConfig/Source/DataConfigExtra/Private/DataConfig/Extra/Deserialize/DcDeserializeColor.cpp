@@ -59,7 +59,7 @@ FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx
 		FDcPropertyDatum Datum;
 		DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
-		Datum.CastChecked<FStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
+		Datum.CastFieldChecked<FStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
 	}
 	else if (Type == EDeserializeType::WriteBlob)
 	{
