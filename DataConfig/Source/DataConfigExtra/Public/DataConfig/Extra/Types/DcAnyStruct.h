@@ -5,7 +5,8 @@
 #include "DcAnyStruct.generated.h"
 
 ///	A struct that contains a heap stored struct of any type.
-//	behaves like `TSharedRef`
+//	- behaves like `TSharedRef`
+//	- can be passed around in BP as arguments
 
 USTRUCT(BlueprintType)
 struct DATACONFIGEXTRA_API FDcAnyStruct

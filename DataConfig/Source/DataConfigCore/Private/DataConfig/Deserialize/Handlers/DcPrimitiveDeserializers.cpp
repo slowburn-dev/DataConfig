@@ -5,6 +5,40 @@
 
 namespace DcHandlers {
 
+EDcDeserializePredicateResult PredicateIsNumericProperty(FDcDeserializeContext& Ctx)
+{
+	return Ctx.TopProperty().IsA<FNumericProperty>()
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
+}
+
+FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	if (!Ctx.TopProperty().IsA<FNumericProperty>())
+		return DcOkWithCanNotProcess(OutRet);
+
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+
+	if (!DcTypeUtils::IsNumericDataEntry(Next))
+		return DC_FAIL(DcDDeserialize, ExpectNumericEntry) << Next;
+
+	if (!Ctx.Reader->Coercion(Next))
+		return DC_FAIL(DcDDeserialize, CoercionFail) << Next;;
+
+	//	TODO share code with PipeVisitor
+
+
+	if (Next == EDcDataEntry::Int8)
+	{
+		int8 Value;
+		DC_TRY(Ctx.Reader->ReadInt8(&Value));
+		DC_TRY(Ctx.Writer->WriteInt8(Value));
+	}
+
+	return DcOkWithProcessed(OutRet);
+}
+
 FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty().IsA<FBoolProperty>())

@@ -10,6 +10,8 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ DcDDeserialize::ExpectMetaType, TEXT("Expect '$type' but not found")},
 	{ DcDDeserialize::PropertyMismatch, TEXT("Property type mismatch, Expect: {0}, Actual: {1}"), },
 	{ DcDDeserialize::UObjectByNameNotFound, TEXT("Find object by name failed, Actual: {0}"), },
+	{ DcDDeserialize::ExpectNumericEntry, TEXT("Expect numeric data but not found, Actual: {0}")},
+	{ DcDDeserialize::CoercionFail, TEXT("Reader coercion failed, Actual: {0}")},
 };
 
 FDcDiagnosticGroup DDeserializeDetails = { DcDimOf(_DeserializeDetails), _DeserializeDetails };

@@ -17,6 +17,7 @@ const DATACONFIGCORE_API TBasicArray<FString>& GetAllStringMetas();
 bool DATACONFIGCORE_API IsMeta(const FName& Name);
 bool DATACONFIGCORE_API IsMeta(const FString& Str);
 
+
 }	// namespace DcDeserializeUtils;
 
 

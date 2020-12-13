@@ -6,6 +6,8 @@
 
 namespace DcHandlers {
 
+DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsNumericProperty(FDcDeserializeContext& Ctx);
+DATACONFIGCORE_API FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 DATACONFIGCORE_API FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 DATACONFIGCORE_API FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 DATACONFIGCORE_API FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);

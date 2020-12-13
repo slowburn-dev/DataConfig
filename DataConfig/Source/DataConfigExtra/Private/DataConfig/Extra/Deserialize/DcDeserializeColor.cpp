@@ -11,6 +11,7 @@ namespace DcExtra
 
 EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
+	//	TODO DcDeserializeUtil this
 	if (FStructProperty* StructProperty = DcPropertyUtils::CastFieldVariant<FStructProperty>(Ctx.TopProperty()))
 	{
 		return StructProperty->Struct->GetFName() == TEXT("Color")

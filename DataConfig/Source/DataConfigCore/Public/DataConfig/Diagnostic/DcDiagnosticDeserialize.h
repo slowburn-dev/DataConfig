@@ -17,6 +17,8 @@ namespace DcDDeserialize
 		ExpectMetaType,
 		PropertyMismatch,
 		UObjectByNameNotFound,
+		ExpectNumericEntry,
+		CoercionFail,
 	};
 
 } // namespace DPropertyReadWrite
