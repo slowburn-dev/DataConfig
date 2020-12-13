@@ -100,10 +100,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ClassProperty;
 
-	FName ObjectName;
 	UObject* ClassObject;
 	UClass* Class;
-	FDcPropertyDatum Datum;
 
 	enum class EState : uint8
 	{
@@ -122,6 +120,9 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 		PropertyNormalOrInstanced,
 	};
 	EType Type;
+
+	FName ObjectName;
+	FDcPropertyDatum Datum;
 
 	FDcWriteStateClass(UObject* InClassObject, UClass* InClass)
 	{
