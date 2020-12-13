@@ -44,6 +44,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteSoftClassReference(const FSoftClassPath& Value) override;
 	FDcResult WriteInterfaceReference(const FScriptInterface& Value) override;
 
+	FDcResult WriteFieldPath(const FFieldPath& Value) override;
 	FDcResult WriteDelegate(const FScriptDelegate& Value) override;
 	FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) override;
 	FDcResult WriteMulticastSparseDelegate(const FSparseDelegate& Value) override;
@@ -83,6 +84,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
 };
 
 

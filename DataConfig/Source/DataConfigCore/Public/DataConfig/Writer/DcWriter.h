@@ -54,6 +54,10 @@ struct DATACONFIGCORE_API FDcWriter
 	template<typename TInterface>
 	FDcResult WriteInterfaceField(const TScriptInterface<TInterface>& Value);
 
+	virtual FDcResult WriteFieldPath(const FFieldPath& Value);
+	template<typename TProperty>
+	FDcResult WritePropertyField(const TFieldPath<TProperty>& Value);
+
 	virtual FDcResult WriteDelegate(const FScriptDelegate& Value);
 	virtual FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value);
 	virtual FDcResult WriteMulticastSparseDelegate(const FSparseDelegate& Value);
@@ -121,5 +125,14 @@ FDcResult FDcWriter::WriteInterfaceField(const TScriptInterface<TInterface>& Val
 {
 	FScriptInterface ScriptInterface(Value);
 	return WriteInterfaceReference(ScriptInterface);
+}
+
+template<typename TProperty>
+FDcResult FDcWriter::WritePropertyField(const TFieldPath<TProperty>& Value)
+{
+	static_assert(sizeof(FFieldPath) == sizeof(TFieldPath<TProperty>), "FFieldPath and TFieldPath should have identical layout");
+
+	const FFieldPath& FieldPath = (const FFieldPath&)Value;
+	return WriteFieldPath(FieldPath);
 }
 

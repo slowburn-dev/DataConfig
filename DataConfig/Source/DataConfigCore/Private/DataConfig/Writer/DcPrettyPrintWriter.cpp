@@ -187,6 +187,14 @@ FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& 
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteFieldPath(const FFieldPath& Value)
+{
+	Output.Logf(TEXT("%s- field path: %s"), *Indent,
+		*Value.ToString()
+	);
+	return DcOk();
+}
+
 FDcResult FDcPrettyPrintWriter::WriteDelegate(const FScriptDelegate& Value)
 {
 	Output.Logf(TEXT("%s- delegate: %s"), *Indent, *Value.ToString<UObject>());

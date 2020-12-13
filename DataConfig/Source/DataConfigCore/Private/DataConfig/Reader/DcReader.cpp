@@ -32,6 +32,7 @@ FDcResult FDcReader::ReadLazyObjectReference(FLazyObjectPtr*) { return DC_FAIL(D
 FDcResult FDcReader::ReadSoftObjectReference(FSoftObjectPath*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadSoftClassReference(FSoftClassPath*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInterfaceReference(FScriptInterface*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadFieldPath(FFieldPath* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadDelegate(FScriptDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadMulticastSparseDelegate(FSparseDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }

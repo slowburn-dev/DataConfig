@@ -28,6 +28,7 @@ bool IsEffectiveProperty(FProperty* Property)
 		|| Property->IsA<FSoftClassProperty>()
 		|| Property->IsA<FInterfaceProperty>()
 		|| Property->IsA<FDelegateProperty>()
+		|| Property->IsA<FFieldPathProperty>()
 		|| Property->IsA<FMulticastInlineDelegateProperty>()
 		|| Property->IsA<FMulticastSparseDelegateProperty>()
 		;
@@ -148,6 +149,7 @@ EDcDataEntry PropertyToDataEntry(FField* Property)
 		if (Property->IsA<FObjectProperty>()) return EDcDataEntry::ClassRoot;
 	}
 
+	if (Property->IsA<FFieldPathProperty>()) return EDcDataEntry::FieldPath;
 	if (Property->IsA<FDelegateProperty>()) return EDcDataEntry::Delegate;
 	if (Property->IsA<FMulticastInlineDelegateProperty>()) return EDcDataEntry::MulticastInlineDelegate;
 	if (Property->IsA<FMulticastSparseDelegateProperty>()) return EDcDataEntry::MulticastSparseDelegate;
@@ -209,6 +211,7 @@ FString GetFormatPropertyTypeName(FField* Property)
 	if (Property->IsA<FFloatProperty>()) return TEXT("float");
 	if (Property->IsA<FDoubleProperty>()) return TEXT("double");
 
+	if (Property->IsA<FFieldPathProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
 	if (Property->IsA<FDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
 	if (Property->IsA<FMulticastInlineDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);
 	if (Property->IsA<FMulticastSparseDelegateProperty>()) return ((FProperty*)Property)->GetCPPType(nullptr, 0);

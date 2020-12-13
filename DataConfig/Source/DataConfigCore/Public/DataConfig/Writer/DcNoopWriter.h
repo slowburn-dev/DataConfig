@@ -37,6 +37,7 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteSoftClassReference(const FSoftClassPath& Value) override;
 	FDcResult WriteInterfaceReference(const FScriptInterface& Value) override;
 
+	FDcResult WriteFieldPath(const FFieldPath& Value) override;
 	FDcResult WriteDelegate(const FScriptDelegate& Value) override;
 	FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) override;
 	FDcResult WriteMulticastSparseDelegate(const FSparseDelegate& Value) override;

@@ -334,7 +334,7 @@ FDcResult FDcPropertyReader::ReadMapRoot()
 		if (MapState != nullptr
 			&& MapState->State == FDcReadStateMap::EState::ExpectRoot)
 		{
-			//	TODO this might never get called, figure it out
+			//	TODO [REMOVAL] this might never get called, figure it out
 			checkNoEntry();
 			DC_TRY(MapState->ReadMapRoot());
 			return DcOk();
@@ -380,7 +380,7 @@ FDcResult FDcPropertyReader::ReadArrayRoot()
 		if (ArrayState != nullptr
 			&& ArrayState->State == FDcReadStateArray::EState::ExpectRoot)
 		{
-			//	TODO this might never get called, figure it out
+			//	TODO [removal] this might never get called, figure it out
 			checkNoEntry();
 			DC_TRY(ArrayState->ReadArrayRoot());
 			return DcOk();
@@ -422,7 +422,7 @@ FDcResult FDcPropertyReader::ReadSetRoot()
 	FDcBaseReadState& TopState = GetTopState(this);
 
 	{
-		//	TODO this might never get called, figure it out
+		//	TODO [removal] this might never get called, figure it out
 		FDcReadStateSet* SetState = TopState.As<FDcReadStateSet>();
 		if (SetState != nullptr
 			&& SetState->State == FDcReadStateSet::EState::ExpectRoot)
@@ -484,6 +484,7 @@ FDcResult FDcPropertyReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr) { 
 FDcResult FDcPropertyReader::ReadSoftClassReference(FSoftClassPath* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadInterfaceReference(FScriptInterface* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 
+FDcResult FDcPropertyReader::ReadFieldPath(FFieldPath* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadDelegate(FScriptDelegate* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadMulticastSparseDelegate(FSparseDelegate* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
@@ -600,4 +601,3 @@ void FDcPropertyReader::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	Diag << FormatHighlight();
 }
-

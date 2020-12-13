@@ -7,22 +7,22 @@ enum class EDcDataEntry : uint16;
 namespace DcPropertyUtils
 {
 
-bool IsEffectiveProperty(FProperty* Property);
-bool IsScalarProperty(FField* Property);
+DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
+DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
 
-size_t CountEffectiveProperties(UStruct* Struct);
+DATACONFIGCORE_API size_t CountEffectiveProperties(UStruct* Struct);
 
-FProperty* NextEffectiveProperty(FProperty* Property);
-FProperty* FirstEffectiveProperty(FProperty* Property);
-FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
+DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
+DATACONFIGCORE_API FProperty* FirstEffectiveProperty(FProperty* Property);
+DATACONFIGCORE_API FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
 
-EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
-EDcDataEntry PropertyToDataEntry(FField* Property);
+DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
+DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(FField* Property);
 
-FString GetFormatPropertyTypeName(FField* Property);
-FString GetFormatPropertyTypeName(UScriptStruct* Struct);
-FString GetFormatPropertyTypeName(UClass* Class);
-FString GetFormatPropertyTypeName(const FFieldVariant& Field);
+DATACONFIGCORE_API FString GetFormatPropertyTypeName(FField* Property);
+DATACONFIGCORE_API FString GetFormatPropertyTypeName(UScriptStruct* Struct);
+DATACONFIGCORE_API FString GetFormatPropertyTypeName(UClass* Class);
+DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field);
 
 //	Cpp type to Property
 template<typename T>
@@ -55,6 +55,7 @@ template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = FLazyObjectPro
 template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = FSoftObjectProperty; };
 template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = FSoftClassProperty; };
 template<> struct TPropertyTypeMap<FScriptInterface> { using Type = FInterfaceProperty; };
+template<> struct TPropertyTypeMap<FFieldPath> { using Type = FFieldPathProperty; };
 
 template<> struct TPropertyTypeMap<FScriptDelegate> { using Type = FDelegateProperty; };
 template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = FMulticastInlineDelegateProperty; };
@@ -86,7 +87,7 @@ FORCEINLINE FString SafeNameToString(const FName& Value)
 	return Value.IsValid() ? Value.ToString() : TEXT("<invalid-name>");
 }
 
-FName GetStructTypeName(FFieldVariant& Property);
+DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
 
 }	// namespace DcPropertyUtils
 

@@ -102,6 +102,9 @@ enum class EDcDataEntry : uint16
 	MulticastInlineDelegate,
 	MulticastSparseDelegate,
 
+	//	Field
+	FieldPath,
+
 	//	Extension
 	Blob,
 

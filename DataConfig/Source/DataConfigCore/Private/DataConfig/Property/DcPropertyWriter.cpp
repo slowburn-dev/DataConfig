@@ -456,6 +456,7 @@ FDcResult FDcPropertyWriter::WriteClassReference(const UClass* Value)
 	return WriteTopStateScalarProperty<UClass*>(this, (UClass*)Value);
 }
 
+FDcResult FDcPropertyWriter::WriteFieldPath(const FFieldPath& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteDelegate(const FScriptDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
@@ -579,3 +580,4 @@ void FDcPropertyWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	Diag << FormatHighlight();
 }
+

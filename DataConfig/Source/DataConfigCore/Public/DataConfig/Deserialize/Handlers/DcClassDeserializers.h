@@ -9,11 +9,11 @@ namespace DcHandlers {
 //	Reads `/Path/To/BP` or `ClassName`
 //FResult DATACONFIGCORE_API ClassReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
 
-FDcResult DATACONFIGCORE_API HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
-FDcResult DATACONFIGCORE_API HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
-EDcDeserializePredicateResult DATACONFIGCORE_API PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx);
-FDcResult DATACONFIGCORE_API HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx);
+DATACONFIGCORE_API FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 }	// namespace DcHandlers

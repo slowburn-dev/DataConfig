@@ -2,6 +2,7 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Writer/DcWeakCompositeWriter.h"
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "UObject/UnrealType.h"
@@ -827,6 +828,33 @@ void PropertyReadWrite_Blob()
 	check(Writer.WriteStructEnd(TEXT("StructWithBlob")).Ok());
 
 	DumpStruct(&OutStruct, FStructWithBlob::StaticStruct());
+}
+
+void PropertyReadWrite__425_FieldPath()
+{
+	FStructWithFieldPath Struct;
+
+	Struct.NameFieldPath = DcPropertyUtils::FirstEffectiveProperty(FTestStruct_OldSchool::StaticStruct()->PropertyLink);
+
+	FStructWithFieldPath OutStruct{};
+
+	_Roundtrip(
+		FDcPropertyDatum(FStructWithFieldPath::StaticStruct(), &Struct),
+		FDcPropertyDatum(FStructWithFieldPath::StaticStruct(), &OutStruct)
+	);
+
+
+	if (0)
+	{
+		//	only checks for compilation
+		//////////////////////
+		FDcReader Reader;
+		Reader.ReadPropertyField(&Struct.NameFieldPath);
+
+		//////////////////////
+		FDcWriter Writer;
+		Writer.WritePropertyField(Struct.NameFieldPath);
+	}
 }
 
 void PropertyHighlights()

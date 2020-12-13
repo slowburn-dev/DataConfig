@@ -445,4 +445,12 @@ struct FStructMoreNest3
 	UPROPERTY() TArray<FStructMoreNest2> ArrayOfStruct;
 };
 
+USTRUCT()
+struct FStructWithFieldPath
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TFieldPath<FNameProperty> NameFieldPath;
+	UPROPERTY() TFieldPath<FNameProperty> NameFieldPath2;
+};
 

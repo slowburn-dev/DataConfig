@@ -197,6 +197,11 @@ FDcResult FDcPutbackReader::ReadInterfaceReference(FScriptInterface* OutPtr)
 	return CanNotCachedRead(this, EDcDataEntry::InterfaceReference, &FDcReader::ReadInterfaceReference, OutPtr);
 }
 
+FDcResult FDcPutbackReader::ReadFieldPath(FFieldPath* OutPtr)
+{
+	return CanNotCachedRead(this, EDcDataEntry::FieldPath, &FDcReader::ReadFieldPath, OutPtr);
+}
+
 FDcResult FDcPutbackReader::ReadDelegate(FScriptDelegate* OutPtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::Delegate, &FDcReader::ReadDelegate, OutPtr);
@@ -295,4 +300,3 @@ void FDcPutbackReader::FormatDiagnostic(FDcDiagnostic& Diag)
 		Diag.Highlight += FString::Printf(TEXT("(Putback: %d)"), Cached.Num());
 	}
 }
-

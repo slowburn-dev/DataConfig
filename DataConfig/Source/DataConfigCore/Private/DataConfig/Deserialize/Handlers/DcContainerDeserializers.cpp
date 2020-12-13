@@ -57,7 +57,7 @@ FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult
 	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot>(Ctx, OutRet, &FDcWriter::WriteSetRoot, &FDcWriter::WriteSetEnd);
 }
 
-FDcResult DATACONFIGCORE_API HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));

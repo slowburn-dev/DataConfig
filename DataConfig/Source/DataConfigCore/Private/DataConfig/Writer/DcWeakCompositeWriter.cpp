@@ -183,6 +183,11 @@ FDcResult FDcWeakCompositeWriter::WriteInterfaceReference(const FScriptInterface
 	return CompositeDispatch(this, &FDcWriter::WriteInterfaceReference, Value);
 }
 
+FDcResult FDcWeakCompositeWriter::WriteFieldPath(const FFieldPath& Value)
+{
+	return CompositeDispatch(this, &FDcWriter::WriteFieldPath, Value);
+}
+
 FDcResult FDcWeakCompositeWriter::WriteDelegate(const FScriptDelegate& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteDelegate, Value);

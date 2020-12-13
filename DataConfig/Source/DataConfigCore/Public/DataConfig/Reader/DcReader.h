@@ -57,6 +57,11 @@ struct DATACONFIGCORE_API FDcReader
 	template<typename TInterface>
 	FDcResult ReadInterfaceField(TScriptInterface<TInterface>* OutPtr);
 
+	virtual FDcResult ReadFieldPath(FFieldPath* OutPtr);
+
+	template<typename TProperty>
+	FDcResult ReadPropertyField(TFieldPath<TProperty>* OutPtr);
+
 	virtual FDcResult ReadDelegate(FScriptDelegate* OutPtr);
 	virtual FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr);
 	virtual FDcResult ReadMulticastSparseDelegate(FSparseDelegate* OutPtr);
@@ -134,5 +139,13 @@ FDcResult FDcReader::ReadInterfaceField(TScriptInterface<TInterface>* OutPtr)
 
 	ReadOut(OutPtr, (const TScriptInterface<TInterface>&)ScriptInterface);
 	return DcOk();
+}
+
+template<typename TProperty>
+FDcResult FDcReader::ReadPropertyField(TFieldPath<TProperty>* OutPtr)
+{
+	static_assert(sizeof(FFieldPath) == sizeof(TFieldPath<TProperty>), "FFieldPath and TFieldPath should have identical layout");
+	FFieldPath* FieldPathPtr = (FFieldPath*)OutPtr;
+	return ReadFieldPath(FieldPathPtr);
 }
 

@@ -6,8 +6,8 @@
 
 namespace DcHandlers {
 
-FDcResult DATACONFIGCORE_API HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
-FDcResult DATACONFIGCORE_API HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
-FDcResult DATACONFIGCORE_API HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 }	// namespace DcHandlers

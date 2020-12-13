@@ -31,6 +31,7 @@ FDcResult FDcNoopWriter::WriteLazyObjectReference(const FLazyObjectPtr&) { retur
 FDcResult FDcNoopWriter::WriteSoftObjectReference(const FSoftObjectPath&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSoftClassReference(const FSoftClassPath&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInterfaceReference(const FScriptInterface&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteFieldPath(const FFieldPath& Value) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteDelegate(const FScriptDelegate&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteMulticastSparseDelegate(const FSparseDelegate&) { return DcOk(); }

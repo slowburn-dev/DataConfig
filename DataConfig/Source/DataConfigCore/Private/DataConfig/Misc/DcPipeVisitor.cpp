@@ -154,6 +154,12 @@ FDcResult FDcPipeVisitor::PipeVisit()
 			DC_TRY(Reader->ReadInterfaceReference(&Value));
 			DC_TRY(Writer->WriteInterfaceReference(Value));
 		}
+		else if (PeekEntry == EDcDataEntry::FieldPath)
+		{
+			FFieldPath Value;
+			DC_TRY(Reader->ReadFieldPath(&Value));
+			DC_TRY(Writer->WriteFieldPath(Value));
+		}
 		else if (PeekEntry == EDcDataEntry::Delegate)
 		{
 			FScriptDelegate Value;
