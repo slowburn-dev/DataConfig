@@ -3,6 +3,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/DcEnv.h"
 
 namespace DcExtra
@@ -10,13 +11,13 @@ namespace DcExtra
 
 EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
-	if (FStructProperty* StructProperty = Cast<FStructProperty>(Ctx.TopProperty()))
+	if (FStructProperty* StructProperty = DcPropertyUtils::CastFieldVariant<FStructProperty>(Ctx.TopProperty()))
 	{
 		return StructProperty->Struct->GetFName() == TEXT("Color")
 			? EDcDeserializePredicateResult::Process
 			: EDcDeserializePredicateResult::Pass;
 	}
-	else if (UScriptStruct* StructClass = Cast<UScriptStruct>(Ctx.TopProperty()))
+	else if (UScriptStruct* StructClass = DcPropertyUtils::CastFieldVariant<UScriptStruct>(Ctx.TopProperty()))
 	{
 		return StructClass->GetFName() == TEXT("Color")
 			? EDcDeserializePredicateResult::Process

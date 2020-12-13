@@ -21,9 +21,17 @@ FDcPropertyDatum::FDcPropertyDatum(UObject* ClassObject)
 	DataPtr = ClassObject;
 }
 
+FDcPropertyDatum::FDcPropertyDatum(UClass* Class, UObject* ClassObject)
+{
+	check(Class && ClassObject);
+	Property = Class;
+	DataPtr = ClassObject;
+}
+
 FDcPropertyDatum::FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
 {
 	check(StructClass);
 	Property = StructClass;
 	DataPtr = StructPtr;
 }
+

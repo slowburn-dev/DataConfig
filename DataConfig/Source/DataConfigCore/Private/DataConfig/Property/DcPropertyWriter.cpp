@@ -106,7 +106,7 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	{
 		UObject* Obj = reinterpret_cast<UObject*>(Datum.DataPtr);
 		check(IsValid(Obj));
-		PushClassRootState(this, Obj, Datum.CastChecked<UClass>());
+		PushClassRootState(this, Obj, Datum.CastUClassChecked());
 	}
 	else if (Datum.Property.IsA<UScriptStruct>())
 	{
@@ -238,7 +238,7 @@ void FDcPropertyWriter::PushTopClassPropertyState(const FDcPropertyDatum& Datum)
 
 void FDcPropertyWriter::PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName)
 {
-	UScriptStruct* StructClass = Datum.CastChecked<UScriptStruct>();
+	UScriptStruct* StructClass = Datum.CastUScriptStructChecked();
 	PushStructPropertyState(this, Datum.DataPtr, StructClass, StructName);
 }
 

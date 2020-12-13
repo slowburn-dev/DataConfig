@@ -15,11 +15,11 @@ static FName GetStructName(FFieldVariant& Property)
 	}
 	if (Property.IsA<FStructProperty>())
 	{
-		return CastFieldChecked<FStructProperty>(Property.ToFieldUnsafe()).GetFName();
+		return CastFieldChecked<FStructProperty>(Property.ToFieldUnsafe())->GetFName();
 	}
 	else if (Property.IsA<UScriptStruct>())
 	{
-		return CastChecked<UScriptStruct>(Property.ToUObjectUnsafe().GetFName());
+		return CastChecked<UScriptStruct>(Property.ToUObjectUnsafe())->GetFName();
 	}
 	else
 	{

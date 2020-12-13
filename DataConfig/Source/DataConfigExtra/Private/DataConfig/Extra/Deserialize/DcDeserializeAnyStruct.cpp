@@ -3,6 +3,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
@@ -15,7 +16,7 @@ namespace DcExtra
 {
 EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsDcAnyStruct(FDcDeserializeContext& Ctx)
 {
-	if (FStructProperty* StructProperty = Cast<FStructProperty>(Ctx.TopProperty()))
+	if (FStructProperty* StructProperty = DcPropertyUtils::CastFieldVariant<FStructProperty>(Ctx.TopProperty()))
 	{
 		return StructProperty->Struct == FDcAnyStruct::StaticStruct()
 			? EDcDeserializePredicateResult::Process
@@ -60,7 +61,7 @@ FDcResult DATACONFIGEXTRA_API HandlerDcAnyStructDeserialize(FDcDeserializeContex
 	FDcAnyStruct* AnyStructPtr = (FDcAnyStruct*)Datum.DataPtr;
 	*AnyStructPtr = MoveTemp(TmpAny);
 
-	Ctx.Writer->PushTopStructPropertyState({LoadStruct, (void*)AnyStructPtr->DataPtr}, Ctx.TopProperty()->GetFName());
+	Ctx.Writer->PushTopStructPropertyState({LoadStruct, (void*)AnyStructPtr->DataPtr}, Ctx.TopProperty().GetFName());
 
 	FDcPutbackReader PutbackReader(Ctx.Reader);
 	PutbackReader.Putback(EDcDataEntry::MapRoot);

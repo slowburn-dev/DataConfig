@@ -81,6 +81,32 @@ static void PopState(FDcPropertyReader* Reader)
 	PopState(Reader);
 }
 
+//	for read datum -> scalar
+template<typename TProperty, typename TScalar>
+void ReadPropertyValueConversion(FField* Property, void const* Ptr, TScalar* OutPtr)
+{
+	*OutPtr = (const TScalar&)(CastFieldChecked<TProperty>(Property)->GetPropertyValue(Ptr));
+}
+
+template<>
+void ReadPropertyValueConversion<FBoolProperty, bool>(FField* Property, void const* Ptr, bool* OutPtr)
+{
+	*OutPtr = CastFieldChecked<FBoolProperty>(Property)->GetPropertyValue(Ptr);
+}
+
+template<>
+void ReadPropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
+{
+	*OutPtr = CastFieldChecked<FSoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
+}
+
+template<>
+void ReadPropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void const* Ptr, FSoftClassPath* OutPtr)
+{
+	static_assert(sizeof(FSoftClassPath) == sizeof(FSoftObjectPath), "should have same layout");
+	*OutPtr = (const FSoftClassPath&)(CastFieldChecked<FSoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
+}
+
 template<typename TScalar>
 FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScalar* OutPtr)
 {
@@ -93,7 +119,8 @@ FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScala
 
 	if (OutPtr)
 	{
-		ReadPropertyValueConversion<TProperty, TScalar>(Datum.Property, Datum.DataPtr, OutPtr);
+		check(!Datum.Property.IsUObject())
+		ReadPropertyValueConversion<TProperty, TScalar>(Datum.Property.ToFieldUnsafe(), Datum.DataPtr, OutPtr);
 	}
 
 	return DcOk();
@@ -118,7 +145,7 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 		PushClassPropertyState(
 			this,
 			Obj,
-			Datum.CastChecked<UClass>(),
+			Datum.CastUClassChecked(),
 			FDcReadStateClass::EType::Root,
 			Obj->GetFName()
 		);

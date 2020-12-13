@@ -71,52 +71,29 @@ template<> struct TPropertyTypeMap<FSparseDelegate> { using Type = FMulticastSpa
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes");
 
-//	for read datum -> scalar
-template<typename TProperty, typename TScalar>
-void ReadPropertyValueConversion(FField* Property, void const* Ptr, TScalar* OutPtr)
+namespace DcPropertyUtils
 {
-	*OutPtr = (const TScalar&)(CastFieldChecked<TProperty>(Property)->GetPropertyValue(Ptr));
+
+template<typename T>
+FORCEINLINE T* CastFieldVariant(FFieldVariant& FieldVariant)
+{
+	static_assert(TIsDerivedFrom<T, FField>::Value, "expect TProperty to be a field");
+	return ::CastField<T>(FieldVariant.ToField());
 }
 
 template<>
-void ReadPropertyValueConversion<FBoolProperty, bool>(FField* Property, void const* Ptr, bool* OutPtr)
+FORCEINLINE UClass* CastFieldVariant<UClass>(FFieldVariant& FieldVariant)
 {
-	*OutPtr = CastFieldChecked<FBoolProperty>(Property)->GetPropertyValue(Ptr);
+	return ::Cast<UClass>(FieldVariant.ToUObject());
 }
 
 template<>
-void ReadPropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void const* Ptr, FSoftObjectPath* OutPtr)
+FORCEINLINE UScriptStruct* CastFieldVariant<UScriptStruct>(FFieldVariant& FieldVariant)
 {
-	*OutPtr = CastFieldChecked<FSoftObjectProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID();
+	return ::Cast<UScriptStruct>(FieldVariant.ToUObject());
 }
 
-template<>
-void ReadPropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void const* Ptr, FSoftClassPath* OutPtr)
-{
-	static_assert(sizeof(FSoftClassPath) == sizeof(FSoftObjectPath), "should have same layout");
-	*OutPtr = (const FSoftClassPath&)(CastFieldChecked<FSoftClassProperty>(Property)->GetPropertyValue(Ptr).GetUniqueID());
-}
-
-//	for writing scalar -> datum
-template<typename TProperty, typename TScalar>
-void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)
-{
-	CastFieldChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
-}
-
-template<>
-void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void* Ptr, const FSoftObjectPath& Value)
-{
-	FSoftObjectPtr SoftPtr(Value);
-	CastFieldChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
-}
-
-template<>
-void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void* Ptr, const FSoftClassPath& Value)
-{
-	FSoftObjectPtr SoftPtr(Value);
-	CastFieldChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
-}
+}	// namespace DcPropertyUtils
 
 namespace DcPropertyHighlight
 {

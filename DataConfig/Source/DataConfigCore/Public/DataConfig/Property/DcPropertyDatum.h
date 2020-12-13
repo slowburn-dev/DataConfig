@@ -13,6 +13,7 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 	FDcPropertyDatum(FField* InProperty, void* InDataPtr);
 
 	FDcPropertyDatum(UObject* ClassObject);
+	FDcPropertyDatum(UClass* Class, UObject* ClassObject);
 	FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
 
 	FORCEINLINE bool IsNone() const
@@ -37,13 +38,13 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 		return ::CastField<TProperty>(Property.ToField());
 	}
 
-	FORCEINLINE UScriptStruct* CastUScriptStructChecked()
+	FORCEINLINE UScriptStruct* CastUScriptStructChecked() const
 	{
 		check(Property.IsUObject());
 		return ::CastChecked<UScriptStruct>(Property.ToUObject());
 	}
 
-	FORCEINLINE UClass* CastUClassChecked()
+	FORCEINLINE UClass* CastUClassChecked() const
 	{
 		check(Property.IsUObject());
 		return ::CastChecked<UClass>(Property.ToUObject());

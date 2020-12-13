@@ -279,13 +279,34 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
+template<typename TProperty, typename TScalar>
+void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)
+{
+	CastFieldChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
+}
+
+template<>
+void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void* Ptr, const FSoftObjectPath& Value)
+{
+	FSoftObjectPtr SoftPtr(Value);
+	CastFieldChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+}
+
+template<>
+void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void* Ptr, const FSoftClassPath& Value)
+{
+	FSoftObjectPtr SoftPtr(Value);
+	CastFieldChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
+}
+
 template<typename TProperty, typename TValue>
 FDcResult WriteValue(FDcBaseWriteState& State, const TValue& Value)
 {
 	FDcPropertyDatum Datum;
 	DC_TRY(State.WriteDataEntry(TProperty::StaticClass(), Datum));
 
-	WritePropertyValueConversion<TProperty, TValue>(Datum.Property, Datum.DataPtr, Value);
+	check(!Datum.Property.IsUObject());
+	WritePropertyValueConversion<TProperty, TValue>(Datum.Property.ToFieldUnsafe(), Datum.DataPtr, Value);
 	return DcOk();
 }
 
