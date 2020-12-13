@@ -38,7 +38,9 @@ static FDcResult DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& C
 	FDcDeserializeDelegate* HandlerPtr;
 	if (Property.IsUObject())
 	{
-		UClass* Class = CastChecked<UClass>(Property.ToUObjectUnsafe());
+		UObject* Object = CastChecked<UObject>(Property.ToUObjectUnsafe());
+		check(IsValid(Object));
+		UClass* Class = Object->GetClass();
 		HandlerPtr = Self.UClassDeserializerMap.Find(Class);
 		if (HandlerPtr == nullptr)
 			return DC_FAIL(DcDDeserialize, NoMatchingHandler)
