@@ -26,7 +26,7 @@ struct FDcBaseReadState
 
 	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
 
-	//	!!!  intentionally ommitting virtual destructor, keep these state trivia
+	//	!!!  intentionally ommitting virtual destructor, keep these state trivially destructable
 	template<typename T>
 	T* As();
 

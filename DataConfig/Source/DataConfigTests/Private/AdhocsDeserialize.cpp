@@ -252,6 +252,48 @@ void DeserializeContainers()
 	Dump(FDcPropertyDatum(FStructWithContainers::StaticStruct(), &Obj));
 }
 
+
+void Deserialize_Numerics()
+{
+	FDcDeserializer Deserializer;
+	DcSetupDefaultDeserializeHandlers(Deserializer);
+
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+
+		{
+			"AInt8" : -43,
+			"AInt16" : -2243,
+			"AInt32" : -23415,
+			"AInt64" : -1524523,
+
+			"AUInt8" : 213,
+			"AUInt16" : 2243,
+			"AUInt32" : 23415,
+			"AUInt64" : 1524523,
+
+			"AFloat" : 12.3,
+			"ADouble" : 112233.44,
+		}
+
+	)");
+	Reader.SetNewString(*Str);
+
+	FStructWithNumerics OutStruct;
+	FDcPropertyWriter Writer(FDcPropertyDatum(FStructWithNumerics::StaticStruct(), &OutStruct));
+
+	FDcDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Push(FStructWithNumerics::StaticStruct());
+	Ctx.Prepare();
+	Deserializer.Deserialize(Ctx);
+
+	Dump(FDcPropertyDatum(FStructWithNumerics::StaticStruct(), &OutStruct));
+}
+
+
 void WriteFixtureAsset()
 {
 	//	TODO still not working due to some weird assertions

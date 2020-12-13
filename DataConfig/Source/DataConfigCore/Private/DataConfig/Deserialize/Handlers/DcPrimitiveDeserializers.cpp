@@ -23,18 +23,12 @@ FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRe
 	if (!DcTypeUtils::IsNumericDataEntry(Next))
 		return DC_FAIL(DcDDeserialize, ExpectNumericEntry) << Next;
 
+	//	property writer driven coercion
+	Next = DcPropertyUtils::PropertyToDataEntry(Ctx.TopProperty());
 	if (!Ctx.Reader->Coercion(Next))
 		return DC_FAIL(DcDDeserialize, CoercionFail) << Next;;
 
-	//	TODO share code with PipeVisitor
-
-
-	if (Next == EDcDataEntry::Int8)
-	{
-		int8 Value;
-		DC_TRY(Ctx.Reader->ReadInt8(&Value));
-		DC_TRY(Ctx.Writer->WriteInt8(Value));
-	}
+	DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer);
 
 	return DcOkWithProcessed(OutRet);
 }

@@ -11,14 +11,15 @@ extern FString DC_STR_META_PATH;
 extern FName DC_NAME_META_TYPE;
 extern FName DC_NAME_META_PATH;
 
-const DATACONFIGCORE_API TBasicArray<FName>& GetAllNameMetas();
-const DATACONFIGCORE_API TBasicArray<FString>& GetAllStringMetas();
+DATACONFIGCORE_API const TBasicArray<FName>& GetAllNameMetas();
+DATACONFIGCORE_API const TBasicArray<FString>& GetAllStringMetas();
 
-bool DATACONFIGCORE_API IsMeta(const FName& Name);
-bool DATACONFIGCORE_API IsMeta(const FString& Str);
+DATACONFIGCORE_API bool IsMeta(const FName& Name);
+DATACONFIGCORE_API bool IsMeta(const FString& Str);
 
+DATACONFIGCORE_API FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Writer);
 
-}	// namespace DcDeserializeUtils;
+}	// namespace DcDeserializeUtils
 
 
 

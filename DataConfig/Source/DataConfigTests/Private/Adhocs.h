@@ -454,3 +454,23 @@ struct FStructWithFieldPath
 	UPROPERTY() TFieldPath<FNameProperty> NameFieldPath2;
 };
 
+USTRUCT()
+struct FStructWithNumerics
+{
+	GENERATED_BODY()
+
+	UPROPERTY() int8 AInt8;
+	UPROPERTY() int16 AInt16;
+	UPROPERTY() int32 AInt32;
+	UPROPERTY() int64 AInt64;
+
+	UPROPERTY() uint8 AUInt8;
+	UPROPERTY() uint16 AUInt16;
+	UPROPERTY() uint32 AUInt32;
+	UPROPERTY() uint64 AUInt64;
+
+	UPROPERTY() float AFloat;
+	UPROPERTY() double ADouble;
+};
+
+
