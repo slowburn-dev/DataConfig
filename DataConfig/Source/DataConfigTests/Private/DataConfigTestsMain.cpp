@@ -88,9 +88,11 @@ static void Body()
 
 	PropertyHighlights();
 	PropertyReadWrite__425_FieldPath();
-	*/
 
 	Deserialize_Numerics();
+	*/
+
+	DeserializeExtra_Color();
 
 	return;
 }

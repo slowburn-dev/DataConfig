@@ -4,33 +4,21 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/DcEnv.h"
 
 namespace DcExtra
 {
 
-EDcDeserializePredicateResult DATACONFIGEXTRA_API PredicateIsColorStruct(FDcDeserializeContext& Ctx)
+EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
-	//	TODO DcDeserializeUtil this
-	if (FStructProperty* StructProperty = DcPropertyUtils::CastFieldVariant<FStructProperty>(Ctx.TopProperty()))
-	{
-		return StructProperty->Struct->GetFName() == TEXT("Color")
-			? EDcDeserializePredicateResult::Process
-			: EDcDeserializePredicateResult::Pass;
-	}
-	else if (UScriptStruct* StructClass = DcPropertyUtils::CastFieldVariant<UScriptStruct>(Ctx.TopProperty()))
-	{
-		return StructClass->GetFName() == TEXT("Color")
-			? EDcDeserializePredicateResult::Process
-			: EDcDeserializePredicateResult::Pass;
-	}
-	else
-	{
-		return EDcDeserializePredicateResult::Pass;
-	}
+	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
+	return Struct && Struct->GetFName() == TEXT("Color")
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult DATACONFIGEXTRA_API HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));

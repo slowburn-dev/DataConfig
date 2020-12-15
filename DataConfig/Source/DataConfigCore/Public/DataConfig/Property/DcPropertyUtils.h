@@ -89,5 +89,7 @@ FORCEINLINE FString SafeNameToString(const FName& Value)
 
 DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
 
+DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant);
+
 }	// namespace DcPropertyUtils
 

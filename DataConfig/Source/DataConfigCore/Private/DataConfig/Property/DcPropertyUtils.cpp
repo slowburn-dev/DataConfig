@@ -352,4 +352,20 @@ FName GetStructTypeName(FFieldVariant& Property)
 	}
 }
 
+UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant)
+{
+	if (FStructProperty* StructProperty = CastFieldVariant<FStructProperty>(FieldVariant))
+	{
+		return StructProperty->Struct;
+	}
+	else if (UScriptStruct* StructClass = CastFieldVariant<UScriptStruct>(FieldVariant))
+	{
+		return StructClass;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 }	// namespace DcPropertyUtils
