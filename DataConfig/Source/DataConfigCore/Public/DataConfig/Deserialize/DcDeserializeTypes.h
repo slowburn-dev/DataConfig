@@ -41,6 +41,7 @@ enum class EDcDeserializeResult
 	CanNotProcess,
 	Processed,
 	//	failed is implicit as it returns fail
+	//	TODO ADD A ShouldProcessButFailed state, for explicit
 };
 
 FORCEINLINE FDcResult DcOkWithCanNotProcess(EDcDeserializeResult& OutResult)

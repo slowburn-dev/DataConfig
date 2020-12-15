@@ -2,7 +2,7 @@
 
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
-///	Deserialize `FooBlob` named `TArray<uint8>` fields from Base64 string
+///	Deserialize blob `TArray<uint8>` fields from Base64 string
 
 namespace DcExtra {
 

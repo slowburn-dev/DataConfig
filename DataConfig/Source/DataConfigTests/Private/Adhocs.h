@@ -473,4 +473,14 @@ struct FStructWithNumerics
 	UPROPERTY() double ADouble;
 };
 
+USTRUCT()
+struct FStructExtraBlob
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FName Pre;
+	//	TODO meta data is EDITOR ONLY, see WITH_METADATA def
+	UPROPERTY(meta = (DcExtraBlob = "wtf")) TArray<uint8> Blob;
+	UPROPERTY() TArray<uint8> Post;
+};
 

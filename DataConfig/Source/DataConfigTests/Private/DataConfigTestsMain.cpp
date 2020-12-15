@@ -92,7 +92,7 @@ static void Body()
 	Deserialize_Numerics();
 	*/
 
-	DeserializeExtra_Color();
+	DeserializeExtra_Base64();
 
 	return;
 }
