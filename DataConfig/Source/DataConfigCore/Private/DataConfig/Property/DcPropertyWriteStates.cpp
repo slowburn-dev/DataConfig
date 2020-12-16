@@ -33,8 +33,8 @@ static FDcResult CheckExpectedProperty(FProperty* Property, FFieldClass* Expecte
 {
 	if (!Property->IsA(ExpectedPropertyClass))
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)
-		<< ExpectedPropertyClass->GetFName() << Property->GetFName() << Property->GetClass()->GetFName()
-		<< _GetPropertyWriter()->FormatHighlight();
+			<< ExpectedPropertyClass->GetFName() << Property->GetFName() << Property->GetClass()->GetFName()
+			<< _GetPropertyWriter()->FormatHighlight();
 	else
 		return DcOk();
 }

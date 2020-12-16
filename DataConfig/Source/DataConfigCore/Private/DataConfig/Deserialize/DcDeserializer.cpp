@@ -9,7 +9,17 @@ namespace DcDeserializerDetails
 static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
 	EDcDeserializeResult HandlerRet;
-	DC_TRY(Handler.Execute(Ctx, HandlerRet));
+
+	FDcResult Result = Handler.Execute(Ctx, HandlerRet);
+	if (!Result.Ok())
+	{
+		//	 amend currenct reader/writer diagnostics if failed
+		DcEnv().GetLastDiag();
+
+
+		return Result;
+	}
+
 	check(HandlerRet != EDcDeserializeResult::Unknown);
 
 	if (HandlerRet == EDcDeserializeResult::FallThrough)

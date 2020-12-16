@@ -3,6 +3,7 @@
 
 struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ DcDDeserialize::NoMatchingHandler, TEXT("No matching handler, Property: {0} {1}"), },
+	{ DcDDeserialize::MismatchHandler, TEXT("Mismatched handler, Property: {0} {1}"), },
 	{ DcDDeserialize::NotPrepared, TEXT("Deserialize isn't prepared, need to call 'Ctx.Prepare'"), },
 	{ DcDDeserialize::DataEntryMismatch, TEXT("Deserialize type mismatch, Expect: {0}, Actual: {1}"), },
 	{ DcDDeserialize::DataEntryMismatch2, TEXT("Deserialize type mismatch, Expect: {0}/{1}, Actual: {2}"), },

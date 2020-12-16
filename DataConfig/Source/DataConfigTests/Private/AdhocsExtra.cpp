@@ -172,6 +172,16 @@ void DeserializeExtra_Base64()
 	FString Base64Str(Struct.Blob.Num(), (ANSICHAR*)Struct.Blob.GetData());
 	check(TEXT("these are my twisted words" == Base64Str));
 
+	{
+		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		UE_LOG(
+			LogDataConfigCore,
+			Display,
+			TEXT("delegate name: %s"),
+			*FDcDeserializePredicate::CreateStatic(PredicateIsBase64Blob).TryGetBoundFunctionName().ToString()
+		);
+	}
+
 	Dump(FDcPropertyDatum(FStructExtraBlob::StaticStruct(), &Struct));
 }
 

@@ -11,6 +11,7 @@ namespace DcDDeserialize
 		Unknown = 0,
 		NotPrepared,
 		NoMatchingHandler,
+		MismatchHandler,
 		DataEntryMismatch,
 		DataEntryMismatch2,
 		DataEntryMismatch3,
