@@ -22,7 +22,7 @@ FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 	DC_TRY(Ctx.Writer->PeekWrite(EntryStart, &bWritePass));
 
 	if (!(bRootPeekPass && bWritePass))
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 
 	check(Next == EDcDataEntry::ArrayRoot);
 
@@ -67,7 +67,7 @@ FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::MapRoot, &bWritePass));
 
 	if (!(bRootPeekPass && bWritePass))
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 
 	check(Next == EDcDataEntry::MapRoot);
 

@@ -12,7 +12,7 @@ static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeseri
 	DC_TRY(Handler.Execute(Ctx, HandlerRet));
 	check(HandlerRet != EDcDeserializeResult::Unknown);
 
-	if (HandlerRet == EDcDeserializeResult::CanNotProcess)
+	if (HandlerRet == EDcDeserializeResult::FallThrough)
 	{
 		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
 			<< Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();

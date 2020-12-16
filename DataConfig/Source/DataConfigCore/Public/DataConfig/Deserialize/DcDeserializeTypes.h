@@ -38,21 +38,20 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 enum class EDcDeserializeResult
 {
 	Unknown,
-	CanNotProcess,
-	Processed,
-	//	failed is implicit as it returns fail
-	//	TODO ADD A ShouldProcessButFailed state, for explicit
+	FallThrough,		//	Pass and let other handlers to try 
+	Success,			//	Success and finish processing
+	//	note that failure is propagated through DC_FAIL just like other APIs
 };
 
-FORCEINLINE FDcResult DcOkWithCanNotProcess(EDcDeserializeResult& OutResult)
+FORCEINLINE FDcResult DcOkWithFallThrough(EDcDeserializeResult& OutResult)
 {
-	OutResult = EDcDeserializeResult::CanNotProcess;
+	OutResult = EDcDeserializeResult::FallThrough;
 	return DcOk();
 }
 
 FORCEINLINE FDcResult DcOkWithProcessed(EDcDeserializeResult& OutResult)
 {
-	OutResult = EDcDeserializeResult::Processed;
+	OutResult = EDcDeserializeResult::Success;
 	return DcOk();
 }
 

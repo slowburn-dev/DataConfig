@@ -18,7 +18,7 @@ DATACONFIGEXTRA_API EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeser
 	//	check for only TArray<uint8>
 	if (ArrayProperty == nullptr)
 		return EDcDeserializePredicateResult::Pass;
-	if (!ArrayProperty->Inner->IsA<UByteProperty>())
+	if (!ArrayProperty->Inner->IsA<FByteProperty>())
 		return EDcDeserializePredicateResult::Pass;
 
 	bool bIsMetaData;
@@ -43,7 +43,7 @@ DATACONFIGEXTRA_API FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext&
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Blob, &bWritePass));
 
 	if (!(bReadPass && bWritePass))
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 
 	FString Base64Str;
 	DC_TRY(Ctx.Reader->ReadString(&Base64Str));

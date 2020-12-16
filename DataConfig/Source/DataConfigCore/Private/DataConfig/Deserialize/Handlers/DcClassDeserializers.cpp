@@ -21,7 +21,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	bool bPropertyPass = Ctx.TopProperty().IsA<UClass>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	if (Next == EDcDataEntry::MapRoot)
@@ -103,7 +103,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	bool bPropertyPass = Ctx.TopProperty().IsA<FObjectProperty>();
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
@@ -248,7 +248,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 
 	if (!(bRootPeekPass && bWritePass && bPropertyPass))
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());

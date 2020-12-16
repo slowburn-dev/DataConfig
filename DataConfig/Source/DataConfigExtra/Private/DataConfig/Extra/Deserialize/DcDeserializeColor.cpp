@@ -28,7 +28,7 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
 
 	if (!(bReadPass && bWritePass))
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 
 	FString ColorStr;
 	DC_TRY(Ctx.Reader->ReadString(&ColorStr));

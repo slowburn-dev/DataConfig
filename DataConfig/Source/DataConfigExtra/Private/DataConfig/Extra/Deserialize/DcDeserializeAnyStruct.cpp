@@ -38,7 +38,7 @@ FDcResult DATACONFIGEXTRA_API HandlerDcAnyStructDeserialize(FDcDeserializeContex
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
 
 	if (!(bReadPass && bWritePass))
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 
 	DC_TRY(Ctx.Reader->ReadMapRoot());
 	FString Str;

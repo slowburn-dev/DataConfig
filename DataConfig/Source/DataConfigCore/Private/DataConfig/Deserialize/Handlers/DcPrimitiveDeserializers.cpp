@@ -15,7 +15,7 @@ EDcDeserializePredicateResult PredicateIsNumericProperty(FDcDeserializeContext& 
 FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	if (!Ctx.TopProperty().IsA<FNumericProperty>())
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
@@ -37,7 +37,7 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 {
 	if (!Ctx.TopProperty().IsA<FBoolProperty>())
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	EDcDataEntry Next;
@@ -53,7 +53,7 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	DC_TRY(Ctx.Reader->ReadBool(&Value));
 	DC_TRY(Ctx.Writer->WriteBool(Value));
 
-	OutRet = EDcDeserializeResult::Processed;
+	OutRet = EDcDeserializeResult::Success;
 	return DcOkWithProcessed(OutRet);
 }
 
@@ -61,7 +61,7 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 {
 	if (!Ctx.TopProperty().IsA<FNameProperty>())
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	EDcDataEntry Next;
@@ -92,7 +92,7 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 {
 	if (!Ctx.TopProperty().IsA<FStrProperty>())
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	EDcDataEntry Next;

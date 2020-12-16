@@ -19,7 +19,7 @@ FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializ
 	if (!bRootPeekPass
 		|| !bWritePass)
 	{
-		return DcOkWithCanNotProcess(OutRet);
+		return DcOkWithFallThrough(OutRet);
 	}
 
 	if (Next == EDcDataEntry::MapRoot)
