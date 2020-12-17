@@ -30,25 +30,28 @@ void FMessageLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 		FMessageLog MessageLog("AssetReimport");
 		MessageLog.Message(EMessageSeverity::Error, FText::FromString(FString::Format(Detail->Msg, FormatArgs)));
 
-		//	TODO hyperlink the file
-		FString HighlightHeader;
-		if (Diag.FileContext.IsSet())
+		for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
 		{
-			HighlightHeader = FString::Printf(TEXT("File: %s%d:%d"),
-				*Diag.FileContext->FilePath,
-				Diag.FileContext->Loc.Line,
-				Diag.FileContext->Loc.Column);
-		}
-		else
-		{
-			HighlightHeader = TEXT("<Unkown file>");
-		}
+			//	TODO hyperlink the file
+			FString HighlightHeader;
+			if (Highlight.FileContext.IsSet())
+			{
+				HighlightHeader = FString::Printf(TEXT("File: %s%d:%d"),
+					*Highlight.FileContext->FilePath,
+					Highlight.FileContext->Loc.Line,
+					Highlight.FileContext->Loc.Column);
+			}
+			else
+			{
+				HighlightHeader = TEXT("<Unkown file>");
+			}
 
-		if (!Diag.Highlight.IsEmpty())
-		{
-			MessageLog.Message(EMessageSeverity::Error, FText::FromString(
-				FString::Printf(TEXT("%s\n%s"), *HighlightHeader, *Diag.Highlight)
-			));
+			if (!Highlight.Formatted.IsEmpty())
+			{
+				MessageLog.Message(EMessageSeverity::Error, FText::FromString(
+					FString::Printf(TEXT("%s\n%s"), *HighlightHeader, *Highlight.Formatted)
+				));
+			}
 		}
 	}
 	else
