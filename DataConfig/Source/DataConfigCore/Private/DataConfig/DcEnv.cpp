@@ -61,10 +61,10 @@ bool bInitialized = false;
 
 void DcStartUp(EDcInitializeAction InAction)
 {
-	DiagGroups.Emplace(&DCommonDetails);
-	DiagGroups.Emplace(&DPropertyReadWriteDetails);
-	DiagGroups.Emplace(&DJSONDetails);
-	DiagGroups.Emplace(&DDeserializeDetails);
+	DiagGroups.Emplace(&DcDCommon::Details);
+	DiagGroups.Emplace(&DcDReadWrite::Details);
+	DiagGroups.Emplace(&DcDJSON::Details);
+	DiagGroups.Emplace(&DcDDeserialize::Details);
 
 	DcPushEnv();
 	DcEnvDetails::bInitialized = true;

@@ -2,36 +2,36 @@
 
 #include "HAL/Platform.h"
 
-
 namespace DcDReadWrite
 {
-	static const uint16 Category = 0x2;
 
-	enum Type : uint16
-	{
-		Unknown = 0,
-		InvalidStateNoExpect,
-		InvalidStateWithExpect,
-		InvalidStateWithExpect2,
-		DataTypeMismatch,
-		DataTypeMismatch2,
-		PropertyMismatch,
-		AlreadyEnded,
-		CantFindPropertyByName,
-		WriteClassInlineNotCreated,
-		StructNameMismatch,
-		UInt64EnumNotSupported,
-		EnumNameMismatch,
-		EnumNameNotFound,
-		EnumValueInvalid,
-		WriteBlobOverrun,
-		
-		//	putback reader
-		CantUsePutbackValue,
+static const uint16 Category = 0x2;
 
-		//	pipe visitor
-		PipeReadWriteMismatch,
-	};
+enum Type : uint16
+{
+	Unknown = 0,
+	InvalidStateNoExpect,
+	InvalidStateWithExpect,
+	InvalidStateWithExpect2,
+	DataTypeMismatch,
+	DataTypeMismatch2,
+	PropertyMismatch,
+	AlreadyEnded,
+	CantFindPropertyByName,
+	WriteClassInlineNotCreated,
+	StructNameMismatch,
+	UInt64EnumNotSupported,
+	EnumNameMismatch,
+	EnumNameNotFound,
+	EnumValueInvalid,
+	WriteBlobOverrun,
+	
+	//	putback reader
+	CantUsePutbackValue,
+
+	//	pipe visitor
+	PipeReadWriteMismatch,
+};
 
 } // namespace DPropertyReadWrite
 
