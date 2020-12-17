@@ -547,7 +547,7 @@ FDcResult FDcPropertyWriter::WriteDataEntry(FFieldClass* ExpectedPropertyClass, 
 
 FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 {
-	FDcDiagnosticHighlight OutHighlight;
+	FDcDiagnosticHighlight OutHighlight(this);
 	TArray<FString> Segments;
 
 	bool bLastIsContainer = false;

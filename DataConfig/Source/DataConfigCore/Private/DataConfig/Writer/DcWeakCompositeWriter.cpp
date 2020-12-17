@@ -211,10 +211,5 @@ FDcResult FDcWeakCompositeWriter::WriteBlob(const FDcBlobViewData& Value)
 void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	for (FDcWriter* Writer : Writers)
-	{
 		Writer->FormatDiagnostic(Diag);
-		if (Diag.FileContext.IsSet()  
-			|| !Diag.Highlight.IsEmpty())
-			break;
-	}
 }

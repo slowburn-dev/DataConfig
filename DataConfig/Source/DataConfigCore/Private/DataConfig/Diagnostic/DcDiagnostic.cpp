@@ -120,22 +120,24 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 		for (FDcDataVariant& Var : Diag.Args)
 			FormatArgs.Add(DcConvertArg(Var));
 
-
-
 		UE_LOG(LogDataConfigCore, Display, TEXT("DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
-		if (Diag.FileContext.IsSet())
-		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("-->%s%d:%d"),
-				*Diag.FileContext->FilePath,
-				Diag.FileContext->Loc.Line,
-				Diag.FileContext->Loc.Column
-			);
-		}
 
-		if (!Diag.Highlight.IsEmpty())
+		for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("\n%s"),
-				*Diag.Highlight);
+			if (Highlight.FileContext.IsSet())
+			{
+				UE_LOG(LogDataConfigCore, Display, TEXT("-->%s%d:%d"),
+					*Highlight.FileContext->FilePath,
+					Highlight.FileContext->Loc.Line,
+					Highlight.FileContext->Loc.Column
+				);
+			}
+
+			if (!Highlight.Formatted.IsEmpty())
+			{
+				UE_LOG(LogDataConfigCore, Display, TEXT("\n%s"),
+					*Highlight.Formatted);
+			}
 		}
 	}
 	else

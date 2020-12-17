@@ -957,11 +957,13 @@ FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 }
 
 template<typename CharType>
-FDcDiagnosticHighlightWithFileContext TDcJsonReader<CharType>::FormatHighlight(SourceRef SpanRef)
+FDcDiagnosticHighlight TDcJsonReader<CharType>::FormatHighlight(SourceRef SpanRef)
 {
-	FDcDiagnosticHighlightWithFileContext OutHighlight;
-	OutHighlight.FileContext.Loc = Loc;
-	OutHighlight.FileContext.FilePath = DiagFilePath;
+	FDcDiagnosticHighlight OutHighlight(this);
+	OutHighlight.FileContext.Emplace();
+	OutHighlight.FileContext->Loc = Loc;
+	OutHighlight.FileContext->FilePath = DiagFilePath;
+
 	THightlightFormatter<CharType> Highlighter;
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
 

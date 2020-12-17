@@ -15,13 +15,11 @@ struct DATACONFIGCORE_API FDcDiagnosticFileContext
 
 struct DATACONFIGCORE_API FDcDiagnosticHighlight
 {
+	void* Owner;
 	FString Formatted;
-};
+	TOptional<FDcDiagnosticFileContext> FileContext;
 
-struct DATACONFIGCORE_API FDcDiagnosticHighlightWithFileContext
-{
-	FDcDiagnosticFileContext FileContext;
-	FString Formatted;
+	FDcDiagnosticHighlight(void* InOwner) : Owner(InOwner) {}
 };
 
 struct DATACONFIGCORE_API FDcDiagnostic
@@ -29,8 +27,7 @@ struct DATACONFIGCORE_API FDcDiagnostic
 	FDcErrorCode Code;
 	TArray<FDcDataVariant> Args;
 
-	TOptional<FDcDiagnosticFileContext> FileContext;
-	FString Highlight;
+	TArray<FDcDiagnosticHighlight> Highlights;
 
 	FDcDiagnostic(FDcErrorCode InID) : Code(InID)
 	{}
@@ -102,19 +99,7 @@ FORCEINLINE_DEBUGGABLE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEnt
 
 FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighlight&& DiagSpan)
 {
-	check(Diag.Highlight.IsEmpty());
-
-	Diag.Highlight = MoveTemp(DiagSpan.Formatted);
-	return Diag;
-}
-
-FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighlightWithFileContext&& DiagSpan)
-{
-	check(Diag.Highlight.IsEmpty());
-	check(!Diag.FileContext.IsSet());
-
-	Diag.Highlight = MoveTemp(DiagSpan.Formatted);
-	Diag.FileContext.Emplace(MoveTemp(DiagSpan.FileContext));
+	Diag.Highlights.Emplace(MoveTemp(DiagSpan));
 	return Diag;
 }
 

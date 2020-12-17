@@ -174,8 +174,9 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult EndTopRead();
 
-	FDcDiagnosticHighlightWithFileContext FormatHighlight(SourceRef SpanRef);
-	FORCEINLINE FDcDiagnosticHighlightWithFileContext FormatHighlight(int Begin, int Num) { return FormatHighlight(SourceRef{ &Buf, Begin, Num }); }
+	FDcDiagnosticHighlight FormatHighlight(SourceRef SpanRef);
+	FORCEINLINE FDcDiagnosticHighlight FormatHighlight(int Begin, int Num) { return FormatHighlight(SourceRef{ &Buf, Begin, Num }); }
+
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
 	template<typename TInt>
