@@ -27,7 +27,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
-		FDcObjectPropertyStat WriteClassStat{ Ctx.TopProperty().GetFName(), EDcObjectPropertyControl::ExpandObject };
+		FDcClassStat WriteClassStat{ Ctx.TopProperty().GetFName(), FDcClassStat::EControl::ExpandObject };
 		DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 		EDcDataEntry CurPeek;
@@ -108,8 +108,8 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 
 	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 
-	FDcObjectPropertyStat RefStat {
-		ObjectProperty->PropertyClass->GetFName(), EDcObjectPropertyControl::ExternalReference
+	FDcClassStat RefStat {
+		ObjectProperty->PropertyClass->GetFName(), FDcClassStat::EControl::ExternalReference
 	};
 
 	if (Next == EDcDataEntry::String)
@@ -351,7 +351,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	//	manually setting class state
 	Ctx.Writer->PushTopClassPropertyState(Datum);
 
-	FDcObjectPropertyStat WriteClassStat{ ObjectProperty->GetFName(), EDcObjectPropertyControl::ExpandObject };
+	FDcClassStat WriteClassStat{ ObjectProperty->GetFName(), FDcClassStat::EControl::ExpandObject };
 	DC_TRY(Ctx.Writer->WriteClassRoot(WriteClassStat));
 
 	//	usual read routine

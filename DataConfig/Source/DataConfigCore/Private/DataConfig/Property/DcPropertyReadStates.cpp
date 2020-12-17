@@ -177,7 +177,7 @@ FDcResult FDcReadStateClass::EndReadValue()
 	}
 }
 
-FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
+FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
@@ -187,7 +187,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 			if (OutClassPtr)
 			{
 				OutClassPtr->Name = Class->GetFName();
-				OutClassPtr->Reference = EDcObjectPropertyControl::ExternalReference;
+				OutClassPtr->Control = FDcClassStat::EControl::ExternalReference;
 			}
 
 			State = EState::ExpectNil;
@@ -202,7 +202,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 				if (OutClassPtr)
 				{
 					OutClassPtr->Name = Class->GetFName();
-					OutClassPtr->Reference = EDcObjectPropertyControl::ExternalReference;
+					OutClassPtr->Control = FDcClassStat::EControl::ExternalReference;
 				}
 
 				return DcOk();
@@ -215,7 +215,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 				if (OutClassPtr)
 				{
 					OutClassPtr->Name = Cls->GetFName();
-					OutClassPtr->Reference = EDcObjectPropertyControl::ExpandObject;
+					OutClassPtr->Control = FDcClassStat::EControl::ExpandObject;
 				}
 
 				Property = DcPropertyUtils::FirstEffectiveProperty(Cls->PropertyLink);
@@ -243,7 +243,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
 	}
 }
 
-FDcResult FDcReadStateClass::ReadClassEnd(FDcObjectPropertyStat* OutClassPtr)
+FDcResult FDcReadStateClass::ReadClassEnd(FDcClassStat* OutClassPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
@@ -252,9 +252,9 @@ FDcResult FDcReadStateClass::ReadClassEnd(FDcObjectPropertyStat* OutClassPtr)
 		if (OutClassPtr)
 		{
 			OutClassPtr->Name = Class->GetFName();
-			OutClassPtr->Reference = Type == EType::Root
-				? EDcObjectPropertyControl::ExpandObject
-				: EDcObjectPropertyControl::ExternalReference;
+			OutClassPtr->Control = Type == EType::Root
+				? FDcClassStat::EControl::ExpandObject
+				: FDcClassStat::EControl::ExternalReference;
 		}
 
 		return DcOk();

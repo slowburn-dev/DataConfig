@@ -118,13 +118,13 @@ FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Wri
 	}
 	else if (Next == EDcDataEntry::ClassRoot)
 	{
-		FDcObjectPropertyStat ClassStat;
+		FDcClassStat ClassStat;
 		DC_TRY(Reader->ReadClassRoot(&ClassStat));
 		DC_TRY(Writer->WriteClassRoot(ClassStat));
 	}
 	else if (Next == EDcDataEntry::ClassEnd)
 	{
-		FDcObjectPropertyStat ClassStat;
+		FDcClassStat ClassStat;
 		DC_TRY(Reader->ReadClassEnd(&ClassStat));
 		DC_TRY(Writer->WriteClassEnd(ClassStat));
 	}

@@ -25,8 +25,8 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadStructRoot(FName* OutNamePtr);
 	virtual FDcResult ReadStructEnd(FName* OutNamePtr);
 
-	virtual FDcResult ReadClassRoot(FDcObjectPropertyStat* OutClassPtr);
-	virtual FDcResult ReadClassEnd(FDcObjectPropertyStat* OutClassPtr);
+	virtual FDcResult ReadClassRoot(FDcClassStat* OutClassPtr);
+	virtual FDcResult ReadClassEnd(FDcClassStat* OutClassPtr);
 
 	virtual FDcResult ReadMapRoot();
 	virtual FDcResult ReadMapEnd();

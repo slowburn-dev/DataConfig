@@ -53,12 +53,12 @@ FDcResult FDcWeakCompositeWriter::WriteStructEnd(const FName& Name)
 	return CompositeDispatch(this, &FDcWriter::WriteStructEnd, Name);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteClassRoot(const FDcObjectPropertyStat& Class)
+FDcResult FDcWeakCompositeWriter::WriteClassRoot(const FDcClassStat& Class)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteClassRoot, Class);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteClassEnd(const FDcObjectPropertyStat& Class)
+FDcResult FDcWeakCompositeWriter::WriteClassEnd(const FDcClassStat& Class)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteClassEnd, Class);
 }

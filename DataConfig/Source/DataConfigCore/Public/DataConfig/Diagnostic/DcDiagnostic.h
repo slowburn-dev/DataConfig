@@ -133,8 +133,6 @@ struct DATACONFIGCORE_API FDcDiagnosticDetail
 DATACONFIGCORE_API const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError);
 DATACONFIGCORE_API FStringFormatArg DcConvertArg(FDcDataVariant& Var);
 
-static const uint16 DC_DETAIL_END = MAX_uint16;
-
 struct DATACONFIGCORE_API FDcDiagnosticGroup
 {
 	uint16 CategoryID;

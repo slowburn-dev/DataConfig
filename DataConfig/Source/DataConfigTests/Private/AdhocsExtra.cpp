@@ -155,7 +155,7 @@ void DeserializeExtra_Base64()
 	FString Str = TEXT(R"(
 		{
 			"Pre" : "Woot",
-			"Blob" : " dGhlc2UgYXJlIG15IHR3aXN0ZWQgd29yZHM=",
+			"Blob" : "dGhlc2UgYXJlIG15IHR3aXN0ZWQgd29yZHM=",
 			"Post" : [1,2,3],
 		}
 	)");

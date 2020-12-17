@@ -63,14 +63,14 @@ FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FName& Name)
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcObjectPropertyStat& Class)
+FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcClassStat& Class)
 {
 	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
 	Indent += _PER_INDENT;
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcObjectPropertyStat& Class)
+FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcClassStat& Class)
 {
 	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
 	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));

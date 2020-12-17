@@ -132,12 +132,12 @@ FDcResult FDcPutbackReader::ReadStructEnd(FName* OutNamePtr)
 	return CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEnd, OutNamePtr);
 }
 
-FDcResult FDcPutbackReader::ReadClassRoot(FDcObjectPropertyStat* OutClassPtr)
+FDcResult FDcPutbackReader::ReadClassRoot(FDcClassStat* OutClassPtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::ClassRoot, &FDcReader::ReadClassRoot, OutClassPtr);
 }
 
-FDcResult FDcPutbackReader::ReadClassEnd(FDcObjectPropertyStat* OutClassPtr)
+FDcResult FDcPutbackReader::ReadClassEnd(FDcClassStat* OutClassPtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::ClassEnd, &FDcReader::ReadClassEnd, OutClassPtr);
 }

@@ -156,8 +156,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteNil();
-	FDcResult WriteClassRoot(const FDcObjectPropertyStat& Class);
-	FDcResult WriteClassEnd(const FDcObjectPropertyStat& Class);
+	FDcResult WriteClassRoot(const FDcClassStat& Class);
+	FDcResult WriteClassEnd(const FDcClassStat& Class);
 	FDcResult WriteObjectReference(const UObject* Value);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
