@@ -7,6 +7,8 @@
 #include "HAL/PlatformApplicationMisc.h"
 #include "GenericPlatform/GenericApplication.h"
 
+#include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
+
 
 #include "Adhocs.h"
 IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
@@ -164,6 +166,8 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 #endif
 
 	{
+		DcRegisterDiagnosticGroup(&DcDExtra::Details);
+
 		DcStartUp(EDcInitializeAction::SetAsConsole);
 		Body();
 		DcShutDown();

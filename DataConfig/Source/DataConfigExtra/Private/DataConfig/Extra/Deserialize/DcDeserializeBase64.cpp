@@ -1,10 +1,12 @@
-#include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
+#include "DataConfig/Extra/Deserialize/DcDeserializeBase64.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/DcEnv.h"
+
+#include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 
 #include "Misc/Base64.h"
 
@@ -51,8 +53,8 @@ DATACONFIGEXTRA_API FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext&
 	TArray<uint8> Buffer;
 	bool bOk = FBase64::Decode(Base64Str, Buffer);
 
-	//	TODO [DIAG] user diagnostic message, find a way to insert it.
-	if (!bOk) return DcFail();
+	if (!bOk)
+		return DC_FAIL(DcDExtra, InvalidBase64String);
 
 	DC_TRY(Ctx.Writer->WriteBlob(FDcBlobViewData{ Buffer.GetData(), Buffer.Num() }));
 

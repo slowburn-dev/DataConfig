@@ -4,6 +4,7 @@
 #include "DataConfig/Misc/DcDataVariant.h"
 #include "DataConfig/Source/DcSourceTypes.h"
 
+#include "Containers/BasicArray.h"
 #include "Templates/IsEnumClass.h"
 #include "UObject/Package.h"
 
@@ -136,9 +137,14 @@ static const uint16 DC_DETAIL_END = MAX_uint16;
 
 struct DATACONFIGCORE_API FDcDiagnosticGroup
 {
+	uint16 CategoryID;
 	size_t Count;
 	FDcDiagnosticDetail* Details;
 };
+
+extern TBasicArray<FDcDiagnosticGroup*> DiagGroups;
+
+DATACONFIGCORE_API void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup);
 
 template <typename T, size_t N>
 size_t DcDimOf(T(&)[N])

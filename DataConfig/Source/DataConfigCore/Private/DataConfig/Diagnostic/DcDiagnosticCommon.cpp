@@ -9,5 +9,9 @@ static FDcDiagnosticDetail _CommonDetails[] = {
 	{ DcDCommon::PlaceHoldError, TEXT("<<<placeholder error>>>") },
 };
 
-FDcDiagnosticGroup DCommonDetails = { DcDimOf(_CommonDetails), _CommonDetails };
+FDcDiagnosticGroup DCommonDetails = {
+	DcDCommon::Category,
+	DcDimOf(_CommonDetails),
+	_CommonDetails
+};
 

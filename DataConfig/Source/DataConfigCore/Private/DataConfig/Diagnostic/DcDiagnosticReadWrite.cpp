@@ -24,5 +24,9 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DcDReadWrite::PipeReadWriteMismatch, TEXT("Pipe visit read write mismatch. Actual {0}") },
 };
 
-FDcDiagnosticGroup DPropertyReadWriteDetails = { DcDimOf(_ReadWriteDetails), _ReadWriteDetails };
+FDcDiagnosticGroup DPropertyReadWriteDetails = {
+	DcDReadWrite::Category,
+	DcDimOf(_ReadWriteDetails),
+	_ReadWriteDetails
+};
 

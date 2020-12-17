@@ -1,6 +1,6 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/DcTypes.h"
-#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Diagnostic/DcDiagnosticAll.inl"
 #include "Containers/BasicArray.h"
 
 TBasicArray<FDcEnv> Envs;
@@ -53,7 +53,7 @@ FDcEnv::~FDcEnv()
 	FlushDiags();
 }
 
-namespace DcEnv_Private{
+namespace DcEnvDetails{
 
 bool bInitialized = false;
 
@@ -61,8 +61,13 @@ bool bInitialized = false;
 
 void DcStartUp(EDcInitializeAction InAction)
 {
-	DcEnv_Private::bInitialized = true;
+	DiagGroups.Emplace(&DCommonDetails);
+	DiagGroups.Emplace(&DPropertyReadWriteDetails);
+	DiagGroups.Emplace(&DJSONDetails);
+	DiagGroups.Emplace(&DDeserializeDetails);
+
 	DcPushEnv();
+	DcEnvDetails::bInitialized = true;
 
 	if (InAction == EDcInitializeAction::SetAsConsole)
 	{
@@ -73,11 +78,13 @@ void DcStartUp(EDcInitializeAction InAction)
 void DcShutDown()
 {
 	DcPopEnv();
-	DcEnv_Private::bInitialized = false;
+	DiagGroups.RemoveAt(0, DiagGroups.Num());
+
+	DcEnvDetails::bInitialized = false;
 }
 
 bool DcIsInitialized()
 {
-	return DcEnv_Private::bInitialized;
+	return DcEnvDetails::bInitialized;
 }
 

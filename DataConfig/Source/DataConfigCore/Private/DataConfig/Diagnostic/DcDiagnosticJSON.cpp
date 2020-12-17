@@ -18,5 +18,9 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DcDJSON::ObjectKeyTooLong, TEXT("Object key string too long, UE4 FName has lengh limitation anyway"), },
 };
 
-FDcDiagnosticGroup DJSONDetails = { DcDimOf(_JSONDetails), _JSONDetails };
+FDcDiagnosticGroup DJSONDetails = {
+	DcDJSON::Category,
+	DcDimOf(_JSONDetails),
+	_JSONDetails 
+};
 

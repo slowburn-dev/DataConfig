@@ -15,5 +15,9 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ DcDDeserialize::CoercionFail, TEXT("Reader coercion failed, Actual: {0}")},
 };
 
-FDcDiagnosticGroup DDeserializeDetails = { DcDimOf(_DeserializeDetails), _DeserializeDetails };
+FDcDiagnosticGroup DDeserializeDetails = {
+	DcDDeserialize::Category,
+	DcDimOf(_DeserializeDetails),
+	_DeserializeDetails
+};
 

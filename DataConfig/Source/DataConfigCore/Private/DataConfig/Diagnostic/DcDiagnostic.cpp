@@ -1,12 +1,21 @@
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
-#include "DataConfig/Diagnostic/DcDiagnosticAll.inl"
 #include "DataConfig/Misc/DcTypeUtils.h"
 
-static const FDcDiagnosticDetail* SearchDetails(uint16 InID, const FDcDiagnosticGroup& Group)
+TBasicArray<FDcDiagnosticGroup*> DiagGroups;
+
+void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup)
 {
-	for (int Ix = 0; Ix < Group.Count; Ix++)
+	checkf(!DcIsInitialized(), TEXT("can't register diagnostic group after initialized"));
+	checkf(InWeakGroup->CategoryID > 0xFF, TEXT("categoryID under 255 is reserved"));
+	//	TODO check that InWeakGroup has static lifetime, if possible
+	DiagGroups.Emplace(InWeakGroup);
+}
+
+static FDcDiagnosticDetail* SearchDetails(uint16 InID, FDcDiagnosticGroup* Group)
+{
+	for (int Ix = 0; Ix < Group->Count; Ix++)
 	{
-		const FDcDiagnosticDetail& Detail = Group.Details[Ix];
+		FDcDiagnosticDetail& Detail = Group->Details[Ix];
 		if (Detail.ID == InID)
 		{
 			return &Detail;
@@ -18,15 +27,11 @@ static const FDcDiagnosticDetail* SearchDetails(uint16 InID, const FDcDiagnostic
 
 const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError)
 {
-	//	TODO make this a jump table
-	if (InError.CategoryID == DcDCommon::Category)
-		return SearchDetails(InError.ErrorID, DCommonDetails);
-	if (InError.CategoryID == DcDReadWrite::Category)
-		return SearchDetails(InError.ErrorID, DPropertyReadWriteDetails);
-	if (InError.CategoryID == DcDJSON::Category)
-		return SearchDetails(InError.ErrorID, DJSONDetails);
-	if (InError.CategoryID == DcDDeserialize::Category)
-		return SearchDetails(InError.ErrorID, DDeserializeDetails);
+	for (FDcDiagnosticGroup* Group : DiagGroups)
+	{
+		if (InError.CategoryID == Group->CategoryID)
+			return SearchDetails(InError.ErrorID, Group);
+	}
 
 	return nullptr;
 }
