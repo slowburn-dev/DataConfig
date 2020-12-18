@@ -280,7 +280,7 @@ void PropertyVisitorRoundtrip_WriteNested()
 	bool bWriteOk;
 	//	Root
 	check(Writer.PeekWrite(EDcDataEntry::StructRoot, &bWriteOk).Ok() && bWriteOk);
-	check(Writer.WriteStructRoot(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), true }).Ok());
+	check(Writer.WriteStructRoot(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 
 	//	Outer Name
 	check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok() && bWriteOk);
@@ -292,7 +292,7 @@ void PropertyVisitorRoundtrip_WriteNested()
 	check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok() && bWriteOk);
 	check(Writer.WriteName(FName(TEXT("AStruct"))).Ok());
 	check(Writer.PeekWrite(EDcDataEntry::StructRoot, &bWriteOk).Ok() && bWriteOk);
-	check(Writer.WriteStructRoot(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), true}).Ok());
+	check(Writer.WriteStructRoot(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 
 	check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok() && bWriteOk);
 	check(Writer.WriteName(FName(TEXT("AName"))).Ok());
@@ -310,10 +310,10 @@ void PropertyVisitorRoundtrip_WriteNested()
 	check(Writer.WriteString(TEXT("A L P H A O N E")).Ok());
 
 	check(Writer.PeekWrite(EDcDataEntry::StructEnd, &bWriteOk).Ok() && bWriteOk);	//	end nested
-	check(Writer.WriteStructEnd(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), true}).Ok());
+	check(Writer.WriteStructEnd(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 
 	check(Writer.PeekWrite(EDcDataEntry::StructEnd, &bWriteOk).Ok() && bWriteOk);	//	end outer struct
-	check(Writer.WriteStructEnd(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), true}).Ok());
+	check(Writer.WriteStructEnd(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 	check(Writer.PeekWrite(EDcDataEntry::Ended, &bWriteOk).Ok() && bWriteOk);
 
 	UE_LOG(LogDataConfigCore, Display, TEXT("name: %s"), *NestStruct.AName.ToString());
@@ -333,7 +333,7 @@ void PropertyVisitorRoundtrip()
 		bool bWriteOk;
 		//	Root
 		check(Writer.PeekWrite(EDcDataEntry::StructRoot, &bWriteOk).Ok());
-		check(Writer.WriteStructRoot(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), true}).Ok());
+		check(Writer.WriteStructRoot(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 
 		//	Outer Name
 		check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok());
@@ -345,7 +345,7 @@ void PropertyVisitorRoundtrip()
 		check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok());
 		check(Writer.WriteName(FName(TEXT("AStruct"))).Ok());
 		check(Writer.PeekWrite(EDcDataEntry::StructRoot, &bWriteOk).Ok());
-		check(Writer.WriteStructRoot(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), true}).Ok());
+		check(Writer.WriteStructRoot(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 
 		check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok());
 		check(Writer.WriteName(FName(TEXT("AName"))).Ok());
@@ -363,7 +363,7 @@ void PropertyVisitorRoundtrip()
 		check(Writer.SkipWrite().Ok());
 
 		check(Writer.PeekWrite(EDcDataEntry::StructEnd, &bWriteOk).Ok());	//	end nested
-		check(Writer.WriteStructEnd(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), true}).Ok());
+		check(Writer.WriteStructEnd(FDcStructStat{ FTestStruct_Alpha::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 
 		check(Writer.PeekWrite(EDcDataEntry::Name, &bWriteOk).Ok());
 		check(Writer.WriteName(FName(TEXT("AStruct2"))).Ok());
@@ -371,7 +371,7 @@ void PropertyVisitorRoundtrip()
 		check(Writer.SkipWrite().Ok());
 
 		check(Writer.PeekWrite(EDcDataEntry::StructEnd, &bWriteOk).Ok());	//	end outer struct
-		check(Writer.WriteStructEnd(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), true }).Ok());
+		check(Writer.WriteStructEnd(FDcStructStat{ FNestStruct1::StaticStruct()->GetFName(), FDcStructStat::WriteCheckName }).Ok());
 		check(Writer.PeekWrite(EDcDataEntry::Ended, &bWriteOk).Ok());
 	}
 
@@ -798,7 +798,7 @@ void PropertyReadWrite_Blob()
 	FDcPropertyWriter Writer(FDcPropertyDatum(FStructWithBlob::StaticStruct(), &OutStruct));
 
 	check(Reader.ReadStructRoot(nullptr).Ok());
-	check(Writer.WriteStructRoot(FDcStructStat{ TEXT("StructWithBlob"), true }).Ok());
+	check(Writer.WriteStructRoot(FDcStructStat{ TEXT("StructWithBlob"), FDcStructStat::WriteCheckName }).Ok());
 
 	{
 		check(Reader.ReadName(nullptr).Ok());
@@ -825,7 +825,7 @@ void PropertyReadWrite_Blob()
 	}
 
 	check(Reader.ReadStructEnd(nullptr).Ok());
-	check(Writer.WriteStructEnd(FDcStructStat{ TEXT("StructWithBlob"), true }).Ok());
+	check(Writer.WriteStructEnd(FDcStructStat{ TEXT("StructWithBlob"), FDcStructStat::WriteCheckName }).Ok());
 
 	DumpStruct(&OutStruct, FStructWithBlob::StaticStruct());
 }

@@ -25,9 +25,7 @@ FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializ
 	if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
-		// TODO [STRUCTSTAT], Color
-		//DC_TRY(Ctx.Writer->WriteStructRoot(DcPropertyUtils::GetStructTypeName(Ctx.TopProperty())));
-		DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat::EMPTY));
+		DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat()));
 
 		EDcDataEntry CurPeek;
 		while (true)
@@ -56,9 +54,7 @@ FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializ
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 		}
 
-		// TODO [STRUCTSTAT], Color
-		//DC_TRY(Ctx.Writer->WriteStructEnd(DcPropertyUtils::GetStructTypeName(Ctx.TopProperty())));
-		DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat::EMPTY));
+		DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat{}));
 
 		return DcOkWithProcessed(OutRet);
 	}

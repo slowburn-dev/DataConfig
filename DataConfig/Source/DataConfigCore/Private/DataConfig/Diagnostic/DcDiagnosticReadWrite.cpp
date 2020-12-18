@@ -15,6 +15,7 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ CantFindPropertyByName, TEXT("Can't find property by name. Name '{0}'") },
 	{ WriteClassInlineNotCreated, TEXT("Expand class write need the object to already exist. Property {0} {1}") },
 	{ StructNameMismatch, TEXT("Struct name mismatch, Expect {0}, Actual {1}") },
+	{ ClassNameMismatch, TEXT("Class name mismatch, Expect {0}, Actual {1}") },
 	{ UInt64EnumNotSupported, TEXT("Doesn't support uint64 backed enum atm") },
 	{ EnumNameMismatch, TEXT("Enum name mismatch, Expect {0}, Actual {1}") },
 	{ EnumNameNotFound, TEXT("Enum name not found. Enum {0}, Actual {1}") },

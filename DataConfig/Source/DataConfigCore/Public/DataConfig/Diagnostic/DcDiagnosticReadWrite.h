@@ -20,6 +20,7 @@ enum Type : uint16
 	CantFindPropertyByName,
 	WriteClassInlineNotCreated,
 	StructNameMismatch,
+	ClassNameMismatch,
 	UInt64EnumNotSupported,
 	EnumNameMismatch,
 	EnumNameNotFound,

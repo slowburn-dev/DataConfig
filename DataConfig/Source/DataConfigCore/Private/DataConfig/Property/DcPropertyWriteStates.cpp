@@ -180,7 +180,7 @@ FDcResult FDcWriteStateStruct::WriteStructRoot(const FDcStructStat& Struct)
 	if (State == EState::ExpectRoot)
 	{
 		State = EState::ExpectKeyOrEnd;
-		if (Struct.bWriteCheckName)
+		if (Struct.Flag & FDcStructStat::WriteCheckName)
 		{
 			return DcExpect(Struct.Name == StructClass->GetFName(), [=] {
 				return DC_FAIL(DcDReadWrite, StructNameMismatch)
@@ -206,7 +206,7 @@ FDcResult FDcWriteStateStruct::WriteStructEnd(const FDcStructStat& Struct)
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		if (Struct.bWriteCheckName)
+		if (Struct.Flag & FDcStructStat::WriteCheckName)
 		{
 			return DcExpect(Struct.Name == StructClass->GetFName(), [=] {
 				return DC_FAIL(DcDReadWrite, StructNameMismatch)
@@ -352,12 +352,20 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 {
 	if (State == EState::ExpectRoot)
 	{
-		//	TODO may pass in derived class already
-		//TRY(Expect(ClassStat.Name == Class->GetFName()));
+		if (ClassStat.Flag & FDcClassStat::WriteCheckName)
+		{
+			DC_TRY(DcExpect(Class->GetFName() == ClassStat.Name, [=]{
+				return DC_FAIL(DcDReadWrite, ClassNameMismatch)
+					<< Class->GetFName() << ClassStat.Name
+					<< _GetPropertyWriter()->FormatHighlight();
+			}));
+		}
+
 		if (ClassStat.Control == FDcClassStat::EControl::ExternalReference)
 		{
 			State = EState::ExpectReference;
 		}
+
 		else if (ClassStat.Control == FDcClassStat::EControl::ExpandObject)
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
@@ -401,9 +409,16 @@ FDcResult FDcWriteStateClass::WriteClassEnd(const FDcClassStat& ClassStat)
 	if (State == EState::ExpectExpandKeyOrEnd
 		|| State == EState::ExpectEnd)
 	{
+		if (ClassStat.Flag & FDcClassStat::WriteCheckName)
+		{
+			DC_TRY(DcExpect(Class->GetFName() == ClassStat.Name, [=] {
+				return DC_FAIL(DcDReadWrite, ClassNameMismatch)
+					<< Class->GetFName() << ClassStat.Name
+					<< _GetPropertyWriter()->FormatHighlight();
+			}));
+		}
+
 		State = EState::Ended;
-		//	TODO now may pass in derived class
-		//return Expect(ClassStat.Name == Class->GetFName());
 		return DcOk();
 	}
 	else

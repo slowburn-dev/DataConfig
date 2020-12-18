@@ -116,9 +116,13 @@ struct DATACONFIGCORE_API FDcStructStat
 {
 	FName Name;
 
-	bool bWriteCheckName = false;	//	check struct name match on write
+	enum EFlag
+	{
+		None					= 0,
+		WriteCheckName			= 0x1,
+	};
 
-	static FDcStructStat EMPTY;
+	EFlag Flag = None;
 };
 
 
@@ -126,7 +130,7 @@ struct DATACONFIGCORE_API FDcClassStat
 {
 	FName Name;
 
-	enum class EControl : uint8
+	enum class EControl
 	{
 		ExternalReference,
 		ExpandObject,
@@ -134,7 +138,13 @@ struct DATACONFIGCORE_API FDcClassStat
 
 	EControl Control;
 
-	bool bWriteCheckName = false;	//	check class name match on write
+	enum EFlag
+	{
+		None					= 0,
+		WriteCheckName			= 0x1,
+	};
+
+	EFlag Flag = None;
 };
 
 struct DATACONFIGCORE_API FDcEnumData
