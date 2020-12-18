@@ -122,14 +122,14 @@ FDcResult FDcPutbackReader::ReadEnum(FDcEnumData* OutPtr)
 	return CachedRead<FDcEnumData>(this, &FDcReader::ReadEnum, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadStructRoot(FName* OutNamePtr)
+FDcResult FDcPutbackReader::ReadStructRoot(FDcStructStat* OutStructPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::StructRoot, &FDcReader::ReadStructRoot, OutNamePtr);
+	return CanNotCachedRead(this, EDcDataEntry::StructRoot, &FDcReader::ReadStructRoot, OutStructPtr);
 }
 
-FDcResult FDcPutbackReader::ReadStructEnd(FName* OutNamePtr)
+FDcResult FDcPutbackReader::ReadStructEnd(FDcStructStat* OutStructPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEnd, OutNamePtr);
+	return CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEnd, OutStructPtr);
 }
 
 FDcResult FDcPutbackReader::ReadClassRoot(FDcClassStat* OutClassPtr)

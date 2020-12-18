@@ -24,8 +24,8 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadText(FText* OutPtr) override;
 	FDcResult ReadEnum(FDcEnumData* OutPtr) override;
 
-	FDcResult ReadStructRoot(FName* OutNamePtr) override;
-	FDcResult ReadStructEnd(FName* OutNamePtr) override;
+	FDcResult ReadStructRoot(FDcStructStat* OutStructPtr) override;
+	FDcResult ReadStructEnd(FDcStructStat* OutStructPtr) override;
 
 	FDcResult ReadClassRoot(FDcClassStat* OutClassPtr) override;
 	FDcResult ReadClassEnd(FDcClassStat* OutClassPtr) override;

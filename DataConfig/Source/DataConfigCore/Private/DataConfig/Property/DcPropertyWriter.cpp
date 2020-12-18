@@ -180,7 +180,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 	return DcOk();
 }
 
-FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
+FDcResult FDcPropertyWriter::WriteStructRoot(const FDcStructStat& Struct)
 {
 	FScopedStackedWriter StackedWriter(this);
 
@@ -190,7 +190,7 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 		if (StructState != nullptr
 			&& StructState->State == FDcWriteStateStruct::EState::ExpectRoot)
 		{
-			return StructState->WriteStructRoot(Name);
+			return StructState->WriteStructRoot(Struct);
 		}
 	}
 
@@ -205,19 +205,19 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FName& Name)
 			StructProperty->Struct,
 			StructProperty->GetFName()
 		);
-		DC_TRY(ChildStruct.WriteStructRoot(Name));
+		DC_TRY(ChildStruct.WriteStructRoot(Struct));
 	}
 
 	return DcOk();
 }
 
-FDcResult FDcPropertyWriter::WriteStructEnd(const FName& Name)
+FDcResult FDcPropertyWriter::WriteStructEnd(const FDcStructStat& Struct)
 {
 	FScopedStackedWriter StackedWriter(this);
 
 	if (FDcWriteStateStruct* StructState = TryGetTopState<FDcWriteStateStruct>(this))
 	{
-		DC_TRY(StructState->WriteStructEnd(Name));
+		DC_TRY(StructState->WriteStructEnd(Struct));
 		PopState<FDcWriteStateStruct>(this);
 		return DcOk();
 	}

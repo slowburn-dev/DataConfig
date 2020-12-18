@@ -49,17 +49,17 @@ FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FName& Name)
+FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FDcStructStat& Struct)
 {
-	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Name));
+	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
 	Indent += _PER_INDENT;
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FName& Name)
+FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FDcStructStat& Struct)
 {
 	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- struct end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Name));
+	Output.Logf(TEXT("%s- struct end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
 	return DcOk();
 }
 

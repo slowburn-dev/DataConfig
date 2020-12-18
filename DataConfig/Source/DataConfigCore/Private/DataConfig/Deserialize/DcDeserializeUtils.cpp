@@ -96,15 +96,15 @@ FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Wri
 	}
 	else if (Next == EDcDataEntry::StructRoot)
 	{
-		FName Name;
-		DC_TRY(Reader->ReadStructRoot(&Name));
-		DC_TRY(Writer->WriteStructRoot(Name));
+		FDcStructStat StructStat;
+		DC_TRY(Reader->ReadStructRoot(&StructStat));
+		DC_TRY(Writer->WriteStructRoot(StructStat));
 	}
 	else if (Next == EDcDataEntry::StructEnd)
 	{
-		FName Name;
-		DC_TRY(Reader->ReadStructEnd(&Name));
-		DC_TRY(Writer->WriteStructEnd(Name));
+		FDcStructStat StructStat;
+		DC_TRY(Reader->ReadStructEnd(&StructStat));
+		DC_TRY(Writer->WriteStructEnd(StructStat));
 	}
 	else if (Next == EDcDataEntry::MapRoot)
 	{

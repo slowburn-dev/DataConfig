@@ -20,8 +20,8 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteText(const FText& Value) override;
 	FDcResult WriteEnum(const FDcEnumData& Value) override;
 
-	FDcResult WriteStructRoot(const FName& Name) override;
-	FDcResult WriteStructEnd(const FName& Name) override;
+	FDcResult WriteStructRoot(const FDcStructStat& Struct) override;
+	FDcResult WriteStructEnd(const FDcStructStat& Struct) override;
 
 	FDcResult WriteClassRoot(const FDcClassStat& Class) override;
 	FDcResult WriteClassEnd(const FDcClassStat& Class) override;

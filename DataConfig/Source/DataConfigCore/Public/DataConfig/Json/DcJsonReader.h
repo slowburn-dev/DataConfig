@@ -48,10 +48,10 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	struct FTokenFlag
 	{
-		bool bStringHasEscapeChar : 1;
-		bool bNumberIsNegative : 1;
-		bool bNumberHasDecimal : 1;
-		bool bNumberHasExp : 1;
+		uint8 bStringHasEscapeChar : 1;
+		uint8 bNumberIsNegative : 1;
+		uint8 bNumberHasDecimal : 1;
+		uint8 bNumberHasExp : 1;
 
 		uint8 NumberDecimalOffset;
 

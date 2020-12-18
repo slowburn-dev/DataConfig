@@ -175,16 +175,23 @@ FDcResult FDcWriteStateStruct::PeekWriteProperty(FFieldVariant* OutProperty)
 	}
 }
 
-FDcResult FDcWriteStateStruct::WriteStructRoot(const FName& Name)
+FDcResult FDcWriteStateStruct::WriteStructRoot(const FDcStructStat& Struct)
 {
 	if (State == EState::ExpectRoot)
 	{
 		State = EState::ExpectKeyOrEnd;
-		return DcExpect(Name == StructClass->GetFName(), [=] {
-			return DC_FAIL(DcDReadWrite, StructNameMismatch)
-				<< StructClass->GetFName() << Name
-				<< _GetPropertyWriter()->FormatHighlight();
-		});
+		if (Struct.bWriteCheckName)
+		{
+			return DcExpect(Struct.Name == StructClass->GetFName(), [=] {
+				return DC_FAIL(DcDReadWrite, StructNameMismatch)
+					<< StructClass->GetFName() << Struct.Name
+					<< _GetPropertyWriter()->FormatHighlight();
+			});
+		}
+		else
+		{
+			return DcOk();
+		}
 	}
 	else
 	{
@@ -194,16 +201,23 @@ FDcResult FDcWriteStateStruct::WriteStructRoot(const FName& Name)
 	}
 }
 
-FDcResult FDcWriteStateStruct::WriteStructEnd(const FName& Name)
+FDcResult FDcWriteStateStruct::WriteStructEnd(const FDcStructStat& Struct)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		return DcExpect(Name == StructClass->GetFName(), [=] {
-			return DC_FAIL(DcDReadWrite, StructNameMismatch)
-				<< StructClass->GetFName() << Name
-				<< _GetPropertyWriter()->FormatHighlight();
-		});
+		if (Struct.bWriteCheckName)
+		{
+			return DcExpect(Struct.Name == StructClass->GetFName(), [=] {
+				return DC_FAIL(DcDReadWrite, StructNameMismatch)
+					<< StructClass->GetFName() << Struct.Name
+					<< _GetPropertyWriter()->FormatHighlight();
+			});
+		}
+		else
+		{
+			return DcOk();
+		}
 	}
 	else
 	{

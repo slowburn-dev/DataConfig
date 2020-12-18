@@ -222,7 +222,7 @@ FDcResult FDcPropertyReader::ReadName(FName* OutPtr)
 	return DcOk();
 }
 
-FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
+FDcResult FDcPropertyReader::ReadStructRoot(FDcStructStat* OutStructPtr)
 {
 	FScopedStackedReader StackedReader(this);
 
@@ -232,7 +232,7 @@ FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 		if (StructState != nullptr
 			&& StructState->State == FDcReadStateStruct::EState::ExpectRoot)
 		{
-			DC_TRY(StructState->ReadStructRoot(OutNamePtr));
+			DC_TRY(StructState->ReadStructRoot(OutStructPtr));
 			return DcOk();
 		}
 	}
@@ -248,19 +248,19 @@ FDcResult FDcPropertyReader::ReadStructRoot(FName* OutNamePtr)
 			StructProperty->Struct,
 			StructProperty->GetFName()
 		);
-		DC_TRY(ChildStruct.ReadStructRoot(OutNamePtr));
+		DC_TRY(ChildStruct.ReadStructRoot(OutStructPtr));
 	}
 
 	return DcOk();
 }
 
-FDcResult FDcPropertyReader::ReadStructEnd(FName* OutNamePtr)
+FDcResult FDcPropertyReader::ReadStructEnd(FDcStructStat* OutStructPtr)
 {
 	FScopedStackedReader StackedReader(this);
 
 	if (FDcReadStateStruct* StructState = TryGetTopState<FDcReadStateStruct>(this))
 	{
-		DC_TRY(StructState->ReadStructEnd(OutNamePtr));
+		DC_TRY(StructState->ReadStructEnd(OutStructPtr));
 		PopState<FDcReadStateStruct>(this);
 		return DcOk();
 	}

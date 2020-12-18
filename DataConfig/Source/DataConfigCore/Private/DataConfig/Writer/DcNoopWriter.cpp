@@ -14,8 +14,8 @@ FDcResult FDcNoopWriter::WriteName(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteString(const FString&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteText(const FText&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteEnum(const FDcEnumData&) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteStructRoot(const FName&) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteStructEnd(const FName&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteStructRoot(const FDcStructStat& Struct) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteStructEnd(const FDcStructStat& Struct) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteClassRoot(const FDcClassStat&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteClassEnd(const FDcClassStat&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteMapRoot() { return DcOk(); }

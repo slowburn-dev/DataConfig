@@ -14,8 +14,8 @@ FDcResult FDcWriter::WriteName(const FName&) { return DC_FAIL(DcDCommon, NotImpl
 FDcResult FDcWriter::WriteString(const FString&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteText(const FText&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteEnum(const FDcEnumData&) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteStructRoot(const FName&) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteStructEnd(const FName&) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteStructRoot(const FDcStructStat& Struct) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteStructEnd(const FDcStructStat& Struct) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteClassRoot(const FDcClassStat& Class) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteClassEnd(const FDcClassStat& Class) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteMapRoot() { return DC_FAIL(DcDCommon, NotImplemented); }

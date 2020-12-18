@@ -112,20 +112,32 @@ enum class EDcDataEntry : uint16
 	Ended, // or error or invalid state, 
 };
 
-struct FDcClassStat
+struct DATACONFIGCORE_API FDcStructStat
 {
 	FName Name;
 
-	enum class EControl
+	bool bWriteCheckName = false;	//	check struct name match on write
+
+	static FDcStructStat EMPTY;
+};
+
+
+struct DATACONFIGCORE_API FDcClassStat
+{
+	FName Name;
+
+	enum class EControl : uint8
 	{
 		ExternalReference,
 		ExpandObject,
 	};
 
 	EControl Control;
+
+	bool bWriteCheckName = false;	//	check class name match on write
 };
 
-struct FDcEnumData
+struct DATACONFIGCORE_API FDcEnumData
 {
 	FName Type;
 	FName Name;
@@ -141,7 +153,7 @@ struct FDcEnumData
 	}
 };
 
-struct FDcBlobViewData
+struct DATACONFIGCORE_API FDcBlobViewData
 {
 	uint8* DataPtr;
 	int32 Num;

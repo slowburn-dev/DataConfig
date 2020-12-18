@@ -144,8 +144,8 @@ struct FDcReadStateStruct : public FDcBaseReadState
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
 	FDcResult EndReadValue();
-	FDcResult ReadStructRoot(FName* OutNamePtr);
-	FDcResult ReadStructEnd(FName* OutNamePtr);
+	FDcResult ReadStructRoot(FDcStructStat* OutStructPtr);
+	FDcResult ReadStructEnd(FDcStructStat* OutStructPtr);
 };
 
 struct FDcReadStateMap : public FDcBaseReadState

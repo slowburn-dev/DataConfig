@@ -421,13 +421,14 @@ FDcResult FDcReadStateStruct::EndReadValue()
 	}
 }
 
-FDcResult FDcReadStateStruct::ReadStructRoot(FName* OutNamePtr)
+FDcResult FDcReadStateStruct::ReadStructRoot(FDcStructStat* OutStructPtr)
 {
 	if (State == EState::ExpectRoot)
 	{
-		//	TODO ReadOut
-		if (OutNamePtr)
-			*OutNamePtr = StructClass->GetFName();
+		if (OutStructPtr)
+		{
+			OutStructPtr->Name = StructClass->GetFName();
+		}
 
 		Property = DcPropertyUtils::FirstEffectiveProperty(StructClass->PropertyLink);
 		if (Property == nullptr)
@@ -449,20 +450,17 @@ FDcResult FDcReadStateStruct::ReadStructRoot(FName* OutNamePtr)
 	}
 }
 
-FDcResult FDcReadStateStruct::ReadStructEnd(FName* OutNamePtr)
+FDcResult FDcReadStateStruct::ReadStructEnd(FDcStructStat* OutStructPtr)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
 
-		//	TODO ReadOut
-		if (OutNamePtr)
+		if (OutStructPtr)
 		{
-			*OutNamePtr = StructClass->GetFName();
+			OutStructPtr->Name = StructClass->GetFName();
 		}
 
-		//	!!! note that this doens't need to EndRead, it's done before entering this state
-		//TRY(GetTopState(Self).EndReadValue());
 		return DcOk();
 	}
 	else

@@ -17,8 +17,8 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteText(const FText& Value) override;
 	FDcResult WriteEnum(const FDcEnumData& Value) override;
 
-	FDcResult WriteStructRoot(const FName&) override;
-	FDcResult WriteStructEnd(const FName&) override;
+	FDcResult WriteStructRoot(const FDcStructStat& Struct) override;
+	FDcResult WriteStructEnd(const FDcStructStat& Struct) override;
 	FDcResult WriteClassRoot(const FDcClassStat&) override;
 	FDcResult WriteClassEnd(const FDcClassStat&) override;
 	FDcResult WriteMapRoot() override;

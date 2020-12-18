@@ -91,8 +91,8 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	FDcResult SkipWrite() override;
 	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
-	FDcResult WriteStructRoot(const FName& Name);
-	FDcResult WriteStructEnd(const FName& Name);
+	FDcResult WriteStructRoot(const FDcStructStat& Struct);
+	FDcResult WriteStructEnd(const FDcStructStat& Struct);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };

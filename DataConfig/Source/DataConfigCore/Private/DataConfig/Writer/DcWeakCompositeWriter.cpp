@@ -43,14 +43,14 @@ FDcResult FDcWeakCompositeWriter::WriteEnum(const FDcEnumData& Value)
 	return CompositeDispatch(this, &FDcWriter::WriteEnum, Value);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteStructRoot(const FName& Name)
+FDcResult FDcWeakCompositeWriter::WriteStructRoot(const FDcStructStat& Struct)
 {
-	return CompositeDispatch(this, &FDcWriter::WriteStructRoot, Name);
+	return CompositeDispatch(this, &FDcWriter::WriteStructRoot, Struct);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteStructEnd(const FName& Name)
+FDcResult FDcWeakCompositeWriter::WriteStructEnd(const FDcStructStat& Struct)
 {
-	return CompositeDispatch(this, &FDcWriter::WriteStructEnd, Name);
+	return CompositeDispatch(this, &FDcWriter::WriteStructEnd, Struct);
 }
 
 FDcResult FDcWeakCompositeWriter::WriteClassRoot(const FDcClassStat& Class)

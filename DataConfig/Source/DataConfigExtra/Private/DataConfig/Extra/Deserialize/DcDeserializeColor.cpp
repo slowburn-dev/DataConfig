@@ -59,7 +59,8 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 	}
 	else if (Type == EDeserializeType::WriterAPI)
 	{
-		DC_TRY(Ctx.Writer->WriteStructRoot(TEXT("Color")));
+		// TODO [STRUCTSTAT], Color
+		DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat::EMPTY));
 
 		DC_TRY(Ctx.Writer->WriteName(TEXT("B")));
 		DC_TRY(Ctx.Writer->WriteUInt8(Color.B));
@@ -73,7 +74,7 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 		DC_TRY(Ctx.Writer->WriteName(TEXT("A")));
 		DC_TRY(Ctx.Writer->WriteUInt8(Color.A));
 
-		DC_TRY(Ctx.Writer->WriteStructEnd(TEXT("Color")));
+		DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat::EMPTY));
 	}
 	else
 	{

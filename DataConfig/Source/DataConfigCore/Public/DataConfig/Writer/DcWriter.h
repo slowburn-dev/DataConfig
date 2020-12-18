@@ -19,8 +19,8 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteText(const FText& Value);
 	virtual FDcResult WriteEnum(const FDcEnumData& Value);
 
-	virtual FDcResult WriteStructRoot(const FName& Name);
-	virtual FDcResult WriteStructEnd(const FName& Name);
+	virtual FDcResult WriteStructRoot(const FDcStructStat& Struct);
+	virtual FDcResult WriteStructEnd(const FDcStructStat& Struct);
 
 	virtual FDcResult WriteClassRoot(const FDcClassStat& Class);
 	virtual FDcResult WriteClassEnd(const FDcClassStat& Class);

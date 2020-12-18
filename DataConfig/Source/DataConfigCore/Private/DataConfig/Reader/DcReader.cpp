@@ -15,8 +15,8 @@ FDcResult FDcReader::ReadName(FName*) { return DC_FAIL(DcDCommon, NotImplemented
 FDcResult FDcReader::ReadString(FString*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadText(FText*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadEnum(FDcEnumData*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadStructRoot(FName*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadStructEnd(FName*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadStructRoot(FDcStructStat* OutStructPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadStructEnd(FDcStructStat* OutStructPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadClassRoot(FDcClassStat*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadClassEnd(FDcClassStat*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadMapRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
