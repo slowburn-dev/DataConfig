@@ -99,6 +99,12 @@ static void Body()
 	return;
 }
 
+void AutomationBody()
+{
+	FAutomationTestFramework::Get().SetForceSmokeTests(true);
+	FAutomationTestFramework::Get().RunSmokeTests();
+}
+
 #if !PLATFORM_SEH_EXCEPTIONS_DISABLED
 static int32 _DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
 {
@@ -169,7 +175,8 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		DcRegisterDiagnosticGroup(&DcDExtra::Details);
 
 		DcStartUp(EDcInitializeAction::SetAsConsole);
-		Body();
+		//Body();
+		AutomationBody();
 		DcShutDown();
 	}
 
