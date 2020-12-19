@@ -4,7 +4,7 @@
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
-#include "DataConfig/Misc/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomation.h"
 
 static FDcResult _DcPropertyRoundtrip(FAutomationTestBase* Fixture, FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
 {

@@ -1,4 +1,4 @@
-#include "DataConfig/Misc/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomation.h"
 
 uint32 FDcAutomationBase::GetTestFlags() const
 {

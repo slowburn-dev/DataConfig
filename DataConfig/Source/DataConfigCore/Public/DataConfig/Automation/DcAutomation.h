@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreTypes.h"
-#include "DataConfig/DcMacros.h"
+#include "DataConfig/DcTypes.h"
 #include "Misc/AutomationTest.h"
 #include "Misc/AssertionMacros.h"
 #include "Containers/UnrealString.h"

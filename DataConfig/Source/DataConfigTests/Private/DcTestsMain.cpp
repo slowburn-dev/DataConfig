@@ -1,5 +1,5 @@
 #include "CoreMinimal.h"
-#include "DataConfig/Misc/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/DcTypes.h"
 #include "Launch/Public/LaunchEngineLoop.h"
 #include "Misc/ScopeExit.h"
