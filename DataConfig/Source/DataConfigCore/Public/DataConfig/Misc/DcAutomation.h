@@ -6,11 +6,13 @@
 #include "Misc/AssertionMacros.h"
 #include "Containers/UnrealString.h"
 
-///	DC_TEST("Dc.Foo.Bar")
-///	{
-///		// test body
-///		return true;
-/// }
+///	Example:
+///
+///		DC_TEST("Dc.Foo.Bar")
+///		{
+///			// test body
+///			return true;
+///		}
 
 #define DC_TEST(PrettyName) \
 	namespace __DC_DETAIL { \
@@ -38,3 +40,12 @@
 	} \
 	} \
 	bool __DC_DETAIL::DC_UNIQUE(FDcAutomationTest)::RunTest(const FString& Parameters)
+
+
+struct DATACONFIGCORE_API FDcAutomationConsoleRunner
+{
+	void Prepare();
+	void RunTests();
+};
+
+

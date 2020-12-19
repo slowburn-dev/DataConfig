@@ -175,8 +175,8 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		DcRegisterDiagnosticGroup(&DcDExtra::Details);
 
 		DcStartUp(EDcInitializeAction::SetAsConsole);
-		//Body();
-		AutomationBody();
+		Body();
+		//AutomationBody();
 		DcShutDown();
 	}
 
