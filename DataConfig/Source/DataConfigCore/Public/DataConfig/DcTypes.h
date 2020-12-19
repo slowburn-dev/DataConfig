@@ -24,7 +24,7 @@ struct DATACONFIGCORE_API FDcResult
 
 	EStatus Status;
 
-	FORCEINLINE bool Ok()
+	FORCEINLINE bool Ok() const
 	{
 		return Status == EStatus::Ok;
 	}

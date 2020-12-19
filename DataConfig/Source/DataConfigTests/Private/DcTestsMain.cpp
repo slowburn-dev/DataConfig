@@ -8,7 +8,7 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 {
 	if (GEngineLoop.PreInit(ArgC, ArgV) != 0)
 	{
-		UE_LOG(LogDataConfigCore, Error, TEXT("Failed to initialize the engine (PreInit failed)."));
+		checkf(false, TEXT("Engine Preinit Failed"));
 		return -1;
 	}
 

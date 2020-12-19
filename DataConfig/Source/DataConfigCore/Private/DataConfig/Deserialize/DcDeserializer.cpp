@@ -1,5 +1,6 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
@@ -15,24 +16,7 @@ static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeseri
 	FDcResult Result = Handler.Execute(Ctx, HandlerRet);
 	if (!Result.Ok())
 	{
-		//	 amend currenct reader/writer diagnostics if failed
-		FDcDiagnostic& Diag = DcEnv().GetLastDiag();
-
-		bool bHasReaderDiag = false;
-		bool bHasWriterDiag = false;
-		for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
-		{
-			if (Highlight.Owner == Ctx.Reader)
-				bHasReaderDiag = true;
-			else if (Highlight.Owner == Ctx.Writer)
-				bHasWriterDiag = true;
-		}
-
-		if (!bHasReaderDiag)
-			Ctx.Reader->FormatDiagnostic(Diag);
-		if (!bHasWriterDiag)
-			Ctx.Writer->FormatDiagnostic(Diag);
-
+		DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
 		return Result;
 	}
 

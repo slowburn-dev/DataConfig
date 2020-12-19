@@ -6,6 +6,25 @@
 #include "Misc/AssertionMacros.h"
 #include "Containers/UnrealString.h"
 
+class DATACONFIGCORE_API FDcAutomationBase : public FAutomationTestBase
+{
+public:
+	using FAutomationTestBase::FAutomationTestBase;
+
+	uint32 GetTestFlags() const override;
+	uint32 GetRequiredDeviceNum() const override; 
+
+	bool TestOk(const TCHAR* Description, const FDcResult& Result);
+	bool TestOk(const FString& Description, const FDcResult& Result);
+};
+
+#define UTEST_OK(What, Result)\
+	do {									\
+		if (!TestOk(What, Result)) {		\
+			return false;					\
+		}									\
+	} while (0)
+
 ///	Example:
 ///
 ///		DC_TEST("Dc.Foo.Bar")
@@ -16,14 +35,11 @@
 
 #define DC_TEST(PrettyName) \
 	namespace __DC_DETAIL { \
-	class DC_UNIQUE(FDcAutomationTest) : public FAutomationTestBase \
+	class DC_UNIQUE(FDcAutomationTest) : public FDcAutomationBase \
 	{ \
 	public: \
 		DC_UNIQUE(FDcAutomationTest)(const FString& InName) \
-			: FAutomationTestBase(InName, false) {} \
-		virtual uint32 GetTestFlags() const override { return EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter; } \
-		virtual bool IsStressTest() const { return false; } \
-		virtual uint32 GetRequiredDeviceNum() const override { return 1; } \
+			: FDcAutomationBase(InName, false) {} \
 		virtual FString GetTestSourceFileName() const override { return __FILE__; } \
 		virtual int32 GetTestSourceFileLine() const override { return __LINE__; } \
 	protected: \

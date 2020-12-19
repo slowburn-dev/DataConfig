@@ -21,3 +21,25 @@ FDcResult DcReadNextExpect(FDcReader& Reader, EDcDataEntry Expect)
 	});
 }
 
+namespace DcDiagnosticUtils
+{
+
+void DcDiagnosticUtils::AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, FDcWriter* Writer)
+{
+	bool bHasReaderDiag = false;
+	bool bHasWriterDiag = false;
+	for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
+	{
+		if (Highlight.Owner == Reader)
+			bHasReaderDiag = true;
+		else if (Highlight.Owner == Writer)
+			bHasWriterDiag = true;
+	}
+
+	if (!bHasReaderDiag)
+		Reader->FormatDiagnostic(Diag);
+	if (!bHasWriterDiag)
+		Writer->FormatDiagnostic(Diag);
+}
+
+} // namespace DcDiagnosticUtils
