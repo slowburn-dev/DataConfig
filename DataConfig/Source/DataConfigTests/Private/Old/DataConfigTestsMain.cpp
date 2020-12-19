@@ -125,7 +125,8 @@ static int32 _DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
 #endif
 
 
-INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
+//INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
+int OldMain(int ArgC, char** ArgV)
 {
 	FString CmdLine;
 

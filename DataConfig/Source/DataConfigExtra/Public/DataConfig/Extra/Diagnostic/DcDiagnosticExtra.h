@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HAL/Platform.h"
+#include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 ///	Extra diagnostic 
 
