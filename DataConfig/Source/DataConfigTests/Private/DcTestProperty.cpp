@@ -49,3 +49,29 @@ DC_TEST("DataConfig.Core.Property.Primitive1")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Property.Primitive2")
+{
+	FDcTestStruct2 Source;
+	UDcTestDelegateClass1* DelegateObj = NewObject<UDcTestDelegateClass1>();
+	UObject* InterfaceObj = NewObject<UDcTestInterface1Beta>();
+
+	Source.ClassField = UDcTestDelegateClass1::StaticClass();
+	Source.WeakObjetField = DelegateObj;
+	Source.LazyObjectField = DelegateObj;
+	Source.SoftObjectField = DelegateObj;
+	Source.SoftClassField = UDcTestDelegateClass1::StaticClass();
+	Source.InterfaceField = InterfaceObj;
+
+	Source.DelegateField.BindDynamic(DelegateObj, &UDcTestDelegateClass1::ReturnOne);
+	Source.DynMulticastField.AddDynamic(DelegateObj, &UDcTestDelegateClass1::ReturnNone);
+
+	FDcTestStruct2 Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStruct2::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct2::StaticStruct(), &Dest);
+
+	UTEST_OK("FDcTestStruct2 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}

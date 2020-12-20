@@ -95,7 +95,12 @@ int32 FDcAutomationConsoleRunner::RunTests()
 			);
 		}
 
-		DcEnv().FlushDiags();
+		if (DcEnv().Diagnostics.Num())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
+			DcEnv().FlushDiags();
+			UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
+		}
 	}
 
 	UE_LOG(LogDataConfigCore, Display, TEXT("Run: %4d, Success: %4d, Fail: %4d"),
