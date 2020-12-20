@@ -2,7 +2,7 @@
 
 uint32 FDcAutomationBase::GetTestFlags() const
 {
-	return EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter;
+	return _FLAGS;
 }
 
 uint32 FDcAutomationBase::GetRequiredDeviceNum() const
@@ -25,13 +25,49 @@ bool FDcAutomationBase::TestOk(const FString& Description, const FDcResult& Resu
 	return TestOk(*Description, Result);
 }
 
-void FDcAutomationConsoleRunner::Prepare()
+void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 {
+	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
 
+	Framework.SetRequestedTestFilter(Args.RequestedTestFilter);
 
+	TArray<FAutomationTestInfo> TestInfos;
+	Framework.GetValidTestNames(TestInfos);
+
+	TestInfos.RemoveAll([&Args](FAutomationTestInfo& TestInfo) {
+		for (const FString& Filter : Args.Filters)
+			if (!TestInfo.GetDisplayName().Contains(Filter, ESearchCase::IgnoreCase))
+				return true;
+
+		return false;
+	});
+
+	SelectedTests = MoveTemp(TestInfos);
 }
 
-void FDcAutomationConsoleRunner::RunTests()
+int32 FDcAutomationConsoleRunner::RunTests()
 {
+	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
+
+	//	TODO seh and things
+	//	TODO dump in place
+	TMap<FString, FAutomationTestExecutionInfo> ExecutionInfoMap;
+	FAutomationTestFramework::Get().SetCaptureStack(true);
+
+	bool bAllSuccessful = true;
+
+	for (const FAutomationTestInfo& TestInfo: SelectedTests)
+	{
+		FString TestCommand = TestInfo.GetTestName();
+		FAutomationTestExecutionInfo& CurExecutionInfo = ExecutionInfoMap.Add(TestCommand, FAutomationTestExecutionInfo());
+
+		int32 RoleIndex = 0;  //always default to "local" role index.  Only used for multi-participant tests
+		Framework.StartTestByName(TestCommand, RoleIndex);
+		const bool CurTestSuccessful = Framework.StopTest(CurExecutionInfo);
+
+		bAllSuccessful = bAllSuccessful && CurTestSuccessful;
+	}
+
+	return bAllSuccessful ? 0 : -1;
 }
 

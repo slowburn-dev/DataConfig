@@ -1,8 +1,22 @@
 #include "CoreMinimal.h"
-#include "DataConfig/Automation/DcAutomation.h"
-#include "DataConfig/DcTypes.h"
 #include "Launch/Public/LaunchEngineLoop.h"
 #include "Misc/ScopeExit.h"
+
+#include "DataConfig/DcEnv.h"
+#include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
+
+static int32 TestRunnerBody()
+{
+	FDcAutomationConsoleRunner Runner;
+
+	FDcAutomationConsoleRunner::FArgs Args;
+	Args.Filters.Add(TEXT("DataConfig"));
+	Args.RequestedTestFilter = FDcAutomationBase::_FLAGS;
+
+	Runner.Prepare(Args);
+	return Runner.RunTests();
+}
 
 INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 {
@@ -15,13 +29,15 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 	//	things printed before init is eaten
 	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
 
-	FDcAutomationConsoleRunner Runner;
+	int32 RetCode;
 
-	Runner.Prepare();
-	Runner.RunTests();
+	{
+		DcRegisterDiagnosticGroup(&DcDExtra::Details);
 
-	FAutomationTestFramework::Get().SetForceSmokeTests(true);
-	FAutomationTestFramework::Get().RunSmokeTests();
+		DcStartUp(EDcInitializeAction::SetAsConsole);
+		RetCode = TestRunnerBody();
+		DcShutDown();
+	}
 
 	ON_SCOPE_EXIT
 	{
@@ -29,7 +45,7 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		FEngineLoop::AppExit();
 	};
 
-	return 0;
+	return RetCode;
 }
 
 

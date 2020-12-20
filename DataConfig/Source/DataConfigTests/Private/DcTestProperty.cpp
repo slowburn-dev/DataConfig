@@ -5,6 +5,7 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 
 static FDcResult _DcPropertyRoundtrip(FAutomationTestBase* Fixture, FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
 {
@@ -39,13 +40,11 @@ DC_TEST("DataConfig.Core.Property.Primitive1")
 
 	FDcTestStruct1 Dest;
 
-	UTEST_OK("FDcTestStruct1 roundtrip", _DcPropertyRoundtrip(
-		this,
-		FDcPropertyDatum(FDcTestStruct1::StaticStruct(), &Source),
-		FDcPropertyDatum(FDcTestStruct1::StaticStruct(), &Dest)
-	));
+	FDcPropertyDatum SourceDatum(FDcTestStruct1::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
 
-	//UTEST_EQUAL("FDcTestStruct1 roundtrip equal", Source, Dest);
+	UTEST_OK("FDcTestStruct1 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
 }

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "DataConfig/DcTypes.h"
-
-struct FDcPropertyDatum;
+#include "DataConfig/Property/DcPropertyDatum.h"
 
 namespace DcAutomationUtils
 {
 
-FDcResult TestReadDatumEqual(const FDcPropertyDatum& Lhs, const FDcPropertyDatum& Rhs);
+//	TODO figureout why this DLLEXPORT can not be removed
+DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum);
 
 }	// namespace DcAutomationUtils
 

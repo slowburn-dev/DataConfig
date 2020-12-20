@@ -1,11 +1,11 @@
-#include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 
 namespace DcAutomationUtils
 {
 
-FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
+//	TODO [LINK] this DATACONFIGCORE_API should'nt be here but without it link wont' pass wtf?
+DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
 {
 	FDcPropertyReader LhsReader(LhsDatum);
 	FDcPropertyReader RhsReader(RhsDatum);
@@ -19,11 +19,12 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 
 		DC_TRY(DcExpect(Next == RhsPeekEntry));
 
+		//	TODO [PERF] we now know that optimizer don't really create jump table, make it a switch
 		if (Next == EDcDataEntry::Ended)
 		{
 			return DcOk();
 		}
-		if (Next == EDcDataEntry::Nil)
+		else if (Next == EDcDataEntry::Nil)
 		{
 			DC_TRY(LhsReader.ReadNil());
 			DC_TRY(RhsReader.ReadNil());
@@ -337,6 +338,26 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 
 			uint64 Rhs;
 			DC_TRY(RhsReader.ReadUInt64(&Rhs));
+
+			DC_TRY(DcExpect(Lhs == Rhs));
+		}
+		else if (Next == EDcDataEntry::Float)
+		{
+			float Lhs;
+			DC_TRY(LhsReader.ReadFloat(&Lhs));
+
+			float Rhs;
+			DC_TRY(RhsReader.ReadFloat(&Rhs));
+
+			DC_TRY(DcExpect(Lhs == Rhs));
+		}
+		else if (Next == EDcDataEntry::Double)
+		{
+			double Lhs;
+			DC_TRY(LhsReader.ReadDouble(&Lhs));
+
+			double Rhs;
+			DC_TRY(RhsReader.ReadDouble(&Rhs));
 
 			DC_TRY(DcExpect(Lhs == Rhs));
 		}

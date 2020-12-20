@@ -9,6 +9,8 @@
 class DATACONFIGCORE_API FDcAutomationBase : public FAutomationTestBase
 {
 public:
+	constexpr static uint32 _FLAGS = EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter;
+
 	using FAutomationTestBase::FAutomationTestBase;
 
 	uint32 GetTestFlags() const override;
@@ -52,7 +54,7 @@ public:
 		virtual FString GetBeautifiedTestName() const override { return PrettyName; } \
 	}; \
 	namespace { \
-		DC_UNIQUE(FDcAutomationTest) DC_UNIQUE(_DcAutomationInstance)(TEXT(DC_STRINGIFY(PrettyName))); \
+		DC_UNIQUE(FDcAutomationTest) DC_UNIQUE(_DcAutomationInstance)(TEXT(PrettyName)); \
 	} \
 	} \
 	bool __DC_DETAIL::DC_UNIQUE(FDcAutomationTest)::RunTest(const FString& Parameters)
@@ -60,8 +62,16 @@ public:
 
 struct DATACONFIGCORE_API FDcAutomationConsoleRunner
 {
-	void Prepare();
-	void RunTests();
+	struct FArgs
+	{
+		TArray<FString> Filters;
+		uint32 RequestedTestFilter;
+	};
+
+	void Prepare(const FArgs& Args);
+	int32 RunTests();
+
+	TArray<FAutomationTestInfo> SelectedTests;
 };
 
 
