@@ -26,11 +26,7 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		return -1;
 	}
 
-	//	things printed before init is eaten
-	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
-
 	int32 RetCode;
-
 	{
 		DcRegisterDiagnosticGroup(&DcDExtra::Details);
 

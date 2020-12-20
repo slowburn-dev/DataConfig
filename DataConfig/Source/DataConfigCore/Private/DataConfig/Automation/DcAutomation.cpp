@@ -1,4 +1,5 @@
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/DcEnv.h"
 
 uint32 FDcAutomationBase::GetTestFlags() const
 {
@@ -47,26 +48,55 @@ void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 
 int32 FDcAutomationConsoleRunner::RunTests()
 {
+	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
+
 	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
 
 	//	TODO seh and things
 	//	TODO dump in place
-	TMap<FString, FAutomationTestExecutionInfo> ExecutionInfoMap;
-	FAutomationTestFramework::Get().SetCaptureStack(true);
+
+	//	in console the stack line capture is always in `AutomationTest.h` so disable it for now
+	FAutomationTestFramework::Get().SetCaptureStack(false);
 
 	bool bAllSuccessful = true;
+
+	int runCount = 0;
+	int successCount = 0;
+	int failCount = 0;
 
 	for (const FAutomationTestInfo& TestInfo: SelectedTests)
 	{
 		FString TestCommand = TestInfo.GetTestName();
-		FAutomationTestExecutionInfo& CurExecutionInfo = ExecutionInfoMap.Add(TestCommand, FAutomationTestExecutionInfo());
+		FAutomationTestExecutionInfo CurExecutionInfo;
 
-		int32 RoleIndex = 0;  //always default to "local" role index.  Only used for multi-participant tests
+		int32 RoleIndex = 0; 
 		Framework.StartTestByName(TestCommand, RoleIndex);
 		const bool CurTestSuccessful = Framework.StopTest(CurExecutionInfo);
 
 		bAllSuccessful = bAllSuccessful && CurTestSuccessful;
+		++runCount;
+		if (CurTestSuccessful) ++successCount;
+		else ++ failCount;
+
+		UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
+			*TestCommand,
+			CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
+		);
+
+		for (const FAutomationExecutionEntry& Entry: CurExecutionInfo.GetEntries())
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("* %s %s"),
+				*Entry.Event.Message,
+				*Entry.Event.Context
+			);
+		}
+
+		DcEnv().FlushDiags();
 	}
+
+	UE_LOG(LogDataConfigCore, Display, TEXT("Run: %4d, Success: %4d, Fail: %4d"),
+		runCount, successCount, failCount
+	);
 
 	return bAllSuccessful ? 0 : -1;
 }
