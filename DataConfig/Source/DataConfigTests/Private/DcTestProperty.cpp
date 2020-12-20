@@ -43,7 +43,6 @@ DC_TEST("DataConfig.Core.Property.Primitive1")
 	FDcPropertyDatum SourceDatum(FDcTestStruct1::StaticStruct(), &Source);
 	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
 
-	UTEST_TRUE("fail!", false);
 	UTEST_OK("FDcTestStruct1 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 

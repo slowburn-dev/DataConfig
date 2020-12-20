@@ -28,7 +28,11 @@ bool FDcAutomationBase::TestOk(const FString& Description, const FDcResult& Resu
 
 void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 {
+	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
+
 	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
+
+	UE_LOG(LogDataConfigCore, Display, TEXT("Filters: %s"), *FString::Join(Args.Filters, TEXT(", ")));
 
 	Framework.SetRequestedTestFilter(Args.RequestedTestFilter);
 
