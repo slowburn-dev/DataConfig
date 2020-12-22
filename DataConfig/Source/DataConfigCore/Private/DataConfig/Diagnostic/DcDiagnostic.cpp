@@ -58,7 +58,8 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	}
 	else if (Var.DataType == EDcDataEntry::String)
 	{
-		return FStringFormatArg(Var.GetValue<FString>().ReplaceCharWithEscapedChar());
+		//	FString escaping is handled on push
+		return FStringFormatArg(Var.GetValue<FString>());
 	}
 	else if (Var.DataType == EDcDataEntry::Text)
 	{

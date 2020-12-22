@@ -20,6 +20,8 @@ namespace DcDiagnosticUtils
 
 DATACONFIGCORE_API void AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, FDcWriter* Writer);
 
+DATACONFIGCORE_API FString StackWalkToString(int32 IgnoreCount);
+
 } // namespace DcDiagnosticUtils
 
 

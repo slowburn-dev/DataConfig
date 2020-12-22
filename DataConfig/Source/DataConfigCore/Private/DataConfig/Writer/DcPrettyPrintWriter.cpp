@@ -207,9 +207,9 @@ FDcResult FDcPrettyPrintWriter::WriteMulticastInlineDelegate(const FMulticastScr
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value)
+FDcResult FDcPrettyPrintWriter::WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value)
 {
-	Output.Logf(TEXT("%s- multicast sparse delegate: bound: %d"), *Indent, Value.IsBound());
+	Output.Logf(TEXT("%s- multicast sparse delegate: %s"), *Indent, *Value.ToString<UObject>());
 	return DcOk();
 }
 

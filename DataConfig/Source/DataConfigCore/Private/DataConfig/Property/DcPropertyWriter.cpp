@@ -459,7 +459,19 @@ FDcResult FDcPropertyWriter::WriteClassReference(const UClass* Value)
 FDcResult FDcPropertyWriter::WriteFieldPath(const FFieldPath& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteDelegate(const FScriptDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value) { return WriteTopStateScalarProperty(this, Value); }
+
+FDcResult FDcPropertyWriter::WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value)
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(FMulticastSparseDelegateProperty::StaticClass(), Datum));
+
+	FMulticastSparseDelegateProperty* SparseProperty = Datum.CastFieldChecked<FMulticastSparseDelegateProperty>();
+	SparseProperty->SetMulticastDelegate(Datum.DataPtr, Value);
+
+	return DcOk();
+}
 
 FDcResult FDcPropertyWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }

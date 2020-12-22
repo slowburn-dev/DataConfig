@@ -487,7 +487,27 @@ FDcResult FDcPropertyReader::ReadInterfaceReference(FScriptInterface* OutPtr) { 
 FDcResult FDcPropertyReader::ReadFieldPath(FFieldPath* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadDelegate(FScriptDelegate* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
-FDcResult FDcPropertyReader::ReadMulticastSparseDelegate(FSparseDelegate* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
+
+FDcResult FDcPropertyReader::ReadMulticastSparseDelegate(FMulticastScriptDelegate* OutPtr)
+{
+	FScopedStackedReader StackedReader(this);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).ReadDataEntry(FMulticastSparseDelegateProperty::StaticClass(), Datum));
+
+	if (OutPtr)
+	{
+		FMulticastSparseDelegateProperty* SparseProperty = Datum.CastFieldChecked<FMulticastSparseDelegateProperty>();
+		const FMulticastScriptDelegate* DelegatePtr = SparseProperty->GetMulticastDelegate(Datum.DataPtr);
+
+		if (DelegatePtr)
+			*OutPtr = *DelegatePtr;
+		else
+			OutPtr->Clear();
+	}
+
+	return DcOk();
+}
 
 FDcResult FDcPropertyReader::ReadInt8(int8* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }
 FDcResult FDcPropertyReader::ReadInt16(int16* OutPtr) { return ReadTopStateScalarProperty(this, OutPtr); }

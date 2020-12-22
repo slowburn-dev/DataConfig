@@ -1,6 +1,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/DcTypes.h"
-#include "DataConfig/Diagnostic/DcDiagnosticAll.inl"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "Containers/BasicArray.h"
 
 TBasicArray<FDcEnv> Envs;
@@ -58,6 +59,18 @@ namespace DcEnvDetails{
 bool bInitialized = false;
 
 }
+
+FDcResult DcFail()
+{
+	//	attach a stack trace as otherwise it's very diffcult to find
+	return DC_FAIL(DcDCommon, Unhandled)
+		<< FDcDiagnosticStringNoEscape(DcDiagnosticUtils::StackWalkToString(0));
+}
+
+namespace DcDCommon { extern FDcDiagnosticGroup Details; }
+namespace DcDReadWrite { extern FDcDiagnosticGroup Details; }
+namespace DcDJSON { extern FDcDiagnosticGroup Details; }
+namespace DcDDeserialize { extern FDcDiagnosticGroup Details; }
 
 void DcStartUp(EDcInitializeAction InAction)
 {

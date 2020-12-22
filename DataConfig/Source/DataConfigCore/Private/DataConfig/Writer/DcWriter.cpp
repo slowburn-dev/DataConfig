@@ -34,7 +34,7 @@ FDcResult FDcWriter::WriteInterfaceReference(const FScriptInterface&) { return D
 FDcResult FDcWriter::WriteFieldPath(const FFieldPath& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteDelegate(const FScriptDelegate&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate&) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteMulticastSparseDelegate(const FSparseDelegate&) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteMulticastSparseDelegate(const FMulticastScriptDelegate&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt8(const int8&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt16(const int16&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInt32(const int32&) { return DC_FAIL(DcDCommon, NotImplemented); }

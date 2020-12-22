@@ -60,7 +60,7 @@ struct DATACONFIGCORE_API FDcWriter
 
 	virtual FDcResult WriteDelegate(const FScriptDelegate& Value);
 	virtual FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value);
-	virtual FDcResult WriteMulticastSparseDelegate(const FSparseDelegate& Value);
+	virtual FDcResult WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value);
 
 	virtual FDcResult WriteInt8(const int8& Value);
 	virtual FDcResult WriteInt16(const int16& Value);

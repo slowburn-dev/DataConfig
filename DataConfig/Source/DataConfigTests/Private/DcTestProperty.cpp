@@ -73,5 +73,47 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 	UTEST_OK("FDcTestStruct2 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
+	//	compile checks
+	if (0)
+	{
+		FDcReader Reader;
+		Reader.ReadWeakObjectField(&Source.WeakObjetField);
+		Reader.ReadLazyObjectField(&Source.LazyObjectField);
+		Reader.ReadSoftObjectField(&Source.SoftObjectField);
+		Reader.ReadSoftClassField(&Source.SoftClassField);
+		Reader.ReadInterfaceField(&Source.InterfaceField);
+		Reader.ReadDelegate(&Source.DelegateField);
+		Reader.ReadMulticastInlineDelegate(&Source.DynMulticastField);
+
+		FDcWriter Writer;
+		Writer.WriteWeakObjectField(Source.WeakObjetField);
+		Writer.WriteLazyObjectField(Source.LazyObjectField);
+		Writer.WriteSoftObjectField(Source.SoftObjectField);
+		Writer.WriteSoftClassField(Source.SoftClassField);
+		Writer.WriteInterfaceField(Source.InterfaceField);
+		Writer.WriteDelegate(Source.DelegateField);
+		Writer.WriteMulticastInlineDelegate(Source.DynMulticastField);
+	}
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
+{
+	UDcTestDelegateClass1* Source = NewObject<UDcTestDelegateClass1>();
+
+	Source->SparseCallback1.AddDynamic(Source, &UDcTestDelegateClass1::ReturnNone);
+
+	UDcTestDelegateClass1* Dest = NewObject<UDcTestDelegateClass1>();
+	UTEST_FALSE("Sparse delegate was not bound", Dest->SparseCallback1.IsBound());
+
+	FDcPropertyDatum SourceDatum(UDcTestDelegateClass1::StaticClass(), Source);
+	FDcPropertyDatum DestDatum(UDcTestDelegateClass1::StaticClass(), Dest);
+
+	UTEST_OK("UDcTestDelegateClass1 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("UDcTestDelegateClass1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	UTEST_TRUE("Sparse delegate is bound", Dest->SparseCallback1.IsBound());
+
 	return true;
 }

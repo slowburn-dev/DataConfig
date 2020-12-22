@@ -35,7 +35,7 @@ FDcResult FDcReader::ReadInterfaceReference(FScriptInterface*) { return DC_FAIL(
 FDcResult FDcReader::ReadFieldPath(FFieldPath* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadDelegate(FScriptDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadMulticastSparseDelegate(FSparseDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadMulticastSparseDelegate(FMulticastScriptDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt8(int8*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt16(int16*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInt32(int32*) { return DC_FAIL(DcDCommon, NotImplemented); }

@@ -59,7 +59,6 @@ template<> struct TPropertyTypeMap<FFieldPath> { using Type = FFieldPathProperty
 
 template<> struct TPropertyTypeMap<FScriptDelegate> { using Type = FDelegateProperty; };
 template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = FMulticastInlineDelegateProperty; };
-template<> struct TPropertyTypeMap<FSparseDelegate> { using Type = FMulticastSparseDelegateProperty; };
 
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes");
 

@@ -1,7 +1,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
-#include "DataConfig/Reader/DcReader.h"
 
 FDcResult DcExpect(bool CondToBeTrue) {
 	if (CondToBeTrue)
@@ -40,6 +40,23 @@ void DcDiagnosticUtils::AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, 
 		Reader->FormatDiagnostic(Diag);
 	if (!bHasWriterDiag)
 		Writer->FormatDiagnostic(Diag);
+}
+
+FString StackWalkToString(int32 IgnoreCount)
+{
+	const SIZE_T StackTraceSize = 65535;
+	ANSICHAR* StackTrace = (ANSICHAR*)FMemory::SystemMalloc(StackTraceSize);
+
+	StackTrace[0] = 0;
+	FPlatformStackWalk::StackWalkAndDumpEx(
+		StackTrace,
+		StackTraceSize,
+		IgnoreCount,
+		FGenericPlatformStackWalk::EStackWalkFlags::FlagsUsedWhenHandlingEnsure);
+
+	FString Ret(StackTrace);
+	FMemory::SystemFree(StackTrace);
+	return Ret;
 }
 
 } // namespace DcDiagnosticUtils

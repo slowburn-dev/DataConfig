@@ -34,7 +34,7 @@ FDcResult FDcNoopWriter::WriteInterfaceReference(const FScriptInterface&) { retu
 FDcResult FDcNoopWriter::WriteFieldPath(const FFieldPath& Value) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteDelegate(const FScriptDelegate&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate&) { return DcOk(); }
-FDcResult FDcNoopWriter::WriteMulticastSparseDelegate(const FSparseDelegate&) { return DcOk(); }
+FDcResult FDcNoopWriter::WriteMulticastSparseDelegate(const FMulticastScriptDelegate&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt8(const int8&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt16(const int16&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteInt32(const int32&) { return DcOk(); }

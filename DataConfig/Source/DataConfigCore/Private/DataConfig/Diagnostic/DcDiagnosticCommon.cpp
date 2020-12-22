@@ -5,7 +5,7 @@ namespace DcDCommon
 {
 
 static FDcDiagnosticDetail _CommonDetails[] = {
-	{ Unhandled, TEXT("Unhandled error") },
+	{ Unhandled, TEXT("Unhandled error, stack:\n{0}") },
 	{ NotImplemented, TEXT("Calling into methods that are not implemented") },
 	{ Unreachable, TEXT("Calling into unreachable code") },
 	{ Unexpected1, TEXT("Unexpected: {0}") },

@@ -41,7 +41,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcResult ReadFieldPath(FFieldPath* OutPtr) override;
 	FDcResult ReadDelegate(FScriptDelegate* OutPtr) override;
 	FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr) override;
-	FDcResult ReadMulticastSparseDelegate(FSparseDelegate* OutPtr) override;
+	FDcResult ReadMulticastSparseDelegate(FMulticastScriptDelegate* OutPtr) override;
 
 	FDcResult ReadInt8(int8* OutPtr) override;
 	FDcResult ReadInt16(int16* OutPtr) override;

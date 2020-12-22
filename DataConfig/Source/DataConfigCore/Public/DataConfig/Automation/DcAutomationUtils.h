@@ -6,8 +6,9 @@
 namespace DcAutomationUtils
 {
 
-//	TODO figureout why this DLLEXPORT can not be removed
 DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum);
+
+DATACONFIGCORE_API FDcResult DumpToLog(FDcPropertyDatum Datum);
 
 }	// namespace DcAutomationUtils
 

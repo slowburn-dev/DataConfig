@@ -20,7 +20,11 @@ struct DATACONFIGCORE_API FDcEnv
 
 	void FlushDiags();
 
-	FORCEINLINE FDcDiagnostic& GetLastDiag() { return Diagnostics.Last(); }
+	FORCEINLINE FDcDiagnostic& GetLastDiag() 
+	{
+		checkf(Diagnostics.Num(), TEXT("<empty diagnostics>"));
+		return Diagnostics.Last();
+	}
 
 	~FDcEnv();
 };
@@ -80,10 +84,7 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode)
 	return DcEnv().Diag({InCategory, InCode});
 }
 
-FORCEINLINE FDcResult DcFail() 
-{
-	return FDcResult{ FDcResult::EStatus::Error };
-}
+FDcResult DcFail();
 
 FORCEINLINE FDcResult DcNoEntry() 
 {

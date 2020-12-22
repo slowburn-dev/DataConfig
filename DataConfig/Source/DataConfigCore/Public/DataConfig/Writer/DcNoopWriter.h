@@ -40,7 +40,7 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteFieldPath(const FFieldPath& Value) override;
 	FDcResult WriteDelegate(const FScriptDelegate& Value) override;
 	FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value) override;
-	FDcResult WriteMulticastSparseDelegate(const FSparseDelegate& Value) override;
+	FDcResult WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value) override;
 
 	FDcResult WriteInt8(const int8&) override;
 	FDcResult WriteInt16(const int16&) override;

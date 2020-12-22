@@ -52,8 +52,6 @@ void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 
 int32 FDcAutomationConsoleRunner::RunTests()
 {
-	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
-
 	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
 
 	//	TODO seh and things
@@ -82,17 +80,20 @@ int32 FDcAutomationConsoleRunner::RunTests()
 		if (CurTestSuccessful) ++successCount;
 		else ++ failCount;
 
-		UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
-			*TestCommand,
-			CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
-		);
-
-		for (const FAutomationExecutionEntry& Entry: CurExecutionInfo.GetEntries())
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("* %s %s"),
-				*Entry.Event.Message,
-				*Entry.Event.Context
+			UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
+			UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
+				*TestCommand,
+				CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
 			);
+
+			for (const FAutomationExecutionEntry& Entry: CurExecutionInfo.GetEntries())
+			{
+				UE_LOG(LogDataConfigCore, Display, TEXT("* %s %s"),
+					*Entry.Event.Message,
+					*Entry.Event.Context
+				);
+			}
 		}
 
 		if (DcEnv().Diagnostics.Num())

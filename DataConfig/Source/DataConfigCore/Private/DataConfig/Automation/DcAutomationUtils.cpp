@@ -1,5 +1,7 @@
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/Writer/DcPrettyPrintWriter.h"
+#include "DataConfig/Misc/DcPipeVisitor.h"
 
 namespace DcAutomationUtils
 {
@@ -253,10 +255,10 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 		}
 		else if (Next == EDcDataEntry::MulticastSparseDelegate)
 		{
-			FSparseDelegate Lhs;
+			FMulticastScriptDelegate Lhs;
 			DC_TRY(LhsReader.ReadMulticastSparseDelegate(&Lhs));
 
-			FSparseDelegate Rhs;
+			FMulticastScriptDelegate Rhs;
 			DC_TRY(RhsReader.ReadMulticastSparseDelegate(&Rhs));
 
 			DC_TRY(DcExpect(Lhs.IsBound() == Rhs.IsBound()));
@@ -370,5 +372,13 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 	return DcOk();
 }
 
+//	TODO [LINK] this DATACONFIGCORE_API should'nt be here but without it link wont' pass wtf?
+DATACONFIGCORE_API FDcResult DumpToLog(FDcPropertyDatum Datum)
+{
+	FDcPropertyReader PropReader(Datum);
+	FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+	FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
+	return PrettyPrintVisit.PipeVisit();
+}
 
 }	// namespace DcAutomationUtils

@@ -210,7 +210,7 @@ FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Wri
 	}
 	else if (Next == EDcDataEntry::MulticastSparseDelegate)
 	{
-		FSparseDelegate Value;
+		FMulticastScriptDelegate Value;
 		DC_TRY(Reader->ReadMulticastSparseDelegate(&Value));
 		DC_TRY(Writer->WriteMulticastSparseDelegate(Value));
 	}

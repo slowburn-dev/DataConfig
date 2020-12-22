@@ -198,7 +198,7 @@ FDcResult FDcWeakCompositeWriter::WriteMulticastInlineDelegate(const FMulticastS
 	return CompositeDispatch(this, &FDcWriter::WriteMulticastInlineDelegate, Value);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteMulticastSparseDelegate(const FSparseDelegate& Value)
+FDcResult FDcWeakCompositeWriter::WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteMulticastSparseDelegate, Value);
 }

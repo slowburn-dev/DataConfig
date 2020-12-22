@@ -104,6 +104,27 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticHighligh
 	return Diag;
 }
 
+///	Use this to wrap around string to avoid escaping
+struct FDcDiagnosticStringNoEscape
+{
+	FDcDiagnosticStringNoEscape(FString&& InStr)
+		: Str(MoveTemp(InStr)) {}
+
+	FString Str;
+};
+
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FDcDiagnosticStringNoEscape&& NoEscapeStr)
+{
+	Diag.Args.Emplace(MoveTemp(NoEscapeStr.Str));
+	return Diag;
+};
+
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FString&& Str)
+{
+	Diag.Args.Emplace(Str.ReplaceCharWithEscapedChar());
+	return Diag;
+};
+
 struct IDcDiagnosticConsumer : public TSharedFromThis<IDcDiagnosticConsumer>
 {
 	virtual void HandleDiagnostic(FDcDiagnostic& Diag) = 0;

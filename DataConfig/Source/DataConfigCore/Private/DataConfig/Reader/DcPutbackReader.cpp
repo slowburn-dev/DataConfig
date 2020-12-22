@@ -212,7 +212,7 @@ FDcResult FDcPutbackReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate
 	return CanNotCachedRead(this, EDcDataEntry::MulticastInlineDelegate, &FDcReader::ReadMulticastInlineDelegate, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadMulticastSparseDelegate(FSparseDelegate* OutPtr)
+FDcResult FDcPutbackReader::ReadMulticastSparseDelegate(FMulticastScriptDelegate* OutPtr)
 {
 	return CanNotCachedRead(this, EDcDataEntry::MulticastSparseDelegate, &FDcReader::ReadMulticastSparseDelegate, OutPtr);
 }
