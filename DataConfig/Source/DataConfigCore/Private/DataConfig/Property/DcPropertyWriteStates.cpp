@@ -836,7 +836,7 @@ FDcResult FDcWriteStateSet::WriteDataEntry(FFieldClass* ExpectedPropertyClass, F
 	DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(SetProperty->ElementProp, ExpectedPropertyClass));
 
 	FScriptSetHelper SetHelper(SetProperty, SetPtr);
-	SetHelper.AddUninitializedValue();
+	SetHelper.AddDefaultValue_Invalid_NeedsRehash();
 	OutDatum.Property = SetProperty->ElementProp;
 	OutDatum.DataPtr = SetHelper.GetElementPtr(Index);
 

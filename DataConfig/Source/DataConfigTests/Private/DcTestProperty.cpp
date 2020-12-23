@@ -145,15 +145,25 @@ DC_TEST("DataConfig.Core.Property.Containers")
 	Source.StringArray.Add(TEXT("Bar"));
 	Source.StringArray.Add(TEXT("Baz"));
 
-	/*
 	Source.StringSet.Add(TEXT("Foo"));
 	Source.StringSet.Add(TEXT("Bar"));
 	Source.StringSet.Add(TEXT("Baz"));
-	*/
 
 	Source.StringMap.Add(TEXT("1"), TEXT("One"));
 	Source.StringMap.Add(TEXT("2"), TEXT("Two"));
 	Source.StringMap.Add(TEXT("3"), TEXT("Three"));
+
+	Source.StructArray.Add({TEXT("One"), 1});
+	Source.StructArray.Add({TEXT("Two"), 2});
+	Source.StructArray.Add({TEXT("Three"), 3});
+
+	Source.StructSet.Add({TEXT("One"), 1});
+	Source.StructSet.Add({TEXT("Two"), 2});
+	Source.StructSet.Add({TEXT("Three"), 3});
+
+	Source.StructMap.Add({TEXT("One"), 1}, {TEXT("Uno"), 1});
+	Source.StructMap.Add({TEXT("Two"), 2}, {TEXT("Dos"), 2});
+	Source.StructMap.Add({TEXT("Three"), 3}, {TEXT("Tres"), 3});
 
 	FDcTestStruct3 Dest;
 
@@ -162,8 +172,6 @@ DC_TEST("DataConfig.Core.Property.Containers")
 
 	UTEST_OK("FDcTestStruct3 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct3 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
-
-	DcAutomationUtils::DumpToLog(DestDatum);
 
 	return true;
 }

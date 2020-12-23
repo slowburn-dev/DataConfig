@@ -109,7 +109,7 @@ struct FDcKeyableStruct
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere) FName Name;
-	UPROPERTY(EditAnywhere) bool Index;
+	UPROPERTY(EditAnywhere) int16 Index;
 
 	FORCEINLINE friend uint32 GetTypeHash(const FDcKeyableStruct& In)
 	{
