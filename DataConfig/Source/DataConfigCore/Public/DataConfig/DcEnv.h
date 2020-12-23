@@ -84,7 +84,7 @@ FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode)
 	return DcEnv().Diag({InCategory, InCode});
 }
 
-FDcResult DcFail();
+DATACONFIGCORE_API FDcResult DcFail();
 
 FORCEINLINE FDcResult DcNoEntry() 
 {

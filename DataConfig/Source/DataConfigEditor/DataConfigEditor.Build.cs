@@ -23,6 +23,8 @@ public class DataConfigEditor : ModuleRules
 				//	Data Config
 				"DataConfigCore",
 				"DataConfigRuntime",
+				//	TODO make this work, so test can show in the automation window
+				// "DataConfigTests",
 			});
 
 		/*

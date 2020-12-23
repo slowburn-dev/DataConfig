@@ -145,7 +145,7 @@ UObject* UDataConfigImportFactory::FactoryCreateBinary(UClass* InClass, UObject*
 	{
 		FDcJsonReader TypeReader;
 		TypeReader.SetNewString(*JSONStr);
-		FDcResult Ret =  ReadRootTypeFromMapping(TypeReader, DataClass);
+		FDcResult Ret = ReadRootTypeFromMapping(TypeReader, DataClass);
 		if (!Ret.Ok())
 		{
 			return nullptr;
