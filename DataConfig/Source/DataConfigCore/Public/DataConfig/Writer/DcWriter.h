@@ -62,6 +62,9 @@ struct DATACONFIGCORE_API FDcWriter
 	virtual FDcResult WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value);
 	virtual FDcResult WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value);
 
+	template<typename MulticastDelegate, typename OwningClass, typename DelegateInfoClass>
+	FDcResult WriteSparseDelegateField(const TSparseDynamicDelegate<MulticastDelegate, OwningClass, DelegateInfoClass>& Value);
+
 	virtual FDcResult WriteInt8(const int8& Value);
 	virtual FDcResult WriteInt16(const int16& Value);
 	virtual FDcResult WriteInt32(const int32& Value);
@@ -134,5 +137,34 @@ FDcResult FDcWriter::WritePropertyField(const TFieldPath<TProperty>& Value)
 
 	const FFieldPath& FieldPath = (const FFieldPath&)Value;
 	return WriteFieldPath(FieldPath);
+}
+
+namespace DcPropertyUtils
+{
+	DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);
+}
+
+template<typename MulticastDelegate, typename OwningClass, typename DelegateInfoClass>
+FDcResult FDcWriter::WriteSparseDelegateField(const TSparseDynamicDelegate<MulticastDelegate, OwningClass, DelegateInfoClass>& Value)
+{
+	FProperty* Property;
+	DC_TRY(DcPropertyUtils::FindEffectivePropertyByOffset(
+		OwningClass::StaticClass(),
+		DelegateInfoClass::template GetDelegateOffset<OwningClass>(),
+		Property
+	));
+
+	FMulticastSparseDelegateProperty* SparseProperty = CastFieldChecked<FMulticastSparseDelegateProperty>(Property);
+	const FMulticastScriptDelegate* MulticastDelegate = SparseProperty->GetMulticastDelegate(&Value);
+
+	if (MulticastDelegate == nullptr)
+	{
+		FMulticastScriptDelegate Empty;
+		return WriteMulticastSparseDelegate(Empty);
+	}
+	else
+	{
+		return WriteMulticastSparseDelegate(*MulticastDelegate);
+	}
 }
 

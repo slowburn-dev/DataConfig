@@ -115,11 +115,24 @@ DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
 
 	UTEST_TRUE("Sparse delegate is bound", Dest->SparseCallback1.IsBound());
 
-	if (0)
-	{
-		FDcReader Reader;
-		Reader.ReadSparseDelegateField(&Source->SparseCallback1);
-	}
+	Dest->SparseCallback1.Clear();
+	UTEST_FALSE("Sparse delegate was not bound", Dest->SparseCallback1.IsBound());
+
+	UDcTestDelegateClass1* Tmp = NewObject<UDcTestDelegateClass1>();
+
+	FDcPropertyReader Reader(SourceDatum);
+	FDcPropertyWriter Writer(DestDatum);
+
+	UTEST_OK("Try ReadSparseDelegateField", Reader.ReadClassRoot(nullptr));
+	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteClassRoot(FDcClassStat{FName(), FDcClassStat::EControl::ExpandObject}));
+
+	UTEST_OK("Try ReadSparseDelegateField", Reader.ReadName(nullptr));
+	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteName(TEXT("SparseCallback1")));
+
+	UTEST_OK("Try ReadSparseDelegateField", Reader.ReadSparseDelegateField(&Tmp->SparseCallback1));
+	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteSparseDelegateField(Tmp->SparseCallback1));
+
+	UTEST_TRUE("Sparse delegate is bound", Dest->SparseCallback1.IsBound());
 
 	return true;
 }

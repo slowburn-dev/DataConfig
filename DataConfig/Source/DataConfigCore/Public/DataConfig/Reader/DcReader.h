@@ -174,6 +174,7 @@ FDcResult FDcReader::ReadSparseDelegateField(TSparseDynamicDelegate<MulticastDel
 
 		FMulticastSparseDelegateProperty* SparseProperty = CastFieldChecked<FMulticastSparseDelegateProperty>(Property);
 		SparseProperty->SetMulticastDelegate(OutPtr, MulticastDelegate);
+
 	}
 
 	return DcOk();
