@@ -103,3 +103,46 @@ struct FDcTestStruct2
 	UPROPERTY() FDcTestDynMulticastCallback1 DynMulticastField;
 };
 
+USTRUCT()
+struct FDcKeyableStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) FName Name;
+	UPROPERTY(EditAnywhere) bool Index;
+
+	FORCEINLINE friend uint32 GetTypeHash(const FDcKeyableStruct& In)
+	{
+		return HashCombine(GetTypeHash(In.Name), GetTypeHash(In.Index));
+	}
+
+	FORCEINLINE friend bool operator==(const FDcKeyableStruct& Lhs, const FDcKeyableStruct& Rhs)
+	{
+		return Lhs.Name == Rhs.Name
+			&& Lhs.Index == Rhs.Index;
+	}
+
+	FORCEINLINE friend bool operator!=(const FDcKeyableStruct& Lhs, const FDcKeyableStruct& Rhs)
+	{
+		return Lhs != Rhs;
+	}
+};
+
+
+USTRUCT()
+struct FDcTestStruct3
+{
+	GENERATED_BODY()
+
+	//	containers
+	UPROPERTY() TArray<FString> StringArray;
+	UPROPERTY() TSet<FString> StringSet;
+	UPROPERTY() TMap<FString, FString> StringMap;
+
+	//	more containers
+	UPROPERTY() TArray<FDcKeyableStruct> StructArray;
+	UPROPERTY() TSet<FDcKeyableStruct> StructSet;
+	UPROPERTY() TMap<FDcKeyableStruct, FDcKeyableStruct> StructMap;
+};
+
+

@@ -73,8 +73,6 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 	UTEST_OK("FDcTestStruct2 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
-	DcAutomationUtils::DumpToLog(DestDatum);
-
 	//	compile checks
 	if (0)
 	{
@@ -135,6 +133,37 @@ DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
 	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteSparseDelegateField(Tmp->SparseCallback1));
 
 	UTEST_TRUE("Sparse delegate is bound", Dest->SparseCallback1.IsBound());
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Property.Containers")
+{
+	FDcTestStruct3 Source;
+
+	Source.StringArray.Add(TEXT("Foo"));
+	Source.StringArray.Add(TEXT("Bar"));
+	Source.StringArray.Add(TEXT("Baz"));
+
+	/*
+	Source.StringSet.Add(TEXT("Foo"));
+	Source.StringSet.Add(TEXT("Bar"));
+	Source.StringSet.Add(TEXT("Baz"));
+	*/
+
+	Source.StringMap.Add(TEXT("1"), TEXT("One"));
+	Source.StringMap.Add(TEXT("2"), TEXT("Two"));
+	Source.StringMap.Add(TEXT("3"), TEXT("Three"));
+
+	FDcTestStruct3 Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStruct3::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
+
+	UTEST_OK("FDcTestStruct3 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct3 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	DcAutomationUtils::DumpToLog(DestDatum);
 
 	return true;
 }

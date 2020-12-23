@@ -1,3 +1,4 @@
+#include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
