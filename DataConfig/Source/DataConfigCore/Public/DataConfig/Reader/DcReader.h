@@ -66,6 +66,9 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr);
 	virtual FDcResult ReadMulticastSparseDelegate(FMulticastScriptDelegate* OutPtr);
 
+	template<typename MulticastDelegate, typename OwningClass, typename DelegateInfoClass>
+	FDcResult ReadSparseDelegateField(TSparseDynamicDelegate<MulticastDelegate, OwningClass, DelegateInfoClass>* OutPtr);
+
 	virtual FDcResult ReadInt8(int8* OutPtr);
 	virtual FDcResult ReadInt16(int16* OutPtr);
 	virtual FDcResult ReadInt32(int32* OutPtr);
@@ -147,5 +150,32 @@ FDcResult FDcReader::ReadPropertyField(TFieldPath<TProperty>* OutPtr)
 	static_assert(sizeof(FFieldPath) == sizeof(TFieldPath<TProperty>), "FFieldPath and TFieldPath should have identical layout");
 	FFieldPath* FieldPathPtr = (FFieldPath*)OutPtr;
 	return ReadFieldPath(FieldPathPtr);
+}
+
+namespace DcPropertyUtils
+{
+DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);
+}
+
+template<typename MulticastDelegate, typename OwningClass, typename DelegateInfoClass>
+FDcResult FDcReader::ReadSparseDelegateField(TSparseDynamicDelegate<MulticastDelegate, OwningClass, DelegateInfoClass>* OutPtr)
+{
+	FMulticastScriptDelegate MulticastDelegate;
+	DC_TRY(ReadMulticastSparseDelegate(&MulticastDelegate));
+
+	if (OutPtr)
+	{
+		FProperty* Property;
+		DC_TRY(DcPropertyUtils::FindEffectivePropertyByOffset(
+			OwningClass::StaticClass(), 
+			DelegateInfoClass::template GetDelegateOffset<OwningClass>(),
+			Property
+		));
+
+		FMulticastSparseDelegateProperty* SparseProperty = CastFieldChecked<FMulticastSparseDelegateProperty>(Property);
+		SparseProperty->SetMulticastDelegate(OutPtr, MulticastDelegate);
+	}
+
+	return DcOk();
 }
 

@@ -15,6 +15,9 @@ DATACONFIGCORE_API size_t CountEffectiveProperties(UStruct* Struct);
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* FirstEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
+DATACONFIGCORE_API FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset);
+
+DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);
 
 DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
 DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(FField* Property);

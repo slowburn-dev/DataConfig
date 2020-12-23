@@ -108,6 +108,40 @@ FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name)
 	return nullptr;
 }
 
+FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset)
+{
+	FProperty* Property = Struct->PropertyLink;
+	while (true)
+	{
+		if (Property->GetOffset_ForInternal() == Offset)
+			return Property;
+
+		Property = Property->PropertyLinkNext;
+
+		if (Property == nullptr)
+			return nullptr;
+
+		if (!IsEffectiveProperty(Property))
+			return nullptr;
+	}
+
+	return nullptr;
+}
+
+FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue)
+{
+	OutValue = FindEffectivePropertyByOffset(Struct, Offset);
+	if (OutValue == nullptr)
+	{
+		return DC_FAIL(DcDReadWrite, FindPropertyByOffsetFailed)
+			<< Struct->GetFName() << Offset;
+	}
+	else
+	{
+		return DcOk();
+	}
+}
+
 //	TODO [JUMPTABLE] use a jump table here rather than IsA
 //					 as the inheritance isn't even needed
 EDcDataEntry PropertyToDataEntry(FField* Property)

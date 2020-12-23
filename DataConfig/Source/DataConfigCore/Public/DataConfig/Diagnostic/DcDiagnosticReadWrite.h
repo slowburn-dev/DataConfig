@@ -26,6 +26,7 @@ enum Type : uint16
 	EnumNameNotFound,
 	EnumValueInvalid,
 	WriteBlobOverrun,
+	FindPropertyByOffsetFailed,
 	
 	//	putback reader
 	CantUsePutbackValue,

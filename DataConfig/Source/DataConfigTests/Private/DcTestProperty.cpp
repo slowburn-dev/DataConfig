@@ -115,5 +115,11 @@ DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
 
 	UTEST_TRUE("Sparse delegate is bound", Dest->SparseCallback1.IsBound());
 
+	if (0)
+	{
+		FDcReader Reader;
+		Reader.ReadSparseDelegateField(&Source->SparseCallback1);
+	}
+
 	return true;
 }
