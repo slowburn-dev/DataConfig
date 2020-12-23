@@ -1,5 +1,24 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/DcEnv.h"
+#include "HAL/FeedbackContextAnsi.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
+
+struct FDcAutomationFeedbackContext : public FFeedbackContextAnsi
+{
+	void Serialize(const TCHAR* V, ELogVerbosity::Type Verbosity, const FName& Category) override
+	{
+		if (Category == FName(TEXT("LogDataConfigCore"))
+			&& Verbosity == ELogVerbosity::Display)
+		{
+			LocalPrint(V);
+			LocalPrint(TEXT("\n"));
+		}
+		else
+		{
+			FFeedbackContextAnsi::Serialize(V, Verbosity, Category);
+		}
+	}
+};
 
 uint32 FDcAutomationBase::GetTestFlags() const
 {
@@ -54,6 +73,9 @@ int32 FDcAutomationConsoleRunner::RunTests()
 {
 	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
 
+	FDcAutomationFeedbackContext DcAutomationLog;
+	TDcStoreThenReset<FFeedbackContext*> OverrideGWarn(GWarn, &DcAutomationLog);
+
 	//	TODO seh and things
 	//	TODO dump in place
 
@@ -81,7 +103,6 @@ int32 FDcAutomationConsoleRunner::RunTests()
 		else ++ failCount;
 
 		{
-			UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
 			UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
 				*TestCommand,
 				CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
