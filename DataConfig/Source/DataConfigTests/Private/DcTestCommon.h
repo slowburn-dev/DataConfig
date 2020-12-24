@@ -201,5 +201,16 @@ struct FDcTestStruct4
 };
 
 
+USTRUCT()
+struct FDcTestStruct_Blob
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TArray<uint8> BlobField1;
+	UPROPERTY() TArray<int64> BlobField2;
+
+};
+
+
 
 

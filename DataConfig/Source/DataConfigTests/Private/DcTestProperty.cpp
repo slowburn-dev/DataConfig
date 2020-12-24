@@ -196,7 +196,7 @@ DC_TEST("DataConfig.Core.Property.ObjectReference")
 	Source.NormalObjectField1->StrField = TEXT("Foo");
 	Source.NormalObjectField2 = nullptr;
 
-	FDcTestStruct4 Dest{};
+	FDcTestStruct4 Dest;
 
 	// need to create inline obeject out side reader/writer
 	Dest.InlineObjectField1 = NewObject<UDcShapeBox>();
@@ -206,6 +206,64 @@ DC_TEST("DataConfig.Core.Property.ObjectReference")
 	FDcPropertyDatum DestDatum(FDcTestStruct4::StaticStruct(), &Dest);
 
 	UTEST_OK("FDcTestStruct4 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}
+
+
+DC_TEST("DataConfig.Core.Property.Blob")
+{
+	FDcTestStruct_Blob Source;
+
+	Source.BlobField1.Add(1);
+	Source.BlobField1.Add(2);
+	Source.BlobField1.Add(3);
+
+	Source.BlobField2.Add(253);
+	Source.BlobField2.Add(254);
+	Source.BlobField2.Add(255);
+
+	FDcTestStruct_Blob Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStruct_Blob::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct_Blob::StaticStruct(), &Dest);
+
+	FDcPropertyReader Reader(SourceDatum);
+	FDcPropertyWriter Writer(DestDatum);
+
+	{
+		//	manual roundtrip
+		UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadStructRoot(nullptr));
+		UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteStructRoot(FDcStructStat{}));
+
+		{
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadName(nullptr));
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteName(TEXT("BlobField1")));
+
+			FDcBlobViewData BlobView;
+			UTEST_TRUE("FDcTestStruct_Blob roundtrip", Reader.Coercion(EDcDataEntry::Blob));
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadBlob(&BlobView));
+
+			bool bWriteOk;
+			UTEST_TRUE("FDcTestStruct_Blob roundtrip", Writer.PeekWrite(EDcDataEntry::Blob, &bWriteOk).Ok() && bWriteOk);
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteBlob(BlobView));
+		}
+
+		{
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadName(nullptr));
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteName(TEXT("BlobField2")));
+
+			FDcBlobViewData BlobView;
+			UTEST_TRUE("FDcTestStruct_Blob roundtrip", Reader.Coercion(EDcDataEntry::Blob));
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadBlob(&BlobView));
+
+			bool bWriteOk;
+			UTEST_TRUE("FDcTestStruct_Blob roundtrip", Writer.PeekWrite(EDcDataEntry::Blob, &bWriteOk).Ok() && bWriteOk);
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteBlob(BlobView));
+		}
+	}
+
 	UTEST_OK("FDcTestStruct4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
