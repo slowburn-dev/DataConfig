@@ -146,3 +146,57 @@ struct FDcTestStruct3
 };
 
 
+UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
+class UDcBaseShape : public UObject
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere) FName ShapeName;
+};
+
+UCLASS()
+class UDcShapeBox : public UDcBaseShape
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere) float Height;
+	UPROPERTY(EditAnywhere) float Width;
+};
+
+UCLASS()
+class UDcShapeSquare : public UDcBaseShape
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere) float Radius;
+};
+
+
+UCLASS()
+class UDcTestClass1 : public UObject
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY() int32 IntField;
+	UPROPERTY() FString StrField;
+};
+
+USTRUCT()
+struct FDcTestStruct4
+{
+	GENERATED_BODY()
+
+	//	inline object 
+	UPROPERTY() UDcBaseShape* InlineObjectField1;
+	UPROPERTY() UDcBaseShape* InlineObjectField2;
+
+	//	normal object
+	UPROPERTY() UDcTestClass1* NormalObjectField1;
+	UPROPERTY() UDcTestClass1* NormalObjectField2;
+};
+
+

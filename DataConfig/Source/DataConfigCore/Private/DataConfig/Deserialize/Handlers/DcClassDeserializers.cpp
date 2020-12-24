@@ -3,6 +3,7 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "UObject/Package.h"
@@ -213,21 +214,13 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	}
 }
 
-static bool IsSubObjectProperty(FObjectProperty* ObjectProperty)
-{
-	//	check `UPROPERTY(Instanced)`
-	return ObjectProperty->HasAnyPropertyFlags(CPF_InstancedReference)
-	//	check UCLASS(DefaultToInstanced, EditInlineNew)
-		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
-}
-
 EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx)
 {
 	if (Ctx.TopProperty().IsUObject())
 		return EDcDeserializePredicateResult::Pass;
 
 	FObjectProperty* ObjectProperty = CastField<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
-	return ObjectProperty && IsSubObjectProperty(ObjectProperty)
+	return ObjectProperty && DcPropertyUtils::IsSubObjectProperty(ObjectProperty)
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
 }
@@ -252,7 +245,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	}
 
 	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
-	if (!IsSubObjectProperty(ObjectProperty))
+	if (!DcPropertyUtils::IsSubObjectProperty(ObjectProperty))
 	{
 		return DcFail();
 	}

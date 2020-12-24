@@ -9,7 +9,6 @@ namespace DcPropertyUtils
 
 DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
-
 DATACONFIGCORE_API size_t CountEffectiveProperties(UStruct* Struct);
 
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
@@ -26,6 +25,8 @@ DATACONFIGCORE_API FString GetFormatPropertyTypeName(FField* Property);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(UScriptStruct* Struct);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(UClass* Class);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field);
+
+DATACONFIGCORE_API bool IsSubObjectProperty(FObjectProperty* ObjectProperty);
 
 //	Cpp type to Property
 template<typename T>

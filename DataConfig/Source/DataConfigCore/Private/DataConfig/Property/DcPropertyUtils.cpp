@@ -366,6 +366,14 @@ FString GetFormatPropertyTypeName(const FFieldVariant& Field)
 	}
 }
 
+bool IsSubObjectProperty(FObjectProperty* ObjectProperty)
+{
+	//	check `UPROPERTY(Instanced)`
+	return ObjectProperty->HasAnyPropertyFlags(CPF_InstancedReference)
+	//	check UCLASS(DefaultToInstanced, EditInlineNew)
+		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
+}
+
 FName GetStructTypeName(FFieldVariant& Property)
 {
 	if (!Property.IsValid())

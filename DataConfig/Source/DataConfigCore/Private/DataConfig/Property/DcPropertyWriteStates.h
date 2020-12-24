@@ -139,6 +139,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcWriteStateClass(void* DataPtr, FObjectProperty* InObjProperty)
 	{
 		ObjectName = InObjProperty->GetFName();
+		//	note that `Class` can be rewrite to more derived type later
 		Class = InObjProperty->PropertyClass;
 		//	note that atm can be null, referencing something, or even uninitialized
 		ClassObject = nullptr;

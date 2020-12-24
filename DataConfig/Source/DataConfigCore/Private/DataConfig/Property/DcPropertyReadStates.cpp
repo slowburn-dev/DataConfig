@@ -207,6 +207,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
 
 				return DcOk();
 			}
+			//	inline object read as struct, ie expanded
 			else if (Type == EType::PropertyInstanced
 				|| Type == EType::Root)
 			{

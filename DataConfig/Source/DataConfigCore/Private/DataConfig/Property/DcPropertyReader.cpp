@@ -296,7 +296,7 @@ FDcResult FDcPropertyReader::ReadClassRoot(FDcClassStat* OutClassPtr)
 			this,
 			ObjProperty->GetObjectPropertyValue(Datum.DataPtr),
 			ObjProperty->PropertyClass,
-			ObjProperty->HasAnyPropertyFlags(CPF_InstancedReference)
+			DcPropertyUtils::IsSubObjectProperty(ObjProperty)
 				? FDcReadStateClass::EType::PropertyInstanced
 				: FDcReadStateClass::EType::PropertyNormal,
 			ObjProperty->GetFName()

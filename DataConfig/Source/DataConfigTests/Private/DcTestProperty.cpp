@@ -175,3 +175,37 @@ DC_TEST("DataConfig.Core.Property.Containers")
 
 	return true;
 }
+
+
+DC_TEST("DataConfig.Core.Property.ObjectReference")
+{
+	FDcTestStruct4 Source;
+
+	UDcShapeBox* Box = NewObject<UDcShapeBox>();
+	Box->ShapeName = TEXT("MyBox");
+	Box->Height = 12.3f;
+	Box->Width = 23.4f;
+
+	Source.InlineObjectField1 = Box;
+	Source.InlineObjectField2 = nullptr;
+
+	Source.NormalObjectField1 = NewObject<UDcTestClass1>();
+	Source.NormalObjectField1->IntField = 123;
+	Source.NormalObjectField1->StrField = TEXT("Foo");
+	Source.NormalObjectField2 = nullptr;
+
+	FDcTestStruct4 Dest{};
+
+	// need to create inline obeject out side reader/writer
+	Dest.InlineObjectField1 = NewObject<UDcShapeBox>();
+	Dest.InlineObjectField2 = nullptr;
+
+	FDcPropertyDatum SourceDatum(FDcTestStruct4::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct4::StaticStruct(), &Dest);
+
+	UTEST_OK("FDcTestStruct4 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}
+
