@@ -98,6 +98,7 @@ struct FDcTestStruct2
 	UPROPERTY() TSoftObjectPtr<UObject> SoftObjectField;
 	UPROPERTY() TSoftClassPtr<UObject> SoftClassField;
 	UPROPERTY() TScriptInterface<IDcTestInterface1> InterfaceField;
+	UPROPERTY() TFieldPath<FNameProperty> FieldPathField;
 
 	UPROPERTY() FDcTestDelegate1 DelegateField;
 	UPROPERTY() FDcTestDynMulticastCallback1 DynMulticastField;
@@ -198,5 +199,7 @@ struct FDcTestStruct4
 	UPROPERTY() UDcTestClass1* NormalObjectField1;
 	UPROPERTY() UDcTestClass1* NormalObjectField2;
 };
+
+
 
 

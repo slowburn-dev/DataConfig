@@ -3,6 +3,7 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
@@ -61,6 +62,7 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 	Source.SoftObjectField = DelegateObj;
 	Source.SoftClassField = UDcTestDelegateClass1::StaticClass();
 	Source.InterfaceField = InterfaceObj;
+	Source.FieldPathField = DcPropertyUtils::FirstEffectiveProperty(FDcTestStruct1::StaticStruct()->PropertyLink);
 
 	Source.DelegateField.BindDynamic(DelegateObj, &UDcTestDelegateClass1::ReturnOne);
 	Source.DynMulticastField.AddDynamic(DelegateObj, &UDcTestDelegateClass1::ReturnNone);
