@@ -1,4 +1,5 @@
 #include "DcTestCommon.h"
+#include "DcTestProperty.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyReader.h"
@@ -7,6 +8,9 @@
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
+
+int UDcTestDelegateClass1::ReturnOne(int Int) { return Int; }
+void UDcTestDelegateClass1::ReturnNone(int Int) { /*pass*/ }
 
 static FDcResult _DcPropertyRoundtrip(FAutomationTestBase* Fixture, FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
 {
