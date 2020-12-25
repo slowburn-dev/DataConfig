@@ -88,6 +88,16 @@ int32 FDcAutomationConsoleRunner::RunTests()
 	int successCount = 0;
 	int failCount = 0;
 
+	{
+		//	shuffle tests for random execution order
+		int32 LastIndex = SelectedTests.Num() - 1;
+		for (int32 Ix = 0; Ix < LastIndex; Ix++)
+		{
+			int32 SwapIx = FMath::RandRange(Ix, LastIndex);
+			SelectedTests.Swap(Ix, SwapIx);
+		}
+	}
+
 	for (const FAutomationTestInfo& TestInfo: SelectedTests)
 	{
 		FString TestCommand = TestInfo.GetTestName();

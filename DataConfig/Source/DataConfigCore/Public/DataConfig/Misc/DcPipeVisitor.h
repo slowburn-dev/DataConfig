@@ -5,6 +5,9 @@
 struct FDcPipeVisitor;
 DECLARE_DELEGATE_OneParam(FDcPipeVisitEvent, FDcPipeVisitor*);
 
+struct FDcReader;
+struct FDcWriter;
+
 struct DATACONFIGCORE_API FDcPipeVisitor
 {
 	FDcReader* Reader;

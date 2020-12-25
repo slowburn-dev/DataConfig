@@ -1,24 +1,13 @@
-#include "DcTestCommon.h"
 #include "DcTestProperty.h"
+#include "DcTestCommon.h"
 #include "DataConfig/DcTypes.h"
-#include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
-#include "DataConfig/Misc/DcPipeVisitor.h"
-#include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
 int UDcTestDelegateClass1::ReturnOne(int Int) { return Int; }
 void UDcTestDelegateClass1::ReturnNone(int Int) { /*pass*/ }
-
-static FDcResult _DcPropertyRoundtrip(FAutomationTestBase* Fixture, FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
-{
-	FDcPropertyReader Reader(FromDatum);
-	FDcPropertyWriter Writer(ToDatum);
-	FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
-	return RoundtripVisit.PipeVisit();
-}
 
 DC_TEST("DataConfig.Core.Property.Primitive1")
 {
@@ -48,7 +37,7 @@ DC_TEST("DataConfig.Core.Property.Primitive1")
 	FDcPropertyDatum SourceDatum(FDcTestStruct1::StaticStruct(), &Source);
 	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
 
-	UTEST_OK("FDcTestStruct1 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct1 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
@@ -76,7 +65,7 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 	FDcPropertyDatum SourceDatum(FDcTestStruct2::StaticStruct(), &Source);
 	FDcPropertyDatum DestDatum(FDcTestStruct2::StaticStruct(), &Dest);
 
-	UTEST_OK("FDcTestStruct2 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	//	compile checks
@@ -116,7 +105,7 @@ DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
 	FDcPropertyDatum SourceDatum(UDcTestDelegateClass1::StaticClass(), Source);
 	FDcPropertyDatum DestDatum(UDcTestDelegateClass1::StaticClass(), Dest);
 
-	UTEST_OK("UDcTestDelegateClass1 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("UDcTestDelegateClass1 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("UDcTestDelegateClass1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	UTEST_TRUE("Sparse delegate is bound", Dest->SparseCallback1.IsBound());
@@ -176,7 +165,7 @@ DC_TEST("DataConfig.Core.Property.Containers")
 	FDcPropertyDatum SourceDatum(FDcTestStruct3::StaticStruct(), &Source);
 	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
 
-	UTEST_OK("FDcTestStruct3 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct3 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct3 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
@@ -209,7 +198,7 @@ DC_TEST("DataConfig.Core.Property.ObjectReference")
 	FDcPropertyDatum SourceDatum(FDcTestStruct4::StaticStruct(), &Source);
 	FDcPropertyDatum DestDatum(FDcTestStruct4::StaticStruct(), &Dest);
 
-	UTEST_OK("FDcTestStruct4 roundtrip", _DcPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct4 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
