@@ -27,6 +27,7 @@ DATACONFIGCORE_API FString GetFormatPropertyTypeName(UClass* Class);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field);
 
 DATACONFIGCORE_API bool IsSubObjectProperty(FObjectProperty* ObjectProperty);
+DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);
 
 //	Cpp type to Property
 template<typename T>

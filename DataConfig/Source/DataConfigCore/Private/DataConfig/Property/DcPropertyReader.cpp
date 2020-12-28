@@ -200,14 +200,19 @@ FDcResult FDcPropertyReader::ReadEnum(FDcEnumData* OutPtr)
 	if (OutPtr)
 	{
 		FEnumProperty* EnumProperty = Datum.CastFieldChecked<FEnumProperty>();
-		//	atm UENum API suports int32/int64 so use int64 for all enum for now
-		if (EnumProperty->GetUnderlyingProperty()->IsA<FUInt64Property>())
-			return DC_FAIL(DcDReadWrite, UInt64EnumNotSupported) << FormatHighlight();
+		FNumericProperty* UnderlyingProperty = EnumProperty->GetUnderlyingProperty();
+
+		bool bIsUnsigned = DcPropertyUtils::IsUnsignedProperty(UnderlyingProperty);
 
 		UEnum* Enum = EnumProperty->GetEnum();
 		OutPtr->Type = Enum->GetFName();
-		OutPtr->Value = EnumProperty->GetUnderlyingProperty()->GetSignedIntPropertyValue(Datum.DataPtr);
-		OutPtr->Name = Enum->GetNameByValue(OutPtr->Value);
+		OutPtr->bIsUnsigned = bIsUnsigned;
+		if (bIsUnsigned)
+			OutPtr->Unsigned64 = UnderlyingProperty->GetUnsignedIntPropertyValue(Datum.DataPtr);
+		else
+			OutPtr->Signed64 = UnderlyingProperty->GetSignedIntPropertyValue(Datum.DataPtr);
+
+		OutPtr->Name = Enum->GetNameByValue(OutPtr->Signed64);
 	}
 
 	return DcOk();

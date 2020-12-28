@@ -45,7 +45,13 @@ FDcResult FDcPrettyPrintWriter::WriteText(const FText& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
 {
-	Output.Logf(TEXT("%s- enum: %s,%s,%d"), *Indent, *DcPropertyUtils::SafeNameToString(Value.Type), *DcPropertyUtils::SafeNameToString(Value.Name), Value.Value);
+	Output.Logf(TEXT("%s- enum: %s,%s,unsigned: %d, %d"),
+		*Indent,
+		*DcPropertyUtils::SafeNameToString(Value.Type),
+		*DcPropertyUtils::SafeNameToString(Value.Name), 
+		Value.bIsUnsigned,
+		Value.Signed64
+	);
 	return DcOk();
 }
 

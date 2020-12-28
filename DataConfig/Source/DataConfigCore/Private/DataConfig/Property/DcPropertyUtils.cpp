@@ -374,6 +374,14 @@ bool IsSubObjectProperty(FObjectProperty* ObjectProperty)
 		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
 }
 
+bool IsUnsignedProperty(FNumericProperty* NumericProperty)
+{
+	return NumericProperty->IsA<FByteProperty>()
+		|| NumericProperty->IsA<FUInt16Property>()
+		|| NumericProperty->IsA<FUInt32Property>()
+		|| NumericProperty->IsA<FUInt64Property>();
+}
+
 FName GetStructTypeName(FFieldVariant& Property)
 {
 	if (!Property.IsValid())

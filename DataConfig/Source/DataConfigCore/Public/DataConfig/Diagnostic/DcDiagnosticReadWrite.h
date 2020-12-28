@@ -21,10 +21,10 @@ enum Type : uint16
 	WriteClassInlineNotCreated,
 	StructNameMismatch,
 	ClassNameMismatch,
-	UInt64EnumNotSupported,
 	EnumNameMismatch,
 	EnumNameNotFound,
 	EnumValueInvalid,
+	EnumSignMismatch,
 	WriteBlobOverrun,
 	FindPropertyByOffsetFailed,
 	

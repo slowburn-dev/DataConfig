@@ -82,7 +82,11 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 
 			DC_TRY(DcExpect(Lhs.Type == Rhs.Type));
 			DC_TRY(DcExpect(Lhs.Name == Rhs.Name));
-			DC_TRY(DcExpect(Lhs.Value == Rhs.Value));
+			DC_TRY(DcExpect(Lhs.bIsUnsigned == Rhs.bIsUnsigned));
+			if (Lhs.bIsUnsigned)
+				DC_TRY(DcExpect(Lhs.Signed64 == Rhs.Signed64));
+			else
+				DC_TRY(DcExpect(Lhs.Unsigned64 == Rhs.Unsigned64));
 		}
 		else if (Next == EDcDataEntry::StructRoot)
 		{

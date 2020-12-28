@@ -151,13 +151,24 @@ struct DATACONFIGCORE_API FDcEnumData
 {
 	FName Type;
 	FName Name;
-	int64 Value;
+
+	union {
+		int64 Signed64;
+		uint64 Unsigned64;
+	};
+
+	bool bIsUnsigned;
 
 	FORCEINLINE friend FArchive& operator<<(FArchive& Ar, FDcEnumData& Target)
 	{
 		Ar << Target.Type
 			<< Target.Name
-			<< Target.Value;
+			<< Target.bIsUnsigned;
+
+		if (Target.bIsUnsigned)
+			Ar << Target.Signed64;
+		else
+			Ar << Target.Unsigned64;
 
 		return Ar;
 	}
