@@ -1,7 +1,8 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/DcEnv.h"
-#include "HAL/FeedbackContextAnsi.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
+#include "HAL/FeedbackContextAnsi.h"
+#include "HAL/ExceptionHandling.h"
 
 struct FDcAutomationFeedbackContext : public FFeedbackContextAnsi
 {
@@ -45,6 +46,27 @@ bool FDcAutomationBase::TestOk(const FString& Description, const FDcResult& Resu
 	return TestOk(*Description, Result);
 }
 
+#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
+static int32 _Win32DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
+{
+	const SIZE_T StackTraceSize = 65535;
+	ANSICHAR* StackTrace = (ANSICHAR*)FMemory::SystemMalloc(StackTraceSize);
+
+	StackTrace[0] = 0;
+	FPlatformStackWalk::StackWalkAndDumpEx(
+		StackTrace,
+		StackTraceSize,
+		7,
+		FGenericPlatformStackWalk::EStackWalkFlags::FlagsUsedWhenHandlingEnsure);
+
+	puts(StackTrace);
+	FMemory::SystemFree(StackTrace);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
+
+
 void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 {
 	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
@@ -76,68 +98,79 @@ int32 FDcAutomationConsoleRunner::RunTests()
 	FDcAutomationFeedbackContext DcAutomationLog;
 	TDcStoreThenReset<FFeedbackContext*> OverrideGWarn(GWarn, &DcAutomationLog);
 
-	//	TODO seh and things
-	//	TODO dump in place
-
-	//	in console the stack line capture is always in `AutomationTest.h` so disable it for now
-	FAutomationTestFramework::Get().SetCaptureStack(false);
-
 	bool bAllSuccessful = true;
 
-	int runCount = 0;
-	int successCount = 0;
-	int failCount = 0;
-
+	//	TODO linux equivelent
+#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
+	__try
+#endif
 	{
-		//	shuffle tests for random execution order
-		int32 LastIndex = SelectedTests.Num() - 1;
-		for (int32 Ix = 0; Ix < LastIndex; Ix++)
-		{
-			int32 SwapIx = FMath::RandRange(Ix, LastIndex);
-			SelectedTests.Swap(Ix, SwapIx);
-		}
-	}
+		//	in console the stack line capture is always in `AutomationTest.h` so disable it for now
+		FAutomationTestFramework::Get().SetCaptureStack(false);
 
-	for (const FAutomationTestInfo& TestInfo: SelectedTests)
-	{
-		FString TestCommand = TestInfo.GetTestName();
-		FAutomationTestExecutionInfo CurExecutionInfo;
 
-		int32 RoleIndex = 0; 
-		Framework.StartTestByName(TestCommand, RoleIndex);
-		const bool CurTestSuccessful = Framework.StopTest(CurExecutionInfo);
-
-		bAllSuccessful = bAllSuccessful && CurTestSuccessful;
-		++runCount;
-		if (CurTestSuccessful) ++successCount;
-		else ++ failCount;
+		int runCount = 0;
+		int successCount = 0;
+		int failCount = 0;
 
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
-				*TestCommand,
-				CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
-			);
-
-			for (const FAutomationExecutionEntry& Entry: CurExecutionInfo.GetEntries())
+			//	shuffle tests for random execution order
+			int32 LastIndex = SelectedTests.Num() - 1;
+			for (int32 Ix = 0; Ix < LastIndex; Ix++)
 			{
-				UE_LOG(LogDataConfigCore, Display, TEXT("* %s %s"),
-					*Entry.Event.Message,
-					*Entry.Event.Context
-				);
+				int32 SwapIx = FMath::RandRange(Ix, LastIndex);
+				SelectedTests.Swap(Ix, SwapIx);
 			}
 		}
 
-		if (DcEnv().Diagnostics.Num())
+		for (const FAutomationTestInfo& TestInfo: SelectedTests)
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
-			DcEnv().FlushDiags();
-			UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
+			FString TestCommand = TestInfo.GetTestName();
+			FAutomationTestExecutionInfo CurExecutionInfo;
+
+			int32 RoleIndex = 0; 
+			Framework.StartTestByName(TestCommand, RoleIndex);
+			const bool CurTestSuccessful = Framework.StopTest(CurExecutionInfo);
+
+			bAllSuccessful = bAllSuccessful && CurTestSuccessful;
+			++runCount;
+			if (CurTestSuccessful) ++successCount;
+			else ++ failCount;
+
+			{
+				UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
+					*TestCommand,
+					CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
+				);
+
+				for (const FAutomationExecutionEntry& Entry: CurExecutionInfo.GetEntries())
+				{
+					UE_LOG(LogDataConfigCore, Display, TEXT("* %s %s"),
+						*Entry.Event.Message,
+						*Entry.Event.Context
+					);
+				}
+			}
+
+			if (DcEnv().Diagnostics.Num())
+			{
+				UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
+				DcEnv().FlushDiags();
+				UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
+			}
 		}
+
+		UE_LOG(LogDataConfigCore, Display, TEXT("Run: %4d, Success: %4d, Fail: %4d"),
+			runCount, successCount, failCount
+		);
 	}
 
-	UE_LOG(LogDataConfigCore, Display, TEXT("Run: %4d, Success: %4d, Fail: %4d"),
-		runCount, successCount, failCount
-	);
+#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
+	__except (_Win32DumpStackAndExit(GetExceptionInformation()))
+	{
+		FPlatformMisc::RequestExit(true);
+	}
+#endif
 
 	return bAllSuccessful ? 0 : -1;
 }

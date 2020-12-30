@@ -22,7 +22,7 @@ DC_TEST("DataConfig.Core.Property.NestedStruct")
 	return true;
 }
 
-DC_TEST("DataConfig.Core.Property.Enum1")
+DC_TEST("DataConfig.Core.Property.Enum")
 {
 	FDcTestStructEnum1 Source;
 
