@@ -18,6 +18,10 @@ public:
 
 	bool TestOk(const TCHAR* Description, const FDcResult& Result);
 	bool TestOk(const FString& Description, const FDcResult& Result);
+
+	bool TestDiagnostic(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code);
+	bool TestDiagnostic(const FString& Description, const FDcResult& Result, uint16 Category, uint16 Code);
+
 };
 
 #define UTEST_OK(What, Result)\
@@ -26,6 +30,13 @@ public:
 			return false;					\
 		}									\
 	} while (0)
+
+#define UTEST_DIAG(What, Result, DiagNamespace, DiagID)\
+	do {\
+		if (!TestDiagnostic(What, Result, DiagNamespace::Category, DiagNamespace::DiagID)) {\
+			return false;\
+		}\
+	} while (0)\
 
 ///	Example:
 ///

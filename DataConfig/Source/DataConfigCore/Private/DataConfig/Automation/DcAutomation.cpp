@@ -46,6 +46,42 @@ bool FDcAutomationBase::TestOk(const FString& Description, const FDcResult& Resu
 	return TestOk(*Description, Result);
 }
 
+bool FDcAutomationBase::TestDiagnostic(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code)
+{
+	if (Result.Ok())
+	{
+		AddError(FString::Printf(TEXT("%s: Expect DcResult fail but it's OK"), Description));
+		return false;
+	}
+
+	int DiagCount = DcEnv().Diagnostics.Num();
+	if (DiagCount != 1)
+	{
+		AddError(FString::Printf(TEXT("%s: Expect exactly 1 diagnostic found %d"), Description, DiagCount));
+		return false;
+	}
+
+	FDcDiagnostic& Diag = DcEnv().GetLastDiag();
+	if (Diag.Code.CategoryID != Category
+		|| Diag.Code.ErrorID != Code)
+	{
+		AddError(FString::Printf(TEXT("%s: Last diag unmatch, Expect: (%d, %d), Actual, (%d, %d)"), 
+			Description, Category, Code, Diag.Code.CategoryID, Diag.Code.ErrorID
+		));
+		return false;
+	}
+
+	//	eat the diag on test succeed
+	DcEnv().Diagnostics.Empty();
+
+	return true;
+}
+
+bool FDcAutomationBase::TestDiagnostic(const FString& Description, const FDcResult& Result, uint16 Category, uint16 Code)
+{
+	return TestDiagnostic(*Description, Result, Category, Code);
+}
+
 #if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
 static int32 _Win32DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
 {

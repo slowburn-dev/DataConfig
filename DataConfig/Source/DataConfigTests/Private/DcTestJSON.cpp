@@ -3,6 +3,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Writer/DcNoopWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
+#include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 
 static FDcResult _NoopPipeVisit(FDcReader* Reader)
 {
@@ -63,5 +64,28 @@ DC_TEST("DataConfig.Core.JSON.Reader1")
 	return true;
 };
 
+
+DC_TEST("DataConfig.Core.JSON.ReaderErrors")
+{
+	{
+		FDcJsonReader Reader;
+
+		FString Str = TEXT(R"(
+
+			{
+				"SameKey" : "Is",
+				"SameKey" : "Not Allowed.",
+			} 
+
+		)");
+
+		Reader.SetNewString(*Str);
+
+		UTEST_DIAG("Expect 'DuplicateKey' err", _NoopPipeVisit(&Reader), DcDJSON, DuplicatedKey);
+	}
+
+
+	return true;
+}
 
 
