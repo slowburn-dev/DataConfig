@@ -84,6 +84,53 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 		UTEST_DIAG("Expect 'DuplicateKey' err", _NoopPipeVisit(&Reader), DcDJSON, DuplicatedKey);
 	}
 
+	{
+		FDcJsonReader Reader;
+
+		FString Str = TEXT(R"(
+
+			{
+				2 : "Two",
+			} 
+
+		)");
+
+		Reader.SetNewString(*Str);
+
+		UTEST_DIAG("Expect 'KeyMustBeString' err", _NoopPipeVisit(&Reader), DcDJSON, KeyMustBeString);
+	}
+
+	{
+		FDcJsonReader Reader;
+
+		FString Str = TEXT(R"(
+
+			[1 2 3 4 5]
+
+		)");
+
+		Reader.SetNewString(*Str);
+
+		UTEST_DIAG("Expect 'ExpectComma' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
+	}
+
+
+	{
+		FDcJsonReader Reader;
+
+		FString Str = TEXT(R"(
+
+			{
+				"One": 1
+				"Two": 1
+			}
+
+		)");
+
+		Reader.SetNewString(*Str);
+
+		UTEST_DIAG("Expect 'ExpectComma' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
+	}
 
 	return true;
 }

@@ -17,7 +17,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ DuplicatedKey, TEXT("Duplicated key within object"), },
 	{ KeyMustBeString, TEXT("Object key must be a string"), },
 	{ ReadTypeMismatch, TEXT("Reading type mismatch, expecting '{0}' actual '{1}'"), },
-	{ ExpectComma, TEXT("Expect comma but not found"), },
+	{ ExpectComma, TEXT("Expect ',' but not found"), },
 	{ ObjectKeyTooLong, TEXT("Object key string too long, UE4 FName has lengh limitation anyway"), },
 };
 
