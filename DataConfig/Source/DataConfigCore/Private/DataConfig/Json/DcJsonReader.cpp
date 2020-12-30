@@ -47,7 +47,7 @@ void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 Num)
 	Token.Ref.Reset();
 	Token.Ref.Buffer = &Buf;
 
-	State = EState::InitializedWithStr;
+	State = EState::InProgress;
 	bTopObjectAtValue = false;
 	bNeedConsumeToken = true;
 
@@ -763,7 +763,7 @@ template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadDouble(double
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 {
-	check(State == EState::InitializedWithStr);
+	check(State == EState::InProgress);
 	if (CachedNext.IsValid())
 	{
 		Token = CachedNext;
@@ -775,6 +775,7 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 	{
 		Token.Type = ETokenType::EOF_;
 		Token.Ref.Reset();
+		State = EState::FinishedStr;
 		return DcOk();
 	}
 

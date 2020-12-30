@@ -85,7 +85,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	enum class EState
 	{
 		Unitialized,
-		InitializedWithStr,
+		InProgress,
 		FinishedStr,
 		Invalid,
 	};
