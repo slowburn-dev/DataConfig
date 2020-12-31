@@ -9,7 +9,7 @@
 static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FDcPropertyWriter Writer(Datum);
 	FDcDeserializeContext Ctx;
@@ -32,8 +32,8 @@ DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 			"BoolField" : true,
 			"NameField" : "AName",
 			"StringField" : "AStr",
-			//"TextField" : "AText",
-			//"EnumField" : "Tard",
+			"TextField" : "AText",
+			"EnumField" : "Tard",
 
 			"FloatField" : 12.3,
 			"DoubleField" : 23.4,

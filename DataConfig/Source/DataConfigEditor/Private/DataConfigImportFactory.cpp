@@ -67,7 +67,7 @@ static void LazyInitializeDeserializer()
 	if (!DcDeserializer.IsSet())
 	{
 		DcDeserializer.Emplace();
-		DcSetupDefaultDeserializeHandlers(DcDeserializer.GetValue());
+		DcSetupJsonDeserializeHandlers(DcDeserializer.GetValue());
 	}
 }
 

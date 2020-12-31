@@ -1,11 +1,11 @@
-#include "DataConfig/Deserialize/Handlers/DcContainerDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcContainerDeserializers.h"
 #include "Templates/Casts.h"
 #include "UObject/UnrealType.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
-namespace DcHandlers {
+namespace DcJsonHandlers {
 
 template<EDcDataEntry EntryStart, typename TMethodStart, typename TMethodEnd>
 FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(

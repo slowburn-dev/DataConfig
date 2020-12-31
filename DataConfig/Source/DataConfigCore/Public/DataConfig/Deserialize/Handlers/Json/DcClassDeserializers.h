@@ -4,7 +4,7 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
-namespace DcHandlers {
+namespace DcJsonHandlers {
 
 //	Reads `/Path/To/BP` or `ClassName`
 //FResult DATACONFIGCORE_API ClassReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);

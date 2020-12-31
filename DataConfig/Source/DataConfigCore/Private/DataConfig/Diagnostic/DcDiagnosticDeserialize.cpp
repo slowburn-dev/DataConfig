@@ -16,6 +16,7 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ UObjectByNameNotFound, TEXT("Find object by name failed, Actual: {0}"), },
 	{ ExpectNumericEntry, TEXT("Expect numeric data but not found, Actual: {0}")},
 	{ CoercionFail, TEXT("Reader coercion failed, Actual: {0}")},
+	{ EnumValueNotFound, TEXT("Enum value not found in enum type: {0}, Actual: {1}")},
 };
 
 FDcDiagnosticGroup Details = {

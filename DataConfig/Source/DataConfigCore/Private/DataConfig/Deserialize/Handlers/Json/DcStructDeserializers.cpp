@@ -1,11 +1,11 @@
-#include "DataConfig/Deserialize/Handlers/DcStructDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcStructDeserializers.h"
 #include "Templates/Casts.h"
 #include "UObject/UnrealType.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 
-namespace DcHandlers {
+namespace DcJsonHandlers {
 
 FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {

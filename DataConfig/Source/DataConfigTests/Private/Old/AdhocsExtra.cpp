@@ -12,7 +12,7 @@
 
 void DeserializeExtra_Color() {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	//	colored
 	using namespace DcExtra;
@@ -82,7 +82,7 @@ void DeserializeExtra_AnyStructUsage()
 void DeserializeExtra_AnyStruct()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	//	any
 	using namespace DcExtra;
@@ -140,7 +140,7 @@ void DeserializeExtra_AnyStruct()
 void DeserializeExtra_Base64()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	//	base64
 	using namespace DcExtra;

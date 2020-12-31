@@ -1,16 +1,17 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
-#include "Templates/Casts.h"
-#include "UObject/UnrealType.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
-#include "DataConfig/Deserialize/Handlers/DcPrimitiveDeserializers.h"
-#include "DataConfig/Deserialize/Handlers/DcStructDeserializers.h"
-#include "DataConfig/Deserialize/Handlers/DcClassDeserializers.h"
-#include "DataConfig/Deserialize/Handlers/DcContainerDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcPrimitiveDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcStructDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcClassDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcContainerDeserializers.h"
+#include "Templates/Casts.h"
+#include "UObject/UnrealType.h"
+#include "UObject/TextProperty.h"
 
-void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
+void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 {
-	using namespace DcHandlers;
+	using namespace DcJsonHandlers;
 
 	//	Primitives
 	Deserializer.AddPredicatedHandler(
@@ -20,6 +21,8 @@ void DcSetupDefaultDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
 	Deserializer.AddDirectHandler(FNameProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
 	Deserializer.AddDirectHandler(FStrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStringDeserialize));
+	Deserializer.AddDirectHandler(FTextProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTextDeserialize));
+	Deserializer.AddDirectHandler(FEnumProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerEnumDeserialize));
 
 	//	Containers
 	Deserializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));

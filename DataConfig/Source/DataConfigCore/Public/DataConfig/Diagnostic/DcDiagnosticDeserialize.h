@@ -21,6 +21,7 @@ enum Type : uint16
 	UObjectByNameNotFound,
 	ExpectNumericEntry,
 	CoercionFail,
+	EnumValueNotFound,
 };
 
 } // namespace DcDDeserialize

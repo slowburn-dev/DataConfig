@@ -24,7 +24,7 @@ static void Dump(FDcPropertyDatum Datum)
 void DeserializeSimple()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -54,7 +54,7 @@ void DeserializeSimple()
 void DeserializeNestedStruct()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -89,7 +89,7 @@ void DeserializeNestedStruct()
 void DeserializeObjectRoot()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	UTestClass_Alpha* Obj = NewObject<UTestClass_Alpha>();
 	FDcPropertyWriter Writer(FDcPropertyDatum(UTestClass_Alpha::StaticClass(), Obj));
@@ -123,7 +123,7 @@ void DeserializeObjectRoot()
 void DeserializeObjectRef()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FObjReference ObjRef{};		// default initialized OR READER WILL THROW
 	FDcPropertyWriter Writer(FDcPropertyDatum(FObjReference::StaticStruct(), &ObjRef));
@@ -156,7 +156,7 @@ void DeserializeObjectRef()
 void DeserializeSubObject()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FShapeContainer Obj{};
 	FDcPropertyWriter Writer(FDcPropertyDatum(FShapeContainer::StaticStruct(), &Obj));
@@ -194,7 +194,7 @@ void DeserializeSubObject()
 void DeserializeContainers()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FStructWithContainers Obj{};
 	FDcPropertyWriter Writer(FDcPropertyDatum(FStructWithContainers::StaticStruct(), &Obj));
@@ -256,7 +256,7 @@ void DeserializeContainers()
 void Deserialize_Numerics()
 {
 	FDcDeserializer Deserializer;
-	DcSetupDefaultDeserializeHandlers(Deserializer);
+	DcSetupJsonDeserializeHandlers(Deserializer);
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
