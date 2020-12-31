@@ -22,7 +22,6 @@ static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
 	return Deserializer.Deserialize(Ctx);
 }
 
-//	TODO DC_TEST Line Number Issue
 DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 {
 	FDcJsonReader Reader;

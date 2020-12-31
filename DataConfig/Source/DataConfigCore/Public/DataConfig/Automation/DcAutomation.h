@@ -46,12 +46,12 @@ public:
 ///			return true;
 ///		}
 
-#define DC_TEST(PrettyName) \
+#define DC_TEST_IMPL(ID, PrettyName) \
 	namespace __DC_DETAIL { \
-	class DC_UNIQUE(FDcAutomationTest) : public FDcAutomationBase \
+	class DC_JOIN(FDcAutomationTest, ID) : public FDcAutomationBase \
 	{ \
 	public: \
-		DC_UNIQUE(FDcAutomationTest)(const FString& InName) \
+		DC_JOIN(FDcAutomationTest, ID)(const FString& InName) \
 			: FDcAutomationBase(InName, false) {} \
 		virtual FString GetTestSourceFileName() const override { return __FILE__; } \
 		virtual int32 GetTestSourceFileLine() const override { return __LINE__; } \
@@ -65,11 +65,12 @@ public:
 		virtual FString GetBeautifiedTestName() const override { return PrettyName; } \
 	}; \
 	namespace { \
-		DC_UNIQUE(FDcAutomationTest) DC_UNIQUE(_DcAutomationInstance)(TEXT(PrettyName)); \
+		DC_JOIN(FDcAutomationTest, ID) DC_JOIN(_DcAutomationInstance, ID)(TEXT(PrettyName)); \
 	} \
 	} \
-	bool __DC_DETAIL::DC_UNIQUE(FDcAutomationTest)::RunTest(const FString& Parameters)
+	bool __DC_DETAIL::DC_JOIN(FDcAutomationTest, ID)::RunTest(const FString& Parameters)
 
+#define DC_TEST(PrettyName) DC_TEST_IMPL(__COUNTER__, PrettyName)
 
 struct DATACONFIGCORE_API FDcAutomationConsoleRunner
 {
