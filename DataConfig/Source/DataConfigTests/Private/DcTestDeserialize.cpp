@@ -5,6 +5,7 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 
 static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
 {
@@ -34,8 +35,8 @@ DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 			"TextField" : "AText",
 			"EnumField" : "Tard",
 
-			"FloatField" : 12.3,
-			"DoubleField" : 23.4,
+			"FloatField" : 17.5,
+			"DoubleField" : 19.375,
 
 			"Int8Field" : -43,
 			"Int16Field" : -2243,
@@ -52,9 +53,32 @@ DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 	Reader.SetNewString(*Str);
 
 	FDcTestStruct1 Dest;
-	FDcPropertyDatum Datum(FDcTestStruct1::StaticStruct(), &Dest);
+	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
 
-	UTEST_OK("Deserialize into FDcTestStruct1", _DeserializeJsonInto(&Reader, Datum));
+	FDcTestStruct1 Expect;
+	Expect.BoolField = true;
+	Expect.NameField = TEXT("AName");
+	Expect.StringField = TEXT("AStr");
+	Expect.TextField = FText::FromString(TEXT("AText"));
+	Expect.EnumField = EDcTestEnum1::Tard;
+
+	Expect.FloatField = 17.5f;
+	Expect.DoubleField = 19.375;
+
+	Expect.Int8Field = -43;
+	Expect.Int16Field = -2243;
+	Expect.Int32Field = -23415;
+	Expect.Int64Field = -1524523;
+
+	Expect.UInt8Field = 213;
+	Expect.UInt16Field = 2243,
+	Expect.UInt32Field = 23415;
+	Expect.UInt64Field = 1524523;
+
+	FDcPropertyDatum ExpectDatum(FDcTestStruct1::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStruct1", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStruct1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
 }
@@ -62,7 +86,21 @@ DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 
 DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
 {
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
 
+		{
+			"EnumFlagField1" : [],
+			"EnumFlagField2" : ["One", "Three", "Five"],
+		}
+
+	)");
+	Reader.SetNewString(*Str);
+
+	FDcTestStructEnumFlag1 Dest;
+	FDcPropertyDatum Datum(FDcTestStructEnumFlag1::StaticStruct(), &Dest);
+
+	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", _DeserializeJsonInto(&Reader, Datum));
 
 	return true;
 }

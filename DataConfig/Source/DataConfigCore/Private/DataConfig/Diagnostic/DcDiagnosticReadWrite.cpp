@@ -22,6 +22,8 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ EnumValueInvalid, TEXT("Enum value isn't valid for this enum. Enum {0}, Actual {1}") },
 	{ WriteBlobOverrun, TEXT("Writing blob overrun, Expected len {0}, Actual len {1}") },
 	{ FindPropertyByOffsetFailed, TEXT("Failed to find property by offset, Class: {0}, Offset: {1}") },
+	{ DataTypeUnequal, TEXT("Data entry value unequal, Type: {0}") },
+	{ DataTypeUnequalLhsRhs, TEXT("Data entry value unequal, Type: {0}, Lhs: {1}, Rhs: {2}") },
 	//	putback reader
 	{ CantUsePutbackValue, TEXT("Cannot use putback value in {0}") },
 	//	pipe visitor

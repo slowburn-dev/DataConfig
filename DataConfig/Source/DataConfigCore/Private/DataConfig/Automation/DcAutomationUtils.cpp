@@ -1,11 +1,43 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Property/DcPropertyReader.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 namespace DcAutomationUtils
 {
+
+template<typename T>
+static typename TEnableIf<TDcIsDataVariantCompatible<T>::Value, FDcResult>::Type
+_ExpectEqual(const T& Lhs, const T& Rhs)
+{
+	if (Lhs != Rhs)
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeUnequalLhsRhs)
+			<< DcTypeUtils::TDcDataEntryType<T>::Value << Lhs << Rhs;
+	}
+	else
+	{
+		return DcOk();
+	}
+}
+
+template<typename T>
+static typename TEnableIf<!TDcIsDataVariantCompatible<T>::Value, FDcResult>::Type
+_ExpectEqual(const T& Lhs, const T& Rhs)
+{
+	if (Lhs != Rhs)
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeUnequal)
+			<< DcTypeUtils::TDcDataEntryType<T>::Value;
+	}
+	else
+	{
+		return DcOk();
+	}
+}
 
 //	TODO [LINK] this DATACONFIGCORE_API should'nt be here but without it link wont' pass wtf?
 DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
@@ -40,7 +72,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			bool Rhs;
 			DC_TRY(RhsReader.ReadBool(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Name)
 		{
@@ -50,7 +82,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FName Rhs;
 			DC_TRY(RhsReader.ReadName(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::String)
 		{
@@ -60,7 +92,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FString Rhs;
 			DC_TRY(RhsReader.ReadString(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Text)
 		{
@@ -70,7 +102,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FText Rhs;
 			DC_TRY(RhsReader.ReadText(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.ToString() == Rhs.ToString()));
+			DC_TRY(_ExpectEqual(Lhs.ToString(), Rhs.ToString()));
 		}
 		else if (Next == EDcDataEntry::Enum)
 		{
@@ -80,13 +112,13 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FDcEnumData Rhs;
 			DC_TRY(RhsReader.ReadEnum(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.Type == Rhs.Type));
-			DC_TRY(DcExpect(Lhs.Name == Rhs.Name));
-			DC_TRY(DcExpect(Lhs.bIsUnsigned == Rhs.bIsUnsigned));
+			DC_TRY(_ExpectEqual(Lhs.Type, Rhs.Type));
+			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
+			DC_TRY(_ExpectEqual(Lhs.bIsUnsigned, Rhs.bIsUnsigned));
 			if (Lhs.bIsUnsigned)
-				DC_TRY(DcExpect(Lhs.Signed64 == Rhs.Signed64));
+				DC_TRY(_ExpectEqual(Lhs.Signed64, Rhs.Signed64));
 			else
-				DC_TRY(DcExpect(Lhs.Unsigned64 == Rhs.Unsigned64));
+				DC_TRY(_ExpectEqual(Lhs.Unsigned64, Rhs.Unsigned64));
 		}
 		else if (Next == EDcDataEntry::StructRoot)
 		{
@@ -96,7 +128,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FDcStructStat Rhs;
 			DC_TRY(RhsReader.ReadStructRoot(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.Name == Rhs.Name));
+			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
 		}
 		else if (Next == EDcDataEntry::StructEnd)
 		{
@@ -106,7 +138,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FDcStructStat Rhs;
 			DC_TRY(RhsReader.ReadStructEnd(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.Name == Rhs.Name));
+			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
 		}
 		else if (Next == EDcDataEntry::MapRoot)
 		{
@@ -126,7 +158,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FDcClassStat Rhs;
 			DC_TRY(RhsReader.ReadClassRoot(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.Name == Rhs.Name));
+			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
 		}
 		else if (Next == EDcDataEntry::ClassEnd)
 		{
@@ -136,7 +168,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FDcClassStat Rhs;
 			DC_TRY(RhsReader.ReadClassEnd(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.Name == Rhs.Name));
+			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
 		}
 		else if (Next == EDcDataEntry::ArrayRoot)
 		{
@@ -166,7 +198,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			UObject* Rhs;
 			DC_TRY(RhsReader.ReadObjectReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::ClassReference)
 		{
@@ -176,7 +208,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			UClass* Rhs;
 			DC_TRY(RhsReader.ReadClassReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::WeakObjectReference)
 		{
@@ -186,7 +218,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FWeakObjectPtr Rhs;
 			DC_TRY(RhsReader.ReadWeakObjectReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::LazyObjectReference)
 		{
@@ -196,7 +228,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FLazyObjectPtr Rhs;
 			DC_TRY(RhsReader.ReadLazyObjectReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::SoftObjectReference)
 		{
@@ -206,7 +238,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FSoftObjectPath Rhs;
 			DC_TRY(RhsReader.ReadSoftObjectReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::SoftClassReference)
 		{
@@ -216,7 +248,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FSoftClassPath Rhs;
 			DC_TRY(RhsReader.ReadSoftClassReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::InterfaceReference)
 		{
@@ -226,7 +258,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FScriptInterface Rhs;
 			DC_TRY(RhsReader.ReadInterfaceReference(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::FieldPath)
 		{
@@ -236,7 +268,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FFieldPath Rhs;
 			DC_TRY(RhsReader.ReadFieldPath(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Delegate)
 		{
@@ -246,7 +278,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FScriptDelegate Rhs;
 			DC_TRY(RhsReader.ReadDelegate(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::MulticastInlineDelegate)
 		{
@@ -256,7 +288,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FMulticastScriptDelegate Rhs;
 			DC_TRY(RhsReader.ReadMulticastInlineDelegate(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.ToString<UObject>() == Rhs.ToString<UObject>()));
+			DC_TRY(_ExpectEqual(Lhs.ToString<UObject>(), Rhs.ToString<UObject>()));
 		}
 		else if (Next == EDcDataEntry::MulticastSparseDelegate)
 		{
@@ -266,7 +298,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			FMulticastScriptDelegate Rhs;
 			DC_TRY(RhsReader.ReadMulticastSparseDelegate(&Rhs));
 
-			DC_TRY(DcExpect(Lhs.IsBound() == Rhs.IsBound()));
+			DC_TRY(_ExpectEqual(Lhs.ToString<UObject>(), Rhs.ToString<UObject>()));
 		}
 		else if (Next == EDcDataEntry::Int8)
 		{
@@ -276,7 +308,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			int8 Rhs;
 			DC_TRY(RhsReader.ReadInt8(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Int16)
 		{
@@ -286,7 +318,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			int16 Rhs;
 			DC_TRY(RhsReader.ReadInt16(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Int32)
 		{
@@ -296,7 +328,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			int32 Rhs;
 			DC_TRY(RhsReader.ReadInt32(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Int64)
 		{
@@ -306,7 +338,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			int64 Rhs;
 			DC_TRY(RhsReader.ReadInt64(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::UInt8)
 		{
@@ -316,7 +348,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			uint8 Rhs;
 			DC_TRY(RhsReader.ReadUInt8(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::UInt16)
 		{
@@ -326,7 +358,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			uint16 Rhs;
 			DC_TRY(RhsReader.ReadUInt16(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::UInt32)
 		{
@@ -336,7 +368,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			uint32 Rhs;
 			DC_TRY(RhsReader.ReadUInt32(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::UInt64)
 		{
@@ -346,7 +378,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			uint64 Rhs;
 			DC_TRY(RhsReader.ReadUInt64(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Float)
 		{
@@ -356,7 +388,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			float Rhs;
 			DC_TRY(RhsReader.ReadFloat(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else if (Next == EDcDataEntry::Double)
 		{
@@ -366,7 +398,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 			double Rhs;
 			DC_TRY(RhsReader.ReadDouble(&Rhs));
 
-			DC_TRY(DcExpect(Lhs == Rhs));
+			DC_TRY(_ExpectEqual(Lhs, Rhs));
 		}
 		else
 		{

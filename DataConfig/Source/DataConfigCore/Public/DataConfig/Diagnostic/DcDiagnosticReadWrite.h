@@ -27,6 +27,8 @@ enum Type : uint16
 	EnumSignMismatch,
 	WriteBlobOverrun,
 	FindPropertyByOffsetFailed,
+	DataTypeUnequal,
+	DataTypeUnequalLhsRhs,
 	
 	//	putback reader
 	CantUsePutbackValue,
