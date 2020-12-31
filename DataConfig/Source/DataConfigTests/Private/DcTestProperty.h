@@ -6,7 +6,7 @@
 USTRUCT()
 struct FDcTestStruct1
 {
-	GENERATED_BODY();
+	GENERATED_BODY()
 
 	// basic scalar types
 	UPROPERTY() bool BoolField;
