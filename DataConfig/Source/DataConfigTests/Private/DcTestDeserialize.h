@@ -38,6 +38,15 @@ struct FDcTestStructShapeContainer1
 	UPROPERTY() UDcBaseShape* ShapeField3;
 };
 
+USTRUCT()
+struct FDcTestStructObjectRef1
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UObject* ObjField1;
+	UPROPERTY() UObject* ObjField2;
+};
+
 
 
 

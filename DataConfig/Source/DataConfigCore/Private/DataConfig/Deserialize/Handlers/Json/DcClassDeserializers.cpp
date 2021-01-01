@@ -201,6 +201,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	}
 	else if (Next == EDcDataEntry::Nil)
 	{
+		DC_TRY(Ctx.Reader->ReadNil());
 		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
 		DC_TRY(Ctx.Writer->WriteNil());
 		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));

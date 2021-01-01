@@ -53,7 +53,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 		DC_TRY(LhsReader.PeekRead(&Next));
 		DC_TRY(RhsReader.PeekRead(&RhsPeekEntry));
 
-		DC_TRY(DcExpect(Next == RhsPeekEntry));
+		DC_TRY(_ExpectEqual(Next, RhsPeekEntry));
 
 		//	TODO [PERF] we now know that optimizer don't really create jump table, make it a switch
 		if (Next == EDcDataEntry::Ended)

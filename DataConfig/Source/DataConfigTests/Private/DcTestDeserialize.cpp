@@ -148,9 +148,8 @@ DC_TEST("DataConfig.Core.Deserializer.InlineSubObject")
 	)");
 	Reader.SetNewString(*Str);
 
-	FDcTestStructShapeContainer1 Dest;	//	note that Dest fields are all uninitialized at all
+	FDcTestStructShapeContainer1 Dest;	//	note that Dest fields are all uninitialized atm
 	FDcPropertyDatum DestDatum(FDcTestStructShapeContainer1::StaticStruct(), &Dest);
-
 
 	FDcTestStructShapeContainer1 Expect;
 
@@ -173,6 +172,35 @@ DC_TEST("DataConfig.Core.Deserializer.InlineSubObject")
 		Ctx.Objects.Push(GetTransientPackage());
 	}));
 	UTEST_OK("Deserialize into FDcTestStructShapeContainer1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Deserializer.ObjectRef")
+{
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+
+		{
+			"ObjField1" : "Object'/Script/DataConfigTests'",
+			"ObjField2" : null
+		}
+
+	)");
+	Reader.SetNewString(*Str);
+
+	FDcTestStructObjectRef1 Dest;	//	note that Dest fields are all uninitialized atm
+	FDcPropertyDatum DestDatum(FDcTestStructObjectRef1::StaticStruct(), &Dest);
+
+	FDcTestStructObjectRef1 Expect;
+
+	Expect.ObjField1 = FindObject<UPackage>(ANY_PACKAGE, TEXT("/Script/DataConfigTests"), true);
+	Expect.ObjField2 = nullptr;
+
+	FDcPropertyDatum ExpectDatum(FDcTestStructObjectRef1::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStructObjectRef1", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructObjectRef1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
 }
