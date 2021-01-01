@@ -204,3 +204,72 @@ DC_TEST("DataConfig.Core.Deserializer.ObjectRef")
 
 	return true;
 }
+
+
+DC_TEST("DataConfig.Core.Deserializer.Containers")
+{
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+
+		{
+			"StringArray" : [
+				"Foo", "Bar", "Baz"
+			],
+			"StringSet" : [
+				"Doo", "Dar", "Daz"
+			],
+			"StringMap" : {
+				"One": "1",
+				"Two": "2",
+				"Three": "3",
+			},
+			"StructSet" : [
+				{
+					"Name" : "One",
+					"Index" : 1,
+				},
+				{
+					"Name" : "Two",
+					"Index" : 2,
+				},
+				{
+					"Name" : "Three",
+					"Index" : 3,
+				}
+			],
+		}
+
+	)");
+	Reader.SetNewString(*Str);
+
+	FDcTestStruct3 Dest;
+	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
+
+	FDcTestStruct3 Expect;
+
+	Expect.StringArray.Add(TEXT("Foo"));
+	Expect.StringArray.Add(TEXT("Bar"));
+	Expect.StringArray.Add(TEXT("Baz"));
+
+	Expect.StringSet.Add(TEXT("Doo"));
+	Expect.StringSet.Add(TEXT("Dar"));
+	Expect.StringSet.Add(TEXT("Daz"));
+
+	Expect.StringMap.Add(TEXT("One"), TEXT("1"));
+	Expect.StringMap.Add(TEXT("Two"), TEXT("2"));
+	Expect.StringMap.Add(TEXT("Three"), TEXT("3"));
+
+	Expect.StructSet.Add({TEXT("One"), 1});
+	Expect.StructSet.Add({TEXT("Two"), 2});
+	Expect.StructSet.Add({TEXT("Three"), 3});
+
+	FDcPropertyDatum ExpectDatum(FDcTestStruct3::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStruct3", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+
+	return true;
+}
+
+
