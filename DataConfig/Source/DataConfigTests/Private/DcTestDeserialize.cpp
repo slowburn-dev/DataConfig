@@ -30,7 +30,7 @@ static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
 	return _DeserializeJsonInto(Reader, Datum, [](FDcDeserializeContext&){ /*pass*/ });
 }
 
-DC_TEST("DataConfig.Core.Deserializer.Primitive1")
+DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 {
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -90,7 +90,7 @@ DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 	return true;
 }
 
-DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
+DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 {
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -125,7 +125,7 @@ DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
 	return true;
 }
 
-DC_TEST("DataConfig.Core.Deserializer.InlineSubObject")
+DC_TEST("DataConfig.Core.Deserialize.InlineSubObject")
 {
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -176,7 +176,7 @@ DC_TEST("DataConfig.Core.Deserializer.InlineSubObject")
 	return true;
 }
 
-DC_TEST("DataConfig.Core.Deserializer.ObjectRef")
+DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 {
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -206,7 +206,7 @@ DC_TEST("DataConfig.Core.Deserializer.ObjectRef")
 }
 
 
-DC_TEST("DataConfig.Core.Deserializer.Containers")
+DC_TEST("DataConfig.Core.Deserialize.Containers")
 {
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(

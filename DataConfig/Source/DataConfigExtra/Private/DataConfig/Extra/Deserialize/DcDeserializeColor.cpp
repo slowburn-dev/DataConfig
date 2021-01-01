@@ -5,7 +5,11 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
+#include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 
 namespace DcExtra
 {
@@ -86,4 +90,42 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 
 }	//	namespace DcExtra
 
+DC_TEST("DataConfig.Extra.Deserialize.Color")
+{
+	FDcDeserializer Deserializer;
+	DcSetupJsonDeserializeHandlers(Deserializer);
+
+	using namespace DcExtra;
+	Deserializer.AddPredicatedHandler(
+		FDcDeserializePredicate::CreateStatic(PredicateIsColorStruct),
+		FDcDeserializeDelegate::CreateStatic(HandlerColorDeserialize)
+	);
+
+	FDcTestStructWithColor1 Dest;
+	FDcPropertyDatum DestDatum(FDcTestStructWithColor1::StaticStruct(), &Dest);
+	FDcPropertyWriter Writer(DestDatum);
+
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+		{
+			"ColorField1" : "#0000FF00",
+			"ColorField2" : "#FF000000",
+		}
+	)");
+	Reader.SetNewString(*Str);
+
+	FDcDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Push(FDcTestStructWithColor1::StaticStruct());
+	Ctx.Prepare();
+
+	UTEST_OK("Extra FColor Deserialize", Deserializer.Deserialize(Ctx));
+
+
+	DcAutomationUtils::DumpToLog(DestDatum);
+
+	return true;
+}
 

@@ -5,9 +5,8 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/DcEnv.h"
-
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
-
+#include "DataConfig/Automation/DcAutomation.h"
 #include "Misc/Base64.h"
 
 namespace DcExtra
@@ -63,4 +62,6 @@ FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 }
 
 }	//	namespace DcExtra
+
+
 
