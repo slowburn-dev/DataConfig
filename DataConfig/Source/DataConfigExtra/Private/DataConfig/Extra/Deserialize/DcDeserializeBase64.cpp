@@ -13,7 +13,7 @@
 namespace DcExtra
 {
 
-DATACONFIGEXTRA_API EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeserializeContext& Ctx)
+EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeserializeContext& Ctx)
 {
 	FArrayProperty* ArrayProperty = DcPropertyUtils::CastFieldVariant<FArrayProperty>(Ctx.TopProperty());
 
@@ -23,19 +23,20 @@ DATACONFIGEXTRA_API EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeser
 	if (!ArrayProperty->Inner->IsA<FByteProperty>())
 		return EDcDeserializePredicateResult::Pass;
 
-	bool bIsMetaData;
+	bool bIsMetaBlob;
+	//	TODO use amend meta data
 #if WITH_METADATA
-	bIsMetaData = ArrayProperty->HasMetaData(TEXT("DcExtraBlob"));
+	bIsMetaBlob = ArrayProperty->HasMetaData(TEXT("DcExtraBlob"));
 #else
-	bIsMetaData = ArrayProperty->GetName().EndsWith(TEXT("Blob"));
+	bIsMetaBlob = ArrayProperty->GetName().EndsWith(TEXT("Blob"));
 #endif
 
-	return bIsMetaData
+	return bIsMetaBlob
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
 }
 
-DATACONFIGEXTRA_API FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));

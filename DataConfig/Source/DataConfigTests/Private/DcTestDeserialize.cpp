@@ -83,7 +83,6 @@ DC_TEST("DataConfig.Core.Deserializer.Primitive1")
 	return true;
 }
 
-
 DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
 {
 	FDcJsonReader Reader;
@@ -97,10 +96,25 @@ DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
 	)");
 	Reader.SetNewString(*Str);
 
-	FDcTestStructEnumFlag1 Dest;
-	FDcPropertyDatum Datum(FDcTestStructEnumFlag1::StaticStruct(), &Dest);
 
-	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", _DeserializeJsonInto(&Reader, Datum));
+	FDcTestStructEnumFlag1 Dest;
+	FDcPropertyDatum DestDatum(FDcTestStructEnumFlag1::StaticStruct(), &Dest);
+
+	FDcTestStructEnumFlag1 Expect;
+	Expect.EnumFlagField1 = EDcTestEnumFlag::None;
+	Expect.EnumFlagField2 = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestEnumFlag::Five;
+	FDcPropertyDatum ExpectDatum(FDcTestStructEnumFlag1::StaticStruct(), &Expect);
+
+
+#if !WITH_METADATA
+	UEnum* EnumClass = FindObject<UEnum>(ANY_PACKAGE, TEXT("EDcTestEnumFlag"), true);
+	check(EnumClass);
+	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
+	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
+#endif
+
+	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
 }

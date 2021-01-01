@@ -15,6 +15,7 @@ enum class EDcTestEnumFlag :uint32
 	Breakdown = (1 << 5),
 	Babe	= (1 << 6),
 };
+ENUM_CLASS_FLAGS(EDcTestEnumFlag);
 
 
 USTRUCT()

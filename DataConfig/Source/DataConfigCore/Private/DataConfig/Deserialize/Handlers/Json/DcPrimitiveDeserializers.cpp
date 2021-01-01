@@ -153,8 +153,65 @@ FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		return DC_FAIL(DcDDeserialize, EnumValueNotFound) << EnumClass->GetFName() << Value;
 
 	FDcEnumData EnumData;
-	EnumData.bIsUnsigned = DcPropertyUtils::IsUnsignedProperty(EnumProperty->GetUnderlyingProperty());
 	EnumData.Signed64 = EnumClass->GetValueByName(ValueName);
+
+	return Ctx.Writer->WriteEnum(EnumData);
+}
+
+EDcDeserializePredicateResult PredicateIsEnumFlagsProperty(FDcDeserializeContext& Ctx)
+{
+	FEnumProperty* EnumProperty = DcPropertyUtils::CastFieldVariant<FEnumProperty>(Ctx.TopProperty());
+	if (EnumProperty == nullptr)
+		return EDcDeserializePredicateResult::Pass;
+
+	UEnum* EnumClass = EnumProperty->GetEnum();
+#if WITH_METADATA
+	return EnumClass->HasMetaData(TEXT("Bitflags"))
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
+#else
+	//	Program target is missing `UEnum::HasMetaData`
+	return ((UField*)EnumClass)->HasMetaData(TEXT("Bitflags"))
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
+#endif
+}
+
+FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	bool bReadPass = Next == EDcDataEntry::ArrayRoot;
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Enum, &bWritePass));
+
+	if (!(bReadPass && bWritePass))
+		return DcOkWithFallThrough(OutRet);
+
+	FEnumProperty* EnumProperty = CastFieldChecked<FEnumProperty>(Ctx.TopProperty().ToFieldUnsafe());
+	UEnum* EnumClass = EnumProperty->GetEnum();
+
+	FDcEnumData EnumData;
+	EnumData.Signed64 = 0;
+
+	DC_TRY(Ctx.Reader->ReadArrayRoot());
+	while (true)
+	{
+		DC_TRY(Ctx.Reader->PeekRead(&Next));
+		if (Next == EDcDataEntry::ArrayEnd)
+			break;
+
+		FString Value;
+		DC_TRY(Ctx.Reader->ReadString(&Value));
+
+		FName ValueName(EnumClass->GenerateFullEnumName(*Value));
+		if (!EnumClass->IsValidEnumName(ValueName))
+			return DC_FAIL(DcDDeserialize, EnumValueNotFound) << EnumClass->GetFName() << Value;
+
+		EnumData.Signed64 |= EnumClass->GetValueByName(ValueName);
+	}
+	DC_TRY(Ctx.Reader->ReadArrayEnd());
 
 	return Ctx.Writer->WriteEnum(EnumData);
 }

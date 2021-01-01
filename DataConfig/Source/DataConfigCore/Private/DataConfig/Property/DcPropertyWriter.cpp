@@ -152,7 +152,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 
 	UEnum* Enum = EnumProperty->GetEnum();
 
-	if (!Value.Type.IsNone()
+	if (Value.Flag & FDcEnumData::WriteCheckType
 		&& Value.Type != Enum->GetFName())
 	{
 		return DC_FAIL(DcDReadWrite, EnumNameMismatch)
@@ -160,7 +160,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 			<< FormatHighlight();
 	}
 
-	if (!Value.Name.IsNone()
+	if (Value.Flag & FDcEnumData::WriteCheckNameAndValue
 		&& Value.Name != Enum->GetNameByValue(Value.Signed64))
 	{
 		return DC_FAIL(DcDReadWrite, EnumNameNotFound)
@@ -176,7 +176,8 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 		}
 	}
 
-	if (bIsUnsigned != Value.bIsUnsigned)
+	if (Value.Flag & FDcEnumData::WriteCheckSign
+		&& bIsUnsigned != Value.bIsUnsigned)
 	{
 		return DC_FAIL(DcDReadWrite, EnumSignMismatch)
 			<< bIsUnsigned << Value.bIsUnsigned

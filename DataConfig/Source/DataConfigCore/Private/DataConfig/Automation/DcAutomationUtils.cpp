@@ -1,5 +1,6 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Property/DcPropertyReader.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
@@ -416,6 +417,24 @@ DATACONFIGCORE_API FDcResult DumpToLog(FDcPropertyDatum Datum)
 	FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
 	FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
 	return PrettyPrintVisit.PipeVisit();
+}
+
+//	UXXX(meta=(Foo)) only get compiled in `WITH_EDITOR`
+//	need to manually amend it on Program targets
+void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue)
+{
+	check(Field);
+	if (!Field->HasMetaData(MetaKey))
+		Field->SetMetaData(MetaKey, MetaValue);
+}
+
+void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue)
+{
+	check(Struct);
+	FProperty* Property = DcPropertyUtils::NextPropertyByName(Struct->PropertyLink, FieldName);
+	check(Property);
+	if (!Property->HasMetaData(MetaKey))
+		Property->SetMetaData(MetaKey, MetaValue);
 }
 
 }	// namespace DcAutomationUtils

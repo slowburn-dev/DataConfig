@@ -14,6 +14,9 @@ DATACONFIGCORE_API FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx
 DATACONFIGCORE_API FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 DATACONFIGCORE_API FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
+DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsEnumFlagsProperty(FDcDeserializeContext& Ctx);
+DATACONFIGCORE_API FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+
 //	TODO flag deserialize
 
 }	// namespace DcHandlers

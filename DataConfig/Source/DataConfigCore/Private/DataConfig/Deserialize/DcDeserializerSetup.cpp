@@ -24,6 +24,11 @@ void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(FTextProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTextDeserialize));
 	Deserializer.AddDirectHandler(FEnumProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerEnumDeserialize));
 
+	Deserializer.AddPredicatedHandler(
+		FDcDeserializePredicate::CreateStatic(PredicateIsEnumFlagsProperty),
+		FDcDeserializeDelegate::CreateStatic(HandleEnumFlagsDeserialize)
+	);
+
 	//	Containers
 	Deserializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));
 	Deserializer.AddDirectHandler(FSetProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerSetDeserialize));

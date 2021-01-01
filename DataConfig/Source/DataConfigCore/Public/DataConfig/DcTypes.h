@@ -159,6 +159,16 @@ struct DATACONFIGCORE_API FDcEnumData
 
 	bool bIsUnsigned;
 
+	enum EFlag : uint16
+	{
+		None					= 0,
+		WriteCheckType			= 1 << 0,
+		WriteCheckNameAndValue			= 1 << 1,
+		WriteCheckSign			= 1 << 2,
+	};
+
+	EFlag Flag = None;
+
 	FORCEINLINE friend FArchive& operator<<(FArchive& Ar, FDcEnumData& Target)
 	{
 		Ar << Target.Type
@@ -170,6 +180,7 @@ struct DATACONFIGCORE_API FDcEnumData
 		else
 			Ar << Target.Unsigned64;
 
+		Ar << (uint16&)(Target.Flag);
 		return Ar;
 	}
 };

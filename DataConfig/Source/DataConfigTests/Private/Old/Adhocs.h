@@ -480,7 +480,7 @@ struct FStructExtraBlob
 
 	UPROPERTY() FName Pre;
 	//	TODO meta data is EDITOR ONLY, see WITH_METADATA def
-	UPROPERTY(meta = (DcExtraBlob = "wtf")) TArray<uint8> Blob;
+	UPROPERTY(meta = (DcExtraBlob)) TArray<uint8> Blob;
 	UPROPERTY() TArray<uint8> Post;
 };
 
