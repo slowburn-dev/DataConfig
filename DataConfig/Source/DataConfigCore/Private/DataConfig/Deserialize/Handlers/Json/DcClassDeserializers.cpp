@@ -232,7 +232,8 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	EDcDataEntry Next;
 	DC_TRY(PutbackReader.PeekRead(&Next));
 
-	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
+	bool bRootPeekPass = Next == EDcDataEntry::MapRoot
+		|| Next == EDcDataEntry::Nil;
 
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
@@ -248,6 +249,18 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	if (!DcPropertyUtils::IsSubObjectProperty(ObjectProperty))
 	{
 		return DcFail();
+	}
+
+	if (Next == EDcDataEntry::Nil)
+	{
+		DC_TRY(Ctx.Reader->ReadNil());
+		FDcClassStat NilStat;
+		NilStat.Control = FDcClassStat::EControl::ExternalReference;
+		DC_TRY(Ctx.Writer->WriteClassRoot(NilStat));
+		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteClassEnd(NilStat));
+
+		return DcOkWithProcessed(OutRet);
 	}
 
 	DC_TRY(PutbackReader.ReadMapRoot());
@@ -325,6 +338,10 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	if (!SubObjectProperty)
 		return DcFail();
 
+	//	This belongs to reload handlers
+	/*
+	//	TODO reading the pointer here, if it's uninitialized then this is a crash
+	//		try configurate this by adding flag, or seperate reload pointer or things
 	UObject* SubObject = SubObjectProperty->GetPropertyValue(Datum.DataPtr);
 	if (SubObject != nullptr
 		&& SubObject->GetClass() != SubClassType)
@@ -339,6 +356,10 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 
 	if (SubObject == nullptr)
 		return DcFail();
+	*/
+
+	//	don't read *Datum.DataPtr as it might be unitnialized, handle reload elsewhere
+	UObject* SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
 
 	ObjectProperty->SetPropertyValue(Datum.DataPtr, SubObject);
 	//	manually setting class state

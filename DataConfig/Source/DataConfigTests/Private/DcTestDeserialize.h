@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DcTestProperty.h"
 #include "DcTestDeserialize.generated.h"
 
 UENUM(meta = (Bitflags))
@@ -26,4 +27,17 @@ struct FDcTestStructEnumFlag1
 	UPROPERTY() EDcTestEnumFlag EnumFlagField1;
 	UPROPERTY() EDcTestEnumFlag EnumFlagField2;
 };
+
+USTRUCT()
+struct FDcTestStructShapeContainer1
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UDcBaseShape* ShapeField1;
+	UPROPERTY() UDcBaseShape* ShapeField2;
+	UPROPERTY() UDcBaseShape* ShapeField3;
+};
+
+
+
 

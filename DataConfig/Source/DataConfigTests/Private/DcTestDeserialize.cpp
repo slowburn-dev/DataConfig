@@ -7,7 +7,8 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
-static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
+template<typename TThunk>
+FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const TThunk& Func)
 {
 	FDcDeserializer Deserializer;
 	DcSetupJsonDeserializeHandlers(Deserializer);
@@ -18,9 +19,15 @@ static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(Datum.Property);
+	Func(Ctx);
 	Ctx.Prepare();
 
 	return Deserializer.Deserialize(Ctx);
+}
+
+static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
+{
+	return _DeserializeJsonInto(Reader, Datum, [](FDcDeserializeContext&){ /*pass*/ });
 }
 
 DC_TEST("DataConfig.Core.Deserializer.Primitive1")
@@ -96,7 +103,6 @@ DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
 	)");
 	Reader.SetNewString(*Str);
 
-
 	FDcTestStructEnumFlag1 Dest;
 	FDcPropertyDatum DestDatum(FDcTestStructEnumFlag1::StaticStruct(), &Dest);
 
@@ -119,3 +125,54 @@ DC_TEST("DataConfig.Core.Deserializer.EnumFlags")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Deserializer.InlineSubObject")
+{
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+
+		{
+			"ShapeField1" :  {
+				"$type" : "DcShapeBox",
+				"ShapeName" : "Box1",
+				"Height" : 17.5,
+				"Width" : 1.9375
+			},
+			"ShapeField2" : {
+				"$type" : "DcShapeSquare",
+				"ShapeName" : "Square1",
+				"Radius" : 1.75,
+			},
+			"ShapeField3" : null
+		}
+
+	)");
+	Reader.SetNewString(*Str);
+
+	FDcTestStructShapeContainer1 Dest;	//	note that Dest fields are all uninitialized at all
+	FDcPropertyDatum DestDatum(FDcTestStructShapeContainer1::StaticStruct(), &Dest);
+
+
+	FDcTestStructShapeContainer1 Expect;
+
+	UDcShapeBox* Shape1 = NewObject<UDcShapeBox>();
+	Shape1->ShapeName = TEXT("Box1");
+	Shape1->Height = 17.5;
+	Shape1->Width = 1.9375;
+	Expect.ShapeField1 = Shape1;
+
+	UDcShapeSquare* Shape2 = NewObject<UDcShapeSquare>();
+	Shape2->ShapeName = TEXT("Square1");
+	Shape2->Radius = 1.75;
+	Expect.ShapeField2 = Shape2;
+
+	Expect.ShapeField3 = nullptr;
+
+	FDcPropertyDatum ExpectDatum(FDcTestStructShapeContainer1::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStructShapeContainer1", _DeserializeJsonInto(&Reader, DestDatum, [](FDcDeserializeContext& Ctx){
+		Ctx.Objects.Push(GetTransientPackage());
+	}));
+	UTEST_OK("Deserialize into FDcTestStructShapeContainer1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+	return true;
+}

@@ -29,8 +29,17 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 	FDcReader* Reader;
 	FDcPropertyWriter* Writer;
 
-	FORCEINLINE FFieldVariant& TopProperty() { return Properties.Top(); }
-	FORCEINLINE UObject* TopObject() { return Objects.Top(); }
+	FORCEINLINE FFieldVariant& TopProperty() 
+	{
+		checkf(Properties.Num(), TEXT("Expect TopProperty found none."));
+		return Properties.Top();
+	}
+
+	FORCEINLINE UObject* TopObject() 
+	{
+		checkf(Objects.Num(), TEXT("Expect TopObject found none."));
+		return Objects.Top();
+	}
 
 	void Prepare();
 };
