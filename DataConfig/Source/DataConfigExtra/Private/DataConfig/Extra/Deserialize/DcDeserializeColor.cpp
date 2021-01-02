@@ -93,8 +93,8 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 DC_TEST("DataConfig.Extra.Deserialize.Color")
 {
 	using namespace DcExtra;
-	FDcTestStructWithColor1 Dest;
-	FDcPropertyDatum DestDatum(FDcTestStructWithColor1::StaticStruct(), &Dest);
+	FDcExtraTestStructWithColor1 Dest;
+	FDcPropertyDatum DestDatum(FDcExtraTestStructWithColor1::StaticStruct(), &Dest);
 
 	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
@@ -105,12 +105,12 @@ DC_TEST("DataConfig.Extra.Deserialize.Color")
 	)");
 	Reader.SetNewString(*Str);
 
-	FDcTestStructWithColor1 Expect;
+	FDcExtraTestStructWithColor1 Expect;
 
 	Expect.ColorField1 = FColor::Blue;
 	Expect.ColorField2 = FColor::Red;
 
-	FDcPropertyDatum ExpectDatum(FDcTestStructWithColor1::StaticStruct(), &Expect);
+	FDcPropertyDatum ExpectDatum(FDcExtraTestStructWithColor1::StaticStruct(), &Expect);
 
 	UTEST_OK("Extra FColor Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
 	[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {

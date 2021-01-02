@@ -7,6 +7,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 #include "Misc/Base64.h"
 
 namespace DcExtra
@@ -22,15 +23,7 @@ EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeserializeContext& Ctx)
 	if (!ArrayProperty->Inner->IsA<FByteProperty>())
 		return EDcDeserializePredicateResult::Pass;
 
-	bool bIsMetaBlob;
-	//	TODO use amend meta data
-#if WITH_METADATA
-	bIsMetaBlob = ArrayProperty->HasMetaData(TEXT("DcExtraBlob"));
-#else
-	bIsMetaBlob = ArrayProperty->GetName().EndsWith(TEXT("Blob"));
-#endif
-
-	return bIsMetaBlob
+	return ArrayProperty->HasMetaData(TEXT("DcExtraBase64"))
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
 }
@@ -64,4 +57,38 @@ FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 }	//	namespace DcExtra
 
 
+DC_TEST("DataConfig.Extra.Deserialize.Base64")
+{
+	using namespace DcExtra;
+	FDcExtraTestStructWithBase64 Dest;
+	FDcPropertyDatum DestDatum(FDcExtraTestStructWithBase64::StaticStruct(), &Dest);
+
+	FDcJsonReader Reader;
+	FString Str = TEXT(R"(
+		{
+			"BlobField1" : "dGhlc2UgYXJlIG15IHR3aXN0ZWQgd29yZHM=",
+			"BlobField2" : "",
+		}
+	)");
+	Reader.SetNewString(*Str);
+
+#if !WITH_METADATA
+	DcAutomationUtils::AmendMetaData(FDcExtraTestStructWithBase64::StaticStruct(), TEXT("BlobField1"), TEXT("DcExtraBase64"), TEXT(""));
+	DcAutomationUtils::AmendMetaData(FDcExtraTestStructWithBase64::StaticStruct(), TEXT("BlobField2"), TEXT("DcExtraBase64"), TEXT(""));
+#endif
+
+	UTEST_OK("Extra Base64 Blob Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
+	[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {
+		Deserializer.AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(PredicateIsBase64Blob),
+			FDcDeserializeDelegate::CreateStatic(HandleBase64BlobDeserialize)
+		);
+	}));
+
+	FString BlobField1AsStr(Dest.BlobField1.Num(), (ANSICHAR*)Dest.BlobField1.GetData());
+	UTEST_EQUAL("Extra Base64 Blob Deserialize", "these are my twisted words", BlobField1AsStr);
+	UTEST_EQUAL("Extra Base64 Blob Deserialize", Dest.BlobField2.Num(), 0);
+
+	return true;
+}
 

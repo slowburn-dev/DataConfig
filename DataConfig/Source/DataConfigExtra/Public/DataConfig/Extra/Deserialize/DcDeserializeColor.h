@@ -14,7 +14,7 @@ DATACONFIGEXTRA_API FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx
 }	//	namespace DcExtra
 
 USTRUCT()
-struct FDcTestStructWithColor1
+struct FDcExtraTestStructWithColor1
 {
 	GENERATED_BODY()
 

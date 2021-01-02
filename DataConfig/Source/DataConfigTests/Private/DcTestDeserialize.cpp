@@ -197,7 +197,7 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 			],
 			"StringMap" : {
 				"One": "1",
-				DcAutomationUtils::DeserializeJsonInto"Two": "2",
+				"Two": "2",	
 				"Three": "3",
 			},
 			"StructSet" : [
