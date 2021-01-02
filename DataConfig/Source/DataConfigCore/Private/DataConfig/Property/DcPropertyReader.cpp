@@ -593,7 +593,7 @@ FDcResult FDcPropertyReader::ReadNil()
 
 FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 {
-	FDcDiagnosticHighlight OutHighlight(this);
+	FDcDiagnosticHighlight OutHighlight(this, TEXT("PropertyReader"));
 	TArray<FString> Segments;
 
 	bool bLastIsContainer = false;

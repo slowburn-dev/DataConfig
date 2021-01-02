@@ -296,7 +296,7 @@ void FDcPutbackReader::FormatDiagnostic(FDcDiagnostic& Diag)
 
 	if (Cached.Num())
 	{
-		FDcDiagnosticHighlight Highlight(this);
+		FDcDiagnosticHighlight Highlight(this, "PutbackReader");
 		Highlight.Formatted = FString::Printf(TEXT("(Putback: %d)"), Cached.Num());
 		Diag << MoveTemp(Highlight);
 	}

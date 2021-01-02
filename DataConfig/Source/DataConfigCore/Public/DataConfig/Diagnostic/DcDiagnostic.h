@@ -17,10 +17,15 @@ struct DATACONFIGCORE_API FDcDiagnosticFileContext
 struct DATACONFIGCORE_API FDcDiagnosticHighlight
 {
 	void* Owner;
+	FString OwnerName;
+
 	FString Formatted;
 	TOptional<FDcDiagnosticFileContext> FileContext;
 
-	FDcDiagnosticHighlight(void* InOwner) : Owner(InOwner) {}
+	FDcDiagnosticHighlight(void* InOwner, FString InOwnerName)
+		: Owner(InOwner)
+		, OwnerName(InOwnerName)
+	{}
 };
 
 struct DATACONFIGCORE_API FDcDiagnostic
