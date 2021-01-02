@@ -11,6 +11,8 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Types/DcAnyStruct.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
+#include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 
 namespace DcExtra
 {
@@ -75,4 +77,39 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 }
 
 }	//	namespace DcExtra
+
+static FDcAnyStruct _IdentityByValue(FDcAnyStruct Handle)
+{
+	return Handle;
+}
+
+DC_TEST("DataConfig.Extra.Deserialize.AnyStructUsage")
+{
+	{
+		FDcAnyStruct Alhpa(new FDcExtraTestSimpleStruct1());
+		FDcAnyStruct Beta = Alhpa;
+
+		UTEST_EQUAL("Extra AnyStruct usage", Alhpa.GetSharedReferenceCount(), 2);
+	}
+
+	{
+		uint32 DestructCalledCount = 0;
+		{
+			FDcAnyStruct Any1(new FDcExtraTestDestructDelegateContainer());
+			Any1.GetChecked<FDcExtraTestDestructDelegateContainer>()->DestructAction.BindLambda([&DestructCalledCount]{
+				DestructCalledCount++;
+			});
+
+			FDcAnyStruct Any2{ Any1 };
+			FDcAnyStruct Any3 = MoveTemp(Any1);
+			FDcAnyStruct Any4 = _IdentityByValue(Any1);
+		}
+
+		UTEST_EQUAL("Extra AnyStruct usage", DestructCalledCount, 1);
+	}
+
+	return true;
+}
+
+
 

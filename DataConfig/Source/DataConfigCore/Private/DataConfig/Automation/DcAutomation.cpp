@@ -127,7 +127,10 @@ void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 	SelectedTests = MoveTemp(TestInfos);
 }
 
-int32 FDcAutomationConsoleRunner::RunTests()
+namespace DcAutomationDetails
+{
+
+int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 {
 	FAutomationTestFramework& Framework = FAutomationTestFramework::Get();
 
@@ -136,10 +139,6 @@ int32 FDcAutomationConsoleRunner::RunTests()
 
 	bool bAllSuccessful = true;
 
-	//	TODO linux equivelent
-#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
-	__try
-#endif
 	{
 		//	in console the stack line capture is always in `AutomationTest.h` so disable it for now
 		FAutomationTestFramework::Get().SetCaptureStack(false);
@@ -151,15 +150,15 @@ int32 FDcAutomationConsoleRunner::RunTests()
 
 		{
 			//	shuffle tests for random execution order
-			int32 LastIndex = SelectedTests.Num() - 1;
+			int32 LastIndex = Self->SelectedTests.Num() - 1;
 			for (int32 Ix = 0; Ix < LastIndex; Ix++)
 			{
 				int32 SwapIx = FMath::RandRange(Ix, LastIndex);
-				SelectedTests.Swap(Ix, SwapIx);
+				Self->SelectedTests.Swap(Ix, SwapIx);
 			}
 		}
 
-		for (const FAutomationTestInfo& TestInfo: SelectedTests)
+		for (const FAutomationTestInfo& TestInfo: Self->SelectedTests)
 		{
 			FString TestCommand = TestInfo.GetTestName();
 			FAutomationTestExecutionInfo CurExecutionInfo;
@@ -201,13 +200,36 @@ int32 FDcAutomationConsoleRunner::RunTests()
 		);
 	}
 
-#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
-	__except (_Win32DumpStackAndExit(GetExceptionInformation()))
-	{
-		FPlatformMisc::RequestExit(true);
-	}
-#endif
-
 	return bAllSuccessful ? 0 : -1;
+}
+
+
+}	// namespace DcAutomationDetails
+
+
+int32 FDcAutomationConsoleRunner::RunTests()
+{
+	if (FPlatformMisc::IsDebuggerPresent())
+	{
+		return DcAutomationDetails::RunTestsBody(this);
+	}
+	else
+	{
+
+	//	TODO linux equivelent
+#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
+		__try
+#endif
+		{
+			return DcAutomationDetails::RunTestsBody(this);
+		}
+#if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
+		__except (_Win32DumpStackAndExit(GetExceptionInformation()))
+		{
+			FPlatformMisc::RequestExit(true);
+			return -1;
+		}
+#endif
+	}
 }
 
