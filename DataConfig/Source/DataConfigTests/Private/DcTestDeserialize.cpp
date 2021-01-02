@@ -2,33 +2,9 @@
 #include "DcTestProperty.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
-#include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
-
-template<typename TThunk>
-FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const TThunk& Func)
-{
-	FDcDeserializer Deserializer;
-	DcSetupJsonDeserializeHandlers(Deserializer);
-
-	FDcPropertyWriter Writer(Datum);
-	FDcDeserializeContext Ctx;
-	Ctx.Reader = Reader;
-	Ctx.Writer = &Writer;
-	Ctx.Deserializer = &Deserializer;
-	Ctx.Properties.Push(Datum.Property);
-	Func(Ctx);
-	Ctx.Prepare();
-
-	return Deserializer.Deserialize(Ctx);
-}
-
-static FDcResult _DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
-{
-	return _DeserializeJsonInto(Reader, Datum, [](FDcDeserializeContext&){ /*pass*/ });
-}
 
 DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 {
@@ -84,7 +60,7 @@ DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 
 	FDcPropertyDatum ExpectDatum(FDcTestStruct1::StaticStruct(), &Expect);
 
-	UTEST_OK("Deserialize into FDcTestStruct1", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStruct1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStruct1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
@@ -119,7 +95,7 @@ DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
 #endif
 
-	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStructEnumFlag1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
@@ -168,7 +144,8 @@ DC_TEST("DataConfig.Core.Deserialize.InlineSubObject")
 
 	FDcPropertyDatum ExpectDatum(FDcTestStructShapeContainer1::StaticStruct(), &Expect);
 
-	UTEST_OK("Deserialize into FDcTestStructShapeContainer1", _DeserializeJsonInto(&Reader, DestDatum, [](FDcDeserializeContext& Ctx){
+	UTEST_OK("Deserialize into FDcTestStructShapeContainer1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
+	[](FDcDeserializer&, FDcDeserializeContext& Ctx){
 		Ctx.Objects.Push(GetTransientPackage());
 	}));
 	UTEST_OK("Deserialize into FDcTestStructShapeContainer1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
@@ -199,7 +176,7 @@ DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 
 	FDcPropertyDatum ExpectDatum(FDcTestStructObjectRef1::StaticStruct(), &Expect);
 
-	UTEST_OK("Deserialize into FDcTestStructObjectRef1", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructObjectRef1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStructObjectRef1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
@@ -220,7 +197,7 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 			],
 			"StringMap" : {
 				"One": "1",
-				"Two": "2",
+				DcAutomationUtils::DeserializeJsonInto"Two": "2",
 				"Three": "3",
 			},
 			"StructSet" : [
@@ -265,7 +242,7 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 
 	FDcPropertyDatum ExpectDatum(FDcTestStruct3::StaticStruct(), &Expect);
 
-	UTEST_OK("Deserialize into FDcTestStruct3", _DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 
