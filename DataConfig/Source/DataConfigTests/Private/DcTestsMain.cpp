@@ -1,7 +1,7 @@
 #include "CoreMinimal.h"
-#include "Launch/Public/LaunchEngineLoop.h"
 #include "Misc/ScopeExit.h"
 #include "Misc/CommandLine.h"
+#include "RequiredProgramMainCPPInclude.h"
 
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Automation/DcAutomation.h"
@@ -11,6 +11,7 @@
 /// Usage:
 ///	DcTestsMain [TestFilter1] [TestFilter2] ...
 ///
+IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
 static int32 TestRunnerBody(TArray<FString>& Tokens)
 {
