@@ -1,5 +1,4 @@
 #include "DcTestDeserialize.h"
-#include "DcTestProperty.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"

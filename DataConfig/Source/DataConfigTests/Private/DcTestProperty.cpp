@@ -1,4 +1,3 @@
-#include "DcTestProperty.h"
 #include "DcTestCommon.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyReader.h"
