@@ -173,9 +173,9 @@ int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 			else ++ failCount;
 
 			{
-				UE_LOG(LogDataConfigCore, Display, TEXT("- %-32s : %-4s"),
-					*TestCommand,
-					CurTestSuccessful ? TEXT("OK") : TEXT("FAIL")
+				UE_LOG(LogDataConfigCore, Display, TEXT("- %4s | %s "),
+					CurTestSuccessful ? TEXT("OK") : TEXT("FAIL"),
+					*TestCommand
 				);
 
 				for (const FAutomationExecutionEntry& Entry: CurExecutionInfo.GetEntries())
