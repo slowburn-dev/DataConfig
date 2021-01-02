@@ -24,8 +24,9 @@ public class DataConfigEditor : ModuleRules
 				"DataConfigCore",
 				"DataConfigRuntime",
 				//	TODO make this work, so test can show in the automation window
-				// "DataConfigTests",
-			});
+				"DataConfigTests",
+				"DataConfigExtra",
+            });
 
 		/*
 #if WITH_FORWARDED_MODULE_RULES_CTOR

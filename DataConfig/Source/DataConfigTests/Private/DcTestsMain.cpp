@@ -1,3 +1,5 @@
+#if IS_PROGRAM
+
 #include "CoreMinimal.h"
 #include "Misc/ScopeExit.h"
 #include "Misc/CommandLine.h"
@@ -6,6 +8,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
+
 
 ///
 /// Usage:
@@ -84,4 +87,4 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 	return RetCode;
 }
 
-
+#endif // IS_PROGRAM
