@@ -1,4 +1,4 @@
-#include "DataConfig/Deserialize/Handlers/Json/DcClassDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcJsonClassDeserializers.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Reader/DcPutbackReader.h"

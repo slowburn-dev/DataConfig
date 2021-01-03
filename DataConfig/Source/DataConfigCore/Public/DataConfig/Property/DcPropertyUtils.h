@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Templates/Function.h"
+
 class FProperty;
 class UStruct;
 enum class EDcDataEntry : uint16;
@@ -10,6 +12,7 @@ namespace DcPropertyUtils
 DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
 DATACONFIGCORE_API size_t CountEffectiveProperties(UStruct* Struct);
+DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor);
 
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* FirstEffectiveProperty(FProperty* Property);
@@ -28,6 +31,7 @@ DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field)
 
 DATACONFIGCORE_API bool IsSubObjectProperty(FObjectProperty* ObjectProperty);
 DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);
+
 
 //	Cpp type to Property
 template<typename T>

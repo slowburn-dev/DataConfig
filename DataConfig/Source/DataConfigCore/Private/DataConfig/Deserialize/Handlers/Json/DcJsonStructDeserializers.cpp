@@ -1,4 +1,4 @@
-#include "DataConfig/Deserialize/Handlers/Json/DcStructDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcJsonStructDeserializers.h"
 #include "Templates/Casts.h"
 #include "UObject/UnrealType.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"

@@ -64,6 +64,31 @@ size_t CountEffectiveProperties(UStruct* Struct)
 	return EffectiveCount;
 }
 
+void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
+{
+	Visitor(FBoolProperty::StaticClass());
+	Visitor(FNumericProperty::StaticClass());
+	Visitor(FStrProperty::StaticClass());
+	Visitor(FNameProperty::StaticClass());
+	Visitor(FTextProperty::StaticClass());
+	Visitor(FEnumProperty::StaticClass());
+	Visitor(FStructProperty::StaticClass());
+	Visitor(FClassProperty::StaticClass());
+	Visitor(FObjectProperty::StaticClass());
+	Visitor(FMapProperty::StaticClass());
+	Visitor(FArrayProperty::StaticClass());
+	Visitor(FSetProperty::StaticClass());
+	Visitor(FWeakObjectProperty::StaticClass());
+	Visitor(FLazyObjectProperty::StaticClass());
+	Visitor(FSoftObjectProperty::StaticClass());
+	Visitor(FSoftClassProperty::StaticClass());
+	Visitor(FInterfaceProperty::StaticClass());
+	Visitor(FDelegateProperty::StaticClass());
+	Visitor(FFieldPathProperty::StaticClass());
+	Visitor(FMulticastInlineDelegateProperty::StaticClass());
+	Visitor(FMulticastSparseDelegateProperty::StaticClass());
+}
+
 FProperty* NextEffectiveProperty(FProperty* Property)
 {
 	while (true)
