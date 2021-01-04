@@ -3,6 +3,7 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
 DC_TEST("DataConfig.Core.Deserialize.Primitive1")

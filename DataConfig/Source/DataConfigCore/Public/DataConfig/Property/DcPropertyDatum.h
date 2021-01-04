@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/UnrealType.h"
 
-class UField;
 
 struct DATACONFIGCORE_API FDcPropertyDatum
 {

@@ -1,7 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IDcTestInterface.h"
 #include "DcTestProperty.generated.h"
+
+UENUM()
+enum class EDcTestEnum1 : int64
+{
+	Foo,
+	Bar,
+	Tard,
+};
 
 USTRUCT()
 struct FDcTestStruct1
@@ -27,35 +36,6 @@ struct FDcTestStruct1
 	UPROPERTY() uint16 UInt16Field;
 	UPROPERTY() uint32 UInt32Field;
 	UPROPERTY() uint64 UInt64Field;
-};
-
-UINTERFACE()
-class UDcTestInterface1 : public UInterface
-{
-	GENERATED_BODY()
-};
-
-class IDcTestInterface1
-{
-	GENERATED_BODY()
-};
-
-UCLASS()
-class UDcTestInterface1Alpha : public UObject, public IDcTestInterface1
-{
-public:
-	GENERATED_BODY()
-
-	UDcTestInterface1Alpha() {}
-};
-
-UCLASS()
-class UDcTestInterface1Beta : public UObject, public IDcTestInterface1
-{
-public:
-	GENERATED_BODY()
-
-	UDcTestInterface1Beta() {}
 };
 
 
@@ -194,6 +174,24 @@ struct FDcTestStruct_Blob
 	UPROPERTY() TArray<uint8> BlobField1;
 	UPROPERTY() TArray<int64> BlobField2;
 
+};
+
+UCLASS()
+class UDcTestInterface1Alpha : public UObject, public IDcTestInterface1
+{
+public:
+	GENERATED_BODY()
+
+	UDcTestInterface1Alpha() {}
+};
+
+UCLASS()
+class UDcTestInterface1Beta : public UObject, public IDcTestInterface1
+{
+public:
+	GENERATED_BODY()
+
+	UDcTestInterface1Beta() {}
 };
 
 
