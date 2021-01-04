@@ -1,4 +1,4 @@
-#include "DataConfig/Extra/Deserialize/DcDeserializeRenaming.h"
+#include "DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 
@@ -60,18 +60,12 @@ struct FRenameStructRootDeserialize : public TSharedFromThis<FRenameStructRootDe
 	}
 };
 
-static FDcResult HandlerPipeDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
-{
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer);
-	return DcOkWithProcessed(OutRet);
-}
-
 
 FDcResult DeserializeRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExtraRenamer Renamer)
 {
 	FDcDeserializer Deserializer;
+
+	DcSetupPropertyPipeDeserializeHandlers(Deserializer);
 
 	TSharedRef<FRenameStructRootDeserialize> RenameStruct = MakeShared<FRenameStructRootDeserialize>();
 	RenameStruct->Renamer = Renamer;
@@ -79,14 +73,6 @@ FDcResult DeserializeRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExt
 		RenameStruct->MakeDeserializePredicate(),
 		RenameStruct->MakeDeserializeDelegate()
 	);
-
-	FDcDeserializeDelegate::CreateStatic(HandlerPipeDeserialize);
-
-	DcPropertyUtils::VisitAllEffectivePropertyClass([&](FFieldClass* FieldClass){
-		Deserializer.AddDirectHandler(
-			FieldClass,
-			FDcDeserializeDelegate::CreateStatic(HandlerPipeDeserialize));
-	});
 
 	FDcPropertyReader Reader(From);
 	FDcPropertyWriter Writer(To);
@@ -109,11 +95,35 @@ DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")
 {
 	using namespace DcExtra;
 
-	FDcTestExtraRenameFrom1 From;
-	FDcPropertyDatum FromDatum(FDcTestExtraRenameFrom1::StaticStruct(), &From);
+	FDcTestExtraRenameFrom2 From;
+	FDcPropertyDatum FromDatum(FDcTestExtraRenameFrom2::StaticStruct(), &From);
 
-	FDcTestExtraRenameTo1 To;
-	FDcPropertyDatum ToDatum(FDcTestExtraRenameTo1::StaticStruct(), &To);
+	{
+		FDcJsonReader Reader;
+		FString Str = TEXT(R"(
+
+			{
+				"FromName1" : "Foo",
+				"FromStructSet1" : 
+				[
+					{
+						"FromStr1" : "One",
+						"FromInt1" : 1,
+					},
+					{
+						"FromStr1" : "Two",
+						"FromInt1" : 2,
+					}
+				]
+			}
+
+		)");
+		Reader.SetNewString(*Str);
+		UTEST_OK("Extra Struct Field Rename", DcAutomationUtils::DeserializeJsonInto(&Reader, FromDatum));
+	}
+
+	FDcTestExtraRenameTo2 To;
+	FDcPropertyDatum ToDatum(FDcTestExtraRenameTo2::StaticStruct(), &To);
 
 	UTEST_OK("Extra Struct Field Rename", DcExtra::DeserializeRenaming(FromDatum, ToDatum, FDcExtraRenamer::CreateLambda([](const FName& FromName){
 		FString FromStr = FromName.ToString();
@@ -123,7 +133,35 @@ DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")
 			return FromName;
 	})));
 
-	DcAutomationUtils::DumpToLog(ToDatum);
+
+	FDcTestExtraRenameTo2 Expect;
+	FDcPropertyDatum ExpectDatum(FDcTestExtraRenameTo2::StaticStruct(), &Expect);
+
+	{
+		FDcJsonReader Reader;
+		FString Str = TEXT(R"(
+
+			{
+				"ToName1" : "Foo",
+				"ToStructSet1" : 
+				[
+					{
+						"ToStr1" : "One",
+						"ToInt1" : 1,
+					},
+					{
+						"ToStr1" : "Two",
+						"ToInt1" : 2,
+					}
+				]
+			}
+
+		)");
+		Reader.SetNewString(*Str);
+		UTEST_OK("Extra Struct Field Rename", DcAutomationUtils::DeserializeJsonInto(&Reader, ExpectDatum));
+	}
+
+	UTEST_OK("Extra Struct Field Rename", DcAutomationUtils::TestReadDatumEqual(ToDatum, ExpectDatum));
 
 	return true;
 }

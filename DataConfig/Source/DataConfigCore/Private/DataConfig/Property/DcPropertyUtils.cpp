@@ -67,7 +67,20 @@ size_t CountEffectiveProperties(UStruct* Struct)
 void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
 {
 	Visitor(FBoolProperty::StaticClass());
-	Visitor(FNumericProperty::StaticClass());
+
+	Visitor(FInt8Property::StaticClass());
+	Visitor(FInt16Property::StaticClass());
+	Visitor(FIntProperty::StaticClass());
+	Visitor(FInt64Property::StaticClass());
+
+	Visitor(FByteProperty::StaticClass());
+	Visitor(FUInt16Property::StaticClass());
+	Visitor(FUInt32Property::StaticClass());
+	Visitor(FUInt64Property::StaticClass());
+
+	Visitor(FFloatProperty::StaticClass());
+	Visitor(FDoubleProperty::StaticClass());
+
 	Visitor(FStrProperty::StaticClass());
 	Visitor(FNameProperty::StaticClass());
 	Visitor(FTextProperty::StaticClass());

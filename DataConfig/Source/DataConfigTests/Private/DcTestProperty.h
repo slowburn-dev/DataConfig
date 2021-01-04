@@ -99,8 +99,8 @@ struct FDcKeyableStruct
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) FName Name;
-	UPROPERTY(EditAnywhere) int16 Index;
+	UPROPERTY() FName Name;
+	UPROPERTY() int16 Index;
 
 	FORCEINLINE friend uint32 GetTypeHash(const FDcKeyableStruct& In)
 	{
@@ -111,11 +111,6 @@ struct FDcKeyableStruct
 	{
 		return Lhs.Name == Rhs.Name
 			&& Lhs.Index == Rhs.Index;
-	}
-
-	FORCEINLINE friend bool operator!=(const FDcKeyableStruct& Lhs, const FDcKeyableStruct& Rhs)
-	{
-		return Lhs != Rhs;
 	}
 };
 
@@ -143,7 +138,7 @@ class UDcBaseShape : public UObject
 	GENERATED_BODY()
 public:
 
-	UPROPERTY(EditAnywhere) FName ShapeName;
+	UPROPERTY() FName ShapeName;
 };
 
 UCLASS()
@@ -152,8 +147,8 @@ class UDcShapeBox : public UDcBaseShape
 	GENERATED_BODY()
 public:
 
-	UPROPERTY(EditAnywhere) float Height;
-	UPROPERTY(EditAnywhere) float Width;
+	UPROPERTY() float Height;
+	UPROPERTY() float Width;
 };
 
 UCLASS()
@@ -162,7 +157,7 @@ class UDcShapeSquare : public UDcBaseShape
 	GENERATED_BODY()
 public:
 
-	UPROPERTY(EditAnywhere) float Radius;
+	UPROPERTY() float Radius;
 };
 
 
