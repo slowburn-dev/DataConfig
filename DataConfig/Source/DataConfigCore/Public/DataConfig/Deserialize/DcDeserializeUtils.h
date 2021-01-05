@@ -4,6 +4,9 @@
 #include "DataConfig/DcTypes.h"
 #include "Containers/BasicArray.h"
 
+struct FDcReader;
+struct FDcWriter;
+
 namespace DcDeserializeUtils {
 
 extern FString DC_STR_META_TYPE;

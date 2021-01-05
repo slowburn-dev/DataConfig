@@ -15,6 +15,7 @@ enum class EDcPropertyReadType
 };
 
 enum class EDcDataEntry : uint16;
+struct FDcPropertyDatum;
 
 struct FDcBaseReadState
 {

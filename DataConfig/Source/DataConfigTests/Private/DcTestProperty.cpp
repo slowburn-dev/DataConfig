@@ -4,6 +4,7 @@
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
 int UDcTestDelegateClass1::ReturnOne(int Int) { return Int; }

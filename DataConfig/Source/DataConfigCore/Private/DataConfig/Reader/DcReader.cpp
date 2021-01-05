@@ -1,5 +1,6 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 
 FDcReader::~FDcReader() {}
 

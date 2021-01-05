@@ -47,7 +47,7 @@ public:
 ///		}
 
 #define DC_TEST_IMPL(ID, PrettyName) \
-	namespace __DC_DETAIL { \
+	namespace { \
 	class DC_JOIN(FDcAutomationTest, ID) : public FDcAutomationBase \
 	{ \
 	public: \
@@ -64,11 +64,9 @@ public:
 		virtual bool RunTest(const FString& Parameters) override; \
 		virtual FString GetBeautifiedTestName() const override { return PrettyName; } \
 	}; \
-	namespace { \
-		DC_JOIN(FDcAutomationTest, ID) DC_JOIN(_DcAutomationInstance, ID)(TEXT(PrettyName)); \
+	DC_JOIN(FDcAutomationTest, ID) DC_JOIN(_DcAutomationInstance, ID)(TEXT(PrettyName)); \
 	} \
-	} \
-	bool __DC_DETAIL::DC_JOIN(FDcAutomationTest, ID)::RunTest(const FString& Parameters)
+	bool DC_JOIN(FDcAutomationTest, ID)::RunTest(const FString& Parameters)
 
 #define DC_TEST(PrettyName) DC_TEST_IMPL(__COUNTER__, PrettyName)
 

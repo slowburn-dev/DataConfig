@@ -2,6 +2,10 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Deserialize/DcDeserializerSetup.h"
+#include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 
 namespace DcExtra
 {

@@ -5,6 +5,7 @@
 #include "DataConfig/DcEnv.h"
 #include "CoreMinimal.h"
 #include "Templates/Casts.h"
+#include "UObject/TextProperty.h"
 
 //	need these as readers needs to push states
 

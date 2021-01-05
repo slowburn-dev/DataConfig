@@ -2,6 +2,7 @@
 
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyStatesCommon.h"
+#include "DataConfig/Property/DcPropertyDatum.h"
 #include "UObject/UnrealType.h"
 
 enum class EDcPropertyWriteType
@@ -284,20 +285,20 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 };
 
 template<typename TProperty, typename TScalar>
-void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)
+FORCEINLINE void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)
 {
 	CastFieldChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
 }
 
 template<>
-void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void* Ptr, const FSoftObjectPath& Value)
+FORCEINLINE void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void* Ptr, const FSoftObjectPath& Value)
 {
 	FSoftObjectPtr SoftPtr(Value);
 	CastFieldChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
 template<>
-void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void* Ptr, const FSoftClassPath& Value)
+FORCEINLINE void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void* Ptr, const FSoftClassPath& Value)
 {
 	FSoftObjectPtr SoftPtr(Value);
 	CastFieldChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);

@@ -1,4 +1,6 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/DcEnv.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "UObject/UnrealType.h"
 #include "UObject/TextProperty.h"
 

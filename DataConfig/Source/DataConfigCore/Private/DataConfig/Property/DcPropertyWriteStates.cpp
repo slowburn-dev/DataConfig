@@ -4,6 +4,8 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
+#include "DataConfig/Property/DcPropertyWriter.h"
 
 static FDcPropertyWriter* _GetPropertyWriter()
 {

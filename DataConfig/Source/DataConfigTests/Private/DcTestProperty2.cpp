@@ -1,5 +1,7 @@
 #include "DcTestProperty2.h"
 #include "DcTestCommon.h"
+#include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 
 DC_TEST("DataConfig.Core.Property.NestedStruct")
 {

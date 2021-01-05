@@ -1,8 +1,11 @@
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonPrimitiveDeserializers.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "UObject/TextProperty.h"
 
 namespace DcJsonHandlers {
 

@@ -1,4 +1,5 @@
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"

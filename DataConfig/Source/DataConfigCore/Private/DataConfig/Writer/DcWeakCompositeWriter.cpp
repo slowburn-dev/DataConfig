@@ -1,4 +1,5 @@
 #include "DataConfig/Writer/DcWeakCompositeWriter.h"
+#include "DataConfig/DcEnv.h"
 
 template<typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)

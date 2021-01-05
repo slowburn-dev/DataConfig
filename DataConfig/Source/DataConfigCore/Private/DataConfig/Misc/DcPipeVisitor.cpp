@@ -1,7 +1,9 @@
 #include "DataConfig/Misc/DcPipeVisitor.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 namespace DcPipeVisitorDetails

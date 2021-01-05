@@ -3,6 +3,7 @@
 #include "DataConfig/Writer/DcNoopWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
+#include "DataConfig/Automation/DcAutomation.h"
 
 static FDcResult _NoopPipeVisit(FDcReader* Reader)
 {

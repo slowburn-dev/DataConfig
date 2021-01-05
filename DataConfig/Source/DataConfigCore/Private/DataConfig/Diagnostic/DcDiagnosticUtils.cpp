@@ -1,5 +1,8 @@
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/DcEnv.h"
+#include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Reader/DcReader.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "HAL/PlatformStackWalk.h"
 
