@@ -216,5 +216,5 @@ FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeR
 	return Ctx.Writer->WriteEnum(EnumData);
 }
 
-}	// namespace DcHandlers
+}	// namespace DcJsonHandlers
 

@@ -153,7 +153,7 @@ struct FDcDefaultLogDiagnosticConsumer : public IDcDiagnosticConsumer
 struct DATACONFIGCORE_API FDcDiagnosticDetail
 {
 	uint16 ID;
-	TCHAR* Msg;
+	const TCHAR* Msg;
 };
 
 DATACONFIGCORE_API const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError);

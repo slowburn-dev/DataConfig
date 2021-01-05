@@ -1,7 +1,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
-
+#include "HAL/PlatformStackWalk.h"
 
 FDcResult DcExpect(bool CondToBeTrue) {
 	if (CondToBeTrue)
@@ -24,7 +24,7 @@ FDcResult DcReadNextExpect(FDcReader& Reader, EDcDataEntry Expect)
 namespace DcDiagnosticUtils
 {
 
-void DcDiagnosticUtils::AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, FDcWriter* Writer)
+void AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, FDcWriter* Writer)
 {
 	bool bHasReaderDiag = false;
 	bool bHasWriterDiag = false;

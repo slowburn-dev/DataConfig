@@ -1,5 +1,6 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyWriteStates.h"
+#include "DataConfig/DcEnv.h"
 
 static FORCEINLINE FDcPropertyWriter::FPropertyState::ImplStorageType* GetTopStorage(FDcPropertyWriter* Self)
 {

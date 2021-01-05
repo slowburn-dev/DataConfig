@@ -1,8 +1,10 @@
 #include "DataConfig/Property/DcPropertyReader.h"
-#include "CoreMinimal.h"
-#include "Templates/Casts.h"
 #include "DataConfig/Property/DcPropertyReadStates.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/DcEnv.h"
+#include "CoreMinimal.h"
+#include "Templates/Casts.h"
 
 //	need these as readers needs to push states
 

@@ -37,5 +37,5 @@ enum Type : uint16
 	PipeReadWriteMismatch,
 };
 
-} // namespace DPropertyReadWrite
+} // namespace DcDReadWrite
 

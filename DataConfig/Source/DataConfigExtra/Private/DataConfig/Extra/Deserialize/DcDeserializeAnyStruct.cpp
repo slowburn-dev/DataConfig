@@ -108,7 +108,7 @@ DC_TEST("DataConfig.Extra.Deserialize.AnyStructUsage")
 
 			FDcAnyStruct Any2{ Any1 };
 			FDcAnyStruct Any3 = MoveTemp(Any1);
-			FDcAnyStruct Any4 = _IdentityByValue(Any1);
+			FDcAnyStruct Any4 = _IdentityByValue(Any2);
 		}
 
 		UTEST_EQUAL("Extra AnyStruct usage", DestructCalledCount, 1);

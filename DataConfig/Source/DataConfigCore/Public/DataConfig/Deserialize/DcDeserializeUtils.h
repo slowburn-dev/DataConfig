@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataConfig/DcTypes.h"
 #include "Containers/BasicArray.h"
 
 namespace DcDeserializeUtils {

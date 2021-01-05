@@ -54,11 +54,11 @@ FDcEnv::~FDcEnv()
 	FlushDiags();
 }
 
-namespace DcEnvDetails{
+namespace DcEnvDetails {
 
 bool bInitialized = false;
 
-}
+} // namespace DcEnvDetails
 
 FDcResult DcFail()
 {

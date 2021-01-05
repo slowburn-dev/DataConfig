@@ -1,7 +1,8 @@
 #pragma once
 
-#include "UObject/UnrealType.h"
+#include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyStatesCommon.h"
+#include "UObject/UnrealType.h"
 
 enum class EDcPropertyWriteType
 {
@@ -33,7 +34,7 @@ struct FDcBaseWriteState
 	//	non copyable
 	FDcBaseWriteState() = default;
 	FDcBaseWriteState(const FNoncopyable&) = delete;
-	FDcBaseWriteState& operator=(const FDcBaseReadState&) = delete;
+	FDcBaseWriteState& operator=(const FDcBaseWriteState&) = delete;
 };
 
 template<typename T>

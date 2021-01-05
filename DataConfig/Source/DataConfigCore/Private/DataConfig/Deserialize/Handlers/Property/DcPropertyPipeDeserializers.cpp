@@ -2,6 +2,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Deserialize/DcDeserializeUtils.h"
 
 namespace DcPropertyPipeHandlers {
 

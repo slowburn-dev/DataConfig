@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UObject/UnrealType.h"
+#include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Property/DcPropertyStatesCommon.h"
 

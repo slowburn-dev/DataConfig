@@ -5,6 +5,7 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "UObject/Package.h"
 
@@ -406,5 +407,5 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	return DcOkWithProcessed(OutRet);
 }
 
-}	// namespace DcHandlers
+}	// namespace DcJsonHandlers
 

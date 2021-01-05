@@ -1,9 +1,9 @@
 #pragma once
 
+#include "DataConfig/DcTypes.h"
+#include "UObject/UnrealType.h"
 #include "Templates/Function.h"
 
-class FProperty;
-class UStruct;
 enum class EDcDataEntry : uint16;
 
 namespace DcPropertyUtils

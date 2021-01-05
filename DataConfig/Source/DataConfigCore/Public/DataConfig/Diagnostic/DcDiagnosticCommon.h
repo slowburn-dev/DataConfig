@@ -19,5 +19,5 @@ enum Type : uint16
 	PlaceHoldError,
 };
 
-} // namespace DCommon
+} // namespace DcDCommon
 

@@ -97,5 +97,5 @@ FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult
 	return DcOkWithProcessed(OutRet);
 }
 
-}	// namespace DcHandlers
+}	// namespace DcJsonHandlers
 

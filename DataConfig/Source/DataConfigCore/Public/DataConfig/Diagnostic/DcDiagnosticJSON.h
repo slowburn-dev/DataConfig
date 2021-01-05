@@ -26,5 +26,5 @@ enum Type : uint16
 	ObjectKeyTooLong,
 };
 
-} // namespace DJSON
+} // namespace DcDJSON
 

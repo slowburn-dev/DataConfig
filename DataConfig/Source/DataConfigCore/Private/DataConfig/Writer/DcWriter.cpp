@@ -1,5 +1,6 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 
 FDcWriter::FDcWriter()
 {}

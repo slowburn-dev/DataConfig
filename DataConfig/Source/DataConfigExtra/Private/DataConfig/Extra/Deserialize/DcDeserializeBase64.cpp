@@ -54,7 +54,7 @@ FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 	return DcOkWithProcessed(OutRet);
 }
 
-}	//	namespace DcExtra
+} // namespace DcExtra
 
 
 DC_TEST("DataConfig.Extra.Deserialize.Base64")

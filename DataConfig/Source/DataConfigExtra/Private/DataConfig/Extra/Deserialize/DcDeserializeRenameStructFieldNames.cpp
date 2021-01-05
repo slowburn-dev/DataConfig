@@ -1,6 +1,7 @@
 #include "DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Property/DcPropertyReader.h"
+#include "DataConfig/Property/DcPropertyWriter.h"
 
 namespace DcExtra
 {
@@ -88,7 +89,7 @@ FDcResult DeserializeRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExt
 }
 
 
-}	//	namespace DcExtra
+} // namespace DcExtra
 
 
 DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")

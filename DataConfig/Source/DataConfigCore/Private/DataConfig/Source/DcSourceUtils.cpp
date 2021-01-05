@@ -1,5 +1,3 @@
-#pragma once
-
 #include "DataConfig/Source/DcSourceUtils.h"
 
 FString FDcSourceUtils::FormatDiagnosticLine(const FString& InLine)

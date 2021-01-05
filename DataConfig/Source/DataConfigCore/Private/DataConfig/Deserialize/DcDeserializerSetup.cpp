@@ -1,4 +1,5 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonPrimitiveDeserializers.h"

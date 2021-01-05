@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataConfig/Source/DcSourceTypes.h"
+#include "DataConfig/Source/DcSourceUtils.h"
 
 template<class CharType>
 struct THightlightFormatter

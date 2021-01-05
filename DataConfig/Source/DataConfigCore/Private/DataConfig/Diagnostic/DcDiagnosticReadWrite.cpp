@@ -36,4 +36,4 @@ FDcDiagnosticGroup Details = {
 	_ReadWriteDetails
 };
 
-} // namespace DPropertyReadWrite
+} // namespace DcDReadWrite

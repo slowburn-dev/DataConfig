@@ -1,4 +1,5 @@
 #include "DataConfig/Writer/DcNoopWriter.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 
 FDcNoopWriter::FDcNoopWriter() {}
 FDcNoopWriter::~FDcNoopWriter() {}

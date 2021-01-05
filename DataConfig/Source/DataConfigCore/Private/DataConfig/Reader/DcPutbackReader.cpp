@@ -2,6 +2,7 @@
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 template<typename TData>
 FDcResult PopAndCheckCachedValue(FDcPutbackReader* Self, FDcDataVariant& OutValue)

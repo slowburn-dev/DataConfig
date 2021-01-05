@@ -18,4 +18,4 @@ FDcDiagnosticGroup Details = {
 	_CommonDetails
 };
 
-} // namespace DCommon
+} // namespace DcDCommon

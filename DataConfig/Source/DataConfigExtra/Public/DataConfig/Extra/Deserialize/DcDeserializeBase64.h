@@ -11,7 +11,7 @@ DATACONFIGEXTRA_API EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeser
 
 DATACONFIGEXTRA_API FDcResult HandleBase64BlobDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
-}	//	namespace DcExtra {
+} // namespace DcExtra
 
 USTRUCT()
 struct FDcExtraTestStructWithBase64
