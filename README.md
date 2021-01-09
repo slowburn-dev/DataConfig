@@ -1,4 +1,4 @@
-# UE DataConfig
+# DataConfig
 
 __Flexible and robust serialization framework for Unreal Engine Property System__
 
