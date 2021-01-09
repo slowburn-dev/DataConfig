@@ -41,7 +41,7 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 		return Objects.Top();
 	}
 
-	void Prepare();
+	FDcResult Prepare();
 };
 
 enum class EDcDeserializeResult

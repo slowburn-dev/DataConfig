@@ -100,7 +100,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FToken CachedNext;
 
 	int32 Cur = 0;
-	FString DiagFilePath = TEXT("<unknown file>");
+	FString DiagFilePath = TEXT("<in-memory>");
 
 	bool Coercion(EDcDataEntry ToEntry) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
@@ -196,6 +196,16 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 extern template struct TDcJsonReader<ANSICHAR>;
 extern template struct TDcJsonReader<WIDECHAR>;
 
-using FDcJsonReader = TDcJsonReader<TCHAR>;
+struct FDcJsonReader : public TDcJsonReader<TCHAR>
+{
+	using Super = TDcJsonReader;
+
+	FDcJsonReader() : Super() {}
+	FDcJsonReader(const FString& Str) : Super()
+	{
+		SetNewString(*Str);
+	}
+};
+
 using FDcAnsiJsonReader = TDcJsonReader<ANSICHAR>;
 

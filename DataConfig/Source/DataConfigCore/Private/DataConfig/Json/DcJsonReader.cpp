@@ -264,7 +264,8 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 	while (true)
 	{
 		CharType Char = PeekChar();
-		if (Char == _EOF_CHAR)
+		if (Char == _EOF_CHAR
+			|| SourceUtils::IsLineBreak(Char))
 		{
 			return DC_FAIL(DcDJSON, UnclosedStringLiteral) << FormatHighlight(Token.Ref.Begin, 1);
 		}

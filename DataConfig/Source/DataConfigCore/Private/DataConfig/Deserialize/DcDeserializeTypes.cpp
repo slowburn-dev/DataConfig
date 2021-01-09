@@ -36,8 +36,9 @@ FDcScopedObject::~FDcScopedObject()
 }
 
 
-void FDcDeserializeContext::Prepare()
+FDcResult FDcDeserializeContext::Prepare()
 {
+	//	wraps these into checks
 	check(State == EState::Uninitialized);
 	check(Reader != nullptr);
 	check(Writer != nullptr);
@@ -45,4 +46,6 @@ void FDcDeserializeContext::Prepare()
 	check(Properties.Num() == 1);
 
 	State = EState::Ready;
+
+	return DcOk();
 }
