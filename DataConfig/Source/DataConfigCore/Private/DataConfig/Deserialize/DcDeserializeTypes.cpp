@@ -1,5 +1,6 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 
 FDcScopedProperty::FDcScopedProperty(FDcDeserializeContext& InCtx)
 	: Ctx(InCtx)
@@ -38,14 +39,26 @@ FDcScopedObject::~FDcScopedObject()
 
 FDcResult FDcDeserializeContext::Prepare()
 {
-	//	wraps these into checks
-	check(State == EState::Uninitialized);
-	check(Reader != nullptr);
-	check(Writer != nullptr);
-	check(Deserializer != nullptr);
-	check(Properties.Num() == 1);
+	DC_TRY(DcExpect(State == EState::Uninitialized, [&]{ 
+		return DC_FAIL(DcDDeserialize, ContextInvalidState) << (int)State;
+	}));
+
+	DC_TRY(DcExpect(Reader != nullptr, []{
+		return DC_FAIL(DcDDeserialize, ContextReaderNotFound);
+	}));
+
+	DC_TRY(DcExpect(Writer != nullptr, []{
+		return DC_FAIL(DcDDeserialize, ContextWriterNotFound);
+	}));
+
+	DC_TRY(DcExpect(Deserializer != nullptr, []{
+		return DC_FAIL(DcDDeserialize, ContextDeserializerNotFound);
+	}));
+
+	DC_TRY(DcExpect(Properties.Num() == 1, [&]{
+		return DC_FAIL(DcDDeserialize, ContextExpectOneProperty) << Properties.Num();
+	}));
 
 	State = EState::Ready;
-
 	return DcOk();
 }

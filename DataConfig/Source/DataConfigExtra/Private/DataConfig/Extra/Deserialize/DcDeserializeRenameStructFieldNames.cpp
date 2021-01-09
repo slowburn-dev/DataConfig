@@ -87,7 +87,7 @@ FDcResult DeserializeRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExt
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(To.Property);
-	Ctx.Prepare();
+	DC_TRY(Ctx.Prepare());
 
 	return Deserializer.Deserialize(Ctx);
 }

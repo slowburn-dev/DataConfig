@@ -22,6 +22,14 @@ enum Type : uint16
 	ExpectNumericEntry,
 	CoercionFail,
 	EnumNameNotFound,
+
+	//	Context
+	ContextInvalidState,
+	ContextReaderNotFound,
+	ContextWriterNotFound,
+	ContextDeserializerNotFound,
+	ContextExpectOneProperty,
+	ContextExpectOneObject,
 };
 
 } // namespace DcDDeserialize

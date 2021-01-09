@@ -24,7 +24,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 FDcDiagnosticGroup Details = {
 	DcDJSON::Category,
 	DcDimOf(_JSONDetails),
-	_JSONDetails 
+	_JSONDetails
 };
 
 } // namespace DJSON

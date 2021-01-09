@@ -87,7 +87,7 @@ static FDcResult TryLoadJSONAsset(FString &JSONStr, UClass* DataClass, UObject* 
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &DcDeserializer.GetValue();
 	Ctx.Properties.Push(DataClass);
-	Ctx.Prepare();
+	DC_TRY(Ctx.Prepare());
 
 	return DcDeserializer->Deserialize(Ctx);
 }

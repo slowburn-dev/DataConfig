@@ -31,7 +31,7 @@ FDcResult DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const T
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(Datum.Property);
 	Func((FDcDeserializer&)Deserializer, (FDcDeserializeContext&)Ctx);
-	Ctx.Prepare();
+	DC_TRY(Ctx.Prepare());
 
 	return Deserializer.Deserialize(Ctx);
 }
