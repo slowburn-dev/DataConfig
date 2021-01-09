@@ -63,14 +63,14 @@ DC_TEST("DataConfig.Extra.Deserialize.Base64")
 	FDcExtraTestStructWithBase64 Dest;
 	FDcPropertyDatum DestDatum(FDcExtraTestStructWithBase64::StaticStruct(), &Dest);
 
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
 			"BlobField1" : "dGhlc2UgYXJlIG15IHR3aXN0ZWQgd29yZHM=",
 			"BlobField2" : "",
 		}
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
+
 
 #if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcExtraTestStructWithBase64::StaticStruct(), TEXT("BlobField1"), TEXT("DcExtraBase64"), TEXT(""));

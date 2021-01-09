@@ -68,8 +68,6 @@ DC_TEST("DataConfig.Core.JSON.Reader1")
 DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 {
 	{
-		FDcJsonReader Reader;
-
 		FString Str = TEXT(R"(
 
 			{
@@ -78,15 +76,12 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 			} 
 
 		)");
-
-		Reader.SetNewString(*Str);
+		FDcJsonReader Reader(Str);
 
 		UTEST_DIAG("Expect 'DuplicateKey' err", _NoopPipeVisit(&Reader), DcDJSON, DuplicatedKey);
 	}
 
 	{
-		FDcJsonReader Reader;
-
 		FString Str = TEXT(R"(
 
 			{
@@ -94,30 +89,24 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 			} 
 
 		)");
-
-		Reader.SetNewString(*Str);
+		FDcJsonReader Reader(Str);
 
 		UTEST_DIAG("Expect 'KeyMustBeString' err", _NoopPipeVisit(&Reader), DcDJSON, KeyMustBeString);
 	}
 
 	{
-		FDcJsonReader Reader;
-
 		FString Str = TEXT(R"(
 
 			[1 2 3 4 5]
 
 		)");
-
-		Reader.SetNewString(*Str);
+		FDcJsonReader Reader(Str);
 
 		UTEST_DIAG("Expect 'ExpectComma' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
 	}
 
 
 	{
-		FDcJsonReader Reader;
-
 		FString Str = TEXT(R"(
 
 			{
@@ -126,8 +115,7 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 			}
 
 		)");
-
-		Reader.SetNewString(*Str);
+		FDcJsonReader Reader(Str);
 
 		UTEST_DIAG("Expect 'ExpectComma' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
 	}

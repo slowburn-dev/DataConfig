@@ -96,14 +96,13 @@ DC_TEST("DataConfig.Extra.Deserialize.Color")
 	FDcExtraTestStructWithColor1 Dest;
 	FDcPropertyDatum DestDatum(FDcExtraTestStructWithColor1::StaticStruct(), &Dest);
 
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 		{
 			"ColorField1" : "#0000FFFF",
 			"ColorField2" : "#FF0000FF",
 		}
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
 
 	FDcExtraTestStructWithColor1 Expect;
 

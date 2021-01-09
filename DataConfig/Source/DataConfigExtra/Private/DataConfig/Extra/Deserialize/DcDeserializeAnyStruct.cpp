@@ -123,7 +123,6 @@ DC_TEST("DataConfig.Extra.Deserialize.AnyStructDeserialize")
 	FDcExtraTestWithAnyStruct1 Dest;
 	FDcPropertyDatum DestDatum(FDcExtraTestWithAnyStruct1::StaticStruct(), &Dest);
 
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -139,7 +138,8 @@ DC_TEST("DataConfig.Extra.Deserialize.AnyStructDeserialize")
 		}
 
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
+
 
 	UTEST_OK("Extra FAnyStruct Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
 	[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {

@@ -8,7 +8,6 @@
 
 DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 {
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -33,7 +32,7 @@ DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 		}
 
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
 
 	FDcTestStruct1 Dest;
 	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
@@ -68,7 +67,6 @@ DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 
 DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 {
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -77,7 +75,8 @@ DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 		}
 
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
+
 
 	FDcTestStructEnumFlag1 Dest;
 	FDcPropertyDatum DestDatum(FDcTestStructEnumFlag1::StaticStruct(), &Dest);
@@ -103,7 +102,6 @@ DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 
 DC_TEST("DataConfig.Core.Deserialize.InlineSubObject")
 {
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -122,7 +120,7 @@ DC_TEST("DataConfig.Core.Deserialize.InlineSubObject")
 		}
 
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
 
 	FDcTestStructShapeContainer1 Dest;	//	note that Dest fields are all uninitialized atm
 	FDcPropertyDatum DestDatum(FDcTestStructShapeContainer1::StaticStruct(), &Dest);
@@ -155,7 +153,6 @@ DC_TEST("DataConfig.Core.Deserialize.InlineSubObject")
 
 DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 {
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -164,7 +161,7 @@ DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 		}
 
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
 
 	FDcTestStructObjectRef1 Dest;	//	note that Dest fields are all uninitialized atm
 	FDcPropertyDatum DestDatum(FDcTestStructObjectRef1::StaticStruct(), &Dest);
@@ -185,7 +182,6 @@ DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 
 DC_TEST("DataConfig.Core.Deserialize.Containers")
 {
-	FDcJsonReader Reader;
 	FString Str = TEXT(R"(
 
 		{
@@ -217,7 +213,7 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 		}
 
 	)");
-	Reader.SetNewString(*Str);
+	FDcJsonReader Reader(Str);
 
 	FDcTestStruct3 Dest;
 	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
@@ -244,8 +240,6 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 
 	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
-
-	DcAutomationUtils::DumpToLog(DestDatum);
 
 	return true;
 }

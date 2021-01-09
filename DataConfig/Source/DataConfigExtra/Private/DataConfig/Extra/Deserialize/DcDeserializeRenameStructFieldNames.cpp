@@ -143,7 +143,6 @@ DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")
 	FDcPropertyDatum ExpectDatum(FDcTestExtraRenameTo2::StaticStruct(), &Expect);
 
 	{
-		FDcJsonReader Reader;
 		FString Str = TEXT(R"(
 
 			{
@@ -162,7 +161,7 @@ DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")
 			}
 
 		)");
-		Reader.SetNewString(*Str);
+		FDcJsonReader Reader(Str);
 		UTEST_OK("Extra Struct Field Rename", DcAutomationUtils::DeserializeJsonInto(&Reader, ExpectDatum));
 	}
 
