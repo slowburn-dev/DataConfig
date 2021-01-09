@@ -15,7 +15,7 @@ void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup)
 
 static FDcDiagnosticDetail* SearchDetails(uint16 InID, FDcDiagnosticGroup* Group)
 {
-	for (int Ix = 0; Ix < Group->Count; Ix++)
+	for (size_t Ix = 0; Ix < Group->Count; Ix++)
 	{
 		FDcDiagnosticDetail& Detail = Group->Details[Ix];
 		if (Detail.ID == InID)
