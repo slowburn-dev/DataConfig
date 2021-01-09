@@ -17,16 +17,17 @@ Give a struct annotated by Unreal Property System:
 UENUM()
 enum class EDcTestExampleEnum
 {
-	Foo, Bar, Baz
+    Foo, Bar, Baz
 };
+
 
 USTRUCT()
 struct FDcTestExampleStruct
 {
-	GENERATED_BODY()
-	UPROPERTY() FString StrField;
-	UPROPERTY() EDcTestExampleEnum EnumField;
-	UPROPERTY() TArray<FColor> Colors;
+    GENERATED_BODY()
+    UPROPERTY() FString StrField;
+    UPROPERTY() EDcTestExampleEnum EnumField;
+    UPROPERTY() TArray<FColor> Colors;
 };
 ```
 
@@ -34,13 +35,13 @@ struct FDcTestExampleStruct
 
 ```c++
 FString Str = TEXT(R"(
-	{
-		"StrField" : "Lorem ipsum dolor sit amet",
-		"EnumField" : "Bar",
-		"Colors" : [
-			"#FF0000FF", "#00FF00FF", "#0000FFFF"
-		]
-	}
+    {
+        "StrField" : "Lorem ipsum dolor sit amet",
+        "EnumField" : "Bar",
+        "Colors" : [
+            "#FF0000FF", "#00FF00FF", "#0000FFFF"
+        ]
+    }
 )");
 
 FDcTestExampleStruct Dest;
@@ -49,8 +50,8 @@ FDcTestExampleStruct Dest;
 FDcDeserializer Deserializer;
 DcSetupJsonDeserializeHandlers(Deserializer);
 Deserializer.AddPredicatedHandler(
-	FDcDeserializePredicate::CreateStatic(DcExtra::PredicateIsColorStruct),
-	FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
+    FDcDeserializePredicate::CreateStatic(DcExtra::PredicateIsColorStruct),
+    FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
 );
 
 //  prepare context for this run
@@ -82,8 +83,8 @@ Say if we accidentally mistyped the `EnumField` value:
 
 ```json
 {
-	"StrField" : "Lorem ipsum dolor sit amet",
-	"EnumField" : "Far",    // <- i
+    "StrField" : "Lorem ipsum dolor sit amet",
+    "EnumField" : "Far",    // <- i
 ```
 
 **DataConfig** would fail gracefully with diagnostics:
@@ -94,7 +95,7 @@ Say if we accidentally mistyped the `EnumField` value:
    2 |    {
    3 |        "StrField" : "Lorem ipsum dolor sit amet",
    4 |        "EnumField" : "Far",
-	 |                           ^
+     |                           ^
    5 |        "Colors" : [
    6 |            "#FF0000FF", "#00FF00FF", "#0000FFFF"
 - [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
