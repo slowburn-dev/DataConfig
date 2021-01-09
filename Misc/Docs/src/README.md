@@ -2,9 +2,11 @@
 
 **DataConfig** is a serialization framework for Unreal Engine's Property System.
 
-## Rationale
+## Getting Started.
 
-Unreal Engine ships with a powerful [Property System][1] that ...
+Take a look at LINK_TO_GETTING_STARTED.
 
+Take a look at LINK_TO_INTEGRATION for integration.
 
-[1]:https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection "Unreal Property System (Reflection)"
+If you used **DataConfig** in your game and project, please credit us if possible. See LINK_TO_CREDITS for instructions.
+
