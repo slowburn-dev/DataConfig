@@ -1,6 +1,6 @@
-# DataConfig
+# UE DataConfig
 
-__flexible and robust serialization framework for Unreal Property System__
+__Flexible and robust serialization framework for Unreal Engine Property System__
 
 ## Features
 
@@ -11,7 +11,7 @@ __flexible and robust serialization framework for Unreal Property System__
 
 ## Example
 
-Give a struct annotated in Unreal Property System:
+Give a struct annotated and processed with Unreal's Property System:
 
 ```c++
 UENUM()
