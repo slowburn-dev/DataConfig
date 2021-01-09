@@ -57,7 +57,10 @@ struct DATACONFIGCORE_API FDcPrettyPrintWriter : public FDcWriter
 	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
 	FOutputDevice& Output;
+
+	int IndentLevel = 0;
 	FString Indent;
 
+	void SetIndentLevel(int InLevel);
 };
 

@@ -245,6 +245,7 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStruct3", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
+	DcAutomationUtils::DumpToLog(DestDatum);
 
 	return true;
 }

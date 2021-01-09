@@ -34,7 +34,6 @@ DC_TEST("DataConfig.Core.Blurb.Frontpage")
 		);
 
 		//	prepare context for this run
-		//	TODO this can actually be wrapped in a builder pattern thing, just for API showcase
 		FDcPropertyDatum Datum(FDcTestExampleStruct::StaticStruct(), &Dest);
 		FDcJsonReader Reader(Str);
 		FDcPropertyWriter Writer(Datum);

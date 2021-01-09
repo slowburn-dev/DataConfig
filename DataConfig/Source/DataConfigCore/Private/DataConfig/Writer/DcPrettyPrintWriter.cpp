@@ -23,31 +23,31 @@ FDcResult FDcPrettyPrintWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 
 FDcResult FDcPrettyPrintWriter::WriteBool(bool Value)
 {
-	Output.Logf(TEXT("%s- bool: %s"), *Indent, Value ? TEXT("true") : TEXT("false"));
+	Output.Logf(TEXT("%<Bool> '%s'"), *Indent, Value ? TEXT("true") : TEXT("false"));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteName(const FName& Value)
 {
-	Output.Logf(TEXT("%s- name: \"%s\""), *Indent, *DcPropertyUtils::SafeNameToString(Value));
+	Output.Logf(TEXT("%s<Name> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Value));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteString(const FString& Value)
 {
-	Output.Logf(TEXT("%s- str: \"%s\""), *Indent, *Value);
+	Output.Logf(TEXT("%s<String> '%s'"), *Indent, *Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteText(const FText& Value)
 {
-	Output.Logf(TEXT("%s- text: \"%s\""), *Indent, *Value.ToString());
+	Output.Logf(TEXT("%s<Text> '%s'"), *Indent, *Value.ToString());
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
 {
-	Output.Logf(TEXT("%s- enum: %s,%s,unsigned: %d, 0x%X"),
+	Output.Logf(TEXT("%s<Enum> '%s', '%s', IsUnsigned: '%d', '0x%X'"),
 		*Indent,
 		*DcPropertyUtils::SafeNameToString(Value.Type),
 		*DcPropertyUtils::SafeNameToString(Value.Name), 
@@ -59,85 +59,85 @@ FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FDcStructStat& Struct)
 {
-	Output.Logf(TEXT("%s- struct begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
-	Indent += _PER_INDENT;
+	Output.Logf(TEXT("%s<StructRoot> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
+	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FDcStructStat& Struct)
 {
-	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- struct end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
+	SetIndentLevel(IndentLevel - 1);
+	Output.Logf(TEXT("%s<StructEnd> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcClassStat& Class)
 {
-	Output.Logf(TEXT("%s- class begin: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
-	Indent += _PER_INDENT;
+	Output.Logf(TEXT("%s<ClassRoot> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
+	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcClassStat& Class)
 {
-	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- class end: <%s>"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
+	SetIndentLevel(IndentLevel - 1);
+	Output.Logf(TEXT("%s<ClassEnd> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteMapRoot()
 {
-	Output.Logf(TEXT("%s- map begin"), *Indent);
-	Indent += _PER_INDENT;
+	Output.Logf(TEXT("%s<MapBegin>"), *Indent);
+	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteMapEnd()
 {
-	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- map end"), *Indent);
+	SetIndentLevel(IndentLevel - 1);
+	Output.Logf(TEXT("%s<MapEnd>"), *Indent);
 	return DcOk();
 }
 
 
 FDcResult FDcPrettyPrintWriter::WriteArrayRoot()
 {
-	Output.Logf(TEXT("%s- array begin"), *Indent);
-	Indent += _PER_INDENT;
+	Output.Logf(TEXT("%s<ArrayRoot>"), *Indent);
+	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteArrayEnd()
 {
-	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- array end"), *Indent);
+	SetIndentLevel(IndentLevel - 1);
+	Output.Logf(TEXT("%s<ArrayEnd>"), *Indent);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteSetRoot()
 {
-	Output.Logf(TEXT("%s- set begin"), *Indent);
-	Indent += _PER_INDENT;
+	Output.Logf(TEXT("%s<SetRoot>"), *Indent);
+	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteSetEnd()
 {
-	Indent = Indent.Left(Indent.Len() - _PER_INDENT.Len());
-	Output.Logf(TEXT("%s- set end"), *Indent);
+	SetIndentLevel(IndentLevel - 1);
+	Output.Logf(TEXT("%s<SetEnd>"), *Indent);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 {
 	check(Value);	// note that this is guarenteed to be non-null 
-	Output.Logf(TEXT("%s- ref: %d"), *Indent, Value->GetUniqueID());
+	Output.Logf(TEXT("%s<ObjectReference> '%d'"), *Indent, Value->GetUniqueID());
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteClassReference(const UClass* Value)
 {
-	Output.Logf(TEXT("%s- class: \"%s\""), *Indent, Value == nullptr 
+	Output.Logf(TEXT("%s<ClassReference> '%s'"), *Indent, Value == nullptr 
 		? TEXT("<null>") 
 		: *Value->GetName()
 	);
@@ -154,7 +154,7 @@ FDcResult FDcPrettyPrintWriter::WriteWeakObjectReference(const FWeakObjectPtr& V
 	static_assert(DcTypeUtils::TIsSameSize<FView, FWeakObjectPtr>::Value, "should be same size");
 
 	const FView& View = (const FView&)Value;
-	Output.Logf(TEXT("%s- weak object reference: index: %d, gen: %d"), *Indent, 
+	Output.Logf(TEXT("%s<WeakObjectReference> Index: '%d', Gen: '%d'"), *Indent, 
 		View.ObjectIndex,
 		View.ObjectSerialNumber
 	);
@@ -163,7 +163,7 @@ FDcResult FDcPrettyPrintWriter::WriteWeakObjectReference(const FWeakObjectPtr& V
 
 FDcResult FDcPrettyPrintWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value)
 {
-	Output.Logf(TEXT("%s- lazy object reference: %s"), *Indent,
+	Output.Logf(TEXT("%s<LazyObjectReference> '%s'"), *Indent,
 		*Value.GetUniqueID().ToString()
 	);
 	return DcOk();
@@ -171,7 +171,7 @@ FDcResult FDcPrettyPrintWriter::WriteLazyObjectReference(const FLazyObjectPtr& V
 
 FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPath& Value)
 {
-	Output.Logf(TEXT("%s- soft object reference: %s"), *Indent,
+	Output.Logf(TEXT("%s<SoftObjectReference> '%s'"), *Indent,
 		*Value.ToString()
 	);
 	return DcOk();
@@ -179,7 +179,7 @@ FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPath& 
 
 FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Value)
 {
-	Output.Logf(TEXT("%s- soft class reference: %s"), *Indent,
+	Output.Logf(TEXT("%s<SoftClassReference> '%s'"), *Indent,
 		*Value.ToString()
 	);
 	return DcOk();
@@ -187,7 +187,7 @@ FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Va
 
 FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& Value)
 {
-	Output.Logf(TEXT("%s- interface reference: %s"), *Indent,
+	Output.Logf(TEXT("%s<InterfaceReference> '%s'"), *Indent,
 		Value.GetObject()
 			? *Value.GetObject()->GetName()
 			: TEXT("<null>")
@@ -197,7 +197,7 @@ FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& 
 
 FDcResult FDcPrettyPrintWriter::WriteFieldPath(const FFieldPath& Value)
 {
-	Output.Logf(TEXT("%s- field path: %s"), *Indent,
+	Output.Logf(TEXT("%s<FieldPath> '%s'"), *Indent,
 		*Value.ToString()
 	);
 	return DcOk();
@@ -205,91 +205,112 @@ FDcResult FDcPrettyPrintWriter::WriteFieldPath(const FFieldPath& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteDelegate(const FScriptDelegate& Value)
 {
-	Output.Logf(TEXT("%s- delegate: %s"), *Indent, *Value.ToString<UObject>());
+	Output.Logf(TEXT("%s<Delegate> '%s'"), *Indent, *Value.ToString<UObject>());
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteMulticastInlineDelegate(const FMulticastScriptDelegate& Value)
 {
-	Output.Logf(TEXT("%s- multicast inline delegate: %s"), *Indent, *Value.ToString<UObject>());
+	Output.Logf(TEXT("%s<MulticastInlineDelegate> '%s'"), *Indent, *Value.ToString<UObject>());
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteMulticastSparseDelegate(const FMulticastScriptDelegate& Value)
 {
-	Output.Logf(TEXT("%s- multicast sparse delegate: %s"), *Indent, *Value.ToString<UObject>());
+	Output.Logf(TEXT("%s<MulticastSparseDelegate> '%s'"), *Indent, *Value.ToString<UObject>());
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteInt8(const int8& Value)
 {
-	Output.Logf(TEXT("%s- int8: \"%d\""), *Indent, Value);
+	Output.Logf(TEXT("%s<Int8> '%d'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteInt16(const int16& Value)
 {
-	Output.Logf(TEXT("%s- int16: \"%d\""), *Indent, Value);
+	Output.Logf(TEXT("%s<Int16> '%d'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteInt32(const int32& Value)
 {
-	Output.Logf(TEXT("%s- int32: \"%d\""), *Indent, Value);
+	Output.Logf(TEXT("%s<Int32> '%d'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteInt64(const int64& Value)
 {
-	Output.Logf(TEXT("%s- int64: \"%d\""), *Indent, Value);
+	Output.Logf(TEXT("%s<Int64> '%d'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt8(const uint8& Value)
 {
-	Output.Logf(TEXT("%s- uint8: \"%u\""), *Indent, Value);
+	Output.Logf(TEXT("%s<UInt8> '%u'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt16(const uint16& Value)
 {
-	Output.Logf(TEXT("%s- uint16: \"%u\""), *Indent, Value);
+	Output.Logf(TEXT("%s<UInt16> '%u'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt32(const uint32& Value)
 {
-	Output.Logf(TEXT("%s- uint32: \"%u\""), *Indent, Value);
+	Output.Logf(TEXT("%s<UInt32> '%u'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteUInt64(const uint64& Value)
 {
-	Output.Logf(TEXT("%s- uint64: \"%u\""), *Indent, Value);
+	Output.Logf(TEXT("%s<UInt64> '%u'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteFloat(const float& Value)
 {
-	Output.Logf(TEXT("%s- float: \"%f\""), *Indent, Value);
+	Output.Logf(TEXT("%s<Float> '%f'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteDouble(const double& Value)
 {
-	Output.Logf(TEXT("%s- double: \"%f\""), *Indent, Value);
+	Output.Logf(TEXT("%s<Double> '%f'"), *Indent, Value);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteBlob(const FDcBlobViewData& Value)
 {
-	Output.Logf(TEXT("%s- blob: 0x%x, size: %d"), *Indent, (UPTRINT)Value.DataPtr, Value.Num);
+	Output.Logf(TEXT("%s<Blob>: Address: '0x%x', Size: '%d'"), *Indent, (UPTRINT)Value.DataPtr, Value.Num);
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteNil()
 {
-	Output.Logf(TEXT("%s- nil"), *Indent);
+	Output.Logf(TEXT("%s<Nil>"), *Indent);
 	return DcOk();
+}
+
+void FDcPrettyPrintWriter::SetIndentLevel(int InLevel)
+{
+	static const TCHAR* _WS_INDENT = TEXT("|   ");
+	static const TCHAR* _LAST_INDENT = TEXT("|---");
+
+	if (InLevel == 0)
+	{
+		Indent = TEXT("");
+	}
+	else
+	{
+		Indent.Empty();
+		for (int Ix = 0; Ix < InLevel - 1; Ix++)
+			Indent += _WS_INDENT;
+
+		Indent += _LAST_INDENT;
+	}
+
+	IndentLevel = InLevel;
 }
 
