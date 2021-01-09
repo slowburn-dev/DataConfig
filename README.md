@@ -1,13 +1,13 @@
 # DataConfig
 
-__Flexible and robust serialization framework for Unreal Engine Property System__
+__Serialization framework for Unreal Engine Property System that just works__
 
 ## Features
 
 - Support every type in Unreal Property System, including delegates and `UObject` references
-- Pull/Push styled API for accurate type info, proper error handling and diagnostics.
-- Out of the box JSON parsing that supports custom deserialization.
-- Provide tools and framework for extending.
+- Pull/Push styled API for verbatim data access and lossless type infomation.
+- Out of the box JSON deserialization that supports custom conversion logic.
+- Designed as a collection of tools that can be easily extended to support other formats.
 
 ## Example
 
