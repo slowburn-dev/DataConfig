@@ -153,7 +153,7 @@ FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 
 	FName ValueName(EnumClass->GenerateFullEnumName(*Value));
 	if (!EnumClass->IsValidEnumName(ValueName))
-		return DC_FAIL(DcDDeserialize, EnumValueNotFound) << EnumClass->GetFName() << Value;
+		return DC_FAIL(DcDDeserialize, EnumNameNotFound) << EnumClass->GetFName() << Value;
 
 	FDcEnumData EnumData;
 	EnumData.Signed64 = EnumClass->GetValueByName(ValueName);
@@ -210,7 +210,7 @@ FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeR
 
 		FName ValueName(EnumClass->GenerateFullEnumName(*Value));
 		if (!EnumClass->IsValidEnumName(ValueName))
-			return DC_FAIL(DcDDeserialize, EnumValueNotFound) << EnumClass->GetFName() << Value;
+			return DC_FAIL(DcDDeserialize, EnumNameNotFound) << EnumClass->GetFName() << Value;
 
 		EnumData.Signed64 |= EnumClass->GetValueByName(ValueName);
 	}

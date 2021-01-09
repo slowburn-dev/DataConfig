@@ -45,7 +45,7 @@ FString Str = TEXT(R"(
 
 FDcTestExampleStruct Dest;
 
-//	create and setup a deserializer
+//  create and setup a deserializer
 FDcDeserializer Deserializer;
 DcSetupJsonDeserializeHandlers(Deserializer);
 Deserializer.AddPredicatedHandler(
@@ -53,7 +53,7 @@ Deserializer.AddPredicatedHandler(
 	FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
 );
 
-//	prepare context for this run
+//  prepare context for this run
 FDcPropertyDatum Datum(FDcTestExampleStruct::StaticStruct(), &Dest);
 FDcJsonReader Reader(Str);
 FDcPropertyWriter Writer(Datum);
@@ -65,10 +65,10 @@ Ctx.Deserializer = &Deserializer;
 Ctx.Properties.Push(Datum.Property);
 DC_TRY(Ctx.Prepare());
 
-//	kick off deserialization
+//  kick off deserialization
 DC_TRY(Deserializer.Deserialize(Ctx));
 
-//	validate results
+//  validate results
 check(Dest.StrField == TEXT("Lorem ipsum dolor sit amet"));
 check(Dest.EnumField == EDcTestExampleEnum::Bar);
 check(Dest.Colors[0] == FColor::Red);
@@ -78,25 +78,26 @@ check(Dest.Colors[2] == FColor::Blue);
 
 Note that enum is deserialized by name and `FColor` is deserialized from a html color string like `#RRGGBBAA`.
 
-Say if we accidentally forget to close the string in JSON:
+Say if we accidentally mistyped the `EnumField` value:
 
 ```json
 {
-	"StrField" : "Lorem ipsum dolor sit amet, // <-- missing '"'
-	"EnumField" : "Bar",
+	"StrField" : "Lorem ipsum dolor sit amet",
+	"EnumField" : "Far",    // <- i
 ```
 
 **DataConfig** would fail gracefully with diagnostics:
 
 ```
-# DataConfig Error: Unclosed string literal
-- [JsonReader] --> <in-memory>3:45
-   2 |            {
-   3 |                "StrField" : "Lorem ipsum dolor sit amet
-     |                             ^
-   4 |                "EnumField" : "Bar",
-   5 |                "Colors" : [
-- [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(FString)StrField
+# DataConfig Error: Enum name not found in enum type: EDcTestExampleEnum, Actual: 'Far'
+- [JsonReader] --> <in-memory>4:25
+   2 |    {
+   3 |        "StrField" : "Lorem ipsum dolor sit amet",
+   4 |        "EnumField" : "Far",
+	 |                           ^
+   5 |        "Colors" : [
+   6 |            "#FF0000FF", "#00FF00FF", "#0000FFFF"
+- [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
 ```
 
 ## Documentation
