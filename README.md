@@ -11,7 +11,7 @@ __flexible and robust serialization framework for Unreal Property System__
 
 ## Example
 
-Give a struct annotated by Unreal Property System:
+Give a struct annotated in Unreal Property System:
 
 ```c++
 UENUM()
@@ -19,7 +19,6 @@ enum class EDcTestExampleEnum
 {
     Foo, Bar, Baz
 };
-
 
 USTRUCT()
 struct FDcTestExampleStruct
@@ -84,7 +83,7 @@ Say if we accidentally mistyped the `EnumField` value:
 ```json
 {
     "StrField" : "Lorem ipsum dolor sit amet",
-    "EnumField" : "Far",    // <- i
+    "EnumField" : "Far",
 ```
 
 **DataConfig** would fail gracefully with diagnostics:
