@@ -22,6 +22,7 @@ enum Type : uint16
 	ExpectNumericEntry,
 	CoercionFail,
 	EnumNameNotFound,
+	HandlerNotWritingDeserializeResult,
 
 	//	Context
 	ContextInvalidState,

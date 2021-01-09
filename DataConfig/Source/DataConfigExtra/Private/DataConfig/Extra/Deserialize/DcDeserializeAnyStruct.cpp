@@ -86,9 +86,6 @@ static FDcAnyStruct _IdentityByValue(FDcAnyStruct Handle)
 	return Handle;
 }
 
-//	override new/deletes as DcExtra is a pure source module, missing module boillerplates 
-REPLACEMENT_OPERATOR_NEW_AND_DELETE
-
 DC_TEST("DataConfig.Extra.Deserialize.AnyStructUsage")
 {
 	{

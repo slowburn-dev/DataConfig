@@ -84,8 +84,7 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 		return DcNoEntry();
 	}
 
-
-	return DcOk();
+	return DcOkWithProcessed(OutRet);
 }
 
 }	//	namespace DcExtra

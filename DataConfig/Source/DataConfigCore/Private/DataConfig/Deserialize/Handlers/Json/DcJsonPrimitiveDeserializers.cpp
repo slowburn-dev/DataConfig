@@ -158,7 +158,8 @@ FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	FDcEnumData EnumData;
 	EnumData.Signed64 = EnumClass->GetValueByName(ValueName);
 
-	return Ctx.Writer->WriteEnum(EnumData);
+	DC_TRY(Ctx.Writer->WriteEnum(EnumData));
+	return DcOkWithProcessed(OutRet);
 }
 
 EDcDeserializePredicateResult PredicateIsEnumFlagsProperty(FDcDeserializeContext& Ctx)
@@ -215,8 +216,9 @@ FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeR
 		EnumData.Signed64 |= EnumClass->GetValueByName(ValueName);
 	}
 	DC_TRY(Ctx.Reader->ReadArrayEnd());
+	DC_TRY(Ctx.Writer->WriteEnum(EnumData));
 
-	return Ctx.Writer->WriteEnum(EnumData);
+	return DcOkWithProcessed(OutRet);
 }
 
 }	// namespace DcJsonHandlers

@@ -11,7 +11,7 @@ namespace DcDeserializerDetails
 
 static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
-	EDcDeserializeResult HandlerRet;
+	EDcDeserializeResult HandlerRet = EDcDeserializeResult::Unknown;
 
 	FDcResult Result = Handler.Execute(Ctx, HandlerRet);
 	if (!Result.Ok())
@@ -20,9 +20,11 @@ static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeseri
 		return Result;
 	}
 
-	check(HandlerRet != EDcDeserializeResult::Unknown);
-
-	if (HandlerRet == EDcDeserializeResult::FallThrough)
+	if (HandlerRet == EDcDeserializeResult::Unknown)
+	{
+		return DC_FAIL(DcDDeserialize, HandlerNotWritingDeserializeResult);
+	}
+	else if (HandlerRet == EDcDeserializeResult::FallThrough)
 	{
 		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
 			<< Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
