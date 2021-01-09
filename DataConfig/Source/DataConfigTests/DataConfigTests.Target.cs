@@ -11,9 +11,9 @@ public class DataConfigTestsTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		
 		Type = TargetType.Program;
-		// LinkType = TargetLinkType.Modular;
+		LinkType = TargetLinkType.Modular;
 		//	mono link also works, use modular link just to repor symbol exports
-		LinkType = TargetLinkType.Monolithic;
+		// LinkType = TargetLinkType.Monolithic;
 		LaunchModuleName = "DataConfigTests";
 
 		bUseMallocProfiler = false;
