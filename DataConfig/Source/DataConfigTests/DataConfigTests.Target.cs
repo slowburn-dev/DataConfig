@@ -16,6 +16,10 @@ public class DataConfigTestsTarget : TargetRules
 		// LinkType = TargetLinkType.Monolithic;
 		LaunchModuleName = "DataConfigTests";
 
+		//	force unity build with these 2 lines
+		//	Target.cs under `Source` will have a higher threshold for unity build
+		//	set `MinGameModuleSourceFilesForUnityBuild` for original behavior
+		MinGameModuleSourceFilesForUnityBuild = 2;
 		bUseMallocProfiler = false;
 
         bCompileICU = false;
