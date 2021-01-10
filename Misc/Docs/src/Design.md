@@ -1,5 +1,8 @@
 # Design
 
+## Rationale
+
+TODO
 
 ## Goals/Manifest
 

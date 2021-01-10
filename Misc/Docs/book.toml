@@ -1,4 +1,4 @@
 [book]
-title = "UE DataConfig Documentation"
-description = "flexible and robust serialization framework for Unreal Property System"
+title = "DataConfig Book"
+description = "Serialization framework for Unreal Engine Property System that just works!"
 language = "en"
