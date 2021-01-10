@@ -64,8 +64,7 @@ void FDcEditorExtraModule::StartupModule()
 
 	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
 	FMessageLogInitializationOptions InitOptions;
-	InitOptions.bShowFilters = true;
-	InitOptions.bShowPages = true;
+	InitOptions.bAllowClear = true;
 	MessageLogModule.RegisterLogListing("DataConfig", FText::FromString(TEXT("DataConfig")), InitOptions);
 }
 
