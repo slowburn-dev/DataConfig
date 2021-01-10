@@ -10,6 +10,9 @@ public class DataConfigCore : ModuleRules
 	    Type = ModuleType.CPlusPlus;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+		//	TODO what this even does?
+		bEnforceIWYU = true;
+
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
 			"Core",
