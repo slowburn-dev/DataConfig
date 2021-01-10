@@ -12,12 +12,11 @@ public class DataConfigEditorExtra : ModuleRules
             "CoreUObject",
             "UnrealEd",
             "MessageLog",
+            "PythonScriptPlugin",
             "DataConfigCore",
             });
+        
         PrivateDependencyModuleNames.AddRange(new string[] {
             });
-
-        DynamicallyLoadedModuleNames.AddRange(new string[] {
-        });
     }
 }
