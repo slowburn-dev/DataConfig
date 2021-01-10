@@ -7,7 +7,10 @@ This serves as a minimal sample project that can be used to build DataConfig in 
 
 ```
 # build
-C:\UnrealEngine\Engine\Binaries\DotNET\UnrealBuildTool.exe DcProjectEditor Win64 Development "%CD%/DcProject.uproject" -rocket
+C:\UnrealEngine\Engine\Binaries\DotNET\UnrealBuildTool DcProjectEditor Win64 Development "%CD%/DcProject.uproject" -rocket
+
+# generate VS solution
+C:\UnrealEngine\Engine\Binaries\DotNET\UnrealBuildTool DcProjectEditor Win64 Development "%CD%/DcProject.uproject" -Rocket -ProjectFiles -Game -Engine -NoIntellisense
 
 # run editor
 C:\UnrealEngine\Engine\Binaries\Win64\UE4Editor "%CD%/DcProject.uproject"
