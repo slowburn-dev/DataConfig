@@ -22,6 +22,9 @@ public:
 	bool TestDiagnostic(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code);
 	bool TestDiagnostic(const FString& Description, const FDcResult& Result, uint16 Category, uint16 Code);
 
+	bool RunTest(const FString& Parameters) override;
+
+	virtual bool DcRunTestBody(const FString& Parameters) = 0;
 };
 
 #define UTEST_OK(What, Result)\
@@ -61,12 +64,12 @@ public:
 			OutBeautifiedNames.Add(PrettyName); \
 			OutTestCommands.Add(FString()); \
 		} \
-		virtual bool RunTest(const FString& Parameters) override; \
+		virtual bool DcRunTestBody(const FString& Parameters) override; \
 		virtual FString GetBeautifiedTestName() const override { return PrettyName; } \
 	}; \
 	DC_JOIN(FDcAutomationTest, ID) DC_JOIN(_DcAutomationInstance, ID)(TEXT(PrettyName)); \
 	} \
-	bool DC_JOIN(FDcAutomationTest, ID)::RunTest(const FString& Parameters)
+	bool DC_JOIN(FDcAutomationTest, ID)::DcRunTestBody(const FString& Parameters)
 
 #define DC_TEST(PrettyName) DC_TEST_IMPL(__COUNTER__, PrettyName)
 

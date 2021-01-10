@@ -82,6 +82,13 @@ bool FDcAutomationBase::TestDiagnostic(const FString& Description, const FDcResu
 	return TestDiagnostic(*Description, Result, Category, Code);
 }
 
+bool FDcAutomationBase::RunTest(const FString& Parameters)
+{
+	bool bRet = DcRunTestBody(Parameters);
+	DcEnv().FlushDiags();
+	return bRet;
+}
+
 #if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
 static int32 _Win32DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
 {
@@ -185,13 +192,6 @@ int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 						*Entry.Event.Context
 					);
 				}
-			}
-
-			if (DcEnv().Diagnostics.Num())
-			{
-				UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
-				DcEnv().FlushDiags();
-				UE_LOG(LogDataConfigCore, Display, TEXT("-----------------------------------"));
 			}
 		}
 

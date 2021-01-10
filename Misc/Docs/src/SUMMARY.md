@@ -3,6 +3,6 @@
 - [Intro](README.md)
 - [Integration](Integration.md)
 - [Examples](Examples.md)
-- [Rationale & Goals](RationaleGoals.md)
+- [Design](Design.md)
 - [Credits](Credits.md)
 
