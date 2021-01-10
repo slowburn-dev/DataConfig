@@ -11,9 +11,7 @@ public class DataConfigHeadlessTarget : TargetRules
 		
 		Type = TargetType.Program;
 		LaunchModuleName = "DataConfigHeadless";
-
-		//	note that modular link doesn't work for this target as DC_TEST() registration
-		//	fails to load from other dlls
+		//	! note that only monolithic works atm
 		LinkType = TargetLinkType.Monolithic;
 
 		MinGameModuleSourceFilesForUnityBuild = 2;

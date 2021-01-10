@@ -16,14 +16,19 @@
 	"Installed" : false,
 	"Modules": [
 		{
-			"Name": "DataConfigCore",
+			"Name": "DataConfigExtra",
 			"Type": "Editor",
-			"LoadingPhase": "None"
+	    	"LoadingPhase": "Default"
 		},
 		{
 			"Name": "DataConfigTests",
-			"Type": "Program",
-	    	"LoadingPhase": "None"
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DataConfigEditorExtra",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
 		},
 	]
 }

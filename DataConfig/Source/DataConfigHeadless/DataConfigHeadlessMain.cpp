@@ -11,7 +11,7 @@
 /// Usage:
 ///	DataConfigHeadless [TestFilter1] [TestFilter2] ...
 ///
-IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
+IMPLEMENT_APPLICATION(DataConfigHeadless, "DataConfigHeadless");
 
 static int32 TestRunnerBody(TArray<FString>& Tokens)
 {
