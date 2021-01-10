@@ -1,5 +1,3 @@
-#if IS_PROGRAM
-
 #include "CoreMinimal.h"
 #include "Misc/ScopeExit.h"
 #include "Misc/CommandLine.h"
@@ -11,7 +9,7 @@
 
 ///
 /// Usage:
-///	DcTestsMain [TestFilter1] [TestFilter2] ...
+///	DataConfigHeadless [TestFilter1] [TestFilter2] ...
 ///
 IMPLEMENT_APPLICATION(DataConfigTests, "DataConfigTests");
 
@@ -77,11 +75,9 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		DcShutDown();
 	}
 
-	RequestEngineExit(TEXT("DcTestsMain Main Exit"));
+	RequestEngineExit(TEXT("DataConfigHeadless Main Exit"));
 	FEngineLoop::AppPreExit();
 	FEngineLoop::AppExit();
 
 	return RetCode;
 }
-
-#endif // IS_PROGRAM

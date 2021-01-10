@@ -59,5 +59,5 @@ DC_TEST("DataConfig.Core.Blurb.Frontpage")
 	}());
 
 	return true;
-};
+}
 
