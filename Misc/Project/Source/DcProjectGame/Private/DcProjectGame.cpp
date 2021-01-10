@@ -1,6 +1,5 @@
 #include "DcProjectGame.h"
 #include "Modules/ModuleManager.h"
-#include "Log.h"
 
 DEFINE_LOG_CATEGORY(LogDcProjectGame);
 
