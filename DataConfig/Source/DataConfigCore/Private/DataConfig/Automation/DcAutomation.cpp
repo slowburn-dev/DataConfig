@@ -35,7 +35,7 @@ bool FDcAutomationBase::TestOk(const TCHAR* Description, const FDcResult& Result
 {
 	if (!Result.Ok())
 	{
-		AddError(FString::Printf(TEXT("%s: DcResult isn't Ok"), Description));
+		AddError(FString::Printf(TEXT("%s: DcResult isn't Ok"), Description), 1);
 		return false;
 	}
 	return true;
@@ -50,14 +50,14 @@ bool FDcAutomationBase::TestDiagnostic(const TCHAR* Description, const FDcResult
 {
 	if (Result.Ok())
 	{
-		AddError(FString::Printf(TEXT("%s: Expect DcResult fail but it's OK"), Description));
+		AddError(FString::Printf(TEXT("%s: Expect DcResult fail but it's OK"), Description), 1);
 		return false;
 	}
 
 	int DiagCount = DcEnv().Diagnostics.Num();
 	if (DiagCount != 1)
 	{
-		AddError(FString::Printf(TEXT("%s: Expect exactly 1 diagnostic found %d"), Description, DiagCount));
+		AddError(FString::Printf(TEXT("%s: Expect exactly 1 diagnostic found %d"), Description, DiagCount), 1);
 		return false;
 	}
 
@@ -67,7 +67,7 @@ bool FDcAutomationBase::TestDiagnostic(const TCHAR* Description, const FDcResult
 	{
 		AddError(FString::Printf(TEXT("%s: Last diag unmatch, Expect: (%d, %d), Actual, (%d, %d)"), 
 			Description, Category, Code, Diag.Code.CategoryID, Diag.Code.ErrorID
-		));
+		), 1);
 		return false;
 	}
 

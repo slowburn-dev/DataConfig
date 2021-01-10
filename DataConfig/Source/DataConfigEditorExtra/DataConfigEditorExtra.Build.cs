@@ -11,6 +11,7 @@ public class DataConfigEditorExtra : ModuleRules
             "Core",
             "CoreUObject",
             "UnrealEd",
+            "MessageLog",
             "DataConfigCore",
             });
         PrivateDependencyModuleNames.AddRange(new string[] {

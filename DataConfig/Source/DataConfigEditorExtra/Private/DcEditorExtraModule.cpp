@@ -1,5 +1,6 @@
 #include "DcEditorExtraModule.h"
 #include "Modules/ModuleManager.h"
+#include "MessageLogModule.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/DcEnv.h"
 
@@ -15,31 +16,36 @@ struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 			for (FDcDataVariant& Var : Diag.Args)
 				FormatArgs.Add(DcConvertArg(Var));
 
-			FMessageLog MessageLog("DataConfig");
-			MessageLog.Message(EMessageSeverity::Error, FText::FromString(FString::Format(Detail->Msg, FormatArgs)));
-
-			for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
+			FString OutMessage;
+			OutMessage.Append(TEXT("# DataConfig Error: "));
+			OutMessage.Append(FString::Format(Detail->Msg, FormatArgs));
+			if (Diag.Highlights.Num())
 			{
-				FString HighlightHeader;
-				if (Highlight.FileContext.IsSet())
+				for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
 				{
-					HighlightHeader = FString::Printf(TEXT("File: %s%d:%d"),
-						*Highlight.FileContext->FilePath,
-						Highlight.FileContext->Loc.Line,
-						Highlight.FileContext->Loc.Column);
-				}
-				else
-				{
-					HighlightHeader = TEXT("<Unkown file>");
-				}
-
-				if (!Highlight.Formatted.IsEmpty())
-				{
-					MessageLog.Message(EMessageSeverity::Error, FText::FromString(
-						FString::Printf(TEXT("%s\n%s"), *HighlightHeader, *Highlight.Formatted)
-					));
+					OutMessage.AppendChar(TCHAR('\n'));
+					if (Highlight.FileContext.IsSet())
+					{
+						OutMessage.Appendf(TEXT("- [%s] --> %s%d:%d\n%s"),
+							*Highlight.OwnerName,
+							*Highlight.FileContext->FilePath,
+							Highlight.FileContext->Loc.Line,
+							Highlight.FileContext->Loc.Column,
+							*Highlight.Formatted
+						);
+					}
+					else
+					{
+						OutMessage.Appendf(TEXT("- [%s] %s"),
+							*Highlight.OwnerName,
+							*Highlight.Formatted
+						);
+					}
 				}
 			}
+
+			FMessageLog MessageLog("DataConfig");
+			MessageLog.Message(EMessageSeverity::Error, FText::FromString(OutMessage));
 		}
 		else
 		{
@@ -55,12 +61,21 @@ void FDcEditorExtraModule::StartupModule()
 	UE_LOG(LogDataConfigCore, Log, TEXT("DcEditorExtraModule module starting up"));
 	DcStartUp(EDcInitializeAction::Minimal);
 	DcEnv().DiagConsumer = MakeShareable(new FDcMessageLogDiagnosticConsumer());
+
+	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+	FMessageLogInitializationOptions InitOptions;
+	InitOptions.bShowFilters = true;
+	InitOptions.bShowPages = true;
+	MessageLogModule.RegisterLogListing("DataConfig", FText::FromString(TEXT("DataConfig")), InitOptions);
 }
 
 void FDcEditorExtraModule::ShutdownModule()
 {
 	DcShutDown();
 	UE_LOG(LogDataConfigCore, Log, TEXT("DcEditorExtraModule module shutting down"));
+
+	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+	MessageLogModule.UnregisterLogListing("DataConfig");
 }
 
 IMPLEMENT_MODULE(FDcEditorExtraModule, DataConfigEditorExtra);

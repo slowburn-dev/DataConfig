@@ -28,7 +28,7 @@ struct FDcTestExampleStruct
 };
 ```
 
-**DataConfig** can deserialize an instance from JSON with the code below:
+**DataConfig** can deserialize an instance from JSON with the snippet below:
 
 ```c++
 FString Str = TEXT(R"(
@@ -74,7 +74,7 @@ check(Dest.Colors[1] == FColor::Green);
 check(Dest.Colors[2] == FColor::Blue);
 ```
 
-Note that enum is deserialized by name and `FColor` is deserialized from a html color string like `#RRGGBBAA`.
+Note that enum is deserialized by its name and `FColor` is deserialized from a html color string like `#RRGGBBAA`.
 
 Say if we accidentally mistyped the `EnumField` value:
 
