@@ -18,6 +18,7 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ CoercionFail, TEXT("Reader coercion failed, Actual: '{0}'")},
 	{ EnumNameNotFound, TEXT("Enum name not found in enum type: '{0}', Actual: '{1}'")},
 	{ HandlerNotWritingDeserializeResult, TEXT("Deserialize handler forgot to write to 'EDcDeserializeResult& OutRet'") },
+	{ StructNotFound, TEXT("Expect struct root or property but not found:, Expect: {0}, Actual: {1}") },
 
 	//	Context
 	{ ContextInvalidState, TEXT("Deserializer context invalid internal state, Actual: '{0}'")},

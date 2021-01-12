@@ -23,6 +23,7 @@ enum Type : uint16
 	CoercionFail,
 	EnumNameNotFound,
 	HandlerNotWritingDeserializeResult,
+	StructNotFound,
 
 	//	Context
 	ContextInvalidState,

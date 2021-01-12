@@ -3,6 +3,8 @@
 #include "MessageLogModule.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
+#include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
 
 struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 {
@@ -59,6 +61,9 @@ struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 void FDcEditorExtraModule::StartupModule()
 {
 	UE_LOG(LogDataConfigCore, Log, TEXT("DcEditorExtraModule module starting up"));
+	DcRegisterDiagnosticGroup(&DcDExtra::Details);
+	DcRegisterDiagnosticGroup(&DcDEditorExtra::Details);
+
 	DcStartUp(EDcInitializeAction::Minimal);
 	DcEnv().DiagConsumer = MakeShareable(new FDcMessageLogDiagnosticConsumer());
 

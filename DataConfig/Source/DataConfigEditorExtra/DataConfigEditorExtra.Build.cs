@@ -10,10 +10,11 @@ public class DataConfigEditorExtra : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { 
             "Core",
             "CoreUObject",
-            "UnrealEd",
+            "Engine",
             "MessageLog",
-            "PythonScriptPlugin",
+            "GameplayTags",
             "DataConfigCore",
+            "DataConfigExtra",
             });
         
         PrivateDependencyModuleNames.AddRange(new string[] {

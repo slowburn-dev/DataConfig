@@ -17,11 +17,13 @@ namespace DcExtra
 EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
 	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
-	return Struct && Struct->GetFName() == TEXT("Color")
+	return Struct && Struct == TBaseStructure<FColor>::Get()
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
 }
 
+//	TODO template this and try it 3 times make sure it all works
+//	TODO add one by directing using a `FColor`
 FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;

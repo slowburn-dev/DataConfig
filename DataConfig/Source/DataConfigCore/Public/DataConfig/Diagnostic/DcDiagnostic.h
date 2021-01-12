@@ -130,6 +130,12 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FString&& Str)
 	return Diag;
 };
 
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, const FFieldVariant& Property)
+{
+	Diag.Args.Emplace(Property.GetFullName());
+	return Diag;
+}
+
 struct IDcDiagnosticConsumer : public TSharedFromThis<IDcDiagnosticConsumer>
 {
 	virtual void HandleDiagnostic(FDcDiagnostic& Diag) = 0;
