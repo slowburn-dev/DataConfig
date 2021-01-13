@@ -2,7 +2,9 @@
 
 __Serialization framework for Unreal Engine Property System that just works!__
 
-- Support every type in Unreal Property System, including delegates and `UObject` references.
+Unreal Engine features a powerful [Property System][1] which implements C++ runtime reflection. **DataConfig** is a serialization framework build on top of it. Notably features:
+
+- Support every type can be marked as `UPROPERTY()`, including delegates and `UObject` references.
 - Pull/Push styled API for verbatim data access and lossless type infomation.
 - Out of the box JSON deserialization that supports custom conversion logic.
 - Designed as a collection of tools that can be easily extended to support other formats.
@@ -105,3 +107,5 @@ See LINK_TO_MDBOOK_DOC for details.
 ## Credit Us
 
 It would be trememdously helpful for us if you credit us in your game / projects. See LINK_TO_CREDIT for more details.
+
+[1]:https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection "Unreal Property System (Reflection)"
