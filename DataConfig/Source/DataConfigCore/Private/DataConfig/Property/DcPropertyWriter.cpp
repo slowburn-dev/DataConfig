@@ -87,7 +87,7 @@ static void PopState(FDcPropertyWriter* Writer)
 template<typename TScalar>
 FORCEINLINE FDcResult WriteTopStateScalarProperty(FDcPropertyWriter* Self, const TScalar& Value)
 {
-	using TProperty = DcPropertyUtils::TPropertyTypeMap<TScalar>::Type;
+	using TProperty = typename DcPropertyUtils::TPropertyTypeMap<TScalar>::Type;
 
 	FScopedStackedWriter StackedWriter(Self);
 

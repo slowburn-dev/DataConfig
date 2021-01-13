@@ -10,7 +10,7 @@
 template<typename CharType>
 EDcDataEntry TDcJsonReader<CharType>::TokenTypeToDataEntry(ETokenType TokenType)
 {
-	static EDcDataEntry _Mapping[ETokenType::_Count] = {
+	static EDcDataEntry _Mapping[(int)ETokenType::_Count] = {
 		EDcDataEntry::Ended,
 		EDcDataEntry::Nil,
 		EDcDataEntry::MapRoot,

@@ -30,5 +30,8 @@ public class DataConfigHeadlessTarget : TargetRules
 		bBuildDeveloperTools = false;
 
 		bIsBuildingConsoleApplication = true;
+
+
+		WindowsPlatform.Compiler = WindowsCompiler.Clang;
 	}
 }
