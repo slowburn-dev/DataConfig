@@ -23,14 +23,15 @@ struct FDcDataVariant
 		: DataType(EDcDataEntry::Nil)
 	{}
 
+	//	placement news will correctly use these constructors
 	FDcDataVariant(const FDcDataVariant&) = default;
 	FDcDataVariant& operator=(const FDcDataVariant&) = default;
-	~FDcDataVariant() = default;
 	FDcDataVariant(FDcDataVariant&&) = default;
 	FDcDataVariant& operator=(FDcDataVariant&&) = default;
+	~FDcDataVariant() = default;
 
 	template<typename T>
-	FDcDataVariant(T&& InValue)
+	FDcDataVariant(T&& InValue) // NOLINT(bugprone-forwarding-reference-overload)
 	{
 		Initialize(Forward<T>(InValue));
 	}

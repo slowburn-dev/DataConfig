@@ -101,12 +101,10 @@ struct FDcReadStateClass : public FDcBaseReadState
 	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
-	FDcResult EndReadValue();	// TODO remove this method, called only in 1 place
 	FDcResult ReadClassRoot(FDcClassStat* OutClassPtr);
 	FDcResult ReadClassEnd(FDcClassStat* OutClassPtr);
 	FDcResult ReadNil();
 	FDcResult ReadObjectReference(UObject** OutPtr);
-
 };
 
 struct FDcReadStateStruct : public FDcBaseReadState
@@ -144,7 +142,6 @@ struct FDcReadStateStruct : public FDcBaseReadState
 	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
-	FDcResult EndReadValue();
 	FDcResult ReadStructRoot(FDcStructStat* OutStructPtr);
 	FDcResult ReadStructEnd(FDcStructStat* OutStructPtr);
 };
@@ -182,7 +179,6 @@ struct FDcReadStateMap : public FDcBaseReadState
 	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
-	FDcResult EndReadValue();
 	FDcResult ReadMapRoot();
 	FDcResult ReadMapEnd();
 };
@@ -218,7 +214,6 @@ struct FDcReadStateArray : public FDcBaseReadState
 	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 
-	FDcResult EndReadValue(); // TODO remove this method, called only in 1 place
 	FDcResult ReadArrayRoot();
 	FDcResult ReadArrayEnd();
 };

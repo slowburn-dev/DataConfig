@@ -1,4 +1,4 @@
-Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core*,bugprone-*,-bugprone-reserved-identifier,-bugprone-branch-clone'
+Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core*,bugprone-*,-bugprone-reserved-identifier,-bugprone-branch-clone,-bugprone-macro-parentheses'
 HeaderFilterRegex: 'Dc.+\.h'
 ExtraArgs:
   - '-Wunused'

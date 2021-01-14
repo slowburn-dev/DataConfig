@@ -11,6 +11,7 @@ public class DataConfigCore : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		bEnforceIWYU = true;
+		bUseUnity = false;
 
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
