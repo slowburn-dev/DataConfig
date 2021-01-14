@@ -32,8 +32,7 @@ FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRe
 	if (!Ctx.Reader->Coercion(Next))
 		return DC_FAIL(DcDDeserialize, CoercionFail) << Next;;
 
-	DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer);
-
+	DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));
 	return DcOkWithProcessed(OutRet);
 }
 

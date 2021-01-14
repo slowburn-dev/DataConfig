@@ -73,22 +73,22 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 	if (0)
 	{
 		FDcReader Reader;
-		Reader.ReadWeakObjectField(&Source.WeakObjetField);
-		Reader.ReadLazyObjectField(&Source.LazyObjectField);
-		Reader.ReadSoftObjectField(&Source.SoftObjectField);
-		Reader.ReadSoftClassField(&Source.SoftClassField);
-		Reader.ReadInterfaceField(&Source.InterfaceField);
-		Reader.ReadDelegate(&Source.DelegateField);
-		Reader.ReadMulticastInlineDelegate(&Source.DynMulticastField);
+		Reader.ReadWeakObjectField(&Source.WeakObjetField).Ok();
+		Reader.ReadLazyObjectField(&Source.LazyObjectField).Ok();
+		Reader.ReadSoftObjectField(&Source.SoftObjectField).Ok();
+		Reader.ReadSoftClassField(&Source.SoftClassField).Ok();
+		Reader.ReadInterfaceField(&Source.InterfaceField).Ok();
+		Reader.ReadDelegate(&Source.DelegateField).Ok();
+		Reader.ReadMulticastInlineDelegate(&Source.DynMulticastField).Ok();
 
 		FDcWriter Writer;
-		Writer.WriteWeakObjectField(Source.WeakObjetField);
-		Writer.WriteLazyObjectField(Source.LazyObjectField);
-		Writer.WriteSoftObjectField(Source.SoftObjectField);
-		Writer.WriteSoftClassField(Source.SoftClassField);
-		Writer.WriteInterfaceField(Source.InterfaceField);
-		Writer.WriteDelegate(Source.DelegateField);
-		Writer.WriteMulticastInlineDelegate(Source.DynMulticastField);
+		Writer.WriteWeakObjectField(Source.WeakObjetField).Ok();
+		Writer.WriteLazyObjectField(Source.LazyObjectField).Ok();
+		Writer.WriteSoftObjectField(Source.SoftObjectField).Ok();
+		Writer.WriteSoftClassField(Source.SoftClassField).Ok();
+		Writer.WriteInterfaceField(Source.InterfaceField).Ok();
+		Writer.WriteDelegate(Source.DelegateField).Ok();
+		Writer.WriteMulticastInlineDelegate(Source.DynMulticastField).Ok();
 	}
 
 	return true;

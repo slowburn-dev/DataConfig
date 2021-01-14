@@ -1,3 +1,6 @@
+# running clang-tidy
+# python C:\Path\To\run-clang-tidy.py -p C:\Path\To\UnrealEngine "DataConfig*"
+# clang-tidy -p C:\Path\To\UnrealEngine -fix
 Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core*,bugprone-*,-bugprone-reserved-identifier,-bugprone-branch-clone,-bugprone-macro-parentheses'
 HeaderFilterRegex: 'Dc.+\.h'
 ExtraArgs:

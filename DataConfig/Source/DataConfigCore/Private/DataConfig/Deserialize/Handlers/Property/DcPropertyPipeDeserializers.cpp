@@ -10,7 +10,7 @@ FDcResult HandlerScalarDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer);
+	DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));
 	return DcOkWithProcessed(OutRet);
 }
 
@@ -183,7 +183,7 @@ FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 	if (ClassStat.Control == FDcClassStat::EControl::ExternalReference)
 	{
 		DC_TRY(Ctx.Reader->PeekRead(&Next));
-		DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer);
+		DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));
 	}
 	else
 	{
