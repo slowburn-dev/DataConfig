@@ -1,6 +1,8 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
-#include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/Property/DcPropertyWriter.h"
 
 FDcScopedProperty::FDcScopedProperty(FDcDeserializeContext& InCtx)
 	: Ctx(InCtx)

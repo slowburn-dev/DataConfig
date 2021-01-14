@@ -45,7 +45,7 @@ struct FDcDataVariant
 	template<typename T>
 	FORCEINLINE void Initialize(T InValue)
 	{
-		using TActual = typename TRemoveConst<TRemoveReference<T>::Type>::Type;
+		using TActual = typename TRemoveConst<typename TRemoveReference<T>::Type>::Type;
 		DataType = DcTypeUtils::TDcDataEntryType<TActual>::Value;
 		bDataTypeOnly = false;
 
@@ -54,7 +54,7 @@ struct FDcDataVariant
 	}
 
 	template<>
-	FORCEINLINE void Initialize<nullptr_t>(nullptr_t InValue)
+	FORCEINLINE void Initialize<nullptr_t>(nullptr_t)
 	{
 		DataType = EDcDataEntry::Nil;
 		bDataTypeOnly = false;

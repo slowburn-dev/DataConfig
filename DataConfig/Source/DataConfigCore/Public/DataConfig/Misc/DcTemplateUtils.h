@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DataConfig/DcTypes.h"
+
 template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
 struct TDcAlignedStorage
 {
@@ -14,9 +16,16 @@ template<typename T1, typename T2>
 FORCEINLINE static void ReadOut(T1*& OutPtr, T2&& Value)
 {
 	if (OutPtr)
-	{
 		*OutPtr = Forward<T2>(Value);
-	}
+}
+
+template<typename T1, typename T2>
+FORCEINLINE static FDcResult ReadOutOk(T1*& OutPtr, T2&& Value)
+{
+	if (OutPtr)
+		*OutPtr = Forward<T2>(Value);
+
+	return DcOk();
 }
 
 template<typename T>

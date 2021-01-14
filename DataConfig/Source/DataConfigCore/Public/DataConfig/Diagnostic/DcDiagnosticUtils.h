@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Dataconfig/DcEnv.h"
+#include "DataConfig/DcEnv.h"
 
 template<typename TThunk>
 FORCEINLINE FDcResult DcExpect(bool CondToBeTrue, const TThunk& ErrFunc)

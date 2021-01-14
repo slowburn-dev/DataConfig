@@ -12,7 +12,7 @@ struct DATACONFIGCORE_API FDcErrorCode
 	uint16 ErrorID;
 };
 
-struct DATACONFIGCORE_API FDcResult
+struct DATACONFIGCORE_API DC_NODISCARD FDcResult
 {
 	//	TODO when benchmark is setup, try figure out whether
 	//		 changing this to uint32 affects anything

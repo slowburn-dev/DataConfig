@@ -1,0 +1,9 @@
+Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core*,bugprone-*,-bugprone-reserved-identifier,-bugprone-branch-clone'
+HeaderFilterRegex: 'Dc.+\.h'
+ExtraArgs:
+  - '-Wunused'
+  - '-Wuninitialized'
+  - '-std=c++17' # for [[nodiscard]]
+CheckOptions:
+  - key:             misc-unused-parameters.StrictMode
+    value:           'false'
