@@ -212,6 +212,6 @@ FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 	return DcOkWithProcessed(OutRet);
 }
 
-}	//	namespace DcPropertyHandlers
+} // namespace DcPropertyPipeHandlers
 
 

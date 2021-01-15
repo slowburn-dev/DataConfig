@@ -1,5 +1,6 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleInterface.h"
+#include "Modules/ModuleManager.h"
 #include "DataConfig/DcTypes.h"
 
 class FDcTestsModule : public IModuleInterface

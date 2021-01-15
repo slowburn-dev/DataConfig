@@ -933,7 +933,6 @@ CharType TDcJsonReader<CharType>::PeekChar(int N)
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 {
-	int32 RefBegin = Cur;
 	int32 WordLen = CString::Strlen(Word);
 	SourceRef WordRef = Token.Ref;
 	WordRef.Begin = Cur;

@@ -4,8 +4,6 @@
 template<typename TMethod, typename... TArgs>
 FORCEINLINE FDcResult CompositeDispatch(FDcWeakCompositeWriter* Self, TMethod Method, TArgs&&... Args)
 {
-	FDcEnv& Env = DcEnv();
-
 	for (FDcWriter* Writer : Self->Writers)
 	{
 		DC_TRY((Writer->*Method)(Forward<TArgs>(Args)...));

@@ -1,12 +1,15 @@
 # running clang-tidy
-# python C:\Path\To\run-clang-tidy.py -p C:\Path\To\UnrealEngine "DataConfig*"
+# python C:\Path\To\run-clang-tidy.py -p C:\Path\To\UnrealEngine "DataConfigCore"
 # clang-tidy -p C:\Path\To\UnrealEngine -fix
-Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core*,bugprone-*,-bugprone-reserved-identifier,-bugprone-branch-clone,-bugprone-macro-parentheses'
-HeaderFilterRegex: 'Dc.+\.h'
+
+# [clang-analyzer-core.CallAndMessage] disabled as it doesn't work with DC_TRY
+# [clang-analyzer-core.uninitialized.Branch] disabled for false positive in ue4 code
+# [clang-analyzer-core.uninitialized.UndefReturn] disabled for false positive
+# [clang-diagnostic-invalid-offsetof] disabled for `DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_*`
+Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core.*,bugprone-*,llvm-header-guard,llvm-namespace-comment,readability-qualified-auto,-bugprone-reserved-identifier,-bugprone-branch-clone,-bugprone-macro-parentheses,-misc-unused-parameters,-clang-analyzer-core.CallAndMessage,-clang-analyzer-core.uninitialized.Branch,-clang-analyzer-core.uninitialized.UndefReturn,-clang-diagnostic-invalid-offsetof'
+HeaderFilterRegex: 'Dc\w+\.h'
 ExtraArgs:
   - '-Wunused'
+  - '-Wno-unused-parameter'
   - '-Wuninitialized'
   - '-std=c++17' # for [[nodiscard]]
-CheckOptions:
-  - key:             misc-unused-parameters.StrictMode
-    value:           'false'

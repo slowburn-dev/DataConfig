@@ -27,4 +27,4 @@ FDcDiagnosticGroup Details = {
 	_JSONDetails
 };
 
-} // namespace DJSON
+} // namespace DcDJSON

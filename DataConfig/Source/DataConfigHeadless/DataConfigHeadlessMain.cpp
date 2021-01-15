@@ -11,6 +11,7 @@
 /// Usage:
 ///	DataConfigHeadless [TestFilter1] [TestFilter2] ...
 ///
+
 IMPLEMENT_APPLICATION(DataConfigHeadless, "DataConfigHeadless");
 
 static int32 TestRunnerBody(TArray<FString>& Tokens)
@@ -30,7 +31,7 @@ static int32 TestRunnerBody(TArray<FString>& Tokens)
 
 INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 {
-	if (GEngineLoop.PreInit(ArgC, ArgV) != 0)
+	if (GEngineLoop.PreInit(ArgC, ArgV) != 0) // NOLINT
 	{
 		checkf(false, TEXT("Engine Preinit Failed"));
 		return -1;
@@ -81,3 +82,5 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 
 	return RetCode;
 }
+
+

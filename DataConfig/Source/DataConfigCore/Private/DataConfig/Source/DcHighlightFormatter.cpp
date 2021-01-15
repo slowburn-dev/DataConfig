@@ -67,7 +67,7 @@ FString THightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef
 				continue;
 
 			FString LineStr = FDcSourceUtils::FormatDiagnosticLine(LinesAfter[Ix].ToString());
-			int CurLine = Loc.Line + Ix + 1;
+			uint32 CurLine = Loc.Line + Ix + 1;
 			Reports.Add(FString::Printf(TEXT("%4d |%s"), CurLine, *LineStr));
 		}
 
