@@ -10,13 +10,15 @@ public class DataConfigCore : ModuleRules
 	    Type = ModuleType.CPlusPlus;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		bEnforceIWYU = true;
-		bUseUnity = false;
+        bEnforceIWYU = true;
 
-		PublicDependencyModuleNames.AddRange(
+        PublicDependencyModuleNames.AddRange(
 			new string[] {
 			"Core",
 			"CoreUObject",
 			});
+
+		//	toggle for debug unity
+        //bUseUnity = false;
 	}
 }
