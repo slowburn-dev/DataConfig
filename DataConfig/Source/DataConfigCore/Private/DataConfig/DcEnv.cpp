@@ -22,17 +22,6 @@ void DcPopEnv()
 	Envs.RemoveAt(Envs.Num() - 1);
 }
 
-FDcScopedEnv::FDcScopedEnv()
-{
-	DcPushEnv();
-}
-
-FDcScopedEnv::~FDcScopedEnv()
-{
-	DcPopEnv();
-}
-
-
 FDcDiagnostic& FDcEnv::Diag(FDcErrorCode InErr)
 {
 	return Diagnostics[Diagnostics.Emplace(InErr)];

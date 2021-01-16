@@ -156,6 +156,16 @@ struct FDcDefaultLogDiagnosticConsumer : public IDcDiagnosticConsumer
 	FLogScopedCategoryAndVerbosityOverride Override;
 };
 
+struct FDcStringDiagnosticConsumer : public IDcDiagnosticConsumer
+{
+	FORCEINLINE FDcStringDiagnosticConsumer(FString* InOutput)
+		: Output(InOutput) {}
+
+	void HandleDiagnostic(FDcDiagnostic& Diag) override;
+
+	FString* Output;
+};
+
 struct DATACONFIGCORE_API FDcDiagnosticDetail
 {
 	uint16 ID;

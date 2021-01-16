@@ -118,6 +118,9 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 	void* DataPtr = nullptr;
 	UScriptStruct* StructClass = nullptr;
 	SharedPointerInternals::FSharedReferencer<ESPMode::Fast> SharedReferenceCount;
+
+	///	Dump contained class to output. Intended to be called in debugger immediate.
+	FORCENOINLINE void DebugDump();
 };
 
 

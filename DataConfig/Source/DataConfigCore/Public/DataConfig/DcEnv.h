@@ -60,8 +60,9 @@ using FScopedStackedWriter = TScopedEnvMemberPtr<FDcWriter, &FDcEnv::WriterStack
 
 struct DATACONFIGCORE_API FDcScopedEnv
 {
-	FDcScopedEnv();
-	~FDcScopedEnv();
+	FORCEINLINE FDcScopedEnv() { DcPushEnv(); }
+	FORCEINLINE ~FDcScopedEnv() { DcPopEnv(); }
+	FORCEINLINE FDcEnv& Get() { return DcEnv(); }
 };
 
 #define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})

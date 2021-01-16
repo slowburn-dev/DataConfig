@@ -155,3 +155,44 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 	}
 }
 
+void FDcStringDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
+{
+	check(Output);
+	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
+	if (Detail)
+	{
+		check(Detail->ID == Diag.Code.ErrorID);
+		TArray<FStringFormatArg> FormatArgs;
+		for (FDcDataVariant& Var : Diag.Args)
+			FormatArgs.Add(DcConvertArg(Var));
+
+		Output->Appendf(TEXT("# DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
+		Output->AppendChar(TCHAR('\n'));
+
+		for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
+		{
+			if (Highlight.FileContext.IsSet())
+			{
+				Output->Appendf(TEXT("- [%s] --> %s%d:%d\n%s"),
+					*Highlight.OwnerName,
+					*Highlight.FileContext->FilePath,
+					Highlight.FileContext->Loc.Line,
+					Highlight.FileContext->Loc.Column,
+					*Highlight.Formatted
+				);
+			}
+			else
+			{
+				Output->Appendf(TEXT("- [%s] %s"),
+					*Highlight.OwnerName,
+					*Highlight.Formatted);
+			}
+			Output->AppendChar(TCHAR('\n'));
+		}
+	}
+	else
+	{
+		Output->Appendf(TEXT("Unknown Diagnostic ID: %d, %d"), Diag.Code.CategoryID, Diag.Code.ErrorID);
+		Output->AppendChar(TCHAR('\n'));
+	}
+}

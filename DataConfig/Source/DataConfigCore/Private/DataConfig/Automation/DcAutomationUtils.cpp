@@ -408,12 +408,74 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 	return DcOk();
 }
 
-FDcResult DumpToLog(FDcPropertyDatum Datum)
+void DumpToLog(FDcPropertyDatum Datum)
 {
-	FDcPropertyReader PropReader(Datum);
-	FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
-	FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
-	return PrettyPrintVisit.PipeVisit();
+	FOutputDevice* WarnOut = (FOutputDevice*)GWarn;
+	if (Datum.IsNone())
+	{
+		return WarnOut->Log(TEXT("# Datum: <None>"));
+	}
+	else
+	{
+		FDcScopedEnv ScopedEnv{};
+		ScopedEnv.Get().DiagConsumer = MakeShareable(new FDcDefaultLogDiagnosticConsumer());
+
+		WarnOut->Log(TEXT("-----------------------------------------"));
+		WarnOut->Logf(TEXT("# Datum: '%s', '%s'"), *Datum.Property.GetClassName(), *Datum.Property.GetName());
+
+		FDcPropertyReader PropReader(Datum);
+		FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+		FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
+
+		if (!PrettyPrintVisit.PipeVisit().Ok())
+			ScopedEnv.Get().FlushDiags();
+		WarnOut->Log(TEXT("-----------------------------------------"));
+	}
+}
+
+FString DumpFormat(FDcPropertyDatum Datum)
+{
+	struct FStrCollectDevice : public FString, public FOutputDevice
+	{
+		FStrCollectDevice() : FString()
+		{}
+
+		void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
+		{
+			FString::operator+=((TCHAR*)InData);
+			*this += LINE_TERMINATOR;
+		}
+
+		virtual FString& operator+=(const FString& Other)
+		{
+			return FString::operator+=(Other);
+		}
+	};
+
+	if (Datum.IsNone())
+	{
+		return TEXT("# Datum: <None>");
+	}
+	else
+	{
+		FDcScopedEnv ScopedEnv{};
+		FStrCollectDevice StrOutput;
+		ScopedEnv.Get().DiagConsumer = MakeShareable(new FDcStringDiagnosticConsumer{&StrOutput});
+
+		StrOutput.Log(TEXT("-----------------------------------------"));
+		StrOutput.Logf(TEXT("# Datum: '%s', '%s'"), *Datum.Property.GetClassName(), *Datum.Property.GetName());
+
+		FDcPropertyReader PropReader(Datum);
+		FDcPrettyPrintWriter PrettyWriter(StrOutput);
+		FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
+
+		if (!PrettyPrintVisit.PipeVisit().Ok())
+			ScopedEnv.Get().FlushDiags();
+
+		StrOutput.Log(TEXT("-----------------------------------------"));
+
+		return MoveTemp(StrOutput);
+	}
 }
 
 //	UXXX(meta=(Foo)) only get compiled in `WITH_EDITOR`
