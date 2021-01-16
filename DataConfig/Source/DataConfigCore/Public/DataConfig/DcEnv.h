@@ -16,6 +16,8 @@ struct DATACONFIGCORE_API FDcEnv
 	TArray<FDcReader*> ReaderStack;
 	TArray<FDcWriter*> WriterStack;
 
+	bool bExpectFail = false;	// mute debug break
+
 	FDcDiagnostic& Diag(FDcErrorCode InErr);
 
 	void FlushDiags();
@@ -68,8 +70,10 @@ struct DATACONFIGCORE_API FDcScopedEnv
 
 FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr)
 {
+
 #if DO_CHECK
-	UE_DEBUG_BREAK();
+	if (!DcEnv().bExpectFail)
+		UE_DEBUG_BREAK();
 #endif
 
 	return DcEnv().Diag(InErr);

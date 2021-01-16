@@ -2,6 +2,8 @@
 
 #include "CoreTypes.h"
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/DcEnv.h"
+#include "DataConfig/Misc/DcTemplateUtils.h"
 #include "Misc/AutomationTest.h"
 #include "Misc/AssertionMacros.h"
 #include "Containers/UnrealString.h"
@@ -36,6 +38,7 @@ public:
 
 #define UTEST_DIAG(What, Result, DiagNamespace, DiagID)\
 	do {\
+		TDcStoreThenReset<bool> __ScopedExpectFail(DcEnv().bExpectFail, true);\
 		if (!TestDiagnostic(What, Result, DiagNamespace::Category, DiagNamespace::DiagID)) {\
 			return false;\
 		}\

@@ -1,5 +1,4 @@
 #include "DataConfig/Automation/DcAutomation.h"
-#include "DataConfig/DcEnv.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "HAL/FeedbackContextAnsi.h"
 #include "HAL/ExceptionHandling.h"
