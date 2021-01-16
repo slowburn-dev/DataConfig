@@ -9,8 +9,10 @@
 namespace DcEditorExtra {
 
 DATACONFIGEDITOREXTRA_API EDcDeserializePredicateResult PredicateIsGameplayTag(FDcDeserializeContext& Ctx);
-
 DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+
+DATACONFIGEDITOREXTRA_API EDcDeserializePredicateResult PredicateIsGameplayTagContainer(FDcDeserializeContext& Ctx);
+DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 } // namespace DcEditorExtra
 
@@ -22,4 +24,13 @@ struct FDcEditorExtraTestStructWithGameplayTag1
 	UPROPERTY() FGameplayTag TagField1;
 	UPROPERTY() FGameplayTag TagField2;
 
+};
+
+USTRUCT()
+struct FDcEditorExtraTestStructWithGameplayTag2
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FGameplayTagContainer TagContainerField1;
+	UPROPERTY() FGameplayTagContainer TagContainerField2;
 };

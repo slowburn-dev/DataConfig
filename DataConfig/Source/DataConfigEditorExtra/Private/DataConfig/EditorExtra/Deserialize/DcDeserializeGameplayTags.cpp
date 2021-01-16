@@ -10,6 +10,27 @@
 
 namespace DcEditorExtra {
 
+static FDcResult _StringToGameplayTag(FDcDeserializeContext& Ctx, const FString& Str, FGameplayTag* OutTagPtr)
+{
+	FString FixedString;
+	FText Err;
+	if (!FGameplayTag::IsValidGameplayTagString(Str, &Err, &FixedString))
+	{
+		return DC_FAIL(DcDEditorExtra, InvalidGameplayTagStringFixErr)
+			<< Str << FixedString << Err;
+	}
+
+	FName TagName(*Str);
+	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TagName, false);
+	if (!Tag.IsValid())
+	{
+		return DC_FAIL(DcDEditorExtra, InvalidGameplayTagString) << Str;
+	}
+
+	*OutTagPtr = Tag;
+	return DcOk();
+}
+
 EDcDeserializePredicateResult DcEditorExtra::PredicateIsGameplayTag(FDcDeserializeContext& Ctx)
 {
 	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
@@ -53,23 +74,7 @@ FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 	{
 		FString Str;
 		DC_TRY(Ctx.Reader->ReadString(&Str));
-
-		FString FixedString;
-		FText Err;
-		if (!FGameplayTag::IsValidGameplayTagString(Str, &Err, &FixedString))
-		{
-			return DC_FAIL(DcDEditorExtra, InvalidGameplayTagStringFixErr)
-				<< Str << FixedString << Err;
-		}
-
-		FName TagName(*Str);
-		FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TagName, false);
-		if (!Tag.IsValid())
-		{
-			return DC_FAIL(DcDEditorExtra, InvalidGameplayTagString) << Str;
-		}
-
-		*TagPtr = Tag;
+		DC_TRY(_StringToGameplayTag(Ctx, Str, TagPtr));
 	}
 	else
 	{
@@ -79,9 +84,63 @@ FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 	return DcOkWithProcessed(OutRet);
 }
 
+EDcDeserializePredicateResult PredicateIsGameplayTagContainer(FDcDeserializeContext& Ctx)
+{
+	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
+	return Struct && Struct == FGameplayTagContainer::StaticStruct()
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
+}
+
+FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	bool bReadPass = Next == EDcDataEntry::ArrayRoot;
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
+
+	if (!bReadPass && bWritePass)
+		return DcOkWithFallThrough(OutRet);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
+
+	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Datum.Property);
+	if (Struct == nullptr
+		|| Struct != FGameplayTagContainer::StaticStruct())
+	{
+		return DC_FAIL(DcDDeserialize, StructNotFound)
+			<< TEXT("GameplayTagContainer") << Datum.Property;
+	}
+
+	FGameplayTagContainer* ContainerPtr = (FGameplayTagContainer*)Datum.DataPtr;
+
+	DC_TRY(Ctx.Reader->ReadArrayRoot());
+
+	EDcDataEntry CurPeek;
+	while (true)
+	{
+		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
+		if (CurPeek == EDcDataEntry::ArrayEnd)
+			break;
+
+		FString Str;
+		DC_TRY(Ctx.Reader->ReadString(&Str));
+
+		FGameplayTag Tag;
+		DC_TRY(_StringToGameplayTag(Ctx, Str, &Tag));
+
+		ContainerPtr->AddTag(Tag);
+	}
+
+	DC_TRY(Ctx.Reader->ReadArrayEnd());
+
+	return DcOkWithProcessed(OutRet);
+}
+
 } // namespace DcEditorExtra
-
-
 
 DC_TEST("DataConfig.EditorExtra.GameplayTags")
 {
@@ -110,6 +169,9 @@ DC_TEST("DataConfig.EditorExtra.GameplayTags")
 		);
 	}));
 
+	UTEST_FALSE("Editor Extra FGameplayTag Deserialize", Dest.TagField1.IsValid());
+	UTEST_TRUE("Editor Extra FGameplayTag Deserialize", Dest.TagField2.IsValid());
+	UTEST_TRUE("Editor Extra FGameplayTag Deserialize", Dest.TagField2 == UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar")));
 
 	FString StrBad = TEXT(R"(
 		{
@@ -128,6 +190,52 @@ DC_TEST("DataConfig.EditorExtra.GameplayTags")
 	return true;
 }
 
+DC_TEST("DataConfig.EditorExtra.GameplayTagContainer")
+{
+	using namespace DcEditorExtra;
+	FDcEditorExtraTestStructWithGameplayTag2 Dest;
+	FDcPropertyDatum DestDatum(FDcEditorExtraTestStructWithGameplayTag2::StaticStruct(), &Dest);
+
+	UTEST_TRUE("Has natively added 'DataConfig.Foo.Bar'", UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar")).IsValid());
+
+	FString Str = TEXT(R"(
+		{
+			"TagContainerField1" : [],
+			"TagContainerField2" : [
+				"DataConfig.Foo.Bar",
+				"DataConfig.Foo.Bar.Baz",
+				"DataConfig.Tar.Taz",
+			]
+		}
+	)");
+	FDcJsonReader Reader(Str);
+
+	FDcEditorExtraTestStructWithGameplayTag2 Expect;
+	FDcPropertyDatum ExpectDatum(FDcEditorExtraTestStructWithGameplayTag2::StaticStruct(), &Expect);
+
+	UTEST_OK("Editor Extra FGameplayTagContainer Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
+	[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {
+		Deserializer.AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(PredicateIsGameplayTagContainer),
+			FDcDeserializeDelegate::CreateStatic(HandlerGameplayTagContainerDeserialize)
+		);
+	}));
+
+
+	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField1.Num() == 0);
+	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField2.Num() == 3);
+	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField2.HasTagExact(
+		UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar"))
+	));
+	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField2.HasTagExact(
+		UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar.Baz"))
+	));
+	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField2.HasTagExact(
+		UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Tar.Taz"))
+	));
+
+	return true;
+}
 
 
 
