@@ -24,6 +24,7 @@ enum Type : uint16
 	EnumNameNotFound,
 	HandlerNotWritingDeserializeResult,
 	StructNotFound,
+	ClassLhsIsNotChildOfRhs,
 
 	//	Context
 	ContextInvalidState,

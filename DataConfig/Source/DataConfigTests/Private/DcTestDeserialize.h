@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "DcTestProperty.h"
+#include "Templates/SubclassOf.h"
 #include "DcTestDeserialize.generated.h"
 
 UENUM(meta = (Bitflags))
@@ -46,6 +47,17 @@ struct FDcTestStructObjectRef1
 	UPROPERTY() UObject* ObjField1;
 	UPROPERTY() UObject* ObjField2;
 };
+
+USTRUCT()
+struct FDcTestStructSubClass1
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TSubclassOf<UStruct> StructSubClassField1;
+	UPROPERTY() TSubclassOf<UStruct> StructSubClassField2;
+	UPROPERTY() TSubclassOf<UStruct> StructSubClassField3;
+};
+
 
 
 

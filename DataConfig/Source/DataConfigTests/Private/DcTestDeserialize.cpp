@@ -3,6 +3,7 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
@@ -244,4 +245,46 @@ DC_TEST("DataConfig.Core.Deserialize.Containers")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Deserialize.SubClass")
+{
+	FString Str = TEXT(R"(
+
+		{
+			"StructSubClassField1" : null,
+			"StructSubClassField2" : "ScriptStruct",
+			"StructSubClassField3" : "DynamicClass",
+		}
+
+	)");
+	FDcJsonReader Reader(Str);
+
+	FDcTestStructSubClass1 Dest;
+	FDcPropertyDatum DestDatum(FDcTestStructSubClass1::StaticStruct(), &Dest);
+
+	FDcTestStructSubClass1 Expect;
+
+	Expect.StructSubClassField1 = nullptr;
+	Expect.StructSubClassField2 = UScriptStruct::StaticClass();
+	Expect.StructSubClassField3 = UDynamicClass::StaticClass();
+
+	FDcPropertyDatum ExpectDatum(FDcTestStructSubClass1::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStructSubClass1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructSubClass1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+
+	FString BadStr = TEXT(R"(
+
+		{
+			"StructSubClassField1" : "Object",
+		}
+
+	)");
+	Reader.SetNewString(*BadStr);
+
+	UTEST_DIAG("Deserialize into FDcTestStructSubClass1 Fail", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum),
+		DcDDeserialize, ClassLhsIsNotChildOfRhs);
+
+	return true;
+}
 

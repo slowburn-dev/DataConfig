@@ -49,6 +49,7 @@ void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 		FDcDeserializePredicate::CreateStatic(PredicateIsSubObjectProperty),
 		FDcDeserializeDelegate::CreateStatic(HandlerInstancedSubObjectDeserialize)
 	);
+	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassReferenceDeserialize));
 	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 
 }

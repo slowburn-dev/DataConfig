@@ -11,6 +11,52 @@
 
 namespace DcJsonHandlers {
 
+FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	bool bRootPeekPass = Next == EDcDataEntry::String
+		|| Next == EDcDataEntry::Nil;
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassReference, &bWritePass));
+
+	bool bPropertyPass = Ctx.TopProperty().IsA<FClassProperty>();
+	if (!(bRootPeekPass && bWritePass && bPropertyPass))
+		return DcOkWithFallThrough(OutRet);
+
+	if (Next == EDcDataEntry::Nil)
+	{
+		DC_TRY(Ctx.Reader->ReadNil());
+		DC_TRY(Ctx.Writer->WriteClassReference(nullptr));
+	}
+	else if (Next == EDcDataEntry::String)
+	{
+		FString ClassStr;
+		DC_TRY(Ctx.Reader->ReadString(&ClassStr));
+
+		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *ClassStr, true);
+		if (LoadClass == nullptr)
+			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << ClassStr;
+
+		FClassProperty* ClassProperty = CastFieldChecked<FClassProperty>(Ctx.TopProperty().ToFieldUnsafe());
+		check(ClassProperty && ClassProperty->MetaClass);
+		if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
+		{
+			return DC_FAIL(DcDDeserialize, ClassLhsIsNotChildOfRhs)
+				<< LoadClass->GetFName() << ClassProperty->MetaClass->GetFName();
+		}
+
+		DC_TRY(Ctx.Writer->WriteClassReference(LoadClass));
+	}
+	else
+	{
+		return DcNoEntry();
+	}
+
+	return DcOkWithProcessed(OutRet);
+}
+
 FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;

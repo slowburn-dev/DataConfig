@@ -13,7 +13,7 @@ DATACONFIGEDITOREXTRA_API FDcResult HandlerBPSubObjectDeserialize(FDcDeserialize
 } // namespace DcEditorExtra
 
 
-UCLASS(Blueprintable, BlueprintType, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, BlueprintType)
 class DATACONFIGEDITOREXTRA_API UDcTestInstancedBPClassBase : public UObject
 {
 	GENERATED_BODY()

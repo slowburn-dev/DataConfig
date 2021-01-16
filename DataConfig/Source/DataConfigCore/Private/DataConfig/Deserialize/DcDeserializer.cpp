@@ -27,7 +27,8 @@ static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeseri
 	else if (HandlerRet == EDcDeserializeResult::FallThrough)
 	{
 		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
-			<< Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+			<< Ctx.TopProperty().GetClassName()
+			<< Ctx.TopProperty().GetFName();
 	}
 	else
 	{

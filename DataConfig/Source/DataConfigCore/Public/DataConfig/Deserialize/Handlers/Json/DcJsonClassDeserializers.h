@@ -6,8 +6,7 @@
 
 namespace DcJsonHandlers {
 
-//	Reads `/Path/To/BP` or `ClassName`
-//FResult DATACONFIGCORE_API ClassReferenceDeserializeHandler(FDeserializeContext& Ctx, EDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 DATACONFIGCORE_API FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
