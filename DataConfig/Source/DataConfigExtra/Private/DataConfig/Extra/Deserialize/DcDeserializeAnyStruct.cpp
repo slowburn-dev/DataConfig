@@ -79,7 +79,7 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 	return DcOkWithProcessed(OutRet);
 }
 
-}	//	namespace DcExtra
+} // namespace DcExtra
 
 static FDcAnyStruct _IdentityByValue(FDcAnyStruct Handle)
 {

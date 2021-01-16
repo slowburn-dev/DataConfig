@@ -39,9 +39,38 @@ TDcJsonReader<CharType>::TDcJsonReader()
 }
 
 template<typename CharType>
-void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 Num)
+FDcResult TDcJsonReader<CharType>::EndRead()
 {
-	check(State == EState::Unitialized || State == EState::FinishedStr);
+	if (State != EState::InProgress)
+		return DC_FAIL(DcDJSON, ExpectStateInProgress) << State;
+
+	EDcDataEntry Next;
+	DC_TRY(PeekRead(&Next));
+	if (Next != EDcDataEntry::Ended)
+	{
+		return DC_FAIL(DcDJSON, UnexpectedTrailingToken) 
+			<< Next
+			<< FormatHighlight(Token.Ref);
+	}
+	else
+	{
+		check(State == EState::FinishedStr);
+		return DcOk();
+	}
+}
+
+template<typename CharType>
+FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 Num)
+{
+	if (State == EState::InProgress)
+		DC_TRY(EndRead());
+
+	if (State != EState::Unitialized
+		&& State != EState::FinishedStr)
+	{
+		return DC_FAIL(DcDJSON, ExpectStateUninitializedOrFinished) << State;
+	}
+
 	Buf = SourceView(InStrPtr, Num);
 
 	Token.Type = ETokenType::EOF_;
@@ -55,6 +84,8 @@ void TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 Num)
 	Cur = 0;
 	Loc.Line = 1;
 	Loc.Column = 0;
+
+	return DcOk();
 }
 
 template<typename CharType>

@@ -123,7 +123,7 @@ DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")
 			}
 
 		)");
-		Reader.SetNewString(*Str);
+		UTEST_OK("Extra Struct Field Rename", Reader.SetNewString(*Str));
 		UTEST_OK("Extra Struct Field Rename", DcAutomationUtils::DeserializeJsonInto(&Reader, FromDatum));
 	}
 

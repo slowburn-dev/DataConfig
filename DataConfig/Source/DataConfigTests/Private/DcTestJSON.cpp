@@ -39,12 +39,12 @@ DC_TEST("DataConfig.Core.JSON.Reader1")
 
 	)");
 
-	Reader.SetNewString(*Str);
+	UTEST_OK("Read simple relaxed JSON TCHAR string", Reader.SetNewString(*Str));
 	UTEST_OK("Read simple relaxed JSON TCHAR string", _NoopPipeVisit(&Reader));
 	UTEST_EQUAL("Read simple relaxed JSON TCHAR string", Reader.State, FDcJsonReader::EState::FinishedStr);
 
 	//	try reuse
-	Reader.SetNewString(*Str);
+	UTEST_OK("Read simple relaxed JSON TCHAR string", Reader.SetNewString(*Str));
 	UTEST_OK("Read simple relaxed JSON TCHAR string", _NoopPipeVisit(&Reader));
 	UTEST_EQUAL("Read simple relaxed JSON TCHAR string", Reader.State, FDcJsonReader::EState::FinishedStr);
 
@@ -52,14 +52,14 @@ DC_TEST("DataConfig.Core.JSON.Reader1")
 	FTCHARToUTF8 AnsiStr(*Str);
 	FDcAnsiJsonReader Reader2;
 
-	Reader2.SetNewString(AnsiStr.Get());
-	UTEST_OK("Read simple relaxed JSON TCHAR string", _NoopPipeVisit(&Reader2));
-	UTEST_EQUAL("Read simple relaxed JSON TCHAR string", Reader2.State, FDcAnsiJsonReader::EState::FinishedStr);
+	UTEST_OK("Read simple relaxed JSON ANSICHAR string", Reader2.SetNewString(AnsiStr.Get()));
+	UTEST_OK("Read simple relaxed JSON ANSICHAR string", _NoopPipeVisit(&Reader2));
+	UTEST_EQUAL("Read simple relaxed JSON ANSICHAR string", Reader2.State, FDcAnsiJsonReader::EState::FinishedStr);
 
 	//	try reuse
-	Reader2.SetNewString(AnsiStr.Get());
-	UTEST_OK("Read simple relaxed JSON TCHAR string", _NoopPipeVisit(&Reader2));
-	UTEST_EQUAL("Read simple relaxed JSON TCHAR string", Reader2.State, FDcAnsiJsonReader::EState::FinishedStr);
+	UTEST_OK("Read simple relaxed JSON ANSICHAR string", Reader2.SetNewString(AnsiStr.Get()));
+	UTEST_OK("Read simple relaxed JSON ANSICHAR string", _NoopPipeVisit(&Reader2));
+	UTEST_EQUAL("Read simple relaxed JSON ANSICHAR string", Reader2.State, FDcAnsiJsonReader::EState::FinishedStr);
 
 	return true;
 };
@@ -117,10 +117,43 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 		)");
 		FDcJsonReader Reader(Str);
 
-		UTEST_DIAG("Expect 'ExpectComma' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
+		UTEST_DIAG("Expect 'DuplicateKey' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
 	}
+
 
 	return true;
 }
 
+DC_TEST("DataConfig.Core.JSON.EndRead")
+{
+	{
+		FString Str = TEXT(R"(
+
+			{}
+			"Trailing"
+
+		)");
+		FDcJsonReader Reader(Str);
+
+		UTEST_OK("Read json", Reader.ReadMapRoot());
+		UTEST_OK("Read json", Reader.ReadMapEnd());
+		UTEST_DIAG("Expect 'TrailingToken' err", Reader.EndRead(), DcDJSON, UnexpectedTrailingToken);
+	}
+
+	{
+		FString Str = TEXT(R"(
+
+			{}
+			//	trailing comments are
+			/*	just fine */
+		)");
+		FDcJsonReader Reader(Str);
+
+		UTEST_OK("Read json", Reader.ReadMapRoot());
+		UTEST_OK("Read json", Reader.ReadMapEnd());
+		UTEST_OK("Expect end ok", Reader.EndRead());
+	}
+
+	return true;
+}
 

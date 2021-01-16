@@ -70,16 +70,17 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	TDcJsonReader();
 
-	void SetNewString(const CharType* InStrPtr, int32 Num);
+	FDcResult EndRead();
+	FDcResult SetNewString(const CharType* InStrPtr, int32 Num);
 
 	template<typename TArrayChar, typename TArrayAllocator>
-	void SetNewString(const TArray<TArrayChar, TArrayAllocator>& InCharArr)
+	FDcResult SetNewString(const TArray<TArrayChar, TArrayAllocator>& InCharArr)
 	{
 		static_assert(DcTypeUtils::TIsSameSize<TArrayChar, CharType>::Value, "array element type isn't same size as this reader");
-		SetNewString((const CharType*)(InCharArr.GetData()), InCharArr.Num());
+		return SetNewString((const CharType*)(InCharArr.GetData()), InCharArr.Num());
 	}
 
-	FORCEINLINE void SetNewString(const CharType* InStrPtr) { SetNewString(InStrPtr, CString::Strlen(InStrPtr)); }
+	FORCEINLINE FDcResult SetNewString(const CharType* InStrPtr) { return SetNewString(InStrPtr, CString::Strlen(InStrPtr)); }
 
 
 	enum class EState
@@ -203,7 +204,8 @@ struct FDcJsonReader : public TDcJsonReader<TCHAR>
 	FDcJsonReader() : Super() {}
 	FDcJsonReader(const FString& Str) : Super()
 	{
-		SetNewString(*Str);
+		bool bOk = SetNewString(*Str).Ok();
+		check(bOk);	// guarenteed not to fail
 	}
 };
 

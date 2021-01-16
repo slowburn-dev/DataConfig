@@ -110,6 +110,21 @@ DC_TEST("DataConfig.EditorExtra.GameplayTags")
 		);
 	}));
 
+
+	FString StrBad = TEXT(R"(
+		{
+			"TagField1" : "DataConfig.Valid.But.Does.Not.Exist"
+		}
+	)");
+	UTEST_OK("Editor Extra FGameplayTag Deserialize", Reader.SetNewString(*StrBad));
+	UTEST_DIAG("Editor Extra FGameplayTag Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
+	[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {
+		Deserializer.AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(PredicateIsGameplayTag),
+			FDcDeserializeDelegate::CreateStatic(HandlerGameplayTagDeserialize)
+		);
+	}), DcDEditorExtra, InvalidGameplayTagString);
+
 	return true;
 }
 

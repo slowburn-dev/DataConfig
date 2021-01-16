@@ -24,6 +24,9 @@ enum Type : uint16
 	ReadTypeMismatch,
 	ExpectComma,
 	ObjectKeyTooLong,
+	ExpectStateInProgress,
+	ExpectStateUninitializedOrFinished,
+	UnexpectedTrailingToken,
 };
 
 } // namespace DcDJSON

@@ -89,7 +89,7 @@ FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 	return DcOkWithProcessed(OutRet);
 }
 
-}	//	namespace DcExtra
+} // namespace DcExtra
 
 DC_TEST("DataConfig.Extra.Deserialize.Color")
 {

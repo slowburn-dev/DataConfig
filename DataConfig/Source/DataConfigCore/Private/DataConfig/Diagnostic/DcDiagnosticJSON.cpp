@@ -19,6 +19,9 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ ReadTypeMismatch, TEXT("Reading type mismatch, expecting '{0}' actual '{1}'"), },
 	{ ExpectComma, TEXT("Expect ',' but not found"), },
 	{ ObjectKeyTooLong, TEXT("Object key string too long, UE4 FName has lengh limitation anyway"), },
+	{ ExpectStateInProgress, TEXT("Expect internal state to be 'InProgress', Actual: {0}"), },
+	{ ExpectStateUninitializedOrFinished, TEXT("Expect internal state to be 'Uninitialized' or 'Finished', Actual: {0}"), },
+	{ UnexpectedTrailingToken, TEXT("Expect ending but found trailing tokens, Actual: {0}"), },
 };
 
 FDcDiagnosticGroup Details = {

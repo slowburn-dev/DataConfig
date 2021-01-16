@@ -1,4 +1,6 @@
-# running clang-tidy
+# - first furn UBT for `compile_commands.json`. it's always written to engine root
+# UnrealBuildTool.exe -project="Path/To/DataConfig.uplugin" DataConfigHeadless Win64 Debug -Mode=GenerateClangDatabase
+# - then run clang-tidy
 # python C:\Path\To\run-clang-tidy.py -p C:\Path\To\UnrealEngine "DataConfigCore"
 # clang-tidy -p C:\Path\To\UnrealEngine -fix
 
