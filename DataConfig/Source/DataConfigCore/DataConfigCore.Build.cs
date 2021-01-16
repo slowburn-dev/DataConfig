@@ -18,6 +18,15 @@ public class DataConfigCore : ModuleRules
 			"CoreUObject",
 			});
 
+		if (Target.Configuration == UnrealTargetConfiguration.Shipping)
+		{
+			PublicDefinitions.Add("DC_BUILD_FAST=1");
+		}
+		else
+		{
+			PublicDefinitions.Add("DC_BUILD_DEBUG=1");
+		}
+
 		//	toggle for debug unity
         //bUseUnity = false;
 	}

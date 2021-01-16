@@ -182,8 +182,6 @@ FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FPropert
 	}
 }
 
-//	TODO [JUMPTABLE] use a jump table here rather than IsA
-//					 as the inheritance isn't even needed
 EDcDataEntry PropertyToDataEntry(FField* Property)
 {
 	check(Property)
@@ -265,8 +263,6 @@ EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field)
 FString GetFormatPropertyTypeName(FField* Property)
 {
 	check(Property);
-	//	TODO primitive types actually can use `GetCPPType`
-	//	ref: GetCPPTypeCustom
 	if (Property->IsA<FBoolProperty>()) return TEXT("bool");
 	if (Property->IsA<FNameProperty>()) return TEXT("FName");
 	if (Property->IsA<FTextProperty>()) return TEXT("FText");

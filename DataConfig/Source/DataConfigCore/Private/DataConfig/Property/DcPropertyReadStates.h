@@ -27,12 +27,10 @@ struct FDcBaseReadState
 
 	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
 
-	//	!!!  intentionally ommitting virtual destructor, keep these state trivially destructable
 	template<typename T>
 	T* As();
 
-	//	TODO why not FNonCopyable?
-	//	non copyable
+	//	explicit disable copy. can't use FNonCopyable as it makes destructor non trivia
 	FDcBaseReadState() = default;
 	FDcBaseReadState(const FNoncopyable&) = delete;
 	FDcBaseReadState& operator=(const FDcBaseReadState&) = delete;

@@ -9,7 +9,6 @@ void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup)
 {
 	checkf(!DcIsInitialized(), TEXT("can't register diagnostic group after initialized"));
 	checkf(InWeakGroup->CategoryID > 0xFF, TEXT("categoryID under 255 is reserved"));
-	//	TODO check that InWeakGroup has static lifetime, if possible
 	DiagGroups.Emplace(InWeakGroup);
 }
 

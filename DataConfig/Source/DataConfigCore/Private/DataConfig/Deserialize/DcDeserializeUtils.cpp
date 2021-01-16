@@ -5,7 +5,6 @@
 
 namespace DcDeserializeUtils {
 
-//	TODO move statics to StartUp
 FString DC_STR_META_TYPE = FString(TEXT("$type"));
 FString DC_STR_META_PATH = FString(TEXT("$path"));
 
@@ -59,7 +58,6 @@ bool IsMeta(const FString& Str)
 
 FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Writer)
 {
-	//	TODO [PERF] actually only clang generates jump table, might need to switch to manual jump table?
 	if (Next == EDcDataEntry::Nil)
 	{
 		DC_TRY(Reader->ReadNil());

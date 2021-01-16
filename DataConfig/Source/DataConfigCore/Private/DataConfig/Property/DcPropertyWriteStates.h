@@ -32,7 +32,7 @@ struct FDcBaseWriteState
 	template<typename T>
 	T* As();
 
-	//	non copyable
+	//	explicit disable copy. can't use FNonCopyable as it makes destructor non trivia
 	FDcBaseWriteState() = default;
 	FDcBaseWriteState(const FNoncopyable&) = delete;
 	FDcBaseWriteState& operator=(const FDcBaseWriteState&) = delete;

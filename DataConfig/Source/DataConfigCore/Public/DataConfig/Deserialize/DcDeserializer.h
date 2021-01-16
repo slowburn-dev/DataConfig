@@ -15,7 +15,6 @@ struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 
 	TArray<TTuple<FDcDeserializePredicate, FDcDeserializeDelegate>> PredicatedDeserializers;
 
-	//	TODO [PERF] investigate if ArrayBased map is faster in this case when profiling is setup
 	TMap<UClass*, FDcDeserializeDelegate> UClassDeserializerMap;
 	TMap<FFieldClass*, FDcDeserializeDelegate> FieldClassDeserializerMap;
 };

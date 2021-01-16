@@ -40,8 +40,7 @@ _ExpectEqual(const T& Lhs, const T& Rhs)
 	}
 }
 
-//	TODO [LINK] this DATACONFIGCORE_API should'nt be here but without it link wont' pass wtf?
-DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
+FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
 {
 	FDcPropertyReader LhsReader(LhsDatum);
 	FDcPropertyReader RhsReader(RhsDatum);
@@ -55,7 +54,6 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 
 		DC_TRY(_ExpectEqual(Next, RhsPeekEntry));
 
-		//	TODO [PERF] we now know that optimizer don't really create jump table, make it a switch
 		if (Next == EDcDataEntry::Ended)
 		{
 			return DcOk();
@@ -410,8 +408,7 @@ DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum
 	return DcOk();
 }
 
-//	TODO [LINK] this DATACONFIGCORE_API should'nt be here but without it link wont' pass wtf?
-DATACONFIGCORE_API FDcResult DumpToLog(FDcPropertyDatum Datum)
+FDcResult DumpToLog(FDcPropertyDatum Datum)
 {
 	FDcPropertyReader PropReader(Datum);
 	FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);

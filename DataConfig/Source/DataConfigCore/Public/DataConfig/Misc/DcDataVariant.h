@@ -15,8 +15,6 @@ struct TDcIsDataVariantCompatible
 static_assert(TDcIsDataVariantCompatible<int>::Value, "yes");
 static_assert(!TDcIsDataVariantCompatible<EDcDataEntry>::Value, "no");
 
-//	TODO we'll need a new archive type for this anyway
-
 struct FDcDataVariant
 {
 	FDcDataVariant()
@@ -61,7 +59,7 @@ struct FDcDataVariant
 		bDataTypeOnly = false;
 	}
 
-	template<> 
+	template<>
 	FORCEINLINE void Initialize<EDcDataEntry>(EDcDataEntry InDataEntry)
 	{
 		DataType = InDataEntry;

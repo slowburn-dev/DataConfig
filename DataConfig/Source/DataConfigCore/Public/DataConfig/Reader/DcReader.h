@@ -97,7 +97,6 @@ struct DATACONFIGCORE_API FDcReader
 template<typename TObject>
 FDcResult FDcReader::ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr)
 {
-	//	TODO c++20 `is_layout_compatible`
 	static_assert(sizeof(FWeakObjectPtr) == sizeof(TWeakObjectPtr<TObject>), "TWeakkObjectPtr should have same memory layout as FWeakObjectPtr");
 
 	FWeakObjectPtr* WeakOutPtr = (FWeakObjectPtr*)OutPtr;

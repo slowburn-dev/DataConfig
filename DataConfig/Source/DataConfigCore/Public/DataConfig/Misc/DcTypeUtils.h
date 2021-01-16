@@ -4,8 +4,6 @@
 
 namespace DcTypeUtils {
 
-struct FDcInvalidType {};
-
 FORCEINLINE bool IsNumericDataEntry(const EDcDataEntry& Entry)
 {
 	return Entry == EDcDataEntry::Int8
@@ -54,42 +52,6 @@ template<> struct TDcDataEntryType<uint8> { static constexpr EDcDataEntry Value 
 template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt16; };
 template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
 template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
-
-//	FMemoryReader doesn't support `UObject`, check `MemoryArchive.h`
-//	might need a special pair of Reader/Writer for variant
-/*
-template<> struct TDcDataEntryType<UObject*> { static constexpr EDcDataEntry Value = EDcDataEntry::ObjectReference; };
-template<> struct TDcDataEntryType<UClass*> { static constexpr EDcDataEntry Value = EDcDataEntry::ClassReference; };
-*/
-//	TODO might need to .. support the whole data model?
-
-
-//	TODO if this isn't used in the end, just delete it
-template<EDcDataEntry Entry>
-struct TDcTypeToDataEntry
-{
-	using Type = FDcInvalidType;
-};
-
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Nil> { using Type = nullptr_t; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Bool> { using Type = bool; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Name> { using Type = FName; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::String> { using Type = FString; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Text> { using Type = FText; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Enum> { using Type = FDcEnumData; };
-
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Float> { using Type = float; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Double> { using Type = double; };
-
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Int8> { using Type = int8; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Int16> { using Type = int16; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Int32> { using Type = int32; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::Int64> { using Type = int64; };
-
-template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt8> { using Type = uint8; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt16> { using Type = uint16; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt32> { using Type = uint32; };
-template<> struct TDcTypeToDataEntry<EDcDataEntry::UInt64> { using Type = uint64; };
 
 }	// namespace FDcTypeUtils
 

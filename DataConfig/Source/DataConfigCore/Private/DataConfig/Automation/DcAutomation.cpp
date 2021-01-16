@@ -215,7 +215,6 @@ int32 FDcAutomationConsoleRunner::RunTests()
 	else
 	{
 
-	//	TODO linux equivelent
 #if PLATFORM_WINDOWS && !PLATFORM_SEH_EXCEPTIONS_DISABLED
 		__try
 #endif

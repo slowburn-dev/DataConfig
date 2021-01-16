@@ -93,7 +93,6 @@ struct DATACONFIGCORE_API FDcWriter
 template<typename TObject>
 FDcResult FDcWriter::WriteWeakObjectField(const TWeakObjectPtr<TObject>& Value)
 {
-	//	TODO c++20 `is_layout_compatible`
 	static_assert(sizeof(FWeakObjectPtr) == sizeof(TWeakObjectPtr<TObject>), "TWeakkObjectPtr should have same memory layout as FWeakObjectPtr");
 
 	const FWeakObjectPtr& WeakPtr = (const FWeakObjectPtr&)Value;

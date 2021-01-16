@@ -305,24 +305,11 @@ FDcResult FDcPropertyWriter::WriteMapRoot()
 {
 	FScopedStackedWriter StackedWriter(this);
 
-	FDcBaseWriteState& TopState = GetTopState(this);
-	{
-		FDcWriteStateMap* MapState = TopState.As<FDcWriteStateMap>();
-		if (MapState != nullptr
-			&& MapState->State == FDcWriteStateMap::EState::ExpectRoot)
-		{
-			checkNoEntry();	// TODO remove if this isn't really used
-			return MapState->WriteMapRoot();
-		}
-	}
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(FMapProperty::StaticClass(), Datum));
 
-	{
-		FDcPropertyDatum Datum;
-		DC_TRY(TopState.WriteDataEntry(FMapProperty::StaticClass(), Datum));
-
-		FDcWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
-		DC_TRY(ChildMap.WriteMapRoot());
-	}
+	FDcWriteStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
+	DC_TRY(ChildMap.WriteMapRoot());
 
 	return DcOk();
 }
@@ -350,24 +337,11 @@ FDcResult FDcPropertyWriter::WriteArrayRoot()
 {
 	FScopedStackedWriter StackedWriter(this);
 
-	FDcBaseWriteState& TopState = GetTopState(this);
-	{
-		FDcWriteStateArray* ArrayState = TopState.As<FDcWriteStateArray>();
-		if (ArrayState != nullptr
-			&& ArrayState->State == FDcWriteStateArray::EState::ExpectRoot)
-		{
-			checkNoEntry();	// TODO remove if this isn't really used
-			return ArrayState->WriteArrayRoot();
-		}
-	}
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(FArrayProperty::StaticClass(), Datum));
 
-	{
-		FDcPropertyDatum Datum;
-		DC_TRY(TopState.WriteDataEntry(FArrayProperty::StaticClass(), Datum));
-
-		FDcWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
-		DC_TRY(ChildArray.WriteArrayRoot());
-	}
+	FDcWriteStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
+	DC_TRY(ChildArray.WriteArrayRoot());
 
 	return DcOk();
 }
@@ -394,24 +368,11 @@ FDcResult FDcPropertyWriter::WriteSetRoot()
 {
 	FScopedStackedWriter StackedWriter(this);
 
-	FDcBaseWriteState& TopState = GetTopState(this);
-	{
-		FDcWriteStateSet* SetState = TopState.As<FDcWriteStateSet>();
-		if (SetState != nullptr
-			&& SetState->State == FDcWriteStateSet::EState::ExpectRoot)
-		{
-			checkNoEntry();	// TODO remove if this isn't really used
-			return SetState->WriteSetRoot();
-		}
-	}
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(FSetProperty::StaticClass(), Datum));
 
-	{
-		FDcPropertyDatum Datum;
-		DC_TRY(TopState.WriteDataEntry(FSetProperty::StaticClass(), Datum));
-
-		FDcWriteStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
-		DC_TRY(ChildSet.WriteSetRoot());
-	}
+	FDcWriteStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
+	DC_TRY(ChildSet.WriteSetRoot());
 
 	return DcOk();
 }

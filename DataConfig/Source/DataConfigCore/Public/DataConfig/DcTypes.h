@@ -14,8 +14,6 @@ struct DATACONFIGCORE_API FDcErrorCode
 
 struct DATACONFIGCORE_API DC_NODISCARD FDcResult
 {
-	//	TODO when benchmark is setup, try figure out whether
-	//		 changing this to uint32 affects anything
 	enum class EStatus : uint8
 	{
 		Ok,

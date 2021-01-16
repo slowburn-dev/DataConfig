@@ -269,47 +269,14 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 
 	UClass* SubClassType = nullptr;
 
-	//	TODO this is now becoming a bit verbose, needs something around this
-	DC_TRY(PutbackReader.PeekRead(&Next));
-	if (Next != EDcDataEntry::String)
-	{
-		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
-			<< EDcDataEntry::String << Next;
-	}
-
 	FString MetaKey;
 	DC_TRY(PutbackReader.ReadString(&MetaKey));
 	if (MetaKey == TEXT("$type"))
 	{
-		DC_TRY(PutbackReader.PeekRead(&Next));
-		if (Next != EDcDataEntry::String)
-		{
-			return DC_FAIL(DcDDeserialize, DataEntryMismatch)
-				<< EDcDataEntry::String << Next;
-		}
 
 		//	has `$type`
 		FString TypeStr;
 		DC_TRY(PutbackReader.ReadString(&TypeStr));
-
-		//	TODO Core won't link Engine, move this into the Editor class or a new one like `DataConfigEngine`
-		//		console Program linking Engine just doesn't work
-		/*
-		if (TypeStr.StartsWith(TEXT("/")))
-		{
-			//	"/Game/Path/To/Blueprint"
-			//	It's a path, try load blueprint and use `GeneratedClass`
-			UObject* Loaded = StaticLoadObject(UBlueprint::StaticClass(), nullptr, *TypeStr, nullptr);
-			if (!Loaded)
-				return Fail();
-			UBlueprint* BP = Cast<UBlueprint>(Loaded);
-			if (!BP)
-				return Fail();
-
-			SubClassType = BP->GeneratedClass;
-		}
-		else
-		*/
 
 		//	"Character"
 		//	Plain class name, note that 'U' is automatically stripped
@@ -339,26 +306,6 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	FObjectProperty* SubObjectProperty = Datum.CastField<FObjectProperty>();
 	if (!SubObjectProperty)
 		return DcFail();
-
-	//	This belongs to reload handlers
-	/*
-	//	TODO reading the pointer here, if it's uninitialized then this is a crash
-	//		try configurate this by adding flag, or seperate reload pointer or things
-	UObject* SubObject = SubObjectProperty->GetPropertyValue(Datum.DataPtr);
-	if (SubObject != nullptr
-		&& SubObject->GetClass() != SubClassType)
-	{
-		//	existing subobject class mistmatch, destroy existing one and create new one
-		SubObject->ConditionalBeginDestroy();
-		SubObject = nullptr;
-	}
-
-	if (SubObject == nullptr)
-		SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
-
-	if (SubObject == nullptr)
-		return DcFail();
-	*/
 
 	//	don't read *Datum.DataPtr as it might be unitnialized, handle reload elsewhere
 	UObject* SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
