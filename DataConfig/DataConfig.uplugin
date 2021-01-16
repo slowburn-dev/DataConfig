@@ -14,12 +14,6 @@
 	"CanContainContent" : true,
 	"IsBetaVersion" : false,
 	"Installed" : false,
-	"Plugins": [
-		{
-			"Name": "PythonScriptPlugin",
-			"Enabled": true
-		}
-	],
 	"Modules": [
 		{
 			"Name": "DataConfigExtra",

@@ -57,6 +57,12 @@ struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 	}
 };
 
+static void _PopulateEditorExtraGameplayTagFixtures()
+{
+	UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("DataConfig.Foo.Bar"));
+	UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("DataConfig.Foo.Bar.Baz"));
+	UGameplayTagsManager::Get().AddNativeGameplayTag(TEXT("DataConfig.Tar.Taz"));
+}
 
 void FDcEditorExtraModule::StartupModule()
 {
@@ -71,6 +77,8 @@ void FDcEditorExtraModule::StartupModule()
 	FMessageLogInitializationOptions InitOptions;
 	InitOptions.bAllowClear = true;
 	MessageLogModule.RegisterLogListing("DataConfig", FText::FromString(TEXT("DataConfig")), InitOptions);
+
+	_PopulateEditorExtraGameplayTagFixtures();
 }
 
 void FDcEditorExtraModule::ShutdownModule()

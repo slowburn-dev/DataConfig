@@ -89,10 +89,12 @@ DC_TEST("DataConfig.EditorExtra.GameplayTags")
 	FDcEditorExtraTestStructWithGameplayTag1 Dest;
 	FDcPropertyDatum DestDatum(FDcEditorExtraTestStructWithGameplayTag1::StaticStruct(), &Dest);
 
+	UTEST_TRUE("Has natively added 'DataConfig.Foo.Bar'", UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar")).IsValid());
+
 	FString Str = TEXT(R"(
 		{
 			"TagField1" : null,
-			"TagField2" : "Foo.Bar"
+			"TagField2" : "DataConfig.Foo.Bar"
 		}
 	)");
 	FDcJsonReader Reader(Str);
