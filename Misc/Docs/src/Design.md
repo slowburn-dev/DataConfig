@@ -23,6 +23,7 @@ Eventually we implemented all these in DataConfig. Additionally we tried not lim
     - `DataConfigCore` only depends on `Core` and `CoreUObject` and can be used in standalone `Program` targets.
     - There's `DataConfigHeadless` program target that runs automation tests as a console app.
     - DataConfig classes are `UObject` free, making the API stack friendly.
+    - Builtin features serve as examples and sensible defaults. Users are expected to write on their own `Reader/Writer/Handlers`.
 
 - Prefer idiomatic and user friendly over runtime performance.
 

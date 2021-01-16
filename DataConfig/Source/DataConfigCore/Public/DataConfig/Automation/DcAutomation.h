@@ -30,10 +30,10 @@ public:
 };
 
 #define UTEST_OK(What, Result)\
-	do {									\
-		if (!TestOk(What, Result)) {		\
-			return false;					\
-		}									\
+	do {\
+		if (!TestOk(What, Result)) {\
+			return false;\
+		}\
 	} while (0)
 
 #define UTEST_DIAG(What, Result, DiagNamespace, DiagID)\
