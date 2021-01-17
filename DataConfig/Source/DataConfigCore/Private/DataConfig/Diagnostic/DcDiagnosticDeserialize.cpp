@@ -13,7 +13,7 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ DataEntryMismatch3, TEXT("Deserialize type mismatch, Expect: '{0}'/'{1}'/'{2}', Actual: {3}"), },
 	{ ExpectMetaType, TEXT("Expect '$type' but not found")},
 	{ PropertyMismatch, TEXT("Property type mismatch, Expect: '{0}', Actual: '{1}'"), },
-	{ UObjectByNameNotFound, TEXT("Find object by name failed, Actual: '{1}'"), },
+	{ UObjectByNameNotFound, TEXT("'FindObject()' by name failed, Expected Type: '{0}', Name: '{1}'"), },
 	{ ExpectNumericEntry, TEXT("Expect numeric data but not found, Actual: '{1}'")},
 	{ CoercionFail, TEXT("Reader coercion failed, Actual: '{0}'")},
 	{ EnumNameNotFound, TEXT("Enum name not found in enum type: '{0}', Actual: '{1}'")},

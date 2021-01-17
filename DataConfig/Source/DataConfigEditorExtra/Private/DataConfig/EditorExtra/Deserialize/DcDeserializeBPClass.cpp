@@ -1,16 +1,23 @@
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
 #include "DataConfig/Reader/DcReader.h"
+#include "DataConfig/Reader/DcPutbackReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonStructDeserializers.h"
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonClassDeserializers.h"
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.h"
+#include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
+#include "DataConfig/Deserialize/DcDeserializeUtils.h"
 
 #include "Engine/Blueprint.h"
+#include "Engine/UserDefinedStruct.h"
 #include "Misc/ScopeExit.h"
 
 namespace DcEditorExtra {
@@ -51,7 +58,7 @@ FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDese
 		{
 			LoadClass = FindObject<UClass>(ANY_PACKAGE, *ClassStr, true);
 			if (LoadClass == nullptr)
-				return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << ClassStr;
+				return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << ClassStr;
 		}
 		check(LoadClass);
 
@@ -73,9 +80,125 @@ FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDese
 	return DcOkWithProcessed(OutRet);
 }
 
-FDcResult HandlerBPObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	return DcOk();
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	bool bReadPass = Next == EDcDataEntry::MapRoot
+		|| Next == EDcDataEntry::Nil;
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
+
+	if (!(bReadPass && bWritePass))
+		return DcOkWithFallThrough(OutRet);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
+	FDcAnyStruct* AnyStructPtr = (FDcAnyStruct*)Datum.DataPtr;
+
+	if (Next == EDcDataEntry::Nil)
+	{
+		DC_TRY(Ctx.Reader->ReadNil());
+		AnyStructPtr->Reset();
+	}
+	else
+	{
+		DC_TRY(Ctx.Reader->ReadMapRoot());
+		FString Str;
+		DC_TRY(Ctx.Reader->ReadString(&Str));
+		if (!DcDeserializeUtils::IsMeta(Str))
+			return DC_FAIL(DcDDeserialize, ExpectMetaType);
+
+
+		UScriptStruct* LoadStruct = nullptr;
+		DC_TRY(Ctx.Reader->ReadString(&Str));
+
+		if (Str.StartsWith("/"))
+		{
+			UObject* Loaded = StaticLoadObject(UUserDefinedStruct::StaticClass(), nullptr, *Str, nullptr);
+			if (Loaded == nullptr)
+				return DC_FAIL(DcDEditorExtra, LoadObjectByPathFail) << TEXT("UserDefinedStruct") << Str;
+
+			LoadStruct = CastChecked<UScriptStruct>(Loaded);
+		}
+		else
+		{
+			LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *Str, true);
+			if (LoadStruct == nullptr)
+				return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("ScriptStruct") << MoveTemp(Str);
+		}
+
+		void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
+		LoadStruct->InitializeStruct(DataPtr);
+		FDcAnyStruct TmpAny{ DataPtr, LoadStruct };
+
+		*AnyStructPtr = MoveTemp(TmpAny);
+
+		Ctx.Writer->PushTopStructPropertyState({ LoadStruct, (void*)AnyStructPtr->DataPtr }, Ctx.TopProperty().GetFName());
+
+		FDcPutbackReader PutbackReader(Ctx.Reader);
+		PutbackReader.Putback(EDcDataEntry::MapRoot);
+		TDcStoreThenReset<FDcReader*> RestoreReader(Ctx.Reader, &PutbackReader);
+
+		FDcScopedProperty ScopedValueProperty(Ctx);
+		DC_TRY(ScopedValueProperty.PushProperty());
+		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+	}
+
+	return DcOkWithProcessed(OutRet);
+}
+
+FDcResult HandlerBPStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	bool bReadPass = Next == EDcDataEntry::MapRoot;
+
+	bool bWritePass;
+	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
+
+	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
+	bool bPropertyPass = Struct != nullptr;
+	if (!(bReadPass && bWritePass && bPropertyPass))
+		return DcOkWithFallThrough(OutRet);
+
+	DC_TRY(Ctx.Reader->ReadMapRoot());
+	DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat()));
+
+	EDcDataEntry CurPeek;
+	while (true)
+	{
+		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
+		if (CurPeek == EDcDataEntry::MapEnd)
+			break;
+
+		FString Str;
+		DC_TRY(Ctx.Reader->ReadString(&Str));
+
+		FName TargetName(*Str);
+		FProperty* TargetProperty = DcPropertyUtils::NextEffectivePropertyByName(Struct->PropertyLink, TargetName);
+		if (TargetProperty == nullptr)
+		{
+			//	second chance for UserDefinedStruct. Its names are actually `Foo_2_1234ABCE` and
+			//	it's converted through `CustomFindProperty`
+			TargetProperty = Struct->CustomFindProperty(TargetName);
+		}
+
+		if (TargetProperty == nullptr)
+			return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << TargetName;
+
+		DC_TRY(Ctx.Writer->WriteName(TargetProperty->GetFName()));
+
+		FDcScopedProperty ScopedValueProperty(Ctx);
+		DC_TRY(ScopedValueProperty.PushProperty());
+		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+	}
+
+	DC_TRY(Ctx.Reader->ReadMapEnd());
+	DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat()));
+
+	return DcOkWithProcessed(OutRet);
 }
 
 } // namespace DcEditorExtra
@@ -182,3 +305,50 @@ DC_TEST("DataConfig.EditorExtra.BPObjectInstance")
 
 	return true;
 }
+
+DC_TEST("DataConfig.EditorExtra.BPStruct")
+{
+	using namespace DcExtra;
+	FDcExtraTestWithAnyStruct1 Dest;
+	FDcPropertyDatum DestDatum(FDcExtraTestWithAnyStruct1::StaticStruct(), &Dest);
+
+	FString Str = TEXT(R"(
+
+		{
+			"AnyStructField1" : {
+				"$type" : "/DataConfig/DcFixture/DcTestBlueprintStructWithColor",
+				"NameField" : "Foo",
+				"StrField" : "Bar",
+				"IntField" : 123,
+				"ColorField" : "#FF0000FF"
+			}
+		}
+
+	)");
+	FDcJsonReader Reader(Str);
+
+	UTEST_OK("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
+		[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {
+			Deserializer.AddPredicatedHandler(
+				FDcDeserializePredicate::CreateStatic(PredicateIsDcAnyStruct),
+				//	using handler that handles `UserDefinedStruct`
+				FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPDcAnyStructDeserialize)
+			);
+			Deserializer.AddPredicatedHandler(
+				FDcDeserializePredicate::CreateStatic(PredicateIsColorStruct),
+				FDcDeserializeDelegate::CreateStatic(HandlerColorDeserialize)
+			);
+			Deserializer.AddDirectHandler(UUserDefinedStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPStructDeserialize));
+		}));
+
+
+	FDcPropertyDatum Field1Datum(Dest.AnyStructField1.StructClass, Dest.AnyStructField1.DataPtr);
+	DcAutomationUtils::DumpToLog(Field1Datum);
+
+	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FName>(Field1Datum, TEXT("NameField")) == FName(TEXT("Foo")));
+	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FString>(Field1Datum, TEXT("Bar")) == FString(TEXT("Bar")));
+	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<int32>(Field1Datum, TEXT("IntField")) == 123);
+
+	return true;
+}
+

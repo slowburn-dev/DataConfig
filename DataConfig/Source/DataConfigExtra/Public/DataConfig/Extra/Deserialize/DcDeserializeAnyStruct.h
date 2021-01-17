@@ -44,6 +44,7 @@ struct FDcExtraTestWithAnyStruct1
 
 	UPROPERTY() FDcAnyStruct AnyStructField1;
 	UPROPERTY() FDcAnyStruct AnyStructField2;
+	UPROPERTY() FDcAnyStruct AnyStructField3;
 };
 
 

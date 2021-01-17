@@ -1,4 +1,5 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "UObject/UnrealType.h"
@@ -134,8 +135,11 @@ FProperty* FirstEffectiveProperty(FProperty* Property)
 		: NextEffectiveProperty(Property);
 }
 
-FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name)
+FProperty* NextEffectivePropertyByName(FProperty* InProperty, const FName& Name)
 {
+	if (InProperty == nullptr)
+		return nullptr;
+
 	for (FProperty* Property = InProperty; Property; Property = Property->PropertyLinkNext)
 	{
 		if (Property->GetFName() == Name
@@ -153,16 +157,16 @@ FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset)
 	FProperty* Property = Struct->PropertyLink;
 	while (true)
 	{
-		if (Property->GetOffset_ForInternal() == Offset)
-			return Property;
-
-		Property = Property->PropertyLinkNext;
-
 		if (Property == nullptr)
 			return nullptr;
 
 		if (!IsEffectiveProperty(Property))
 			return nullptr;
+
+		if (Property->GetOffset_ForInternal() == Offset)
+			return Property;
+
+		Property = Property->PropertyLinkNext;
 	}
 
 	return nullptr;
@@ -447,6 +451,30 @@ UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant)
 	else if (UScriptStruct* StructClass = CastFieldVariant<UScriptStruct>(FieldVariant))
 	{
 		return StructClass;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+UStruct* TryGetStruct(const FDcPropertyDatum& Datum)
+{
+	if (Datum.IsA<UScriptStruct>())
+	{
+		return Datum.CastUScriptStructChecked();
+	}
+	else if (Datum.IsA<UClass>())
+	{
+		return Datum.CastUClassChecked();
+	}
+	else if (Datum.IsA<FStructProperty>())
+	{
+		return Datum.CastFieldChecked<FStructProperty>()->Struct;
+	}
+	else if (Datum.IsA<FObjectProperty>())
+	{
+		return Datum.CastFieldChecked<FObjectProperty>()->PropertyClass;
 	}
 	else
 	{

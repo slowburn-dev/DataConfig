@@ -37,7 +37,8 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::MapRoot;
+	bool bReadPass = Next == EDcDataEntry::MapRoot
+		|| Next == EDcDataEntry::Nil;
 
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
@@ -45,36 +46,44 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 	if (!(bReadPass && bWritePass))
 		return DcOkWithFallThrough(OutRet);
 
-	DC_TRY(Ctx.Reader->ReadMapRoot());
-	FString Str;
-	DC_TRY(Ctx.Reader->ReadString(&Str));
-	if (!DcDeserializeUtils::IsMeta(Str))
-		return DC_FAIL(DcDDeserialize, ExpectMetaType);
-
-	DC_TRY(Ctx.Reader->ReadString(&Str));
-	UScriptStruct* LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *Str, true);
-	if (LoadStruct == nullptr)
-		return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << MoveTemp(Str);
-
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
-
-	void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
-	LoadStruct->InitializeStruct(DataPtr);
-	FDcAnyStruct TmpAny{DataPtr, LoadStruct};
-
 	FDcAnyStruct* AnyStructPtr = (FDcAnyStruct*)Datum.DataPtr;
-	*AnyStructPtr = MoveTemp(TmpAny);
 
-	Ctx.Writer->PushTopStructPropertyState({LoadStruct, (void*)AnyStructPtr->DataPtr}, Ctx.TopProperty().GetFName());
+	if (Next == EDcDataEntry::Nil)
+	{
+		DC_TRY(Ctx.Reader->ReadNil());
+		AnyStructPtr->Reset();
+	}
+	else
+	{
+		DC_TRY(Ctx.Reader->ReadMapRoot());
+		FString Str;
+		DC_TRY(Ctx.Reader->ReadString(&Str));
+		if (!DcDeserializeUtils::IsMeta(Str))
+			return DC_FAIL(DcDDeserialize, ExpectMetaType);
 
-	FDcPutbackReader PutbackReader(Ctx.Reader);
-	PutbackReader.Putback(EDcDataEntry::MapRoot);
-	TDcStoreThenReset<FDcReader*> RestoreReader(Ctx.Reader, &PutbackReader);
+		DC_TRY(Ctx.Reader->ReadString(&Str));
+		UScriptStruct* LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *Str, true);
+		if (LoadStruct == nullptr)
+			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("ScriptStruct") << MoveTemp(Str);
 
-	FDcScopedProperty ScopedValueProperty(Ctx);
-	DC_TRY(ScopedValueProperty.PushProperty());
-	DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+		void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
+		LoadStruct->InitializeStruct(DataPtr);
+		FDcAnyStruct TmpAny{DataPtr, LoadStruct};
+
+		*AnyStructPtr = MoveTemp(TmpAny);
+
+		Ctx.Writer->PushTopStructPropertyState({LoadStruct, (void*)AnyStructPtr->DataPtr}, Ctx.TopProperty().GetFName());
+
+		FDcPutbackReader PutbackReader(Ctx.Reader);
+		PutbackReader.Putback(EDcDataEntry::MapRoot);
+		TDcStoreThenReset<FDcReader*> RestoreReader(Ctx.Reader, &PutbackReader);
+
+		FDcScopedProperty ScopedValueProperty(Ctx);
+		DC_TRY(ScopedValueProperty.PushProperty());
+		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+	}
 
 	return DcOkWithProcessed(OutRet);
 }
@@ -131,7 +140,8 @@ DC_TEST("DataConfig.Extra.Deserialize.AnyStructDeserialize")
 				"$type" : "DcExtraTestStructWithColor1",
 				"ColorField1" : "#0000FFFF",
 				"ColorField2" : "#FF0000FF"
-			}
+			},
+			"AnyStructField3" : null
 		}
 
 	)");
@@ -153,6 +163,7 @@ DC_TEST("DataConfig.Extra.Deserialize.AnyStructDeserialize")
 	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField1.GetChecked<FDcExtraTestSimpleStruct1>()->NameField == TEXT("Foo"));
 	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField2.GetChecked<FDcExtraTestStructWithColor1>()->ColorField1 == FColor::Blue);
 	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField2.GetChecked<FDcExtraTestStructWithColor1>()->ColorField2 == FColor::Red);
+	UTEST_TRUE("Extra FAnyStruct Deserialize", !Dest.AnyStructField3.IsValid());
 
 	return true;
 }

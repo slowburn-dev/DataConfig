@@ -10,7 +10,9 @@ namespace DcEditorExtra {
 
 DATACONFIGEDITOREXTRA_API FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
-DATACONFIGEDITOREXTRA_API FDcResult HandlerBPObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+
+DATACONFIGEDITOREXTRA_API FDcResult HandlerBPStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 } // namespace DcEditorExtra
 

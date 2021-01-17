@@ -7,6 +7,9 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
+
+#include "UObject/PropertyAccessUtil.h"
 
 #if DC_BUILD_DEBUG
 struct DATACONFIGCORE_API FDcDebug
@@ -37,6 +40,22 @@ DATACONFIGCORE_API FString DumpFormat(FDcPropertyDatum Datum);
 
 DATACONFIGCORE_API void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue);
 DATACONFIGCORE_API void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue);
+
+template<typename T>
+T DebugGetScalarPropertyValue(const FDcPropertyDatum& Datum, const FName& Name)
+{
+	using TProperty = typename DcPropertyUtils::TPropertyTypeMap<T>::Type;
+
+	UStruct* Struct = DcPropertyUtils::TryGetStruct(Datum);
+	if (!Struct)
+		return T{};
+
+	TProperty* Property = CastField<TProperty>(PropertyAccessUtil::FindPropertyByName(Name, Struct));
+	if (!Property)
+		return T{};
+
+	return Property->GetPropertyValue(Property->ContainerPtrToValuePtr<T>(Datum.DataPtr));
+}
 
 enum class EDefaultSetupType
 {

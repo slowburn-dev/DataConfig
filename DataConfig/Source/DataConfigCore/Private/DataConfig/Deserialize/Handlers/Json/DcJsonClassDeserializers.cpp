@@ -37,7 +37,7 @@ FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeseri
 
 		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *ClassStr, true);
 		if (LoadClass == nullptr)
-			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << ClassStr;
+			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << ClassStr;
 
 		FClassProperty* ClassProperty = CastFieldChecked<FClassProperty>(Ctx.TopProperty().ToFieldUnsafe());
 		check(ClassProperty && ClassProperty->MetaClass);

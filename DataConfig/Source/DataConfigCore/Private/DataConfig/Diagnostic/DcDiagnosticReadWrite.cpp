@@ -12,7 +12,7 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DataTypeMismatch2, TEXT("Datatype mismatch. Expected '{0}', '{1}', Actual '{2}'") },
 	{ PropertyMismatch, TEXT("Unexpected Property type. Expected type '{0}', Property '{0}' '{1}'") },
 	{ AlreadyEnded, TEXT("Invalid access after already ended.") },
-	{ CantFindPropertyByName, TEXT("Can't find property by name. Name ''{0}''") },
+	{ CantFindPropertyByName, TEXT("Can't find property by name. Name '{0}'") },
 	{ WriteClassInlineNotCreated, TEXT("Expand class write need the object to already exist. Property '{0}' '{1}'") },
 	{ StructNameMismatch, TEXT("Struct name mismatch, Expect '{0}', Actual '{1}'") },
 	{ ClassNameMismatch, TEXT("Class name mismatch, Expect '{0}', Actual '{1}'") },

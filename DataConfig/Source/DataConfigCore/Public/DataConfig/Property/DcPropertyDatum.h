@@ -48,6 +48,9 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 		return ::CastChecked<UClass>(Property.ToUObject());
 	}
 
+	template<typename T>
+	FORCEINLINE bool IsA() const { return Property.IsA<T>(); }
+
 	static const FDcPropertyDatum NONE;
 };
 

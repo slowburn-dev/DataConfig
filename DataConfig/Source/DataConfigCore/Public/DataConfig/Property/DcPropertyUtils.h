@@ -5,6 +5,7 @@
 #include "Templates/Function.h"
 
 enum class EDcDataEntry : uint16;
+struct FDcPropertyDatum;
 
 namespace DcPropertyUtils
 {
@@ -16,7 +17,7 @@ DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldC
 
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* FirstEffectiveProperty(FProperty* Property);
-DATACONFIGCORE_API FProperty* NextPropertyByName(FProperty* InProperty, const FName& Name);
+DATACONFIGCORE_API FProperty* NextEffectivePropertyByName(FProperty* InProperty, const FName& Name);
 DATACONFIGCORE_API FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset);
 
 DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);
@@ -31,6 +32,15 @@ DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field)
 
 DATACONFIGCORE_API bool IsSubObjectProperty(FObjectProperty* ObjectProperty);
 DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);
+
+DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
+DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant);
+DATACONFIGCORE_API UStruct* TryGetStruct(const FDcPropertyDatum& Datum);
+
+FORCEINLINE FString SafeNameToString(const FName& Value)
+{
+	return Value.IsValid() ? Value.ToString() : TEXT("<invalid-name>");
+}
 
 
 //	Cpp type to Property
@@ -89,15 +99,5 @@ FORCEINLINE UScriptStruct* CastFieldVariant<UScriptStruct>(FFieldVariant& FieldV
 {
 	return ::Cast<UScriptStruct>(FieldVariant.ToUObject());
 }
-
-FORCEINLINE FString SafeNameToString(const FName& Value)
-{
-	return Value.IsValid() ? Value.ToString() : TEXT("<invalid-name>");
-}
-
-DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
-
-DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant);
-
 }	// namespace DcPropertyUtils
 

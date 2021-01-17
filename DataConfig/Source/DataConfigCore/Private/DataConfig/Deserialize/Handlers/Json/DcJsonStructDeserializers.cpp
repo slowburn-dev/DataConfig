@@ -13,58 +13,47 @@ FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializ
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
+	bool bReadPass = Next == EDcDataEntry::MapRoot;
 
 	bool bWritePass;
 	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
 
-	if (!bRootPeekPass
-		|| !bWritePass)
-	{
+	if (!(bReadPass && bWritePass))
 		return DcOkWithFallThrough(OutRet);
-	}
 
-	if (Next == EDcDataEntry::MapRoot)
+	DC_TRY(Ctx.Reader->ReadMapRoot());
+	DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat()));
+
+	EDcDataEntry CurPeek;
+	while (true)
 	{
-		DC_TRY(Ctx.Reader->ReadMapRoot());
-		DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat()));
+		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
 
-		EDcDataEntry CurPeek;
-		while (true)
+		if (CurPeek == EDcDataEntry::MapEnd)
 		{
-			DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-
-			if (CurPeek == EDcDataEntry::MapEnd)
-			{
-				DC_TRY(Ctx.Reader->ReadMapEnd());
-				break;
-			}
-			else if (CurPeek == EDcDataEntry::String)
-			{
-				FString Value;
-				DC_TRY(Ctx.Reader->ReadString(&Value));
-				DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
-			}
-			else
-			{
-				return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
-					<< EDcDataEntry::Name << EDcDataEntry::String << CurPeek;
-			}
-
-			FDcScopedProperty ScopedValueProperty(Ctx);
-			DC_TRY(ScopedValueProperty.PushProperty());
-			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+			DC_TRY(Ctx.Reader->ReadMapEnd());
+			break;
+		}
+		else if (CurPeek == EDcDataEntry::String)
+		{
+			FString Value;
+			DC_TRY(Ctx.Reader->ReadString(&Value));
+			DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
+		}
+		else
+		{
+			return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
+				<< EDcDataEntry::Name << EDcDataEntry::String << CurPeek;
 		}
 
-		DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat{}));
+		FDcScopedProperty ScopedValueProperty(Ctx);
+		DC_TRY(ScopedValueProperty.PushProperty());
+		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+	}
 
-		return DcOkWithProcessed(OutRet);
-	}
-	else
-	{
-		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
-			<< EDcDataEntry::MapRoot << Next;
-	}
+	DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat{}));
+
+	return DcOkWithProcessed(OutRet);
 }
 
 }	// namespace DcJsonHandlers

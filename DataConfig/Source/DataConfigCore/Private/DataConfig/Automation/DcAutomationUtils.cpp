@@ -490,7 +490,7 @@ void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue)
 void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue)
 {
 	check(Struct);
-	FProperty* Property = DcPropertyUtils::NextPropertyByName(Struct->PropertyLink, FieldName);
+	FProperty* Property = DcPropertyUtils::NextEffectivePropertyByName(Struct->PropertyLink, FieldName);
 	check(Property);
 	if (!Property->HasMetaData(MetaKey))
 		Property->SetMetaData(MetaKey, MetaValue);
