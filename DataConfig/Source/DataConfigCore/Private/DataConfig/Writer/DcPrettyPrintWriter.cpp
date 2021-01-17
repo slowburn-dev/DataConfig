@@ -23,7 +23,10 @@ FDcResult FDcPrettyPrintWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 
 FDcResult FDcPrettyPrintWriter::WriteBool(bool Value)
 {
-	Output.Logf(TEXT("%<Bool> '%s'"), *Indent, Value ? TEXT("true") : TEXT("false"));
+	Output.Logf(TEXT("%s<Bool> '%s'"), *Indent, (Value
+		? TEXT("true")
+		: TEXT("false"))
+	);
 	return DcOk();
 }
 
@@ -137,9 +140,9 @@ FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 
 FDcResult FDcPrettyPrintWriter::WriteClassReference(const UClass* Value)
 {
-	Output.Logf(TEXT("%s<ClassReference> '%s'"), *Indent, Value == nullptr 
+	Output.Logf(TEXT("%s<ClassReference> '%s'"), *Indent, (Value == nullptr 
 		? TEXT("<null>") 
-		: *Value->GetName()
+		: *Value->GetName())
 	);
 	return DcOk();
 }
@@ -187,10 +190,9 @@ FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Va
 
 FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& Value)
 {
-	Output.Logf(TEXT("%s<InterfaceReference> '%s'"), *Indent,
-		Value.GetObject()
-			? *Value.GetObject()->GetName()
-			: TEXT("<null>")
+	Output.Logf(TEXT("%s<InterfaceReference> '%s'"), *Indent, (Value.GetObject()
+		? *Value.GetObject()->GetName()
+		: TEXT("<null>"))
 	);
 	return DcOk();
 }

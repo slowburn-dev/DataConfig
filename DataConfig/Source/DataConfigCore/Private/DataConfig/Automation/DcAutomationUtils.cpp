@@ -497,3 +497,32 @@ void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey
 }
 
 }	// namespace DcAutomationUtils
+
+void FDcDebug::DumpStruct(char* StructNameChars, void* Ptr)
+{
+	FString StructNameStr(StructNameChars);
+	UScriptStruct* LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *StructNameStr, true);
+	if (LoadStruct == nullptr)
+	{
+		FPlatformMisc::LowLevelOutputDebugString(*FString::Printf(TEXT("- DcDebug DumpStruct: Failed to find struct '%s'"), *StructNameStr));
+		return;
+	}
+
+	FString Dumped = DcAutomationUtils::DumpFormat(FDcPropertyDatum(LoadStruct, Ptr));
+	FPlatformMisc::LowLevelOutputDebugString(*Dumped);
+}
+
+void FDcDebug::DumpObject(UObject* Obj)
+{
+	FString Dumped = DcAutomationUtils::DumpFormat(FDcPropertyDatum(Obj));
+	FPlatformMisc::LowLevelOutputDebugString(*Dumped);
+}
+
+void FDcDebug::DumpDatum(const FDcPropertyDatum& Datum)
+{
+	FString Dumped = DcAutomationUtils::DumpFormat(Datum);
+	FPlatformMisc::LowLevelOutputDebugString(*Dumped);
+}
+
+FDcDebug gDcDebug;
+

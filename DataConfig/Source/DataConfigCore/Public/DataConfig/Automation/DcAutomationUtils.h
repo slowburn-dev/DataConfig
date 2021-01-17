@@ -8,6 +8,24 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
 
+
+struct DATACONFIGCORE_API FDcDebug
+{
+	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
+	FORCENOINLINE void DumpObject(UObject* Obj);
+	FORCENOINLINE void DumpDatum(const FDcPropertyDatum& Datum);
+};
+
+///	Access `gDcDebugg` in MSVC immediate window:
+///
+///	- in monolith builds:
+///	gDcDebug.DumpObject(Obj)
+///
+///	- in DLL builds prefix with dll name:
+///	({,,UE4Editor-DataConfigCore}gDcDebug).DumpObject(ObjPtr)
+
+extern FDcDebug gDcDebug;
+
 namespace DcAutomationUtils
 {
 

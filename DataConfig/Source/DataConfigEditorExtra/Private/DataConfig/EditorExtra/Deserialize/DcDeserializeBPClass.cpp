@@ -7,6 +7,7 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonStructDeserializers.h"
+#include "DataConfig/Deserialize/Handlers/Json/DcJsonClassDeserializers.h"
 #include "DataConfig/Json/DcJsonReader.h"
 
 #include "Engine/Blueprint.h"
@@ -90,11 +91,11 @@ static void _SetupTestBPJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(FStructProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize));
 
 	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPClassReferenceDeserialize));
-	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPObjectReferenceDeserialize));
+	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerObjectReferenceDeserialize));
 }
 
-///	Note that this test depends on '.uasset` that comes with the plugin
-DC_TEST("DataConfig.EditorExtra.BPClassRefs")
+///	Note that these test depends on '.uasset` that comes with the plugin
+DC_TEST("DataConfig.EditorExtra.BPClassReference")
 {
 	GEngine->Exec(nullptr, TEXT("log LogLinker off"));
 	GEngine->Exec(nullptr, TEXT("log LogUObjectGlobals off"));
@@ -122,6 +123,8 @@ DC_TEST("DataConfig.EditorExtra.BPClassRefs")
 	}, DcAutomationUtils::EDefaultSetupType::SetupNothing));
 
 	UTEST_TRUE("Editor Extra FDcEditorExtraTestStructWithBPClass Deserialize", Dest.ClassField1 == nullptr);
+	UTEST_TRUE("Editor Extra FDcEditorExtraTestStructWithBPClass Deserialize", Dest.ClassField2 == UDcTestNativeDerived1::StaticClass());
+	UTEST_TRUE("Editor Extra FDcEditorExtraTestStructWithBPClass Deserialize", Dest.ClassField3->GetFName() == TEXT("DcTestBlueprintClassBeta_C"));
 
 	{
 		FString StrBad = TEXT(R"(
@@ -156,3 +159,26 @@ DC_TEST("DataConfig.EditorExtra.BPClassRefs")
 	return true;
 }
 
+DC_TEST("DataConfig.EditorExtra.BPObjectInstance")
+{
+	FDcEditorExtraTestStructWithBPInstance Dest;
+	FDcPropertyDatum DestDatum(FDcEditorExtraTestStructWithBPInstance::StaticStruct(), &Dest);
+
+	FString Str = TEXT(R"(
+		{
+			"InstanceField1" : null,
+			"InstanceField2" : "/DataConfig/DcFixture/DcTestBlueprintInstanceAlpha",
+			"InstanceField3" : "/DataConfig/DcFixture/DcTestBlueprintInstanceBeta",
+		}
+	)");
+	FDcJsonReader Reader(Str);
+
+	UTEST_OK("Editor Extra FDcEditorExtraTestStructWithBPInstance Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+
+	UTEST_TRUE("Editor Extra FDcEditorExtraTestStructWithBPInstance Deserialize", Dest.InstanceField1 == nullptr);
+	//	note that `GetClassID` calling into BP method
+	UTEST_TRUE("Editor Extra FDcEditorExtraTestStructWithBPInstance Deserialize", Dest.InstanceField2->GetClassID() == TEXT("DooFoo253"));
+	UTEST_TRUE("Editor Extra FDcEditorExtraTestStructWithBPInstance Deserialize", Dest.InstanceField3->GetClassID() == TEXT("BetaNottrue"));
+
+	return true;
+}
