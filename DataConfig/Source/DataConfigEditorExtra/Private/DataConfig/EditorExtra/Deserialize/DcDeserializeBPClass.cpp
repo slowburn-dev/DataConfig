@@ -343,10 +343,9 @@ DC_TEST("DataConfig.EditorExtra.BPStruct")
 
 
 	FDcPropertyDatum Field1Datum(Dest.AnyStructField1.StructClass, Dest.AnyStructField1.DataPtr);
-	DcAutomationUtils::DumpToLog(Field1Datum);
 
 	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FName>(Field1Datum, TEXT("NameField")) == FName(TEXT("Foo")));
-	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FString>(Field1Datum, TEXT("Bar")) == FString(TEXT("Bar")));
+	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FString>(Field1Datum, TEXT("StrField")) == FString(TEXT("Bar")));
 	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<int32>(Field1Datum, TEXT("IntField")) == 123);
 
 	return true;
