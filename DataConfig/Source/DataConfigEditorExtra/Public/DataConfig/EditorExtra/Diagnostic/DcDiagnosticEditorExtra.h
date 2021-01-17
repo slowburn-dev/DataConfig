@@ -16,6 +16,8 @@ enum Type : uint16
 	//	Gameplay Tag
 	InvalidGameplayTagString,
 	InvalidGameplayTagStringFixErr,
+	//	BP Class
+	LoadObjectByPathFail,
 };
 
 extern DATACONFIGEDITOREXTRA_API FDcDiagnosticGroup Details;

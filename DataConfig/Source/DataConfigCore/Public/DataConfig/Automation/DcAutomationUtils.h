@@ -19,11 +19,24 @@ DATACONFIGCORE_API FString DumpFormat(FDcPropertyDatum Datum);
 DATACONFIGCORE_API void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue);
 DATACONFIGCORE_API void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue);
 
+enum class EDefaultSetupType
+{
+	SetupJSONHandlers,
+	SetupNothing,
+};
+
 template<typename TThunk>
-FDcResult DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const TThunk& Func)
+FDcResult DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const TThunk& Func, EDefaultSetupType SetupType = EDefaultSetupType::SetupJSONHandlers)
 {
 	FDcDeserializer Deserializer;
-	DcSetupJsonDeserializeHandlers(Deserializer);
+	if (SetupType == EDefaultSetupType::SetupJSONHandlers)
+	{
+		DcSetupJsonDeserializeHandlers(Deserializer);
+	}
+	else if (SetupType == EDefaultSetupType::SetupNothing)
+	{
+		//	pass
+	}
 
 	FDcPropertyWriter Writer(Datum);
 	FDcDeserializeContext Ctx;
@@ -31,6 +44,7 @@ FDcResult DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const T
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
 	Ctx.Properties.Push(Datum.Property);
+
 	Func((FDcDeserializer&)Deserializer, (FDcDeserializeContext&)Ctx);
 	DC_TRY(Ctx.Prepare());
 

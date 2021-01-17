@@ -39,7 +39,17 @@ TDcJsonReader<CharType>::TDcJsonReader()
 }
 
 template<typename CharType>
-FDcResult TDcJsonReader<CharType>::EndRead()
+void TDcJsonReader<CharType>::AbortAndUninitialize()
+{
+	State = TDcJsonReader::EState::Unitialized;
+	States.Empty();
+	Keys.Empty();
+
+	States.Add(EParseState::Nil);
+}
+
+template<typename CharType>
+FDcResult TDcJsonReader<CharType>::FinishRead()
 {
 	if (State != EState::InProgress)
 		return DC_FAIL(DcDJSON, ExpectStateInProgress) << State;
@@ -63,7 +73,7 @@ template<typename CharType>
 FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 Num)
 {
 	if (State == EState::InProgress)
-		DC_TRY(EndRead());
+		DC_TRY(FinishRead());
 
 	if (State != EState::Unitialized
 		&& State != EState::FinishedStr)
@@ -77,6 +87,9 @@ FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 
 	Token.Ref.Reset();
 	Token.Ref.Buffer = &Buf;
 
+	CachedNext.Reset();
+	DiagFilePath.Empty();
+
 	State = EState::InProgress;
 	bTopObjectAtValue = false;
 	bNeedConsumeToken = true;
@@ -84,6 +97,10 @@ FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 
 	Cur = 0;
 	Loc.Line = 1;
 	Loc.Column = 0;
+
+	//	these are cleared by proper reads or `Abort()` should clear these on error
+	check(Keys.Num() == 0);
+	check(States.Num() == 1);
 
 	return DcOk();
 }
@@ -995,7 +1012,7 @@ FDcDiagnosticHighlight TDcJsonReader<CharType>::FormatHighlight(SourceRef SpanRe
 	FDcDiagnosticHighlight OutHighlight(this, TEXT("JsonReader"));
 	OutHighlight.FileContext.Emplace();
 	OutHighlight.FileContext->Loc = Loc;
-	OutHighlight.FileContext->FilePath = DiagFilePath;
+	OutHighlight.FileContext->FilePath = DiagFilePath.IsEmpty() ? TEXT("<in-memory>") : DiagFilePath;
 
 	THightlightFormatter<CharType> Highlighter;
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);

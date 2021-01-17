@@ -70,7 +70,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	TDcJsonReader();
 
-	FDcResult EndRead();
+	void AbortAndUninitialize();
+	FDcResult FinishRead();
 	FDcResult SetNewString(const CharType* InStrPtr, int32 Num);
 
 	template<typename TArrayChar, typename TArrayAllocator>
@@ -101,7 +102,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FToken CachedNext;
 
 	int32 Cur = 0;
-	FString DiagFilePath = TEXT("<in-memory>");
+	FString DiagFilePath;
 
 	bool Coercion(EDcDataEntry ToEntry) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
@@ -191,7 +192,6 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
-
 };
 
 extern template struct TDcJsonReader<ANSICHAR>;

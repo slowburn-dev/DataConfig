@@ -210,9 +210,6 @@ DC_TEST("DataConfig.EditorExtra.GameplayTagContainer")
 	)");
 	FDcJsonReader Reader(Str);
 
-	FDcEditorExtraTestStructWithGameplayTag2 Expect;
-	FDcPropertyDatum ExpectDatum(FDcEditorExtraTestStructWithGameplayTag2::StaticStruct(), &Expect);
-
 	UTEST_OK("Editor Extra FGameplayTagContainer Deserialize", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum,
 	[](FDcDeserializer& Deserializer, FDcDeserializeContext& Ctx) {
 		Deserializer.AddPredicatedHandler(
@@ -220,7 +217,6 @@ DC_TEST("DataConfig.EditorExtra.GameplayTagContainer")
 			FDcDeserializeDelegate::CreateStatic(HandlerGameplayTagContainerDeserialize)
 		);
 	}));
-
 
 	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField1.Num() == 0);
 	UTEST_TRUE("Editor Extra FGameplayTagContainer Deserialize", Dest.TagContainerField2.Num() == 3);

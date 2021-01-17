@@ -137,7 +137,7 @@ DC_TEST("DataConfig.Core.JSON.EndRead")
 
 		UTEST_OK("Read json", Reader.ReadMapRoot());
 		UTEST_OK("Read json", Reader.ReadMapEnd());
-		UTEST_DIAG("Expect 'TrailingToken' err", Reader.EndRead(), DcDJSON, UnexpectedTrailingToken);
+		UTEST_DIAG("Expect 'TrailingToken' err", Reader.FinishRead(), DcDJSON, UnexpectedTrailingToken);
 	}
 
 	{
@@ -151,7 +151,7 @@ DC_TEST("DataConfig.Core.JSON.EndRead")
 
 		UTEST_OK("Read json", Reader.ReadMapRoot());
 		UTEST_OK("Read json", Reader.ReadMapEnd());
-		UTEST_OK("Expect end ok", Reader.EndRead());
+		UTEST_OK("Expect end ok", Reader.FinishRead());
 	}
 
 	return true;

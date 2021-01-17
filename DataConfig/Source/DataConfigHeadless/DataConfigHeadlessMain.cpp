@@ -1,5 +1,4 @@
 #include "CoreMinimal.h"
-#include "Misc/ScopeExit.h"
 #include "Misc/CommandLine.h"
 #include "RequiredProgramMainCPPInclude.h"
 
