@@ -498,6 +498,7 @@ void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey
 
 }	// namespace DcAutomationUtils
 
+#if DC_BUILD_DEBUG
 void FDcDebug::DumpStruct(char* StructNameChars, void* Ptr)
 {
 	FString StructNameStr(StructNameChars);
@@ -525,4 +526,5 @@ void FDcDebug::DumpDatum(const FDcPropertyDatum& Datum)
 }
 
 FDcDebug gDcDebug;
+#endif // DC_BUILD_DEBUG
 

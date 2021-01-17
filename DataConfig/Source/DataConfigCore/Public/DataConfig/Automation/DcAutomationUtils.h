@@ -8,7 +8,7 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
 
-
+#if DC_BUILD_DEBUG
 struct DATACONFIGCORE_API FDcDebug
 {
 	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
@@ -25,6 +25,7 @@ struct DATACONFIGCORE_API FDcDebug
 ///	({,,UE4Editor-DataConfigCore}gDcDebug).DumpObject(ObjPtr)
 
 extern FDcDebug gDcDebug;
+#endif // DC_BUILD_DEBUG
 
 namespace DcAutomationUtils
 {
