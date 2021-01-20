@@ -1,8 +1,10 @@
-#include "DataConfig/Extra/Types/DcPropertyPathAccessor.h"
+#include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 
 #include "Containers/StringView.h"
+
+#include "PropertyPathHelpers.h"
 
 namespace DcExtra {
 
@@ -31,9 +33,6 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 		FStringView Cur;
 		FStringView Tail;
 		_SplitPath(Remaining, Cur, Tail);
-
-		//	TODO handle ""
-
 
 		EDcDataEntry Next;
 		DC_TRY(Reader->PeekRead(&Next));
@@ -85,13 +84,22 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 } // namespace DcExtra
 
 
-DC_TEST("DataConfig.Extra.PathAccessor.Read")
+DC_TEST("DataConfig.Extra.PathAccess.Read")
 {
 	using namespace DcExtra;
 
 	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 
-	TraverseReaderByPath(nullptr, TEXT("Foo.Bar.Baz.Bart"));
+	//TraverseReaderByPath(nullptr, TEXT("Foo.Bar.Baz.Bart"));
+
+	return true;
+}
+
+
+DC_TEST("DataConfig.Extra.PathAccess.PropertyPathHelpers")
+{
+	using namespace DcExtra;
+
 
 	return true;
 }

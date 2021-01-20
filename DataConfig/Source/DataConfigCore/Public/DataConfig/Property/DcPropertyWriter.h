@@ -63,7 +63,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteDouble(const double& Value) override;
 	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
-	//	try skip current write at current position
+	//	try skip write at current position
 	FDcResult SkipWrite();
 	//	get the next write property
 	FDcResult PeekWriteProperty(FFieldVariant* OutProperty);

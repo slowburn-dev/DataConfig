@@ -67,6 +67,9 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadDouble(double* OutPtr) override;
 	FDcResult ReadBlob(FDcBlobViewData* OutPtr) override;
 
+	///	try skip read at current position
+	FDcResult SkipRead();
+
 	struct FPropertyState
 	{
 		using ImplStorageType = TDcAlignedStorage<64>::Type;

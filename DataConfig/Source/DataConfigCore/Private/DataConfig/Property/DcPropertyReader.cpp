@@ -532,6 +532,12 @@ FDcResult FDcPropertyReader::ReadBlob(FDcBlobViewData* OutPtr)
 	}
 }
 
+FDcResult FDcPropertyReader::SkipRead()
+{
+	FScopedStackedReader StackedReader(this);
+	return GetTopState(this).SkipRead();
+}
+
 FDcResult FDcPropertyReader::ReadNil()
 {
 	FScopedStackedReader StackedReader(this);

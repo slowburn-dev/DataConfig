@@ -24,6 +24,7 @@ struct FDcBaseReadState
 	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
 	virtual FDcResult ReadName(FName* OutNamePtr);
 	virtual FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FDcResult SkipRead();
 
 	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
 
@@ -103,6 +104,10 @@ struct FDcReadStateClass : public FDcBaseReadState
 	FDcResult ReadClassEnd(FDcClassStat* OutClassPtr);
 	FDcResult ReadNil();
 	FDcResult ReadObjectReference(UObject** OutPtr);
+
+	FDcResult SkipRead() override;
+
+	void EndValueRead();
 };
 
 struct FDcReadStateStruct : public FDcBaseReadState
@@ -142,6 +147,10 @@ struct FDcReadStateStruct : public FDcBaseReadState
 
 	FDcResult ReadStructRoot(FDcStructStat* OutStructPtr);
 	FDcResult ReadStructEnd(FDcStructStat* OutStructPtr);
+
+	FDcResult SkipRead() override;
+
+	void EndValueRead();
 };
 
 struct FDcReadStateMap : public FDcBaseReadState
@@ -179,6 +188,9 @@ struct FDcReadStateMap : public FDcBaseReadState
 
 	FDcResult ReadMapRoot();
 	FDcResult ReadMapEnd();
+
+	FDcResult SkipRead() override;
+
 };
 
 struct FDcReadStateArray : public FDcBaseReadState

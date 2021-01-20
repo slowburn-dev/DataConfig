@@ -13,6 +13,7 @@ public class DataConfigExtra : ModuleRules
 			//	still need these 2 for link to pass, wtf?
 			"Core",
 			"CoreUObject",
+			"PropertyPath",
 
 			"DataConfigCore",
 			});
