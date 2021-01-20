@@ -11,7 +11,7 @@ struct FDcPropertyWriter;
 
 namespace DcExtra {
 
-///	Read/Write arbitrary nested inner field by a JSONPath/XMLPath like string
+///	Access nested properties by a path like `Foo.Bar.Baz` similar to module `PropertyPathHelpers`
 
 DATACONFIGEXTRA_API FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path);
 
@@ -40,10 +40,19 @@ struct FDcExtraTestStructNestMiddle
 };
 
 USTRUCT()
-struct FDcExtraTestStructNestRoot
+struct FDcExtraTestStructNestOuter
 {
 	GENERATED_BODY()
 
 	UPROPERTY() FDcExtraTestStructNestMiddle Middle;
+};
+
+UCLASS()
+class UDcExtraTestClassOuter : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY() FDcExtraTestStructNestOuter StructRoot;
 };
 

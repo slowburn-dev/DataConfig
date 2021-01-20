@@ -98,8 +98,14 @@ DC_TEST("DataConfig.Extra.PathAccess.Read")
 
 DC_TEST("DataConfig.Extra.PathAccess.PropertyPathHelpers")
 {
-	using namespace DcExtra;
+	//	demonstrating UE4 PropertyPathHelpers
 
+	UDcExtraTestClassOuter* Outer = NewObject<UDcExtraTestClassOuter>();
+	Outer->StructRoot.Middle.InnerMost.StrField = TEXT("Foo");
+
+	FString Str;
+	UTEST_TRUE("Extra PropertyPathHelpers", PropertyPathHelpers::GetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), Str));
+	UTEST_TRUE("Extra PropertyPathHelpers", Str == TEXT("Foo"));
 
 	return true;
 }
