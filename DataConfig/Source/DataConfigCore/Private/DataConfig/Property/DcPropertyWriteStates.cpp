@@ -555,6 +555,12 @@ FDcResult FDcWriteStateMap::SkipWrite()
 	else if (State == EState::ExpectValue)
 	{
 		++Index;
+
+		FScriptMapHelper MapHelper(MapProperty, MapPtr);
+		if (Index >= MapHelper.Num())
+			return DC_FAIL(DcDReadWrite, SkipOutOfRange)
+				<< MapHelper.Num() << _GetPropertyWriter()->FormatHighlight();
+
 		State = EState::ExpectKeyOrEnd;
 		return DcOk();
 	}
@@ -691,6 +697,12 @@ FDcResult FDcWriteStateArray::SkipWrite()
 			<< _GetPropertyWriter()->FormatHighlight();
 
 	++Index;
+
+	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
+	if (Index >= ArrayHelper.Num())
+		return DC_FAIL(DcDReadWrite, SkipOutOfRange) 
+			<< ArrayHelper.Num() << _GetPropertyWriter()->FormatHighlight();
+
 	return DcOk();
 }
 
@@ -805,6 +817,12 @@ FDcResult FDcWriteStateSet::SkipWrite()
 			<< _GetPropertyWriter()->FormatHighlight();
 
 	++Index;
+
+	FScriptSetHelper SetHelper(SetProperty, SetPtr);
+	if (Index >= SetHelper.Num())
+		return DC_FAIL(DcDReadWrite, SkipOutOfRange) 
+			<< SetHelper.Num() << _GetPropertyWriter()->FormatHighlight();
+
 	return DcOk();
 }
 

@@ -28,6 +28,8 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ CantUsePutbackValue, TEXT("Cannot use putback value in '{0}'") },
 	//	pipe visitor
 	{ PipeReadWriteMismatch, TEXT("Pipe visit read write mismatch. Actual '{0}'") },
+	//	skip
+	{ SkipOutOfRange, TEXT("Skipping out of range, Container actual length : {0}") },
 };
 
 FDcDiagnosticGroup Details = {

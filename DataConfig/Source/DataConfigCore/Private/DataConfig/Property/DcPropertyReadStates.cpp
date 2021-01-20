@@ -542,9 +542,8 @@ FDcResult FDcReadStateMap::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDc
 		OutDatum.Property = ValueProperty;
 		OutDatum.DataPtr = MapHelper.GetValuePtr(Index);
 
-		FScriptMap* ScriptMap = (FScriptMap*)MapPtr;
 		Index += 1;
-		if (Index < ScriptMap->Num())
+		if (Index < MapHelper.Num())
 			State = EState::ExpectKey;
 		else
 			State = EState::ExpectEnd;
@@ -575,8 +574,8 @@ FDcResult FDcReadStateMap::ReadMapRoot()
 			return DcOk();
 		}
 
-		FScriptMap* ScriptMap = (FScriptMap*)MapPtr;
-		if (ScriptMap->Num() == 0)
+		FScriptMapHelper MapHelper(MapProperty, MapPtr);
+		if (MapHelper.Num() == 0)
 		{
 			State = EState::ExpectEnd;
 		}
@@ -611,8 +610,28 @@ FDcResult FDcReadStateMap::ReadMapEnd()
 
 FDcResult FDcReadStateMap::SkipRead()
 {
-	//	TODO
-	return DcNoEntry();
+	if (State == EState::ExpectKey)
+	{
+		State = EState::ExpectValue;
+		return DcOk();
+	}
+	else if (State == EState::ExpectValue)
+	{
+		FScriptMapHelper MapHelper(MapProperty, MapPtr);
+		Index += 1;
+		if (Index < MapHelper.Num())
+			State = EState::ExpectKey;
+		else
+			State = EState::ExpectEnd;
+
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect2)
+			<< EState::ExpectKey << EState::ExpectValue << State
+			<< _GetPropertyReader()->FormatHighlight();
+	}
 }
 
 EDcPropertyReadType FDcReadStateArray::GetType()
@@ -699,8 +718,8 @@ FDcResult FDcReadStateArray::ReadArrayRoot()
 			return DcOk();
 		}
 
-		FScriptArray* ScriptArray = (FScriptArray*)ArrayPtr;
-		if (ScriptArray->Num() == 0)
+		FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
+		if (ArrayHelper.Num() == 0)
 		{
 			State = EState::ExpectEnd;
 		}
@@ -729,6 +748,28 @@ FDcResult FDcReadStateArray::ReadArrayEnd()
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)EState::ExpectEnd << (int)State
+			<< _GetPropertyReader()->FormatHighlight();
+	}
+}
+
+FDcResult FDcReadStateArray::SkipRead()
+{
+	if (State == EState::ExpectItem)
+	{
+		FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
+
+		Index += 1;
+		if (Index < ArrayHelper.Num())
+			State = EState::ExpectItem;
+		else
+			State = EState::ExpectEnd;
+
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectItem << State
 			<< _GetPropertyReader()->FormatHighlight();
 	}
 }
@@ -791,7 +832,10 @@ FDcResult FDcReadStateSet::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDc
 	OutDatum.Property = SetProperty->ElementProp;
 	OutDatum.DataPtr = SetHelper.GetElementPtr(Index);
 
-	if (++Index == SetHelper.Num())
+	Index += 1;
+	if (Index < SetHelper.Num())
+		State = EState::ExpectItem;
+	else
 		State = EState::ExpectEnd;
 
 	return DcOk();
@@ -801,6 +845,28 @@ void FDcReadStateSet::FormatHighlightSegment(TArray<FString>& OutSegments, DcPro
 {
 	DcPropertyHighlight::FormatSet(OutSegments, SegType, SetProperty, Index,
 		State == EState::ExpectItem);
+}
+
+FDcResult FDcReadStateSet::SkipRead()
+{
+	if (State == EState::ExpectItem)
+	{
+		FScriptSetHelper SetHelper(SetProperty, SetPtr);
+
+		Index += 1;
+		if (Index < SetHelper.Num())
+			State = EState::ExpectItem;
+		else
+			State = EState::ExpectEnd;
+
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectItem << State
+			<< _GetPropertyReader()->FormatHighlight();
+	}
 }
 
 FDcResult FDcReadStateSet::ReadSetRoot()

@@ -35,6 +35,10 @@ enum Type : uint16
 
 	//	pipe visitor
 	PipeReadWriteMismatch,
+
+	//	skip
+	SkipOutOfRange,
+
 };
 
 } // namespace DcDReadWrite

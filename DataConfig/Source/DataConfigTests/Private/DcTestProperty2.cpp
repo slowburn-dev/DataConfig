@@ -21,8 +21,6 @@ DC_TEST("DataConfig.Core.Property.NestedStruct")
 	UTEST_OK("FDcTestStructNest4 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructNest4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
-	DcAutomationUtils::DumpToLog(DestDatum);
-
 	return true;
 }
 
