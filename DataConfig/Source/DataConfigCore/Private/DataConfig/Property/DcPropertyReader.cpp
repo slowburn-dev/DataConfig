@@ -134,9 +134,11 @@ FDcPropertyReader::FDcPropertyReader()
 	PushNilState(this);
 }
 
-FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
+FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum, FDcPropertyConfig InConfig)
 	: FDcPropertyReader()
 {
+	Config = InConfig;
+
 	if (Datum.IsNone())
 	{
 		//	pass
@@ -162,6 +164,11 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 		checkNoEntry();
 	}
 }
+
+
+FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
+	: FDcPropertyReader(Datum, FDcPropertyConfig::MakeDefault())
+{}
 
 bool FDcPropertyReader::Coercion(EDcDataEntry ToEntry)
 {

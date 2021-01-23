@@ -23,6 +23,11 @@ static FDcResult CheckExpectedProperty(FProperty* Property, FFieldClass* Expecte
 		return DcOk();
 }
 
+static bool ShouldProcessProperty(FProperty* Property)
+{
+	return _GetPropertyReader()->Config.ProcessPropertyPredicate.Execute(Property);
+}
+
 }	// namespace DcPropertyReadStateDetails
 
 

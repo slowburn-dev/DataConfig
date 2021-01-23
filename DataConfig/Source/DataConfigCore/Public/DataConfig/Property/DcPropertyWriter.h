@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
+#include "DataConfig/Property/DcPropertyTypes.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
@@ -9,6 +10,7 @@
 struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
 {
 	FDcPropertyWriter();
+	FDcPropertyWriter(FDcPropertyDatum Datum, FDcPropertyConfig InConfig);
 	FDcPropertyWriter(FDcPropertyDatum Datum);
 
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
@@ -73,6 +75,8 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	//	manual writing supporting
 	void PushTopClassPropertyState(const FDcPropertyDatum& Datum);
 	void PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
+
+	FDcPropertyConfig Config;
 
 	struct FPropertyState
 	{

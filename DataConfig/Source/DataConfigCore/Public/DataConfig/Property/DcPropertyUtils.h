@@ -9,7 +9,6 @@ struct FDcPropertyDatum;
 
 namespace DcPropertyUtils
 {
-
 DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
 DATACONFIGCORE_API size_t CountEffectiveProperties(UStruct* Struct);

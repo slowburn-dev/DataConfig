@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
+#include "DataConfig/Property/DcPropertyTypes.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
@@ -12,6 +13,7 @@ class FProperty;
 struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopyable
 {
 	FDcPropertyReader();
+	FDcPropertyReader(FDcPropertyDatum Datum, FDcPropertyConfig InConfig);
 	FDcPropertyReader(FDcPropertyDatum Datum);
 
 	bool Coercion(EDcDataEntry ToEntry) override;
@@ -70,6 +72,8 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	///	try skip read at current position
 	FDcResult SkipRead();
 
+	FDcPropertyConfig Config;
+
 	struct FPropertyState
 	{
 		using ImplStorageType = TDcAlignedStorage<64>::Type;
@@ -80,6 +84,8 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
+
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };

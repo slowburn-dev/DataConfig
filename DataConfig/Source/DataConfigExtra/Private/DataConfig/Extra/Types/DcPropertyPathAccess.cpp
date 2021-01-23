@@ -1,6 +1,7 @@
 #include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Property/DcPropertyReader.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 #include "Containers/StringView.h"
 
@@ -24,7 +25,6 @@ void _SplitPath(FStringView InSv, FStringView& OutHead, FStringView& OutTail)
 	}
 }
 
-
 FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 {
 	FStringView Remaining = Path;
@@ -39,6 +39,7 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 
 		if (Next == EDcDataEntry::StructRoot)
 		{
+			DC_TRY(Reader->ReadStructRoot(nullptr));
 			while (true)
 			{
 				FName CurName(Cur);
@@ -47,17 +48,29 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 
 				if (FieldName == CurName)
 				{
+					//	found
 					break;
 				}
 				else
 				{
-					//	TODO we dont' have this atm...
-					//	Reader->SkipRead();
+					//	move to next position
+					DC_TRY(Reader->SkipRead());
+
+					DC_TRY(Reader->PeekRead(&Next));
+					if (Next == EDcDataEntry::StructEnd)
+						return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << Reader->FormatHighlight();
 				}
 			}
 		}
 		else if (Next == EDcDataEntry::ClassRoot)
 		{
+			/*
+			DC_TRY(Reader->ReadStructRoot(FD
+
+			while (true)
+			{
+			}
+			*/
 		}
 		else if (Next == EDcDataEntry::ArrayRoot)
 		{
@@ -94,7 +107,6 @@ DC_TEST("DataConfig.Extra.PathAccess.Read")
 
 	return true;
 }
-
 
 DC_TEST("DataConfig.Extra.PathAccess.PropertyPathHelpers")
 {

@@ -99,9 +99,11 @@ FDcPropertyWriter::FDcPropertyWriter()
 	PushNilState(this);
 }
 
-FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
+FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum, FDcPropertyConfig InConfig)
 	: FDcPropertyWriter()
 {
+	Config = InConfig;
+
 	if (Datum.IsNone())
 	{
 		//	pass
@@ -125,6 +127,10 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 		checkNoEntry();
 	}
 }
+
+FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
+	: FDcPropertyWriter(Datum, FDcPropertyConfig::MakeDefault())
+{}
 
 FDcResult FDcPropertyWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 {

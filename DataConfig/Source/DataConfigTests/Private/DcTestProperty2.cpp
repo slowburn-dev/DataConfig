@@ -51,4 +51,21 @@ DC_TEST("DataConfig.Core.Property.Enum")
 	return true;
 }
 
+static TFunction<int(int)> MakeAdder(int Base)
+{
+	return [=](int32 Num) {
+		return Num + Base;
+	};
+}
+
+
+DC_TEST("DataConfig.Core.Property.TFunc")
+{
+	TFunction<int(int)> Adder42 = MakeAdder(42);
+	UTEST_EQUAL("Adder", Adder42(24), 66);
+
+
+	return true;
+}
+
 
