@@ -69,6 +69,10 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	///	try skip read at current position
 	FDcResult SkipRead();
+	///	peek next write property
+	FDcResult PeekReadProperty(FFieldVariant* OutProperty);
+	///	manual reading
+	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;

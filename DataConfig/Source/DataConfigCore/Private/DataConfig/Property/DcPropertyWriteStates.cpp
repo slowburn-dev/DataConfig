@@ -157,11 +157,11 @@ FDcResult FDcWriteStateStruct::PeekWriteProperty(FFieldVariant* OutProperty)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return ReadOutOk(OutProperty, FFieldVariant(StructClass));
+		return ReadOutOk(OutProperty, StructClass);
 	}
 	else if (State == EState::ExpectValue)
 	{
-		return ReadOutOk(OutProperty, FFieldVariant(Property));
+		return ReadOutOk(OutProperty, Property);
 	}
 	else
 	{
@@ -322,7 +322,7 @@ FDcResult FDcWriteStateClass::PeekWriteProperty(FFieldVariant* OutProperty)
 {
 	if (State == EState::ExpectRoot)
 	{
-		return ReadOutOk(OutProperty, FFieldVariant(Class));
+		return ReadOutOk(OutProperty, Class);
 	}
 	else if (State == EState::ExpectExpandValue)
 	{
@@ -348,7 +348,7 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 			}));
 		}
 
-		if (ClassStat.Control == FDcClassStat::EControl::ExternalReference)
+		if (ClassStat.Control == FDcClassStat::EControl::ReferenceOrNil)
 		{
 			State = EState::ExpectReference;
 		}
@@ -576,11 +576,11 @@ FDcResult FDcWriteStateMap::PeekWriteProperty(FFieldVariant* OutProperty)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
-		return ReadOutOk(OutProperty, FFieldVariant(MapProperty->KeyProp));
+		return ReadOutOk(OutProperty, MapProperty->KeyProp);
 	}
 	else if (State == EState::ExpectValue)
 	{
-		return ReadOutOk(OutProperty, FFieldVariant(MapProperty->ValueProp));
+		return ReadOutOk(OutProperty, MapProperty->ValueProp);
 	}
 	else
 	{
@@ -713,7 +713,7 @@ FDcResult FDcWriteStateArray::PeekWriteProperty(FFieldVariant* OutProperty)
 			<< (int)EState::ExpectItemOrEnd << (int)State
 			<< _GetPropertyWriter()->FormatHighlight();
 
-	return ReadOutOk(OutProperty, FFieldVariant(ArrayProperty->Inner));
+	return ReadOutOk(OutProperty, ArrayProperty->Inner);
 }
 
 FDcResult FDcWriteStateArray::WriteArrayRoot()
@@ -833,7 +833,7 @@ FDcResult FDcWriteStateSet::PeekWriteProperty(FFieldVariant* OutProperty)
 			<< (int)EState::ExpectItemOrEnd << (int)State
 			<< _GetPropertyWriter()->FormatHighlight();
 
-	return ReadOutOk(OutProperty, FFieldVariant(SetProperty->ElementProp));
+	return ReadOutOk(OutProperty, SetProperty->ElementProp);
 }
 
 FDcResult FDcWriteStateSet::WriteSetRoot()

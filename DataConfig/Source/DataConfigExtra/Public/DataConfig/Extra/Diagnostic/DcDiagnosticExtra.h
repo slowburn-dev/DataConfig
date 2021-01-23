@@ -14,6 +14,7 @@ enum Type : uint16
 {
 	Unknown = 0,
 	InvalidBase64String,
+	ExpectClassExpand,
 };
 
 extern DATACONFIGEXTRA_API FDcDiagnosticGroup Details;

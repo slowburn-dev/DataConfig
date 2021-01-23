@@ -29,6 +29,7 @@ enum Type : uint16
 	FindPropertyByOffsetFailed,
 	DataTypeUnequal,
 	DataTypeUnequalLhsRhs,
+	ExpectFieldButFoundUObject,
 	
 	//	putback reader
 	CantUsePutbackValue,

@@ -180,7 +180,7 @@ FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResu
 	DC_TRY(Ctx.Reader->ReadClassRoot(&ClassStat));
 	DC_TRY(Ctx.Writer->WriteClassRoot(ClassStat));
 
-	if (ClassStat.Control == FDcClassStat::EControl::ExternalReference)
+	if (ClassStat.Control == FDcClassStat::EControl::ReferenceOrNil)
 	{
 		DC_TRY(Ctx.Reader->PeekRead(&Next));
 		DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));

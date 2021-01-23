@@ -540,6 +540,18 @@ FDcResult FDcPropertyReader::SkipRead()
 	return GetTopState(this).SkipRead();
 }
 
+FDcResult FDcPropertyReader::PeekReadProperty(FFieldVariant* OutProperty)
+{
+	FScopedStackedReader StackedReader(this);
+	return GetTopState(this).PeekReadProperty(OutProperty);
+}
+
+FDcResult FDcPropertyReader::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+{
+	FScopedStackedReader StackedReader(this);
+	return GetTopState(this).ReadDataEntry(ExpectedPropertyClass, OutDatum);
+}
+
 FDcResult FDcPropertyReader::SetConfig(FDcPropertyConfig InConfig)
 {
 	Config = MoveTemp(InConfig);

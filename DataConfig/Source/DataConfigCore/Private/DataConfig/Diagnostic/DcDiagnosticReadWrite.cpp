@@ -24,6 +24,8 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ FindPropertyByOffsetFailed, TEXT("Failed to find property by offset, Class: '{0}', Offset: '{1}'") },
 	{ DataTypeUnequal, TEXT("Data entry value unequal, Type: '{0}'") },
 	{ DataTypeUnequalLhsRhs, TEXT("Data entry value unequal, Type: '{0}', Lhs: '{1}', Rhs: '{2}'") },
+	{ ExpectFieldButFoundUObject, TEXT("Expect FFieldVariant to be FField but found UObject. Property '{0}' '{1}'") },
+
 	//	putback reader
 	{ CantUsePutbackValue, TEXT("Cannot use putback value in '{0}'") },
 	//	pipe visitor

@@ -2,6 +2,7 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 
 #include "Containers/StringView.h"
 
@@ -64,26 +65,46 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 		}
 		else if (Next == EDcDataEntry::ClassRoot)
 		{
-			/*
-			DC_TRY(Reader->ReadStructRoot(FD
+			FDcClassStat Stat;
+			DC_TRY(Reader->ReadClassRoot(&Stat));
+
+			if (Stat.Control != FDcClassStat::EControl::ExpandObject)
+				return DC_FAIL(DcDExtra, ExpectClassExpand);
 
 			while (true)
 			{
+				FName CurName(Cur);
+				FName FieldName;
+				DC_TRY(Reader->ReadName(&FieldName));
+
+				if (FieldName == CurName)
+				{
+					//	found
+					break;
+				}
+				else
+				{
+					//	move to next position
+					DC_TRY(Reader->SkipRead());
+
+					DC_TRY(Reader->PeekRead(&Next));
+					if (Next == EDcDataEntry::ClassEnd)
+						return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << Reader->FormatHighlight();
+				}
 			}
-			*/
 		}
 		else if (Next == EDcDataEntry::ArrayRoot)
 		{
+			return DcNoEntry();
 		}
 		else if (Next == EDcDataEntry::SetRoot)
 		{
+			return DcNoEntry();
 		}
 		else if (Next == EDcDataEntry::MapRoot)
 		{
+			return DcNoEntry();
 		}
-
-
-		//UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *FString(Cur));
 
 		if (Tail.IsEmpty())
 			break;
@@ -94,16 +115,39 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 	return DcOk();
 }
 
+FDcResult GetDatumPropertyByPath(const FDcPropertyDatum& Datum, const FString& Path, FDcPropertyDatum& OutDatum)
+{
+	FDcPropertyReader Reader(Datum);
+	FDcPropertyConfig Config = FDcPropertyConfig::MakeDefault();
+	Config.ExpandObjectPredicate.BindLambda([](FObjectProperty* ObjProperty){
+		return true;
+	});
+	DC_TRY(Reader.SetConfig(Config));
+	DC_TRY(TraverseReaderByPath(&Reader, Path));
+
+	FFieldVariant Property;
+	DC_TRY(Reader.PeekReadProperty(&Property));
+
+	if (Property.IsUObject())
+		return DC_FAIL(DcDReadWrite, ExpectFieldButFoundUObject) << Property.GetClassName() << Property.GetFName();
+
+	DC_TRY(Reader.ReadDataEntry(Property.ToFieldUnsafe()->GetClass(), OutDatum));
+	return DcOk();
+}
+
 } // namespace DcExtra
 
 
-DC_TEST("DataConfig.Extra.PathAccess.Read")
+DC_TEST("DataConfig.Extra.PathAccess.ReadByPath")
 {
 	using namespace DcExtra;
 
 	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 
-	//TraverseReaderByPath(nullptr, TEXT("Foo.Bar.Baz.Bart"));
+	UDcExtraTestClassOuter* Outer = NewObject<UDcExtraTestClassOuter>();
+	Outer->StructRoot.Middle.InnerMost.StrField = TEXT("Foo");
+
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("Foo"));
 
 	return true;
 }

@@ -157,7 +157,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 
 	FDcClassStat RefStat {
-		ObjectProperty->PropertyClass->GetFName(), FDcClassStat::EControl::ExternalReference
+		ObjectProperty->PropertyClass->GetFName(), FDcClassStat::EControl::ReferenceOrNil
 	};
 
 	if (Next == EDcDataEntry::String)
@@ -303,7 +303,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
 		FDcClassStat NilStat;
-		NilStat.Control = FDcClassStat::EControl::ExternalReference;
+		NilStat.Control = FDcClassStat::EControl::ReferenceOrNil;
 		DC_TRY(Ctx.Writer->WriteClassRoot(NilStat));
 		DC_TRY(Ctx.Writer->WriteNil());
 		DC_TRY(Ctx.Writer->WriteClassEnd(NilStat));

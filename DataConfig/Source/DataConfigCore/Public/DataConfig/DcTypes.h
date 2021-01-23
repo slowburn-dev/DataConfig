@@ -130,7 +130,7 @@ struct DATACONFIGCORE_API FDcClassStat
 
 	enum class EControl
 	{
-		ExternalReference,
+		ReferenceOrNil,
 		ExpandObject,
 	};
 
