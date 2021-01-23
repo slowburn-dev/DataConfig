@@ -5,7 +5,6 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyTypes.h"
 #include "DataConfig/Reader/DcReader.h"
-#include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 class FProperty;
@@ -76,7 +75,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	struct FPropertyState
 	{
-		using ImplStorageType = TDcAlignedStorage<64>::Type;
+		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
 		ImplStorageType ImplStorage;
 	};
 

@@ -2,15 +2,6 @@
 
 #include "DataConfig/DcTypes.h"
 
-template <size_t _Len, size_t _Align = MIN_ALIGNMENT>
-struct TDcAlignedStorage
-{
-	struct Type
-	{
-		unsigned char Data[Align(_Len, _Align)];
-	};
-};
-
 //	shorthand for optional read to out pointer
 template<typename T1, typename T2>
 FORCEINLINE static void ReadOut(T1*& OutPtr, T2&& Value)

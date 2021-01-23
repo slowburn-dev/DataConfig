@@ -4,7 +4,6 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyTypes.h"
 #include "DataConfig/Writer/DcWriter.h"
-#include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
@@ -80,7 +79,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	struct FPropertyState
 	{
-		using ImplStorageType = TDcAlignedStorage<64>::Type;
+		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
 		ImplStorageType ImplStorage;
 	};
 
