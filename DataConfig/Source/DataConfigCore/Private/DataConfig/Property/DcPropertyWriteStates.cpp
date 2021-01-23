@@ -105,7 +105,7 @@ FDcResult FDcWriteStateStruct::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
-		Property = DcPropertyUtils::NextEffectivePropertyByName(StructClass->PropertyLink, Value);
+		Property = _GetPropertyWriter()->Config.NextProcessPropertyByName(StructClass->PropertyLink, Value);
 		if (Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value << _GetPropertyWriter()->FormatHighlight();
@@ -270,7 +270,7 @@ FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectExpandKeyOrEnd)
 	{
-		Datum.Property = DcPropertyUtils::NextEffectivePropertyByName(Class->PropertyLink, Value);
+		Datum.Property =  _GetPropertyWriter()->Config.NextProcessPropertyByName(Class->PropertyLink, Value);
 		if (Datum.Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value << _GetPropertyWriter()->FormatHighlight();

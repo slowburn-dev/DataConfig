@@ -10,6 +10,10 @@ static FDcDiagnosticDetail _CommonDetails[] = {
 	{ Unreachable, TEXT("Calling into unreachable code") },
 	{ Unexpected1, TEXT("Unexpected: '{0}'") },
 	{ PlaceHoldError, TEXT("<<<placeholder error>>>") },
+
+	{ StaleDelegate, TEXT("Stale delegate") },
+	{ StaleDelegateWithName, TEXT("Stale delegate: {0}") },
+
 };
 
 FDcDiagnosticGroup Details = {

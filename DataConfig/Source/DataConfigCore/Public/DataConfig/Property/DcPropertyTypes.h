@@ -16,6 +16,14 @@ struct DATACONFIGCORE_API FDcPropertyConfig
 
 	static FDcPropertyConfig MakeDefault();
 
+	FDcResult Prepare();
+
+	bool ShouldProcessProperty(FProperty* Property);
+	FProperty* NextProcessProperty(FProperty* Property);
+	FProperty* FirstProcessProperty(FProperty* Property);
+	FProperty* NextProcessPropertyByName(FProperty* InProperty, const FName& Name);
+
+	bool ShouldExpandObject(FObjectProperty* ObjectProperty);
 };
 
 

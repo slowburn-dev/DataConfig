@@ -9,7 +9,6 @@
 struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
 {
 	FDcPropertyWriter();
-	FDcPropertyWriter(FDcPropertyDatum Datum, FDcPropertyConfig InConfig);
 	FDcPropertyWriter(FDcPropertyDatum Datum);
 
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
@@ -75,6 +74,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	void PushTopClassPropertyState(const FDcPropertyDatum& Datum);
 	void PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
 
+	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;
 
 	struct FPropertyState

@@ -23,11 +23,6 @@ static FDcResult CheckExpectedProperty(FProperty* Property, FFieldClass* Expecte
 		return DcOk();
 }
 
-static bool ShouldProcessProperty(FProperty* Property)
-{
-	return _GetPropertyReader()->Config.ProcessPropertyPredicate.Execute(Property);
-}
-
 }	// namespace DcPropertyReadStateDetails
 
 
@@ -203,7 +198,7 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
 					OutClassPtr->Control = FDcClassStat::EControl::ExpandObject;
 				}
 
-				Property = DcPropertyUtils::FirstEffectiveProperty(Cls->PropertyLink);
+				Property = _GetPropertyReader()->Config.FirstProcessProperty(Cls->PropertyLink);
 				if (Property == nullptr)
 				{
 					State = EState::ExpectEnd;
@@ -298,7 +293,7 @@ FDcResult FDcReadStateClass::SkipRead()
 void FDcReadStateClass::EndValueRead()
 {
 	check(State == EState::ExpectValue);
-	Property = DcPropertyUtils::NextEffectiveProperty(Property);
+	Property = _GetPropertyReader()->Config.NextProcessProperty(Property);
 	if (Property == nullptr)
 		State = EState::ExpectEnd;
 	else
@@ -413,7 +408,7 @@ FDcResult FDcReadStateStruct::ReadStructRoot(FDcStructStat* OutStructPtr)
 			OutStructPtr->Name = StructClass->GetFName();
 		}
 
-		Property = DcPropertyUtils::FirstEffectiveProperty(StructClass->PropertyLink);
+		Property = _GetPropertyReader()->Config.FirstProcessProperty(StructClass->PropertyLink);
 		if (Property == nullptr)
 		{
 			State = EState::ExpectEnd;
@@ -468,7 +463,7 @@ FDcResult FDcReadStateStruct::SkipRead()
 void FDcReadStateStruct::EndValueRead()
 {
 	check(State == EState::ExpectValue)
-	Property = DcPropertyUtils::NextEffectiveProperty(Property);
+	Property = _GetPropertyReader()->Config.NextProcessProperty(Property);
 	if (Property == nullptr)
 		State = EState::ExpectEnd;
 	else
@@ -572,8 +567,8 @@ FDcResult FDcReadStateMap::ReadMapRoot()
 	if (State == EState::ExpectRoot)
 	{
 		//	check map effectiveness
-		if (!DcPropertyUtils::IsEffectiveProperty(MapProperty->KeyProp)
-			|| !DcPropertyUtils::IsEffectiveProperty(MapProperty->ValueProp))
+		if (!_GetPropertyReader()->Config.ShouldProcessProperty(MapProperty->KeyProp)
+			|| !_GetPropertyReader()->Config.ShouldProcessProperty(MapProperty->ValueProp))
 		{
 			State = EState::ExpectEnd;
 			return DcOk();
@@ -717,7 +712,7 @@ FDcResult FDcReadStateArray::ReadArrayRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
-		if (!DcPropertyUtils::IsEffectiveProperty(ArrayProperty->Inner))
+		if (!_GetPropertyReader()->Config.ShouldProcessProperty(ArrayProperty->Inner))
 		{
 			State = EState::ExpectEnd;
 			return DcOk();
@@ -878,7 +873,7 @@ FDcResult FDcReadStateSet::ReadSetRoot()
 {
 	if (State == EState::ExpectRoot)
 	{
-		if (!DcPropertyUtils::IsEffectiveProperty(SetProperty->ElementProp))
+		if (!_GetPropertyReader()->Config.ShouldProcessProperty(SetProperty->ElementProp))
 		{
 			State = EState::ExpectEnd;
 			return DcOk();

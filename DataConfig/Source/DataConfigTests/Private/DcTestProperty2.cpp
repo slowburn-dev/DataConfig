@@ -51,19 +51,32 @@ DC_TEST("DataConfig.Core.Property.Enum")
 	return true;
 }
 
-static TFunction<int(int)> MakeAdder(int Base)
+DC_TEST("DataConfig.Core.Property.Config")
 {
-	return [=](int32 Num) {
-		return Num + Base;
-	};
-}
+	FDcTestStructSimple Source;
 
+	Source.NameField = TEXT("Named");
+	Source.StrField = TEXT("Stred");
 
-DC_TEST("DataConfig.Core.Property.TFunc")
-{
-	TFunction<int(int)> Adder42 = MakeAdder(42);
-	UTEST_EQUAL("Adder", Adder42(24), 66);
+	FDcTestStructSimple Dest;
 
+	FDcPropertyDatum SourceDatum(FDcTestStructSimple::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStructSimple::StaticStruct(), &Dest);
+
+	UTEST_OK("Property Reader/Writer Config", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum, [](FDcPropertyReader& Reader, FDcPropertyWriter& Writer){
+
+		FDcPropertyConfig IgnoreStrConfig = FDcPropertyConfig::MakeDefault();
+		IgnoreStrConfig.ProcessPropertyPredicate.BindLambda([](FProperty* Property){
+			return !Property->IsA<FStrProperty>();
+		});
+
+		Reader.SetConfig(IgnoreStrConfig);
+		Writer.SetConfig(IgnoreStrConfig);
+		return DcOk();
+	}));
+
+	UTEST_TRUE("Property Reader/Writer Config", Dest.NameField == TEXT("Named"));
+	UTEST_TRUE("Property Reader/Writer Config", Dest.StrField.IsEmpty());
 
 	return true;
 }

@@ -99,10 +99,10 @@ FDcPropertyWriter::FDcPropertyWriter()
 	PushNilState(this);
 }
 
-FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum, FDcPropertyConfig InConfig)
+FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	: FDcPropertyWriter()
 {
-	Config = InConfig;
+	Config = FDcPropertyConfig::MakeDefault();
 
 	if (Datum.IsNone())
 	{
@@ -127,10 +127,6 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum, FDcPropertyConfig I
 		checkNoEntry();
 	}
 }
-
-FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
-	: FDcPropertyWriter(Datum, FDcPropertyConfig::MakeDefault())
-{}
 
 FDcResult FDcPropertyWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 {
@@ -262,6 +258,12 @@ void FDcPropertyWriter::PushTopStructPropertyState(const FDcPropertyDatum& Datum
 {
 	UScriptStruct* StructClass = Datum.CastUScriptStructChecked();
 	PushStructPropertyState(this, Datum.DataPtr, StructClass, StructName);
+}
+
+FDcResult FDcPropertyWriter::SetConfig(FDcPropertyConfig InConfig)
+{
+	Config = MoveTemp(InConfig);
+	return Config.Prepare();
 }
 
 FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassStat& Class)

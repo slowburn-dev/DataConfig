@@ -12,7 +12,6 @@ class FProperty;
 struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopyable
 {
 	FDcPropertyReader();
-	FDcPropertyReader(FDcPropertyDatum Datum, FDcPropertyConfig InConfig);
 	FDcPropertyReader(FDcPropertyDatum Datum);
 
 	bool Coercion(EDcDataEntry ToEntry) override;
@@ -71,6 +70,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	///	try skip read at current position
 	FDcResult SkipRead();
 
+	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;
 
 	struct FPropertyState

@@ -134,10 +134,10 @@ FDcPropertyReader::FDcPropertyReader()
 	PushNilState(this);
 }
 
-FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum, FDcPropertyConfig InConfig)
+FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	: FDcPropertyReader()
 {
-	Config = InConfig;
+	Config = FDcPropertyConfig::MakeDefault();
 
 	if (Datum.IsNone())
 	{
@@ -164,11 +164,6 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum, FDcPropertyConfig I
 		checkNoEntry();
 	}
 }
-
-
-FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
-	: FDcPropertyReader(Datum, FDcPropertyConfig::MakeDefault())
-{}
 
 bool FDcPropertyReader::Coercion(EDcDataEntry ToEntry)
 {
@@ -311,7 +306,7 @@ FDcResult FDcPropertyReader::ReadClassRoot(FDcClassStat* OutClassPtr)
 			this,
 			ObjProperty->GetObjectPropertyValue(Datum.DataPtr),
 			ObjProperty->PropertyClass,
-			DcPropertyUtils::IsSubObjectProperty(ObjProperty)
+			Config.ShouldExpandObject(ObjProperty)
 				? FDcReadStateClass::EType::PropertyInstanced
 				: FDcReadStateClass::EType::PropertyNormal,
 			ObjProperty->GetFName()
@@ -543,6 +538,12 @@ FDcResult FDcPropertyReader::SkipRead()
 {
 	FScopedStackedReader StackedReader(this);
 	return GetTopState(this).SkipRead();
+}
+
+FDcResult FDcPropertyReader::SetConfig(FDcPropertyConfig InConfig)
+{
+	Config = MoveTemp(InConfig);
+	return Config.Prepare();
 }
 
 FDcResult FDcPropertyReader::ReadNil()

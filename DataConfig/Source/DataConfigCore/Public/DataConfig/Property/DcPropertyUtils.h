@@ -11,7 +11,6 @@ namespace DcPropertyUtils
 {
 DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
-DATACONFIGCORE_API size_t CountEffectiveProperties(UStruct* Struct);
 DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor);
 
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);

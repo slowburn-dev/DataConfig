@@ -52,21 +52,6 @@ bool IsScalarProperty(FField* Property)
 	return !bIsCompound;
 }
 
-size_t CountEffectiveProperties(UStruct* Struct)
-{
-	check(Struct);
-	size_t EffectiveCount = 0;
-	for (FProperty* Property = Struct->PropertyLink; Property; Property = Property->PropertyLinkNext)
-	{
-		if (IsEffectiveProperty(Property))
-		{
-			++EffectiveCount;
-		}
-	}
-
-	return EffectiveCount;
-}
-
 void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
 {
 	Visitor(FBoolProperty::StaticClass());

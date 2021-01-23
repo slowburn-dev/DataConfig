@@ -1,6 +1,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
@@ -12,6 +13,9 @@ namespace DcDeserializerDetails
 static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
 	EDcDeserializeResult HandlerRet = EDcDeserializeResult::Unknown;
+
+	if (!Handler.IsBound())
+		return DC_FAIL(DcDCommon, StaleDelegate);
 
 	FDcResult Result = Handler.Execute(Ctx, HandlerRet);
 	if (!Result.Ok())
@@ -41,10 +45,11 @@ static FDcResult DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& C
 	//	use predicated deserializers first, if it's not handled then try direct handlers
 	for (auto& PredPair : Self.PredicatedDeserializers)
 	{
+		if (!PredPair.Key.IsBound())
+			return DC_FAIL(DcDCommon, StaleDelegate);
+
 		if (PredPair.Key.Execute(Ctx) == EDcDeserializePredicateResult::Process)
-		{
 			return ExecuteDeserializeHandler(Ctx, PredPair.Value);
-		}
 	}
 
 	FFieldVariant& Property = Ctx.TopProperty();

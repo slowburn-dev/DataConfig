@@ -15,6 +15,9 @@ enum Type : uint16
 	NotImplemented,
 	Unexpected1,
 
+	StaleDelegate,
+	StaleDelegateWithName,
+
 
 	PlaceHoldError,
 };
