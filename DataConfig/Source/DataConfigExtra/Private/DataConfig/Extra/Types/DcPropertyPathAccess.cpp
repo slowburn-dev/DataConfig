@@ -4,6 +4,8 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 
+#include "DataConfig/Automation/DcAutomationUtils.h"
+
 #include "Containers/StringView.h"
 
 #include "PropertyPathHelpers.h"
@@ -132,6 +134,10 @@ FDcResult GetDatumPropertyByPath(const FDcPropertyDatum& Datum, const FString& P
 		return DC_FAIL(DcDReadWrite, ExpectFieldButFoundUObject) << Property.GetClassName() << Property.GetFName();
 
 	DC_TRY(Reader.ReadDataEntry(Property.ToFieldUnsafe()->GetClass(), OutDatum));
+
+	//gDcDebug.DumpDatum(OutDatum);
+	DcAutomationUtils::DumpToLog(OutDatum);
+
 	return DcOk();
 }
 

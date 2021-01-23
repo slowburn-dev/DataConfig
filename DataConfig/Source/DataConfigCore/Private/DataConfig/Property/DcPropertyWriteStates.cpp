@@ -31,7 +31,7 @@ static bool CheckPropertyCoercion(EDcDataEntry Next, EDcDataEntry Actual)
 	}
 }
 
-static FDcResult CheckExpectedProperty(FProperty* Property, FFieldClass* ExpectedPropertyClass)
+static FDcResult CheckExpectedProperty(FField* Property, FFieldClass* ExpectedPropertyClass)
 {
 	if (!Property->IsA(ExpectedPropertyClass))
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)

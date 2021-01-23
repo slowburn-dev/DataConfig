@@ -70,6 +70,13 @@ FDcReadStateSet& PushSetPropertyState(FDcPropertyReader* Reader, void* InSetPtr,
 	return Emplace<FDcReadStateSet>(GetTopStorage(Reader), InSetPtr, InSetProperty);
 }
 
+FDcReadStateScalar& PushScalarPropertyState(FDcPropertyReader* Reader, void* InPtr, FField* InField)
+{
+	Reader->States.AddDefaulted();
+	return Emplace<FDcReadStateScalar>(GetTopStorage(Reader), InPtr, InField);
+}
+
+
 void PopState(FDcPropertyReader* Reader)
 {
 	Reader->States.Pop();
@@ -159,9 +166,21 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	{
 		PushStructPropertyState(this, Datum.DataPtr, Datum.CastUScriptStructChecked(), FName(TEXT("$root")));
 	}
-	else
+	else if (Datum.Property.IsA<FArrayProperty>())
 	{
-		checkNoEntry();
+		PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
+	}
+	else if (Datum.Property.IsA<FSetProperty>())
+	{
+		PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
+	}
+	else if (Datum.Property.IsA<FMapProperty>())
+	{
+		PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
+	}
+	else 
+	{
+		PushScalarPropertyState(this, Datum.DataPtr, Datum.CastField());
 	}
 }
 

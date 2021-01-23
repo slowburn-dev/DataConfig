@@ -12,6 +12,7 @@ enum class EDcPropertyReadType
 	MapProperty,
 	ArrayProperty,
 	SetProperty,
+	ScalarProperty,
 };
 
 enum class EDcDataEntry : uint16;
@@ -267,6 +268,33 @@ struct FDcReadStateSet : public FDcBaseReadState
 	FDcResult ReadSetEnd();
 };
 
+struct FDcReadStateScalar : public FDcBaseReadState
+{
+	enum class EState : uint16
+	{
+		ExpectRead,
+		Ended,
+	};
+	EState State;
+
+	FDcReadStateScalar(void* InPtr, FField* InField)
+	{
+		State = EState::ExpectRead;
+		ScalarField = InField;
+		ScalarPtr = InPtr;
+	}
+
+	FField* ScalarField;
+	void* ScalarPtr;
+
+	EDcPropertyReadType GetType() override;
+	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
+
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+};
 
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway
 //	we'll just needs to assume these types are trivially destructable

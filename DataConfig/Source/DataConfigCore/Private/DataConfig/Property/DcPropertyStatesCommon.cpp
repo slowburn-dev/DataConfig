@@ -6,6 +6,13 @@ void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg Seg
 	OutSegments.Add(TEXT("<nil>"));
 }
 
+void DcPropertyHighlight::FormatScalar(TArray<FString>& OutSegments, EFormatSeg SegType, FField* Property)
+{
+	OutSegments.Add(FString::Printf(TEXT("(%s)%s"),
+		*DcPropertyUtils::GetFormatPropertyTypeName(Property),
+		*Property->GetName()));
+}
+
 void DcPropertyHighlight::FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property)
 {
 	if (SegType != EFormatSeg::ParentIsContainer)

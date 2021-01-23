@@ -13,7 +13,7 @@ static FDcPropertyReader* _GetPropertyReader()
 namespace DcPropertyReadStateDetails
 {
 
-static FDcResult CheckExpectedProperty(FProperty* Property, FFieldClass* ExpectedPropertyClass)
+static FDcResult CheckExpectedProperty(FField* Property, FFieldClass* ExpectedPropertyClass)
 {
 	if (!Property->IsA(ExpectedPropertyClass))
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)
@@ -977,4 +977,61 @@ FDcResult FDcReadStateSet::ReadSetEnd()
 			<< (int)EState::ExpectEnd << (int)State
 			<< _GetPropertyReader()->FormatHighlight();
 	}
+}
+
+EDcPropertyReadType FDcReadStateScalar::GetType()
+{
+	return EDcPropertyReadType::ScalarProperty;
+}
+
+FDcResult FDcReadStateScalar::PeekRead(EDcDataEntry* OutPtr)
+{
+	if (State == EState::ExpectRead)
+	{
+		return ReadOutOk(OutPtr, DcPropertyUtils::PropertyToDataEntry(ScalarField));
+	}
+	else
+	{
+		return ReadOutOk(OutPtr, EDcDataEntry::Ended);
+	}
+}
+
+FDcResult FDcReadStateScalar::ReadName(FName* OutNamePtr)
+{
+	FDcPropertyDatum Datum;
+	DC_TRY(ReadDataEntry(FNameProperty::StaticClass(), Datum));
+
+	ReadOut(OutNamePtr, Datum.CastFieldChecked<FNameProperty>()->GetPropertyValue(Datum.DataPtr));
+	return DcOk();
+}
+
+FDcResult FDcReadStateScalar::ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+{
+	if (State != EState::ExpectRead)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectRead << State
+			<< _GetPropertyReader()->FormatHighlight();
+
+	DC_TRY(DcPropertyReadStateDetails::CheckExpectedProperty(ScalarField, ExpectedPropertyClass));
+
+	OutDatum.Property = ScalarField;
+	OutDatum.DataPtr = ScalarPtr;
+
+	State = EState::Ended;
+	return DcOk();
+}
+
+FDcResult FDcReadStateScalar::PeekReadProperty(FFieldVariant* OutProperty)
+{
+	if (State != EState::ExpectRead)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectRead << State
+			<< _GetPropertyReader()->FormatHighlight();
+
+	return ReadOutOk(OutProperty, ScalarField);
+}
+
+void FDcReadStateScalar::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatScalar(OutSegments, SegType, ScalarField);
 }

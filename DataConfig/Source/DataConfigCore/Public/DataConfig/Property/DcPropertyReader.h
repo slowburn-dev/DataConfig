@@ -88,7 +88,6 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
-
 };
 
 template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };

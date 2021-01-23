@@ -19,6 +19,7 @@ namespace DcPropertyHighlight
 	};
 
 	void FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType);
+	void FormatScalar(TArray<FString>& OutSegments, EFormatSeg SegType, FField* Property);
 	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property);
 	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, FProperty* Property);
 	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, FMapProperty* MapProperty, uint16 Index, bool bIsKeyOrValue);;
