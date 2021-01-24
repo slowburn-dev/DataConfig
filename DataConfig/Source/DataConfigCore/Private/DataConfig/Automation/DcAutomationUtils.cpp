@@ -408,74 +408,82 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 	return DcOk();
 }
 
-void DumpToLog(FDcPropertyDatum Datum)
+namespace Details
 {
-	FOutputDevice* WarnOut = (FOutputDevice*)GWarn;
+
+void DumpToOutputDevice(FDcPropertyDatum Datum, FOutputDevice& Output, TSharedPtr<IDcDiagnosticConsumer> NewEnvConsumer)
+{
 	if (Datum.IsNone())
 	{
-		return WarnOut->Log(TEXT("# Datum: <None>"));
+		return Output.Log(TEXT("# Datum: <None>"));
 	}
 	else
 	{
 		FDcScopedEnv ScopedEnv{};
-		ScopedEnv.Get().DiagConsumer = ScopedEnv.Parent().DiagConsumer;
+		ScopedEnv.Get().DiagConsumer = NewEnvConsumer;
 
-		WarnOut->Log(TEXT("-----------------------------------------"));
-		WarnOut->Logf(TEXT("# Datum: '%s', '%s'"), *Datum.Property.GetClassName(), *Datum.Property.GetName());
+		Output.Log(TEXT("-----------------------------------------"));
+		Output.Logf(TEXT("# Datum: '%s', '%s'"), *Datum.Property.GetClassName(), *Datum.Property.GetName());
 
 		FDcPropertyReader PropReader(Datum);
-		FDcPrettyPrintWriter PrettyWriter(*(FOutputDevice*)GWarn);
+		FDcPrettyPrintWriter PrettyWriter(Output);
 		FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
 
 		if (!PrettyPrintVisit.PipeVisit().Ok())
 			ScopedEnv.Get().FlushDiags();
-		WarnOut->Log(TEXT("-----------------------------------------"));
+		Output.Log(TEXT("-----------------------------------------"));
 	}
+}
+
+struct FStrCollectDevice : public FString, public FOutputDevice
+{
+	FStrCollectDevice() : FString()
+	{}
+
+	void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
+	{
+		FString::operator+=((TCHAR*)InData);
+		*this += LINE_TERMINATOR;
+	}
+
+	virtual FString& operator+=(const FString& Other)
+	{
+		return FString::operator+=(Other);
+	}
+};
+
+struct FLowLevelOutputDevice : public FOutputDevice
+{
+	void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
+	{
+		FPlatformMisc::LowLevelOutputDebugString(InData);
+		FPlatformMisc::LowLevelOutputDebugString(LINE_TERMINATOR);
+	}
+};
+
+
+} // namespace Details
+
+
+
+void DumpToLog(FDcPropertyDatum Datum)
+{
+	FOutputDevice& WarnOut = (FOutputDevice&)*GWarn;
+	Details::DumpToOutputDevice(Datum, WarnOut, DcEnv().DiagConsumer);
+}
+
+void DumpToLowLevelDebugOutput(FDcPropertyDatum Datum)
+{
+	Details::FLowLevelOutputDevice StrOutput;
+	Details::DumpToOutputDevice(Datum, StrOutput, DcEnv().DiagConsumer);
 }
 
 FString DumpFormat(FDcPropertyDatum Datum)
 {
-	struct FStrCollectDevice : public FString, public FOutputDevice
-	{
-		FStrCollectDevice() : FString()
-		{}
+	Details::FStrCollectDevice StrOutput;
+	Details::DumpToOutputDevice(Datum, StrOutput, MakeShareable(new FDcStringDiagnosticConsumer{&StrOutput}));
 
-		void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
-		{
-			FString::operator+=((TCHAR*)InData);
-			*this += LINE_TERMINATOR;
-		}
-
-		virtual FString& operator+=(const FString& Other)
-		{
-			return FString::operator+=(Other);
-		}
-	};
-
-	if (Datum.IsNone())
-	{
-		return TEXT("# Datum: <None>");
-	}
-	else
-	{
-		FDcScopedEnv ScopedEnv{};
-		FStrCollectDevice StrOutput;
-		ScopedEnv.Get().DiagConsumer = MakeShareable(new FDcStringDiagnosticConsumer{&StrOutput});
-
-		StrOutput.Log(TEXT("-----------------------------------------"));
-		StrOutput.Logf(TEXT("# Datum: '%s', '%s'"), *Datum.Property.GetClassName(), *Datum.Property.GetName());
-
-		FDcPropertyReader PropReader(Datum);
-		FDcPrettyPrintWriter PrettyWriter(StrOutput);
-		FDcPipeVisitor PrettyPrintVisit(&PropReader, &PrettyWriter);
-
-		if (!PrettyPrintVisit.PipeVisit().Ok())
-			ScopedEnv.Get().FlushDiags();
-
-		StrOutput.Log(TEXT("-----------------------------------------"));
-
-		return MoveTemp(StrOutput);
-	}
+	return MoveTemp(StrOutput);
 }
 
 //	UXXX(meta=(Foo)) only get compiled in `WITH_EDITOR`
@@ -525,20 +533,17 @@ void FDcDebug::DumpStruct(char* StructNameChars, void* Ptr)
 		return;
 	}
 
-	FString Dumped = DcAutomationUtils::DumpFormat(FDcPropertyDatum(LoadStruct, Ptr));
-	FPlatformMisc::LowLevelOutputDebugString(*Dumped);
+	DcAutomationUtils::DumpToLowLevelDebugOutput(FDcPropertyDatum(LoadStruct, Ptr));
 }
 
 void FDcDebug::DumpObject(UObject* Obj)
 {
-	FString Dumped = DcAutomationUtils::DumpFormat(FDcPropertyDatum(Obj));
-	FPlatformMisc::LowLevelOutputDebugString(*Dumped);
+	DcAutomationUtils::DumpToLowLevelDebugOutput(FDcPropertyDatum(Obj));
 }
 
 void FDcDebug::DumpDatum(const FDcPropertyDatum& Datum)
 {
-	FString Dumped = DcAutomationUtils::DumpFormat(Datum);
-	FPlatformMisc::LowLevelOutputDebugString(*Dumped);
+	DcAutomationUtils::DumpToLowLevelDebugOutput(Datum);
 }
 
 FDcDebug gDcDebug;

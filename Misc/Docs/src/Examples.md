@@ -95,7 +95,7 @@ It would fail gracefully with diagnostics:
 - [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
 ```
 
-## Custom Deserializer
+## Custom Deserialization Logic
 
 To deserialize `FColor` with  `#RRGGBBAA` we'll need to provide custom logic to the deserializer. First is to implement a  `FDcDeserializePredicate` delegate to select `FColor` during deserialization:
 
