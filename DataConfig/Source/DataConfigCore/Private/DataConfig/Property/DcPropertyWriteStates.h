@@ -13,6 +13,7 @@ enum class EDcPropertyWriteType
 	MapProperty,
 	ArrayProperty,
 	SetProperty,
+	ScalarProperty,
 };
 
 enum class EDcDataEntry : uint16;
@@ -283,6 +284,37 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
+
+
+struct FDcWriteStateScalar : public FDcBaseWriteState
+{
+	enum class EState : uint16
+	{
+		ExpectWrite,
+		Ended,
+	};
+	EState State;
+
+	FField* ScalarField;
+	void* ScalarPtr;
+
+	FDcWriteStateScalar(void* InPtr, FField* InField)
+	{
+		State = EState::ExpectWrite;
+		ScalarField = InField;
+		ScalarPtr = InPtr;
+	}
+
+	EDcPropertyWriteType GetType() override;
+	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(const FName& Value) override;
+	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite() override;
+	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+};
+
 
 template<typename TProperty, typename TScalar>
 FORCEINLINE void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)

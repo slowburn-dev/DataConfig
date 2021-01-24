@@ -41,6 +41,8 @@ DATACONFIGCORE_API FString DumpFormat(FDcPropertyDatum Datum);
 DATACONFIGCORE_API void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue);
 DATACONFIGCORE_API void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue);
 
+DATACONFIGCORE_API FDcPropertyDatum TryGetMemberDatum(const FDcPropertyDatum& Datum, const FName& Name);
+
 template<typename T>
 T DebugGetScalarPropertyValue(const FDcPropertyDatum& Datum, const FName& Name)
 {

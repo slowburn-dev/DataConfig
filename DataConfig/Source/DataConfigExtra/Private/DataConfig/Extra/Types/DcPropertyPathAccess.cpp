@@ -135,9 +135,6 @@ FDcResult GetDatumPropertyByPath(const FDcPropertyDatum& Datum, const FString& P
 
 	DC_TRY(Reader.ReadDataEntry(Property.ToFieldUnsafe()->GetClass(), OutDatum));
 
-	//gDcDebug.DumpDatum(OutDatum);
-	DcAutomationUtils::DumpToLog(OutDatum);
-
 	return DcOk();
 }
 

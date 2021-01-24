@@ -263,3 +263,181 @@ DC_TEST("DataConfig.Core.Property.Blob")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Property.ScalarRoots")
+{
+	FDcTestStruct1 Source;
+
+	Source.BoolField = true;
+	Source.NameField = TEXT("SomeName");
+	Source.StringField = TEXT("Some String");
+	Source.TextField = FText(NSLOCTEXT("DcAdhocs", "T1", "Some Text"));
+	Source.EnumField = EDcTestEnum1::Bar;
+
+	Source.FloatField = 12.3f;
+	Source.DoubleField = 23.4;
+
+	Source.Int8Field = 123;
+	Source.Int16Field = 234;
+	Source.Int32Field = 34567;
+	Source.Int64Field = 456789;
+
+	Source.UInt8Field = -123;
+	Source.UInt16Field = -234;
+	Source.UInt32Field = -34567;
+	Source.UInt64Field = -456789;
+
+	FDcTestStruct1 Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStruct1::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("BoolField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("BoolField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("NameField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("NameField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StringField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StringField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("TextField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("TextField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("EnumField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("EnumField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("FloatField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("FloatField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("DoubleField")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("DoubleField"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("Int8Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("Int8Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("Int16Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("Int16Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("Int32Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("Int32Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("Int64Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("Int64Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("UInt8Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("UInt8Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("UInt16Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("UInt16Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("UInt32Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("UInt32Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("UInt64Field")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("UInt64Field"))
+	));
+
+	UTEST_OK("Scalar Root Roundtrip", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}
+
+
+DC_TEST("DataConfig.Core.Property.ContainerRoots")
+{
+	FDcTestStruct3 Source;
+
+	Source.StringArray.Add(TEXT("Foo"));
+	Source.StringArray.Add(TEXT("Bar"));
+	Source.StringArray.Add(TEXT("Baz"));
+
+	Source.StringSet.Add(TEXT("Foo"));
+	Source.StringSet.Add(TEXT("Bar"));
+	Source.StringSet.Add(TEXT("Baz"));
+
+	Source.StringMap.Add(TEXT("1"), TEXT("One"));
+	Source.StringMap.Add(TEXT("2"), TEXT("Two"));
+	Source.StringMap.Add(TEXT("3"), TEXT("Three"));
+
+	Source.StructArray.Add({TEXT("One"), 1});
+	Source.StructArray.Add({TEXT("Two"), 2});
+	Source.StructArray.Add({TEXT("Three"), 3});
+
+	Source.StructSet.Add({TEXT("One"), 1});
+	Source.StructSet.Add({TEXT("Two"), 2});
+	Source.StructSet.Add({TEXT("Three"), 3});
+
+	Source.StructMap.Add({TEXT("One"), 1}, {TEXT("Uno"), 1});
+	Source.StructMap.Add({TEXT("Two"), 2}, {TEXT("Dos"), 2});
+	Source.StructMap.Add({TEXT("Three"), 3}, {TEXT("Tres"), 3});
+
+	FDcTestStruct3 Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStruct3::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
+
+	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StringArray")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StringArray"))
+	));
+
+	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StringSet")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StringSet"))
+	));
+
+	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StringMap")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StringMap"))
+	));
+
+	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StructArray")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StructArray"))
+	));
+
+	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StructSet")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StructSet"))
+	));
+
+	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
+		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StructMap")),
+		DcAutomationUtils::TryGetMemberDatum(DestDatum, TEXT("StructMap"))
+	));
+
+	UTEST_OK("Container Root Roundtrip", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}
+
+

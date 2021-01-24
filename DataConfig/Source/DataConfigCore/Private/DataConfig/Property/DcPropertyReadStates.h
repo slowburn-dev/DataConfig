@@ -277,15 +277,15 @@ struct FDcReadStateScalar : public FDcBaseReadState
 	};
 	EState State;
 
+	FField* ScalarField;
+	void* ScalarPtr;
+
 	FDcReadStateScalar(void* InPtr, FField* InField)
 	{
 		State = EState::ExpectRead;
 		ScalarField = InField;
 		ScalarPtr = InPtr;
 	}
-
-	FField* ScalarField;
-	void* ScalarPtr;
 
 	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
@@ -303,9 +303,6 @@ static_assert(TIsTriviallyDestructible<FDcReadStateStruct>::Value, "need trivial
 static_assert(TIsTriviallyDestructible<FDcReadStateMap>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcReadStateArray>::Value, "need trivial destructible");
 static_assert(TIsTriviallyDestructible<FDcReadStateSet>::Value, "need trivial destructible");
-
-
-
-
+static_assert(TIsTriviallyDestructible<FDcReadStateScalar>::Value, "need trivial destructible");
 
 

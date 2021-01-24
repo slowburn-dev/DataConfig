@@ -71,6 +71,12 @@ static FDcWriteStateSet& PushSetPropertyState(FDcPropertyWriter* Writer, void* I
 	return Emplace<FDcWriteStateSet>(GetTopStorage(Writer), InSetPtr, InSetProperty);
 }
 
+static FDcWriteStateScalar& PushScalarPropertyState(FDcPropertyWriter* Writer, void* InPtr, FField* InField)
+{
+	Writer->States.AddDefaulted();
+	return Emplace<FDcWriteStateScalar>(GetTopStorage(Writer), InPtr, InField);
+}
+
 static void PopState(FDcPropertyWriter* Writer)
 {
 	Writer->States.Pop();
@@ -122,9 +128,21 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 			FName(TEXT("$root"))
 		);
 	}
+	else if (Datum.Property.IsA<FArrayProperty>())
+	{
+		PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
+	}
+	else if (Datum.Property.IsA<FSetProperty>())
+	{
+		PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
+	}
+	else if (Datum.Property.IsA<FMapProperty>())
+	{
+		PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
+	}
 	else
 	{
-		checkNoEntry();
+		PushScalarPropertyState(this, Datum.DataPtr, Datum.CastField());
 	}
 }
 

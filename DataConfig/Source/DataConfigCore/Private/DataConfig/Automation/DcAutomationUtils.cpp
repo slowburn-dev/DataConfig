@@ -496,6 +496,22 @@ void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey
 		Property->SetMetaData(MetaKey, MetaValue);
 }
 
+FDcPropertyDatum TryGetMemberDatum(const FDcPropertyDatum& Datum, const FName& Name)
+{
+	FDcPropertyDatum Ret;
+	UStruct* Struct = DcPropertyUtils::TryGetStruct(Datum);
+	if (!Struct)
+		return Ret;
+
+	FProperty* Property = PropertyAccessUtil::FindPropertyByName(Name, Struct);
+	if (!Property)
+		return Ret;
+
+	Ret.Property = Property;
+	Ret.DataPtr = Property->ContainerPtrToValuePtr<void*>(Datum.DataPtr);
+	return Ret;
+}
+
 }	// namespace DcAutomationUtils
 
 #if DC_BUILD_DEBUG

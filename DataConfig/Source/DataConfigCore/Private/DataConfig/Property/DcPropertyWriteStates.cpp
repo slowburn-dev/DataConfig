@@ -878,3 +878,71 @@ void FDcWriteStateSet::FormatHighlightSegment(TArray<FString>& OutSegments, DcPr
 	DcPropertyHighlight::FormatSet(OutSegments, SegType, SetProperty, Index,
 		State == EState::ExpectItemOrEnd);
 }
+
+EDcPropertyWriteType FDcWriteStateScalar::GetType()
+{
+	return EDcPropertyWriteType::ScalarProperty;
+}
+
+FDcResult FDcWriteStateScalar::PeekWrite(EDcDataEntry Next, bool* bOutOk)
+{
+	if (State == EState::ExpectWrite)
+	{
+		return ReadOutOk(bOutOk, Next == DcPropertyUtils::PropertyToDataEntry(ScalarField));
+	}
+	else
+	{
+		return ReadOutOk(bOutOk, Next == EDcDataEntry::Ended);
+	}
+}
+
+FDcResult FDcWriteStateScalar::WriteName(const FName& Value)
+{
+	return WriteValue<FNameProperty, FName>(*this, Value);
+}
+
+FDcResult FDcWriteStateScalar::WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum)
+{
+	if (State != EState::ExpectWrite)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectWrite << State
+			<< _GetPropertyWriter()->FormatHighlight();
+
+	DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(ScalarField, ExpectedPropertyClass));
+
+	OutDatum.Property = ScalarField;
+	OutDatum.DataPtr = ScalarPtr;
+
+	State = EState::Ended;
+	return DcOk();
+}
+
+FDcResult FDcWriteStateScalar::SkipWrite()
+{
+	if (State == EState::ExpectWrite)
+	{
+		State = EState::Ended;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectWrite << State
+			<< _GetPropertyWriter()->FormatHighlight();
+	}
+}
+
+FDcResult FDcWriteStateScalar::PeekWriteProperty(FFieldVariant* OutProperty)
+{
+	if (State != EState::ExpectWrite)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectWrite << State
+			<< _GetPropertyWriter()->FormatHighlight();
+
+	return ReadOutOk(OutProperty, ScalarField);
+}
+
+void FDcWriteStateScalar::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatScalar(OutSegments, SegType, ScalarField);
+}
