@@ -32,10 +32,11 @@ struct DATACONFIGCORE_API FDcEnv
 };
 
 DATACONFIGCORE_API FDcEnv& DcEnv();
+DATACONFIGCORE_API FDcEnv& DcParentEnv();
 DATACONFIGCORE_API FDcEnv& DcPushEnv();
 DATACONFIGCORE_API void DcPopEnv();
 
-extern TBasicArray<FDcEnv> Envs;	// external linkage for debug watch window
+extern TBasicArray<FDcEnv> gDcEnvs;	
 
 template<typename T, TArray<T*> FDcEnv::*MemberPtr>
 struct TScopedEnvMemberPtr
@@ -63,6 +64,7 @@ struct DATACONFIGCORE_API FDcScopedEnv
 	FORCEINLINE FDcScopedEnv() { DcPushEnv(); }
 	FORCEINLINE ~FDcScopedEnv() { DcPopEnv(); }
 	FORCEINLINE FDcEnv& Get() { return DcEnv(); }
+	FORCEINLINE FDcEnv& Parent() { return gDcEnvs[gDcEnvs.Num() - 2]; }
 };
 
 #define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})

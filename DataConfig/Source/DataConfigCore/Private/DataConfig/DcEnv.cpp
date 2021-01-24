@@ -4,22 +4,22 @@
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "Containers/BasicArray.h"
 
-TBasicArray<FDcEnv> Envs;
+TBasicArray<FDcEnv> gDcEnvs;
 
 FDcEnv& DcEnv()
 {
 	check(DcIsInitialized());
-	return Envs[Envs.Num() - 1];
+	return gDcEnvs[gDcEnvs.Num() - 1];
 }
 
 FDcEnv& DcPushEnv()
 {
-	return Envs[Envs.Emplace()];
+	return gDcEnvs[gDcEnvs.Emplace()];
 }
 
 void DcPopEnv()
 {
-	Envs.RemoveAt(Envs.Num() - 1);
+	gDcEnvs.RemoveAt(gDcEnvs.Num() - 1);
 }
 
 FDcDiagnostic& FDcEnv::Diag(FDcErrorCode InErr)

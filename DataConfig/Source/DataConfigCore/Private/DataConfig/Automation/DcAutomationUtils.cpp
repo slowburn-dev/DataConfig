@@ -418,7 +418,7 @@ void DumpToLog(FDcPropertyDatum Datum)
 	else
 	{
 		FDcScopedEnv ScopedEnv{};
-		ScopedEnv.Get().DiagConsumer = MakeShareable(new FDcDefaultLogDiagnosticConsumer());
+		ScopedEnv.Get().DiagConsumer = ScopedEnv.Parent().DiagConsumer;
 
 		WarnOut->Log(TEXT("-----------------------------------------"));
 		WarnOut->Logf(TEXT("# Datum: '%s', '%s'"), *Datum.Property.GetClassName(), *Datum.Property.GetName());
