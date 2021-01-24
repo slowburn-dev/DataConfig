@@ -357,11 +357,23 @@ FDcResult FDcPropertyReader::ReadMapRoot()
 {
 	FScopedStackedReader StackedReader(this);
 
-	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).ReadDataEntry(FMapProperty::StaticClass(), Datum));
+	FDcBaseReadState& TopState = GetTopState(this);
+	{
+		FDcReadStateMap* MapState = TopState.As<FDcReadStateMap>();
+		if (MapState != nullptr
+			&& MapState->State == FDcReadStateMap::EState::ExpectRoot)
+		{
+			return MapState->ReadMapRoot();
+		}
+	}
 
-	FDcReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
-	DC_TRY(ChildMap.ReadMapRoot());
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(GetTopState(this).ReadDataEntry(FMapProperty::StaticClass(), Datum));
+
+		FDcReadStateMap& ChildMap = PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
+		DC_TRY(ChildMap.ReadMapRoot());
+	}
 
 	return DcOk();
 }
@@ -387,11 +399,25 @@ FDcResult FDcPropertyReader::ReadArrayRoot()
 {
 	FScopedStackedReader StackedReader(this);
 
-	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).ReadDataEntry(FArrayProperty::StaticClass(), Datum));
+	FDcBaseReadState& TopState = GetTopState(this);
 
-	FDcReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
-	DC_TRY(ChildArray.ReadArrayRoot());
+	{
+		FDcReadStateArray* ArrayState = TopState.As<FDcReadStateArray>();
+		if (ArrayState != nullptr
+			&& ArrayState->State == FDcReadStateArray::EState::ExpectRoot)
+		{
+			DC_TRY(ArrayState->ReadArrayRoot());
+			return DcOk();
+		}
+	}
+
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(FArrayProperty::StaticClass(), Datum));
+
+		FDcReadStateArray& ChildArray = PushArrayPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FArrayProperty>());
+		DC_TRY(ChildArray.ReadArrayRoot());
+	}
 
 	return DcOk();
 }
@@ -417,11 +443,23 @@ FDcResult FDcPropertyReader::ReadSetRoot()
 {
 	FScopedStackedReader StackedReader(this);
 
-	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).ReadDataEntry(FSetProperty::StaticClass(), Datum));
+	FDcBaseReadState& TopState = GetTopState(this);
+	{
+		FDcReadStateSet* SetState = TopState.As<FDcReadStateSet>();
+		if (SetState != nullptr
+			&& SetState->State == FDcReadStateSet::EState::ExpectRoot)
+		{
+			return SetState->ReadSetRoot();
+		}
+	}
 
-	FDcReadStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
-	DC_TRY(ChildSet.ReadSetRoot());
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(FSetProperty::StaticClass(), Datum));
+
+		FDcReadStateSet& ChildSet = PushSetPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FSetProperty>());
+		DC_TRY(ChildSet.ReadSetRoot());
+	}
 
 	return DcOk();
 }
