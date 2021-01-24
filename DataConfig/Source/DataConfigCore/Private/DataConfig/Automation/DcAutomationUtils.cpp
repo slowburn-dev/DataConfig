@@ -541,9 +541,9 @@ void FDcDebug::DumpObject(UObject* Obj)
 	DcAutomationUtils::DumpToLowLevelDebugOutput(FDcPropertyDatum(Obj));
 }
 
-void FDcDebug::DumpDatum(const FDcPropertyDatum& Datum)
+void FDcDebug::DumpDatum(void* DatumPtr)
 {
-	DcAutomationUtils::DumpToLowLevelDebugOutput(Datum);
+	DcAutomationUtils::DumpToLowLevelDebugOutput(*(FDcPropertyDatum*)DatumPtr);
 }
 
 FDcDebug gDcDebug;

@@ -110,7 +110,7 @@ EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 }
 ```
 
-Then we'll need to implement a `FDcDeserializeDelegate` to deserialize a `FColor`. We have a few options when doing it. Here we'll demonstrate how the `FDcWriter` API works:
+Then we'll need to implement a `FDcDeserializeDelegate` to deserialize a `FColor`. Here we'll do it by writing through `R/G/B/A` fields by name with the `FDcWriter` API.
 
 ```c++
 //	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
@@ -150,6 +150,56 @@ Deserializer.AddPredicatedHandler(
 ```
 
 And then it's done. It would work recursively on `FColor` everywhere, like in `UCLASS/USTRUCT` members, in `TArray/TSet` and in `TMap` as key or values.
+
+## Writer API Alternatives
+
+In the example above we're deserializing `FColor` by writing into its member fields separately, which is a bit dumb. In this case DataConfig do support some better alternatives.
+
+Since we know that `FColor` is POD type we can construct one by filling the correct bit pattern. In this case `FDcPropertyWriter` allow struct property to be coerced from blob:
+
+```c++
+//	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+template<>
+FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteBlob>(const FColor& Color, FDcDeserializeContext& Ctx)
+{
+	return Ctx.Writer->WriteBlob({
+		(uint8*)&Color,	// treat `Color` as opaque blob data
+		sizeof(FColor)
+	});
+}
+```
+
+Alternatively we can get `FProperty` and data pointer in place and setting the value through Unreal's `FProperty` API:
+
+```c++
+//	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+template<>
+FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteDataEntry>(const FColor& Color, FDcDeserializeContext& Ctx)
+{
+	FDcPropertyDatum Datum;
+	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
+
+	Datum.CastFieldChecked<FStructProperty>()->CopySingleValue(Datum.DataPtr, &Color);
+	return DcOk();
+}
+```
+
+Note that we already know that `Datum.DataPtr` points to a allocated `FColor` instance. Thus we can simply cast it into a `FColor*` and directly manipulate the pointer.
+
+```c++
+//	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+template<>
+FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WritePointer>(const FColor& Color, FDcDeserializeContext& Ctx)
+{
+	FDcPropertyDatum Datum;
+	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
+
+	FColor* ColorPtr = (FColor*)Datum.DataPtr;
+	*ColorPtr = Color;	//	deserialize by assignment
+
+	return DcOk();
+}
+```
 
 ## Debug Dump
 
@@ -201,5 +251,9 @@ struct DATACONFIGCORE_API FDcDebug
 extern FDcDebug gDcDebug;
 ```
 
-Here's an animated demo showing dumping `GEngine` during debug break in MSVC:
+Here's an animated demo showing dumping the vector above _during debug break_ in MSVC:
+
+![Examples-DebugDumpVecDatum](Images/Examples-DebugDumpVecDatum.png)
+
+The expression is `({,,UE4Editor-DataConfigCore}gDcDebug).DumpDatum(&VecDatum)` as we need DLL name to locate `gDcDebug`.
 

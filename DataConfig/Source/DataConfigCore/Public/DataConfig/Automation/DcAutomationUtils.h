@@ -12,11 +12,12 @@
 #include "UObject/PropertyAccessUtil.h"
 
 #if DC_BUILD_DEBUG
+
 struct DATACONFIGCORE_API FDcDebug
 {
 	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
 	FORCENOINLINE void DumpObject(UObject* Obj);
-	FORCENOINLINE void DumpDatum(const FDcPropertyDatum& Datum);
+	FORCENOINLINE void DumpDatum(void* DatumPtr);
 };
 
 ///	Access `gDcDebugg` in MSVC immediate window:
