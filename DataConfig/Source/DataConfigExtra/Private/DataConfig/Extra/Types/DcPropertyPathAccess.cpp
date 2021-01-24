@@ -3,11 +3,10 @@
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
-
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
+#include "Misc/CString.h"
 #include "Containers/StringView.h"
-
 #include "PropertyPathHelpers.h"
 
 namespace DcExtra {
@@ -61,7 +60,8 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 
 					DC_TRY(Reader->PeekRead(&Next));
 					if (Next == EDcDataEntry::StructEnd)
-						return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << Reader->FormatHighlight();
+						return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
+							<< Cur << Reader->FormatHighlight();
 				}
 			}
 		}
@@ -91,21 +91,65 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 
 					DC_TRY(Reader->PeekRead(&Next));
 					if (Next == EDcDataEntry::ClassEnd)
-						return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << Reader->FormatHighlight();
+						return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
+							<< Cur << Reader->FormatHighlight();
 				}
 			}
 		}
 		else if (Next == EDcDataEntry::ArrayRoot)
 		{
-			return DcNoEntry();
+			DC_TRY(Reader->ReadArrayRoot());
+			int Index = FCString::Strtoi(Cur.begin(), nullptr, 10);
+
+			while (Index > 0)
+			{
+				DC_TRY(Reader->SkipRead());
+				--Index;
+			}
 		}
 		else if (Next == EDcDataEntry::SetRoot)
 		{
-			return DcNoEntry();
+			DC_TRY(Reader->ReadSetRoot());
+			int Index = FCString::Strtoi(Cur.begin(), nullptr, 10);
+
+			while (Index > 0)
+			{
+				DC_TRY(Reader->SkipRead());
+				--Index;
+			}
 		}
 		else if (Next == EDcDataEntry::MapRoot)
 		{
-			return DcNoEntry();
+			DC_TRY(Reader->ReadMapRoot());
+
+			FName CurName(Cur);
+			while (true)
+			{
+				EDcDataEntry MapNext;
+				DC_TRY(Reader->PeekRead(&MapNext));
+
+				if (MapNext == EDcDataEntry::String)
+				{
+					FString FieldStr;
+					DC_TRY(Reader->ReadString(&FieldStr));
+
+					if (FieldStr == Cur)
+						break;	// found
+				}
+				else if (MapNext == EDcDataEntry::Name)
+				{
+					FName FieldName;
+					DC_TRY(Reader->ReadName(&FieldName));
+
+					if (FieldName == CurName)
+						break;	// found
+				}
+				else
+				{
+					return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
+						<< EDcDataEntry::Name << EDcDataEntry::String << MapNext << Reader->FormatHighlight();
+				}
+			}
 		}
 
 		if (Tail.IsEmpty())
@@ -149,22 +193,30 @@ DC_TEST("DataConfig.Extra.PathAccess.ReadByPath")
 
 	UDcExtraTestClassOuter* Outer = NewObject<UDcExtraTestClassOuter>();
 	Outer->StructRoot.Middle.InnerMost.StrField = TEXT("Foo");
+	Outer->StructRoot.Arr.Emplace(FDcExtraTestStructNestInnerMost{TEXT("Bar0")});
+	Outer->StructRoot.Arr.Emplace(FDcExtraTestStructNestInnerMost{TEXT("Bar1")});
+	Outer->StructRoot.NameMap.Emplace(TEXT("FooKey"), FDcExtraTestStructNestInnerMost{TEXT("FooValue")});
 
 	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("Foo"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("Bar0"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("Bar1"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("FooValue"));
 
 	return true;
 }
 
 DC_TEST("DataConfig.Extra.PathAccess.PropertyPathHelpers")
 {
-	//	demonstrating UE4 PropertyPathHelpers
-
+	//	demo UE4 PropertyPathHelpers read and write
 	UDcExtraTestClassOuter* Outer = NewObject<UDcExtraTestClassOuter>();
 	Outer->StructRoot.Middle.InnerMost.StrField = TEXT("Foo");
 
 	FString Str;
 	UTEST_TRUE("Extra PropertyPathHelpers", PropertyPathHelpers::GetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), Str));
 	UTEST_TRUE("Extra PropertyPathHelpers", Str == TEXT("Foo"));
+
+	UTEST_TRUE("Extra PropertyPathHelpers", PropertyPathHelpers::SetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), FString(TEXT("Bar"))));
+	UTEST_TRUE("Extra PropertyPathHelpers", Outer->StructRoot.Middle.InnerMost.StrField == TEXT("Bar"));
 
 	return true;
 }

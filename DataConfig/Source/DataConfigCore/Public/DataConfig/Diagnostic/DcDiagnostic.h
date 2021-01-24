@@ -130,6 +130,12 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FString&& Str)
 	return Diag;
 };
 
+FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, FStringView Sv)
+{
+	Diag.Args.Emplace(FString(Sv).ReplaceCharWithEscapedChar());
+	return Diag;
+};
+
 FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, const FFieldVariant& Property)
 {
 	Diag.Args.Emplace(Property.GetFullName());

@@ -12,7 +12,11 @@ struct FDcPropertyWriter;
 
 namespace DcExtra {
 
-///	Access nested properties by a path like `Foo.Bar.Baz` similar to module `PropertyPathHelpers`
+///	Access nested properties by a path like `Foo.Bar.Baz` similar to module `PropertyPathHelpers` with additional features
+///	1. Support non UObject roots.
+/// 2. Support access TArray elements like `Foo.2.Bar`
+/// 3. Support access TMap elements like `Foo.MapKey.Bar`
+
 
 DATACONFIGEXTRA_API FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path);
 
@@ -62,6 +66,8 @@ struct FDcExtraTestStructNestOuter
 	GENERATED_BODY()
 
 	UPROPERTY() FDcExtraTestStructNestMiddle Middle;
+	UPROPERTY() TArray<FDcExtraTestStructNestInnerMost> Arr;
+	UPROPERTY() TMap<FName, FDcExtraTestStructNestInnerMost> NameMap;
 };
 
 UCLASS()
