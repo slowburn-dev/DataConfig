@@ -11,7 +11,7 @@ You should try adding DataConfig as a plugin into your C++ project to get starte
    ![Integration-DataConfigPlugin](Images/Integration-DataConfigPlugin.png)
 
 3. The plugin comes with a set of tests. Open menu `Window -> Developer Tools  -> Session Frontend`. Find and run the `DataConfig` tests and it should all pass.
-   
+  
    ![Integration-DataConfigAutomations](Images/Integration-DataConfigAutomations.png)
 
 ## Integrate `DataConfigCore` Module
@@ -50,8 +50,7 @@ Most projects should has a editor module already setup. In this section we'll go
        // ...
    	DcStartUp(EDcInitializeAction::SetAsConsole);
        // dump a FVector to try it out
-   	FVector Vec(1.0f, 2.0f, 3.0f);
-   	DcAutomationUtils::DumpToLog(FDcPropertyDatum(TBaseStructure<FVector>::Get(), &Vec));
+   	k
    }
    
    void FFooProjectEditorModule::ShutdownModule()
@@ -60,7 +59,7 @@ Most projects should has a editor module already setup. In this section we'll go
    	DcShutDown();
    }
    ```
-
+   
 4. Rebuild the project and restart the editor. Open `Output Log` and use `LogDataConfigCore` filter and find the dump output. 
 
    ![Integration-DataConfigCoreOutput](Images/Integration-DataConfigCoreOutput.png)

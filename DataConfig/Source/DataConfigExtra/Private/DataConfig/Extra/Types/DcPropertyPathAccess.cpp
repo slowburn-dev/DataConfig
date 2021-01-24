@@ -189,8 +189,6 @@ DC_TEST("DataConfig.Extra.PathAccess.ReadWriteByPath")
 {
 	using namespace DcExtra;
 
-	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-
 	UDcExtraTestClassOuter* Outer = NewObject<UDcExtraTestClassOuter>();
 	Outer->StructRoot.Middle.InnerMost.StrField = TEXT("Foo");
 	Outer->StructRoot.Arr.Emplace(FDcExtraTestStructNestInnerMost{TEXT("Bar0")});

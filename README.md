@@ -11,7 +11,7 @@ Unreal Engine features a powerful [Property System][1] which implements C++ runt
 
 ## Example
 
-Give a struct annotated and processed with Unreal's Property System:
+Given a struct annotated and processed with Unreal's Property System:
 
 ```c++
 UENUM()

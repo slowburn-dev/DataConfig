@@ -61,3 +61,14 @@ DC_TEST("DataConfig.Core.Blurb.Frontpage")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Blurb.Dump")
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(FName(TEXT("LogDataConfigCore")), ELogVerbosity::NoLogging);
+
+	FVector Vec(1.0f, 2.0f, 3.0f);
+	FDcPropertyDatum VecDatum(TBaseStructure<FVector>::Get(), &Vec);
+
+	DcAutomationUtils::DumpToLog(VecDatum);
+
+	return true;
+}
