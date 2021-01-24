@@ -185,7 +185,7 @@ FDcResult GetDatumPropertyByPath(const FDcPropertyDatum& Datum, const FString& P
 } // namespace DcExtra
 
 
-DC_TEST("DataConfig.Extra.PathAccess.ReadByPath")
+DC_TEST("DataConfig.Extra.PathAccess.ReadWriteByPath")
 {
 	using namespace DcExtra;
 
@@ -201,6 +201,16 @@ DC_TEST("DataConfig.Extra.PathAccess.ReadByPath")
 	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("Bar0"));
 	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("Bar1"));
 	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("FooValue"));
+
+	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField", TEXT("AltFoo")));
+	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField", TEXT("AltBar0")));
+	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField", TEXT("AltBar1")));
+	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField", TEXT("AltFooValue")));
+
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("AltFoo"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("AltBar0"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("AltBar1"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("AltFooValue"));
 
 	return true;
 }

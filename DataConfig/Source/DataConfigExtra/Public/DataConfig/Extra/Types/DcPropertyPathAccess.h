@@ -17,9 +17,7 @@ namespace DcExtra {
 /// 2. Support access TArray elements like `Foo.2.Bar`
 /// 3. Support access TMap elements like `Foo.MapKey.Bar`
 
-
 DATACONFIGEXTRA_API FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path);
-
 DATACONFIGEXTRA_API FDcResult GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path, FDcPropertyDatum& OutDatum);
 
 template<typename T>
@@ -38,6 +36,25 @@ T GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path)
 
 	return Property->GetPropertyValue(ResultDatum.DataPtr);
 }
+
+template<typename T>
+bool SetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path, const T& Value)
+{
+	using TProperty = typename DcPropertyUtils::TPropertyTypeMap<T>::Type;
+
+	FDcPropertyDatum ResultDatum;
+	FDcResult Ret = GetDatumPropertyByPath(RootDatum, Path, ResultDatum);
+	if (!Ret.Ok())
+		return false;
+
+	TProperty* Property = ResultDatum.CastField<TProperty>();
+	if (!Property)
+		return false;
+
+	Property->SetPropertyValue(ResultDatum.DataPtr, Value);
+	return true;
+}
+
 
 } // namespace DcExtra
 
