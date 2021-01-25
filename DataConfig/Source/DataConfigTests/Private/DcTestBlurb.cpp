@@ -72,3 +72,42 @@ DC_TEST("DataConfig.Core.Blurb.Dump")
 
 	return true;
 }
+
+DC_TEST("DataConfig.Core.Blurb.ReadWrite")
+{
+	FDcTestExampleSimple SimpleStruct;
+	SimpleStruct.StrField = TEXT("Foo Str");
+	SimpleStruct.IntField = 253;
+
+	UTEST_OK("Blurb Reader", [&]{
+
+		FDcPropertyReader Reader(FDcPropertyDatum(FDcTestExampleSimple::StaticStruct(), &SimpleStruct));
+
+		FDcStructStat Struct;	// `FDcTestExampleSimple` Struct Root
+		DC_TRY(Reader.ReadStructRoot(&Struct));
+		check(Struct.Name == TEXT("DcTestExampleSimple"));
+
+			FName FieldName;
+			DC_TRY(Reader.ReadName(&FieldName));	// 'StrField' as FName
+			check(FieldName == TEXT("StrField"));
+
+			FString StrValue;
+			DC_TRY(Reader.ReadString(&StrValue));	// "Foo STr"
+			check(StrValue == TEXT("Foo Str"));
+
+			DC_TRY(Reader.ReadName(&FieldName));	// 'IntField' as FName
+			check(FieldName == TEXT("IntField"));
+
+			int IntValue;
+			DC_TRY(Reader.ReadInt32(&IntValue));	// 253
+			check(IntValue == 253);
+
+		DC_TRY(Reader.ReadStructEnd(&Struct));	// `FDcTestExampleSimple` Struct Root
+		check(Struct.Name == TEXT("DcTestExampleSimple"));
+
+		return DcOk();
+	}());
+
+
+	return true;
+}

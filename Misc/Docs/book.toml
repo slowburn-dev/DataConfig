@@ -2,3 +2,6 @@
 title = "DataConfig Book"
 description = "Serialization framework for Unreal Engine Property System that just works!"
 language = "en"
+
+[output.html]
+additional-css = ["custom.css"]

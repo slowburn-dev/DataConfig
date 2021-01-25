@@ -18,4 +18,13 @@ struct FDcTestExampleStruct
 	UPROPERTY() TArray<FColor> Colors;
 };
 
+USTRUCT()
+struct FDcTestExampleSimple
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FString StrField;
+	UPROPERTY() int IntField;
+};
+
 

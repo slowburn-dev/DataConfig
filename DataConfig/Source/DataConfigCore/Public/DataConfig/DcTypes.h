@@ -43,7 +43,6 @@ FORCEINLINE FDcResult DcOk() {
 UENUM()
 enum class EDcDataEntry : uint16
 {
-	//	Data Type
 	Nil,
 
 	Bool,
@@ -86,7 +85,7 @@ enum class EDcDataEntry : uint16
 	SetEnd,
 
 	//	Reference
-	ObjectReference,	// `ObjectReference` always happen between `ClassRoot/ClassEnd`
+	ObjectReference,
 	ClassReference,
 
 	WeakObjectReference,
@@ -106,8 +105,8 @@ enum class EDcDataEntry : uint16
 	//	Extension
 	Blob,
 
-	//	Meta
-	Ended, // or error or invalid state, 
+	//	End
+	Ended,
 };
 
 struct DATACONFIGCORE_API FDcStructStat
