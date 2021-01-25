@@ -3,14 +3,10 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/DcEnv.h"
 
-TBasicArray<FDcDiagnosticGroup*> DiagGroups;
+TBasicArray<FDcDiagnosticGroup*> DcDiagGroups;
 
-void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup)
+namespace DcDiagnosticDetails
 {
-	checkf(!DcIsInitialized(), TEXT("can't register diagnostic group after initialized"));
-	checkf(InWeakGroup->CategoryID > 0xFF, TEXT("categoryID under 255 is reserved"));
-	DiagGroups.Emplace(InWeakGroup);
-}
 
 static FDcDiagnosticDetail* SearchDetails(uint16 InID, FDcDiagnosticGroup* Group)
 {
@@ -26,12 +22,22 @@ static FDcDiagnosticDetail* SearchDetails(uint16 InID, FDcDiagnosticGroup* Group
 	return nullptr;
 }
 
+
+} // namespace DcDiagnosticDetails
+
+void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup)
+{
+	checkf(!DcIsInitialized(), TEXT("can't register diagnostic group after initialized"));
+	checkf(InWeakGroup->CategoryID > 0xFF, TEXT("categoryID under 255 is reserved"));
+	DcDiagGroups.Emplace(InWeakGroup);
+}
+
 const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError)
 {
-	for (FDcDiagnosticGroup* Group : DiagGroups)
+	for (FDcDiagnosticGroup* Group : DcDiagGroups)
 	{
 		if (InError.CategoryID == Group->CategoryID)
-			return SearchDetails(InError.ErrorID, Group);
+			return DcDiagnosticDetails::SearchDetails(InError.ErrorID, Group);
 	}
 
 	return nullptr;
@@ -43,9 +49,9 @@ void FDcNullDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 }
 
 FDcDefaultLogDiagnosticConsumer::FDcDefaultLogDiagnosticConsumer()
-	: Override(TEXT("LogDataConfigCore"), ELogVerbosity::Display)
-{
-}
+	: FDcOutputDeviceDiagnosticConsumer((FOutputDevice&)*GWarn)
+	, Override(TEXT("LogDataConfigCore"), ELogVerbosity::Display)
+{}
 
 FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 {
@@ -116,8 +122,7 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	}
 }
 
-
-void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
+void FDcOutputDeviceDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 {
 	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
 	if (Detail)
@@ -127,13 +132,13 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 		for (FDcDataVariant& Var : Diag.Args)
 			FormatArgs.Add(DcConvertArg(Var));
 
-		UE_LOG(LogDataConfigCore, Display, TEXT("# DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
+		Output.Logf(TEXT("# DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
 
 		for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
 		{
 			if (Highlight.FileContext.IsSet())
 			{
-				UE_LOG(LogDataConfigCore, Display, TEXT("- [%s] --> %s%d:%d\n%s"),
+				Output.Logf(TEXT("- [%s] --> %s%d:%d\n%s"),
 					*Highlight.OwnerName,
 					*Highlight.FileContext->FilePath,
 					Highlight.FileContext->Loc.Line,
@@ -143,7 +148,7 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 			}
 			else
 			{
-				UE_LOG(LogDataConfigCore, Display, TEXT("- [%s] %s"),
+				Output.Logf(TEXT("- [%s] %s"),
 					*Highlight.OwnerName,
 					*Highlight.Formatted);
 			}
@@ -151,48 +156,6 @@ void FDcDefaultLogDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 	}
 	else
 	{
-		UE_LOG(LogDataConfigCore, Display, TEXT("Unknown Diagnostic ID: %d, %d"), Diag.Code.CategoryID, Diag.Code.ErrorID);
-	}
-}
-
-void FDcStringDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
-{
-	check(Output);
-	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
-	if (Detail)
-	{
-		check(Detail->ID == Diag.Code.ErrorID);
-		TArray<FStringFormatArg> FormatArgs;
-		for (FDcDataVariant& Var : Diag.Args)
-			FormatArgs.Add(DcConvertArg(Var));
-
-		Output->Appendf(TEXT("# DataConfig Error: %s"), *FString::Format(Detail->Msg, FormatArgs));
-		Output->AppendChar(TCHAR('\n'));
-
-		for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
-		{
-			if (Highlight.FileContext.IsSet())
-			{
-				Output->Appendf(TEXT("- [%s] --> %s%d:%d\n%s"),
-					*Highlight.OwnerName,
-					*Highlight.FileContext->FilePath,
-					Highlight.FileContext->Loc.Line,
-					Highlight.FileContext->Loc.Column,
-					*Highlight.Formatted
-				);
-			}
-			else
-			{
-				Output->Appendf(TEXT("- [%s] %s"),
-					*Highlight.OwnerName,
-					*Highlight.Formatted);
-			}
-			Output->AppendChar(TCHAR('\n'));
-		}
-	}
-	else
-	{
-		Output->Appendf(TEXT("Unknown Diagnostic ID: %d, %d"), Diag.Code.CategoryID, Diag.Code.ErrorID);
-		Output->AppendChar(TCHAR('\n'));
+		Output.Logf(TEXT("Unknown Diagnostic ID: %d, %d"), Diag.Code.CategoryID, Diag.Code.ErrorID);
 	}
 }

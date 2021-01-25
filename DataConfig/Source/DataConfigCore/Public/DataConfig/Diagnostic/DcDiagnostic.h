@@ -142,35 +142,35 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, const FFieldVariant& 
 	return Diag;
 }
 
-struct IDcDiagnosticConsumer : public TSharedFromThis<IDcDiagnosticConsumer>
+struct DATACONFIGCORE_API IDcDiagnosticConsumer : public TSharedFromThis<IDcDiagnosticConsumer>
 {
 	virtual void HandleDiagnostic(FDcDiagnostic& Diag) = 0;
 	virtual ~IDcDiagnosticConsumer() = default;
 };
 
-struct FDcNullDiagnosticConsumer : public IDcDiagnosticConsumer
+struct DATACONFIGCORE_API FDcNullDiagnosticConsumer : public IDcDiagnosticConsumer
 {
 	void HandleDiagnostic(FDcDiagnostic& Diag) override;
 };
 
-struct FDcDefaultLogDiagnosticConsumer : public IDcDiagnosticConsumer
+struct DATACONFIGCORE_API FDcOutputDeviceDiagnosticConsumer : public IDcDiagnosticConsumer
 {
-	FDcDefaultLogDiagnosticConsumer();
+	FDcOutputDeviceDiagnosticConsumer(FOutputDevice& InOutput)
+		: Output(InOutput)
+	{}
 
 	void HandleDiagnostic(FDcDiagnostic& Diag) override;
+
+	FOutputDevice& Output;
+};
+
+struct DATACONFIGCORE_API FDcDefaultLogDiagnosticConsumer : public FDcOutputDeviceDiagnosticConsumer
+{
+	FDcDefaultLogDiagnosticConsumer();
 
 	FLogScopedCategoryAndVerbosityOverride Override;
 };
 
-struct FDcStringDiagnosticConsumer : public IDcDiagnosticConsumer
-{
-	FORCEINLINE FDcStringDiagnosticConsumer(FString* InOutput)
-		: Output(InOutput) {}
-
-	void HandleDiagnostic(FDcDiagnostic& Diag) override;
-
-	FString* Output;
-};
 
 struct DATACONFIGCORE_API FDcDiagnosticDetail
 {
@@ -188,7 +188,7 @@ struct DATACONFIGCORE_API FDcDiagnosticGroup
 	FDcDiagnosticDetail* Details;
 };
 
-extern TBasicArray<FDcDiagnosticGroup*> DiagGroups;
+extern TBasicArray<FDcDiagnosticGroup*> DcDiagGroups;
 
 DATACONFIGCORE_API void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup);
 

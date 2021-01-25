@@ -63,10 +63,10 @@ namespace DcDDeserialize { extern FDcDiagnosticGroup Details; }
 
 void DcStartUp(EDcInitializeAction InAction)
 {
-	DiagGroups.Emplace(&DcDCommon::Details);
-	DiagGroups.Emplace(&DcDReadWrite::Details);
-	DiagGroups.Emplace(&DcDJSON::Details);
-	DiagGroups.Emplace(&DcDDeserialize::Details);
+	DcDiagGroups.Emplace(&DcDCommon::Details);
+	DcDiagGroups.Emplace(&DcDReadWrite::Details);
+	DcDiagGroups.Emplace(&DcDJSON::Details);
+	DcDiagGroups.Emplace(&DcDDeserialize::Details);
 
 	DcPushEnv();
 	DcEnvDetails::bInitialized = true;
@@ -80,7 +80,7 @@ void DcStartUp(EDcInitializeAction InAction)
 void DcShutDown()
 {
 	DcPopEnv();
-	DiagGroups.RemoveAt(0, DiagGroups.Num());
+	DcDiagGroups.RemoveAt(0, DcDiagGroups.Num());
 
 	DcEnvDetails::bInitialized = false;
 }

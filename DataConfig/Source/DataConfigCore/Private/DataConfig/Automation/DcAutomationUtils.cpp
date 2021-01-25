@@ -475,13 +475,13 @@ void DumpToLog(FDcPropertyDatum Datum)
 void DumpToLowLevelDebugOutput(FDcPropertyDatum Datum)
 {
 	Details::FLowLevelOutputDevice StrOutput;
-	Details::DumpToOutputDevice(Datum, StrOutput, DcEnv().DiagConsumer);
+	Details::DumpToOutputDevice(Datum, StrOutput, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{StrOutput}));
 }
 
 FString DumpFormat(FDcPropertyDatum Datum)
 {
 	Details::FStrCollectDevice StrOutput;
-	Details::DumpToOutputDevice(Datum, StrOutput, MakeShareable(new FDcStringDiagnosticConsumer{&StrOutput}));
+	Details::DumpToOutputDevice(Datum, StrOutput, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{StrOutput}));
 
 	return MoveTemp(StrOutput);
 }
