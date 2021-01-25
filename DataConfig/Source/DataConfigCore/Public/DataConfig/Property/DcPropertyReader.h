@@ -7,7 +7,15 @@
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
-class FProperty;
+namespace DcPropertyReaderDetails
+{
+	struct FReadState
+	{
+		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
+		ImplStorageType ImplStorage;
+	};
+} // namespace DcPropertyReaderDetails
+
 
 struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopyable
 {
@@ -77,18 +85,12 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;
 
-	struct FPropertyState
-	{
-		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
-		ImplStorageType ImplStorage;
-	};
-
-	TArray<FPropertyState, TInlineAllocator<4>> States;
+	TArray<DcPropertyReaderDetails::FReadState, TInlineAllocator<4>> States;
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
 };
 
-template<> struct TIsPODType<FDcPropertyReader::FPropertyState> { enum { Value = true }; };
+template<> struct TIsPODType<DcPropertyReaderDetails::FReadState> { enum { Value = true }; };
 

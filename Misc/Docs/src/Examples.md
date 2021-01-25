@@ -4,10 +4,10 @@ This page shows some short and quick examples showcasing DataConfig API usage an
 
 ## JSON Deserialization
 
-This is the example shown on front page. Given the `FDcTestExampleStruct`:
+This is the example shown on front page. Given the struct`FDcTestExampleStruct`:
 
 ```c++
-//	DataConfig/DataConfig/Source/DataConfigTests/Private/DcTestBlurb.h
+// DataConfig/DataConfig/Source/DataConfigTests/Private/DcTestBlurb.h
 UENUM()
 enum class EDcTestExampleEnum
 {
@@ -27,7 +27,7 @@ struct FDcTestExampleStruct
 We can deserialize an instance from JSON with the snippet below:
 
 ```c++
-//	DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
 FString Str = TEXT(R"(
     {
         "StrField" : "Lorem ipsum dolor sit amet",
@@ -113,7 +113,7 @@ EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 Then we'll need to implement a `FDcDeserializeDelegate` to deserialize a `FColor`. Here we'll do it by writing through `R/G/B/A` fields by name with the `FDcWriter` API.
 
 ```c++
-//	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -140,7 +140,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(cons
 Then we'll need to register these pair of delegates to the `FDcDeserializer`.
 
 ```c++
-//	DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
 FDcDeserializer Deserializer;
 DcSetupJsonDeserializeHandlers(Deserializer);
 Deserializer.AddPredicatedHandler(
@@ -172,7 +172,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteBlob>(cons
 Alternatively we can get `FProperty` and data pointer in place and setting the value through Unreal's `FProperty` API:
 
 ```c++
-//	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteDataEntry>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -187,7 +187,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteDataEntry>
 Note that we already know that `Datum.DataPtr` points to a allocated `FColor` instance. Thus we can simply cast it into a `FColor*` and directly manipulate the pointer.
 
 ```c++
-//	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WritePointer>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -195,7 +195,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WritePointer>(c
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
 	FColor* ColorPtr = (FColor*)Datum.DataPtr;
-	*ColorPtr = Color;	//	deserialize by assignment
+	*ColorPtr = Color;	// deserialize by assignment
 
 	return DcOk();
 }
@@ -206,14 +206,14 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WritePointer>(c
 `DcAutomationUtils::DumpToLog()` can dump a `FDcPropertyDatum` to a string representation, in which `FDcPropertyDatum` is simply a `FProperty` + `void*` pair that can represent anything in the property system:
 
 ```c++
-//	DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
 FVector Vec(1.0f, 2.0f, 3.0f);
 FDcPropertyDatum VecDatum(TBaseStructure<FVector>::Get(), &Vec);
 
 DcAutomationUtils::DumpToLog(VecDatum);
 ```
 
-The console output would be:
+Output would be:
 
 ```
 -----------------------------------------
@@ -229,10 +229,10 @@ The console output would be:
 -----------------------------------------
 ```
 
-Additionally we wrapped this into `gDcDebug` that can be invoked in MSVC immediate window. Calling it during debug would dump into the `Output` window:
+Additionally we wrapped this into `gDcDebug` that can be invoked in MSVC immediate window. Calling it during debug would dump into MSVC **Output** window:
 
 ```c++
-//	DataConfig/Source/DataConfigCore/Public/DataConfig/Automation/DcAutomationUtils.h
+// DataConfig/Source/DataConfigCore/Public/DataConfig/Automation/DcAutomationUtils.h
 struct DATACONFIGCORE_API FDcDebug
 {
 	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
@@ -255,5 +255,10 @@ Here's an animated demo showing dumping the vector above _during debug break_ in
 
 ![Examples-DebugDumpVecDatum](Images/Examples-DebugDumpVecDatum.png)
 
-The expression is `({,,UE4Editor-DataConfigCore}gDcDebug).DumpDatum(&VecDatum)` as we need DLL name to locate `gDcDebug`.
+The full expression to evaluate is:
 
+```
+({,,UE4Editor-DataConfigCore}gDcDebug).DumpDatum(&VecDatum)
+```
+
+We need DLL name to locate `gDcDebug` in a non monolith build.

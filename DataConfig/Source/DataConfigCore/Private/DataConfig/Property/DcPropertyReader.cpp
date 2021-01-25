@@ -7,14 +7,12 @@
 #include "Templates/Casts.h"
 #include "UObject/TextProperty.h"
 
-//	need these as readers needs to push states
-
-static FORCEINLINE FDcPropertyReader::FPropertyState::ImplStorageType* GetTopStorage(FDcPropertyReader* Self)
+static FORCEINLINE DcPropertyReaderDetails::FReadState::ImplStorageType* GetTopStorage(FDcPropertyReader* Self)
 {
 	return &Self->States.Top().ImplStorage;
 }
 
-static FORCEINLINE FDcBaseReadState& AsReadState(FDcPropertyReader::FPropertyState::ImplStorageType* Storage)
+static FORCEINLINE FDcBaseReadState& AsReadState(DcPropertyReaderDetails::FReadState::ImplStorageType* Storage)
 {
 	return *reinterpret_cast<FDcBaseReadState*>(Storage);
 }

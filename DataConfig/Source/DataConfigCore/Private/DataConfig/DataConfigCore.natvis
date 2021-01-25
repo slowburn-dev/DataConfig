@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-
-  <!-- `Type` is the glob pattern that matches in the `Watch` window `Type` column. -->
-  <!-- ref: https://github.com/bitshares/bitshares-fc/blob/master/fc.natvis -->
-  <!-- the key is `DisplayName` has {} and `Item` don't -->
-  <Type Name="TArray&lt;FDcPropertyReader::FPropertyState,*&gt;::ElementType">
-    <DisplayString>{*(FDcBaseReadState*)(&amp;ImplStorage.Data)}</DisplayString>
+  <Type Name="DcPropertyReaderDetails::FReadState">
+    <DisplayString>{*(FDcBaseReadState*)(&amp;ImplStorage)}</DisplayString>
     <Expand>
-      <Item Name="State">*(FDcBaseReadState*)(&amp;ImplStorage.Data)</Item>
+      <Item Name="State">*(FDcBaseReadState*)(&amp;ImplStorage)</Item>
     </Expand>
   </Type>
 
-  <Type Name="TArray&lt;FDcPropertyWriter::FPropertyState,*&gt;::ElementType">
-    <DisplayString>{*(FDcBaseWriteState*)(&amp;ImplStorage.Data)}</DisplayString>
+  <Type Name="DcPropertyWriterDetails::FWriteState">
+    <DisplayString>{*(FDcBaseWriteState*)(&amp;ImplStorage)}</DisplayString>
     <Expand>
-      <Item Name="State">*(FDcBaseWriteState*)(&amp;ImplStorage.Data)</Item>
+      <Item Name="State">*(FDcBaseWriteState*)(&amp;ImplStorage)</Item>
     </Expand>
   </Type>
 
-  <!-- ref: llvm.natvis -->
   <!-- `su` ref: https://docs.microsoft.com/en-us/visualstudio/debugger/format-specifiers-in-cpp?view=vs-2019 -->
   <Type Name="TDcSourceRef&lt;wchar_t&gt;">
   		<DisplayString>{Buffer->Buffer+Begin,[Num]su}</DisplayString>

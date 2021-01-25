@@ -2,7 +2,7 @@
 
 #if !IS_MONOLITHIC
 
-//	amend module boilerplate on modular builds, as Extra is a Source only module
+//	amend module boilerplate on modular builds
 PER_MODULE_BOILERPLATE
 
 #endif

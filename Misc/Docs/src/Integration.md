@@ -4,7 +4,7 @@
 
 You should try adding DataConfig as a plugin into your C++ project to get started.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
 
-1. Get a copy of this repository. Then copy  `./DataConfig` (where `DataConfig.uplugin` resides) into your project's `Plugins` directory.
+1. Get a copy of this repository. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
 
 2. Restart your project. There should be a prompt to compile plugin sources. Confirm and wait until your project launches. Then open `Settings -> Plugins` you should see **Data Config** listed under Project Editor category.
 
@@ -16,7 +16,7 @@ You should try adding DataConfig as a plugin into your C++ project to get starte
 
 ## Integrate `DataConfigCore` Module
 
-DataConfig is packed into a plugin to bundle in the automation tests with a few assets. You're encouraged to integrate only the `DataConfigCore` module. It contains all core features with minimal dependencies. 
+DataConfig is packed into a plugin to bundle automation tests with a few assets. You're encouraged to integrate only the `DataConfigCore` module. It contains all core features with minimal dependencies. 
 
 Most projects should has a editor module already setup. In this section we'll go through the steps of integrating `DataConfigCore` and build it with the project's `FooProjectEditor` module.
 
@@ -48,9 +48,12 @@ Most projects should has a editor module already setup. In this section we'll go
    void FFooProjectEditorModule::StartupModule()
    {
        // ...
-   	DcStartUp(EDcInitializeAction::SetAsConsole);
+       DcStartUp(EDcInitializeAction::SetAsConsole);
        // dump a FVector to try it out
-   	k
+       FVector Vec(1.0f, 2.0f, 3.0f);
+       FDcPropertyDatum VecDatum(TBaseStructure<FVector>::Get(), &Vec);
+
+       DcAutomationUtils::DumpToLog(VecDatum);
    }
    
    void FFooProjectEditorModule::ShutdownModule()

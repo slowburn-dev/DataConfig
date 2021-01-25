@@ -5,12 +5,12 @@
 #include "DataConfig/DcEnv.h"
 #include "UObject/TextProperty.h"
 
-static FORCEINLINE FDcPropertyWriter::FPropertyState::ImplStorageType* GetTopStorage(FDcPropertyWriter* Self)
+static FORCEINLINE DcPropertyWriterDetails::FWriteState::ImplStorageType* GetTopStorage(FDcPropertyWriter* Self)
 {
 	return &Self->States.Top().ImplStorage;
 }
 
-static FORCEINLINE FDcBaseWriteState& AsWriteState(FDcPropertyWriter::FPropertyState::ImplStorageType* Storage)
+static FORCEINLINE FDcBaseWriteState& AsWriteState(DcPropertyWriterDetails::FWriteState::ImplStorageType* Storage)
 {
 	return *reinterpret_cast<FDcBaseWriteState*>(Storage);
 }

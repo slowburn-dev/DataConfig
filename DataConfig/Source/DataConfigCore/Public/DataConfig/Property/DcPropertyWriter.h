@@ -6,6 +6,15 @@
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
+namespace DcPropertyWriterDetails
+{
+	struct FWriteState
+	{
+		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
+		ImplStorageType ImplStorage;
+	};
+} // namespace DcPropertyWriterDetails
+
 struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopyable
 {
 	FDcPropertyWriter();
@@ -77,13 +86,7 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;
 
-	struct FPropertyState
-	{
-		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
-		ImplStorageType ImplStorage;
-	};
-
-	TArray<FPropertyState, TInlineAllocator<4>> States;
+	TArray<DcPropertyWriterDetails::FWriteState, TInlineAllocator<4>> States;
 
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;

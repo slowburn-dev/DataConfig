@@ -13,6 +13,7 @@
 
 IMPLEMENT_APPLICATION(DataConfigHeadless, "DataConfigHeadless");
 
+
 static int32 TestRunnerBody(TArray<FString>& Tokens)
 {
 	FDcAutomationConsoleRunner Runner;
