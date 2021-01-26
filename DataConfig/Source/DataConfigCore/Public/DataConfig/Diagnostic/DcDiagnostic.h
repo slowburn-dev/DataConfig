@@ -180,6 +180,8 @@ struct DATACONFIGCORE_API FDcDiagnosticDetail
 
 DATACONFIGCORE_API const FDcDiagnosticDetail* DcFindDiagnosticDetail(FDcErrorCode InError);
 DATACONFIGCORE_API FStringFormatArg DcConvertArg(FDcDataVariant& Var);
+DATACONFIGCORE_API void DcFormatDiagnostic(FOutputDevice& Output, FDcDiagnostic& Diag);
+DATACONFIGCORE_API FString DcDiagnosticToString(FDcDiagnostic& Diag);
 
 struct DATACONFIGCORE_API FDcDiagnosticGroup
 {

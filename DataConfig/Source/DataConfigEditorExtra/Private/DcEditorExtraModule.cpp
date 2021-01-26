@@ -8,53 +8,10 @@
 
 struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 {
-	//	TODO refactor this
 	void HandleDiagnostic(FDcDiagnostic& Diag) override
 	{
-		const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
-		if (Detail)
-		{
-			check(Detail->ID == Diag.Code.ErrorID);
-			TArray<FStringFormatArg> FormatArgs;
-			for (FDcDataVariant& Var : Diag.Args)
-				FormatArgs.Add(DcConvertArg(Var));
-
-			FString OutMessage;
-			OutMessage.Append(TEXT("# DataConfig Error: "));
-			OutMessage.Append(FString::Format(Detail->Msg, FormatArgs));
-			if (Diag.Highlights.Num())
-			{
-				for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
-				{
-					OutMessage.AppendChar(TCHAR('\n'));
-					if (Highlight.FileContext.IsSet())
-					{
-						OutMessage.Appendf(TEXT("- [%s] --> %s%d:%d\n%s"),
-							*Highlight.OwnerName,
-							*Highlight.FileContext->FilePath,
-							Highlight.FileContext->Loc.Line,
-							Highlight.FileContext->Loc.Column,
-							*Highlight.Formatted
-						);
-					}
-					else
-					{
-						OutMessage.Appendf(TEXT("- [%s] %s"),
-							*Highlight.OwnerName,
-							*Highlight.Formatted
-						);
-					}
-				}
-			}
-
-			FMessageLog MessageLog("DataConfig");
-			MessageLog.Message(EMessageSeverity::Error, FText::FromString(OutMessage));
-		}
-		else
-		{
-			FMessageLog MessageLog("DataConfig");
-			MessageLog.Message(EMessageSeverity::Error, FText::FromString(TEXT("Unknown DataConfig Diagnostic")));
-		}
+		FMessageLog MessageLog("DataConfig");
+		MessageLog.Message(EMessageSeverity::Error, FText::FromString(DcDiagnosticToString(Diag)));
 	}
 };
 

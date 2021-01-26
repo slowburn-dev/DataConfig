@@ -2,6 +2,7 @@
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/DcEnv.h"
+#include "DataConfig/DcCorePrivate.h"
 
 TBasicArray<FDcDiagnosticGroup*> DcDiagGroups;
 
@@ -122,7 +123,7 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	}
 }
 
-void FDcOutputDeviceDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
+void DcFormatDiagnostic(FOutputDevice& Output, FDcDiagnostic& Diag)
 {
 	const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);
 	if (Detail)
@@ -158,4 +159,16 @@ void FDcOutputDeviceDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
 	{
 		Output.Logf(TEXT("Unknown Diagnostic ID: %d, %d"), Diag.Code.CategoryID, Diag.Code.ErrorID);
 	}
+}
+
+FString DcDiagnosticToString(FDcDiagnostic& Diag)
+{
+	DcCorePrivate::FStringNewlineDevice Output;
+	DcFormatDiagnostic(Output, Diag);
+	return MoveTemp(Output);
+}
+
+void FDcOutputDeviceDiagnosticConsumer::HandleDiagnostic(FDcDiagnostic& Diag)
+{
+	DcFormatDiagnostic(Output, Diag);
 }

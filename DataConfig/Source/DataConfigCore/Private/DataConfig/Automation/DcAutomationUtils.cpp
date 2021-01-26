@@ -6,6 +6,7 @@
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/DcCorePrivate.h"
 
 namespace DcAutomationUtils
 {
@@ -435,23 +436,6 @@ void DumpToOutputDevice(FDcPropertyDatum Datum, FOutputDevice& Output, TSharedPt
 	}
 }
 
-struct FStrCollectDevice : public FString, public FOutputDevice
-{
-	FStrCollectDevice() : FString()
-	{}
-
-	void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
-	{
-		FString::operator+=((TCHAR*)InData);
-		*this += LINE_TERMINATOR;
-	}
-
-	virtual FString& operator+=(const FString& Other)
-	{
-		return FString::operator+=(Other);
-	}
-};
-
 struct FLowLevelOutputDevice : public FOutputDevice
 {
 	void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
@@ -474,16 +458,16 @@ void DumpToLog(FDcPropertyDatum Datum)
 
 void DumpToLowLevelDebugOutput(FDcPropertyDatum Datum)
 {
-	Details::FLowLevelOutputDevice StrOutput;
-	Details::DumpToOutputDevice(Datum, StrOutput, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{StrOutput}));
+	Details::FLowLevelOutputDevice Output;
+	Details::DumpToOutputDevice(Datum, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
 }
 
 FString DumpFormat(FDcPropertyDatum Datum)
 {
-	Details::FStrCollectDevice StrOutput;
-	Details::DumpToOutputDevice(Datum, StrOutput, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{StrOutput}));
+	DcCorePrivate::FStringNewlineDevice Output;
+	Details::DumpToOutputDevice(Datum, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
 
-	return MoveTemp(StrOutput);
+	return MoveTemp(Output);
 }
 
 //	UXXX(meta=(Foo)) only get compiled in `WITH_EDITOR`
