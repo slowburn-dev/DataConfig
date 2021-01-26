@@ -145,7 +145,25 @@ In the example above `FDcReader` behave like a iterator as each `ReadXXX()` call
 
 ## `FDcWriter`
 
-TODO
+`FDcWriter` is the counter part of writing into the data config model. To write into the example instance above:
+
+```c++
+DC_TRY(Writer.WriteStructRoot(FDcStructStat{})); // `FDcTestExampleSimple` Struct Root
+
+DC_TRY(Writer.WriteName(TEXT("StrField")));      // 'StrField' as FName
+DC_TRY(Writer.WriteString(TEXT("Alt Str")));     // "Foo STr"
+
+DC_TRY(Writer.WriteName(TEXT("IntField")));      // 'IntField' as FName
+DC_TRY(Writer.WriteInt32(233));                  // 233
+
+DC_TRY(Writer.WriteStructEnd(FDcStructStat{}));  // `FDcTestExampleSimple` Struct Root
+```
+
+There's also `FDcWriter::PeekRead()` to query whether it's possible to write given data type.
+
+## Conclusion
+
+DataConfig provide `FDcReader` and `FDcWriter` to access the property system. It can be considered as a friendly alternative to the property system API. It's also how we implemented flexible JSON deserialization, which would be described in later chapters.
 
 
 

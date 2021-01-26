@@ -108,6 +108,27 @@ DC_TEST("DataConfig.Core.Blurb.ReadWrite")
 		return DcOk();
 	}());
 
+	UTEST_OK("Blurb Writer", [&]{
+
+		FDcPropertyWriter Writer(FDcPropertyDatum(FDcTestExampleSimple::StaticStruct(), &SimpleStruct));
+
+		DC_TRY(Writer.WriteStructRoot(FDcStructStat{})); // `FDcTestExampleSimple` Struct Root
+
+		DC_TRY(Writer.WriteName(TEXT("StrField")));      // 'StrField' as FName
+		DC_TRY(Writer.WriteString(TEXT("Alt Str")));     // "Foo STr"
+
+
+		DC_TRY(Writer.WriteName(TEXT("IntField")));      // 'IntField' as FName
+		DC_TRY(Writer.WriteInt32(233));                  // 233
+
+		DC_TRY(Writer.WriteStructEnd(FDcStructStat{}));  // `FDcTestExampleSimple` Struct Root
+
+		check(SimpleStruct.StrField == TEXT("Alt Str"));
+		check(SimpleStruct.IntField == 233);
+
+		return DcOk();
+	}());
+
 
 	return true;
 }

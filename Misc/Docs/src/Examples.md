@@ -153,9 +153,9 @@ And then it's done. It would work recursively on `FColor` everywhere, like in `U
 
 ## Writer API Alternatives
 
-In the example above we're deserializing `FColor` by writing into its member fields separately, which is a bit dumb. In this case DataConfig do support some better alternatives.
+In the example above we're deserializing `FColor` by writing into its member fields separately, which is a bit dumb. In this case DataConfig do support better alternatives.
 
-Since we know that `FColor` is POD type we can construct one by filling the correct bit pattern. In this case `FDcPropertyWriter` allow struct property to be coerced from blob:
+Since we know that `FColor` is POD type we can construct one by filling in correct bit pattern. In this case `FDcPropertyWriter` allow struct property to be coerced from a blob:
 
 ```c++
 //	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
