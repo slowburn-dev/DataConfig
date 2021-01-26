@@ -8,6 +8,7 @@
 
 struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 {
+	//	TODO refactor this
 	void HandleDiagnostic(FDcDiagnostic& Diag) override
 	{
 		const FDcDiagnosticDetail* Detail = DcFindDiagnosticDetail(Diag.Code);

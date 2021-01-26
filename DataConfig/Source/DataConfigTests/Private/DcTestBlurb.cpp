@@ -6,6 +6,7 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 
 // short test code for example and showcases
 
@@ -129,6 +130,29 @@ DC_TEST("DataConfig.Core.Blurb.ReadWrite")
 		return DcOk();
 	}());
 
+
+	return true;
+}
+
+namespace DcBlurbDetails {
+
+	FDcResult Succeed() {
+		// succeed
+		return DcOk();
+	}
+
+	FDcResult Fail() {
+		// fail !
+		return DC_FAIL(DcDCommon, Unexpected1) << "Custom Message";
+	}
+
+} // namespace DcBlurbDetails
+
+
+DC_TEST("DataConfig.Core.Blurb.Result")
+{
+	UTEST_OK("Blurb Result", DcBlurbDetails::Succeed());
+	UTEST_DIAG("Blurb Result", DcBlurbDetails::Fail(), DcDCommon, Unexpected1);
 
 	return true;
 }
