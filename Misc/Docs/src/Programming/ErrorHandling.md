@@ -1,6 +1,6 @@
 # Error Handling
 
-Proper error handling is crucial to implement robust serialization as it needs to deal with unknown user input. DataConfig also provide diagnostic to help users quickly pin down common errors like typo or missing colons in JSON. Here's an example diagnostic:
+Proper error handling is crucial to implement robust serialization as it needs to deal with unknown user input. DataConfig also provide diagnostic to help users quickly pin down common errors like typo or missing colons in JSON. Here's an example:
 
 ```
 # DataConfig Error: Enum name not found in enum type: EDcTestExampleEnum, Actual: 'Far'
@@ -14,7 +14,7 @@ Proper error handling is crucial to implement robust serialization as it needs t
 - [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
 ```
 
-Internally DataConfig is applying a consistent error handling strategy across all API and user code are expected to follow along.
+Internally DataConfig is applying a consistent error handling strategy across all API. User code are expected to follow along.
 
 ## Returning `FDcResult`
 
@@ -88,7 +88,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(cons
     return DcOk();
 }
 ```
-This pattern is a bit similar to [Outcome](https://ned14.github.io/outcome/) and [Boost.Leaf](https://github.com/boostorg/leaf) except we give up using the return value at all. Return values should be passed through reference or pointers in function arguments.
+This pattern is similar to [Outcome](https://ned14.github.io/outcome/) and [Boost.Leaf](https://github.com/boostorg/leaf) except we give up using the return value. Return values should be passed through reference or pointers in function arguments.
 
 ## Diagnostics
 
@@ -148,7 +148,7 @@ Note that we can pipe argument into the diagnostic. The diagnostic reported by i
 DataConfig uses `FDcResult`, `DC_TRY`, `DC_FAIL` for error handling. It's lightweight and relatively easy to grasp. There's still some limitations in this regard:
 
 - `FDcResult` occupied the return position making passing value to parent a bit cumbersome.
-- For now we always stop as the first error. It's very unlikely to support error recovery.
+- For now we always stop as the first error. There's no plan to support error recovery.
 
 Some closing notes:
 
