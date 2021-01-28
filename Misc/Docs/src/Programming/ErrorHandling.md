@@ -88,7 +88,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(cons
     return DcOk();
 }
 ```
-This pattern is similar to [Outcome](https://ned14.github.io/outcome/) and [`std::expected`](https://wg21.link/p0323) except we give up using the return value. Return values should be passed through reference or pointers in function arguments.
+This pattern is similar to [Outcome](https://ned14.github.io/outcome/) and [std::expected](https://wg21.link/p0323) except we give up using the return value. Return values should be passed through reference or pointers in function arguments.
 
 ## Diagnostics
 

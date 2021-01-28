@@ -1,6 +1,4 @@
-#include "CoreMinimal.h"
 #include "DcCorePrivate.h"
-
 
 #if !IS_MONOLITHIC
 
@@ -12,7 +10,7 @@ PER_MODULE_BOILERPLATE
 
 namespace DcCorePrivate {
 
-void FStringNewlineDevice::Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) 
+void FStringNewlineDevice::Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category)
 {
 	FString::operator+=((TCHAR*)InData);
 	*this += LINE_TERMINATOR;

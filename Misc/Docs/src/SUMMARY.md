@@ -12,6 +12,7 @@
 
   - [Core Types](Programming/CoreTypes.md)
   - [Error Handling](Programming/ErrorHandling.md)
+  - [Env](Programming/Env.md)
 
 - [Credits](Credits.md)
 

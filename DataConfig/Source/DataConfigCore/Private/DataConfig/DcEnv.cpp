@@ -79,7 +79,9 @@ void DcStartUp(EDcInitializeAction InAction)
 
 void DcShutDown()
 {
-	DcPopEnv();
+	while (gDcEnvs.Num())
+		DcPopEnv();
+
 	DcDiagGroups.RemoveAt(0, DcDiagGroups.Num());
 
 	DcEnvDetails::bInitialized = false;
