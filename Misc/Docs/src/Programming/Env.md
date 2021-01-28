@@ -49,12 +49,12 @@ void FDcEditorExtraModule::ShutdownModule()
 }
 ```
 
-The active `FDcEnv` is accesed by calling global function `DcEnv()`. Inside the Env:
+The active `FDcEnv` is accessed by calling global function `DcEnv()`. Inside the Env:
 
 - `Diagnostics`: all diagnostics are flushed into env.
-- `DiagConsumer`: diagnostic handler, used to flush to log or `MessageLog` or maybe on screen.
+- `DiagConsumer`: diagnostic handler, format and print diagnostic to log or `MessageLog` or even on screen.
 - `ReaderStack/WriterStack`: used to pass along reader/writer down the callstack. See `FScopedStackedReader` uses for example.   
 - ... and everything else.
 
-You can use `DcPushEnv()` to create new env, and destroy old one by calling `DcPopEnv()`. At this moment it's mostly used to handle reentrant during serialization. See `FDcScopedEnv` uses for example.
+You can use `DcPushEnv()` to create new env then destroy it calling `DcPopEnv()`. At this moment it's mostly used to handle reentrant during serialization. See `FDcScopedEnv` uses for examples.
 

@@ -13,6 +13,8 @@
   - [Core Types](Programming/CoreTypes.md)
   - [Error Handling](Programming/ErrorHandling.md)
   - [Env](Programming/Env.md)
+  - [Built-in Reader and Writers](Programming/BuiltinReaderWriters.md)
+  - [Deserializer](Programming/Deserializer.md)
 
 - [Credits](Credits.md)
 

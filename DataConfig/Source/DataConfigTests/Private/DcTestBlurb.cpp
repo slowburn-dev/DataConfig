@@ -7,6 +7,7 @@
 #include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Json/DcJsonReader.h"
 
 // short test code for example and showcases
 
@@ -153,6 +154,51 @@ DC_TEST("DataConfig.Core.Blurb.Result")
 {
 	UTEST_OK("Blurb Result", DcBlurbDetails::Succeed());
 	UTEST_DIAG("Blurb Result", DcBlurbDetails::Fail(), DcDCommon, Unexpected1);
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Blurb.JSONReader")
+{
+	UTEST_OK("Blurb Writer", [&]{
+
+		FString Str = TEXT(R"(
+			{
+				"Str":    "Fooo",
+				"Number": 1.875,
+				"Bool":   true
+			} 
+		)");
+
+		FDcJsonReader Reader(Str);
+
+		//	calling read methods
+		FString KeyStr;
+		FString GotStr;
+		double GotNumber;
+		bool GotBool;
+
+		DC_TRY(Reader.ReadMapRoot());
+
+			DC_TRY(Reader.ReadString(&KeyStr));
+			DC_TRY(Reader.ReadString(&GotStr));
+
+			DC_TRY(Reader.ReadString(&KeyStr));
+			DC_TRY(Reader.ReadDouble(&GotNumber));
+
+			DC_TRY(Reader.ReadString(&KeyStr));
+			DC_TRY(Reader.ReadBool(&GotBool));
+
+		DC_TRY(Reader.ReadMapEnd());
+
+		//	validate results
+		check(GotStr == TEXT("Fooo"));
+		check(GotNumber == 1.875);
+		check(GotBool == true);
+
+		return DcOk();
+
+	}());
 
 	return true;
 }
