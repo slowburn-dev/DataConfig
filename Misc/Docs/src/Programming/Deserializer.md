@@ -30,7 +30,7 @@ DECLARE_DELEGATE_RetVal_TwoParams(FDcResult, FDcDeserializeDelegate, FDcDeserial
 
 ```
 
-We call these functions **Handlers**. Here's a simple one that deserialize booleans:
+We call these functions **handlers**. Here's a simple one that deserialize booleans:
 
 ```c++
 // DataConfig/Source/DataConfigCore/Private/DataConfig/Deserialize/Handlers/Json/DcJsonPrimitiveDeserializers.cpp
@@ -148,8 +148,56 @@ DC_TRY(Ctx.Prepare());
 DC_TRY(Deserializer.Deserialize(Ctx));
 ```
 
-TODO: `TopObject/TopProperty`
-TODO: actually we're missing a `TopObject` example.
+## Tips for writing handlers
 
+There're some recurring patterns when writing deserialization handlers in DataConfig.
 
+### Recursive Deserialize
 
+When deserializing a container like `USTRUCT` root or `TArray` you'll need to recursively deserialize children properties. Here's how it's done:
+
+```c++
+// DataConfig/Source/DataConfigCore/Private/DataConfig/Deserialize/Handlers/Json/DcJsonStructDeserializers.cpp
+FDcScopedProperty ScopedValueProperty(Ctx);
+DC_TRY(ScopedValueProperty.PushProperty());
+DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+```
+`FDcScopedProperty` is used to push writer's next property into `FDcDeserializeContext::Properties` to satisfiy the invariant that `FDcDeserializeContext::TopProperty()` always points to the current writing property.
+
+### Provide `TopObject()`
+
+Sometimes deserialization will create new `UObject` along the way. In this case you'll need to fill in `FDcDeserializeContext::Objects` so the top one is used for `NewObject()` calls. For transient objecst you can use `GetTransientPackage()`:
+
+```c++
+// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
+Ctx.Objects.Push(GetTransientPackage());
+```
+
+### Peek By Value
+
+Sometimes you want to peek the content of the next entry. For example in `DcExtra::HandlerBPDcAnyStructDeserialize()` we're dealing with a JSON like this:
+
+```json
+{
+    "AnyStructField1" : {
+        "$type" : "/DataConfig/DcFixture/DcTestBlueprintStructWithColor",
+        "NameField" : "Foo",
+        //...
+    }
+}
+```
+
+We want to consume the `$type` key and its value, and then delegate the logic back to the deserializer. The solution here is first to consume the pair. Then we putback a `{`  then replace the reader:
+
+```c++
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
+FDcPutbackReader PutbackReader(Ctx.Reader);
+PutbackReader.Putback(EDcDataEntry::MapRoot);
+TDcStoreThenReset<FDcReader*> RestoreReader(Ctx.Reader, &PutbackReader);
+
+FDcScopedProperty ScopedValueProperty(Ctx);
+DC_TRY(ScopedValueProperty.PushProperty());
+DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
+```
+
+Note that putback doesn't support everything at the moment.
