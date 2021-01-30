@@ -8,7 +8,7 @@ Conceptually the DataConfig data model is defined by 3 C++ types:
 
 1. `EDcDataEntry` - enum covers every possible data type.
 2. `FDcReader` - methods to read from the data model.
-3. ` FDcWriter` - methods to write into the data model.
+3. `FDcWriter` - methods to write into the data model.
 
 And that's it. The obvious missing thing is a DOM like object that you can random access and serialize into -  we choose to not implement that and it's crucial to understand this to get to know how DataConfig works.
 

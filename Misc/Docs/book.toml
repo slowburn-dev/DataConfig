@@ -5,3 +5,4 @@ language = "en"
 
 [output.html]
 additional-css = ["custom.css"]
+site-url = "/DataConfig/"
