@@ -19,6 +19,7 @@
 - [Deserialize](Deserialize/README.md)
 
   - [Deserialize JSON](Deserialize/DeserializeJSON.md)
+  - [Pipe Deserialize](Deserialize/PipeDeserialize.md)
 
 - [Credits](Credits.md)
 

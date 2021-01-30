@@ -232,3 +232,55 @@ DC_TEST("DataConfig.Core.Blurb.Uninitialized")
 	return true;
 };
 
+DC_TEST("DataConfig.Core.Blurb.PropertyHandlers")
+{
+	 UTEST_OK("Blurb Uninitialized", [&]{
+
+		FDcTestExampleSimple From;
+		From.StrField = TEXT("Foo");
+		From.IntField = 123;
+		FDcTestExampleSimple To;
+
+		//	these two following blocks are equivalent
+		{
+			To  = FDcTestExampleSimple();
+			FDcPropertyDatum FromDatum(FDcTestExampleSimple::StaticStruct(), &From);
+			FDcPropertyDatum ToDatum(FDcTestExampleSimple::StaticStruct(), &To);
+
+			FDcPropertyReader Reader(FromDatum);
+			FDcPropertyWriter Writer(ToDatum);
+			FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
+
+			DC_TRY(RoundtripVisit.PipeVisit());
+			DC_TRY(DcAutomationUtils::TestReadDatumEqual(FromDatum, ToDatum));
+		}
+
+		{
+			To  = FDcTestExampleSimple();
+			FDcPropertyDatum FromDatum(FDcTestExampleSimple::StaticStruct(), &From);
+			FDcPropertyDatum ToDatum(FDcTestExampleSimple::StaticStruct(), &To);
+
+			FDcDeserializer Deserializer;
+			DcSetupPropertyPipeDeserializeHandlers(Deserializer);
+
+			FDcPropertyReader Reader(FromDatum);
+			FDcPropertyWriter Writer(ToDatum);
+
+			FDcDeserializeContext Ctx;
+			Ctx.Reader = &Reader;
+			Ctx.Writer = &Writer;
+			Ctx.Deserializer = &Deserializer;
+			Ctx.Properties.Push(FromDatum.Property);
+			DC_TRY(Ctx.Prepare());
+
+			DC_TRY(Deserializer.Deserialize(Ctx));
+			DC_TRY(DcAutomationUtils::TestReadDatumEqual(FromDatum, ToDatum));
+		}
+
+		return DcOk();
+
+	}());
+
+	return true;
+};
+

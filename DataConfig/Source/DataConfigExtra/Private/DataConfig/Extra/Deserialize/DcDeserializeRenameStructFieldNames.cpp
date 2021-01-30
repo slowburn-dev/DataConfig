@@ -66,7 +66,7 @@ struct FRenameStructRootDeserialize : public TSharedFromThis<FRenameStructRootDe
 };
 
 
-FDcResult DeserializeRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExtraRenamer Renamer)
+FDcResult DeserializeStructRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExtraRenamer Renamer)
 {
 	FDcDeserializer Deserializer;
 
@@ -130,7 +130,7 @@ DC_TEST("DataConfig.Extra.Deserialize.StructFieldRename")
 	FDcTestExtraRenameTo2 To;
 	FDcPropertyDatum ToDatum(FDcTestExtraRenameTo2::StaticStruct(), &To);
 
-	UTEST_OK("Extra Struct Field Rename", DcExtra::DeserializeRenaming(FromDatum, ToDatum, FDcExtraRenamer::CreateLambda([](const FName& FromName){
+	UTEST_OK("Extra Struct Field Rename", DcExtra::DeserializeStructRenaming(FromDatum, ToDatum, FDcExtraRenamer::CreateLambda([](const FName& FromName){
 		FString FromStr = FromName.ToString();
 		if (FromStr.StartsWith(TEXT("From")))
 			return FName(TEXT("To") + FromStr.Mid(4));
