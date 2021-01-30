@@ -59,7 +59,7 @@ UTEST_TRUE("...", Dest.TagContainerField2.HasTagExact(
 
 ```
 
-Note that gameplay tag parsing has error reporting builtin. In this case we can pipe it into the diagnostic easily:
+Note that gameplay tag parsing has error reporting built-in. In this case we can pipe it into the diagnostic easily:
 
 ```c++
 // DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.cpp
@@ -109,11 +109,48 @@ FString Str = TEXT(R"(
 UTEST_TRUE("...", Dest.ClassField3->GetFName() == TEXT("DcTestBlueprintClassBeta_C"));
 ```
 
-There's a quirk that Blueprint class and fields names are actually mangled. The class
+And Blueprint structs can also be deserialized from JSON. We need to rewrite the handler `HandlerBPDcAnyStructDeserialize` for looking up Blueprint Struct by path:
 
+```C++
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
+FString Str = TEXT(R"(
+    {
+        "AnyStructField1" : {
+            "$type" : "/DataConfig/DcFixture/DcTestBlueprintStructWithColor",
+            "NameField" : "Foo",
+            "StrField" : "Bar",
+            "IntField" : 123,
+            "ColorField" : "#FF0000FF"
+        }
+    }
+)");
+```
 
+There's a quirk that Blueprint Struct wrangles its field names. The struct above dumps to something like this:
 
+```
+-----------------------------------------
+# Datum: 'UserDefinedStruct', 'DcTestBlueprintStructWithColor'
+<StructRoot> 'DcTestBlueprintStructWithColor'
+|---<Name> 'NameField_5_97BFF114405C1934C2F33E8668BF1652'
+|---<Name> 'Foo'
+|---<Name> 'StrField_9_FAA71EFE4896F4E6B1478B9C13B2CE52'
+|---<String> 'Bar'
+|---<Name> 'IntField_11_3BC7CB0F42439CE2196F7AA82A1AC374'
+|---<Int32> '123'
+|---<Name> 'ColorField_14_F676BCF245B2977B678B65A8216E94EB'
+|---<StructRoot> 'Color'
+|   |---<Name> 'B'
+|   |---<UInt8> '0'
+|   |---<Name> 'G'
+|   |---<UInt8> '0'
+|   |---<Name> 'R'
+|   |---<UInt8> '255'
+|   |---<Name> 'A'
+|   |---<UInt8> '255'
+|---<StructEnd> 'Color'
+<StructEnd> 'DcTestBlueprintStructWithColor'
+-----------------------------------------
+```
 
-
-
-
+The good news is that DataConfig already got this covered.
