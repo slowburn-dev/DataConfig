@@ -16,20 +16,21 @@ Eventually we implemented all these in DataConfig. We also tried not limit this 
 
 - Deliver as a quality C++ source library.
   
-  DataConfig should shipped with no UI nor tooling code. Users are expected to integrate only `DataConfigCore` as a source module. We're intentionally limiting the scope of DataConfig to be a "C++ Library". Our users should be proficient UE4 C++ programmers.
+  DataConfig should ship with no UI nor tooling code. Users are expected to integrate only `DataConfigCore` as a source module. We're intentionally limiting the scope of DataConfig to be a "C++ Library". Our users should be proficient UE4 C++ programmers.
   
   - DataConfig should ship with good test and documentation coverage.
-    - DataConfig follows idiomatic UE4 C++ conventions and has no external dependency.
-    - `DataConfigCore` only depends on `Core` and `CoreUObject` and can be used in standalone `Program` targets.
-    - DataConfig API are `UObject` free and stack friendly.
-    - Built-in features serve as examples and sensible defaults. Users are expected to write on their own `Reader/Writer/Handlers`.
+  - DataConfig follows idiomatic UE4 C++ conventions and has no external dependency.
+  - `DataConfigCore` only depends on `Core` and `CoreUObject` and can be used in standalone `Program` targets.
+  - DataConfig API are `UObject` free and stack friendly.
+  - Built-in features serve as examples and sensible defaults. Users are expected to write on their own `Reader/Writer/Handlers`.
   
-- Favor idiomatic and user friendly over runtime performance.
+- Favor idiomatic, user friendly, small code size over runtime performance.
 
   We expect users to use DataConfig in a offline, editor only scenario. In this use case we favor some other aspects over runtime performance:
 
     - Follow [UE4 coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
   - When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
+  - DataConfig try not to don't expose template API. `TDcJsonReader` is explicit instantiated with its definition in private files.
   
 - Works with whatever property system supports.
 

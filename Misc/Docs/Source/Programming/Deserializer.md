@@ -114,7 +114,10 @@ struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 
 ```c++
 // DataConfig/Source/DataConfigCore/Private/DataConfig/Deserialize/DcDeserializerSetup.cpp
-Deserializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
+Deserializer.AddDirectHandler(
+    FBoolProperty::StaticClass(), 
+    FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize)
+);
 ```
 
 `AddPredicatedHandler()` registers a predicate and handler pair. Here's an example of registering the `PredicateIsColorStruct` predicate above:
@@ -178,6 +181,7 @@ Ctx.Objects.Push(GetTransientPackage());
 Sometimes you want to peek the content of the next entry. For example in `DcExtra::HandlerBPDcAnyStructDeserialize()` we're dealing with a JSON like this:
 
 ```json
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
 {
     "AnyStructField1" : {
         "$type" : "/DataConfig/DcFixture/DcTestBlueprintStructWithColor",
@@ -200,4 +204,4 @@ DC_TRY(ScopedValueProperty.PushProperty());
 DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 ```
 
-Note that putback doesn't support everything at the moment.
+Beware that `Putback` only support a limited subset of data types.

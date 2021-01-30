@@ -1,6 +1,6 @@
 # Examples
 
-This page shows some short and quick examples showcasing DataConfig API usage and features. All code shown here can be found in DataConfig sources.
+This page shows some short and quick examples showcasing DataConfig API usage and features. All code shown here can be found in the sources.
 
 ## JSON Deserialization
 
@@ -97,7 +97,7 @@ It would fail gracefully with diagnostics:
 
 ## Custom Deserialization Logic
 
-To deserialize `FColor` with  `#RRGGBBAA` we'll need to provide custom logic to the deserializer. First is to implement a  `FDcDeserializePredicate` delegate to select `FColor` during deserialization:
+To deserialize `FColor` with  `#RRGGBBAA` we'll need to provide custom logic to the deserializer. First you'll need to implement a  `FDcDeserializePredicate` delegate to pick out `FColor`:
 
 ```c++
 //	DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
@@ -237,7 +237,7 @@ struct DATACONFIGCORE_API FDcDebug
 {
 	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
 	FORCENOINLINE void DumpObject(UObject* Obj);
-	FORCENOINLINE void DumpDatum(const FDcPropertyDatum& Datum);
+	FORCENOINLINE void DumpDatum(void* DatumPtr);
 };
 
 ///	Access `gDcDebugg` in MSVC immediate window:

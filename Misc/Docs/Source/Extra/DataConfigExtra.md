@@ -4,11 +4,10 @@ Module `DataConfigExtra` contains examples that doesn't dependent on `Engine/Unr
 
 ## Deserialize `FColor`
 
-This has been shown multiple times in previous chapters. It's also a benchmark usecase for custom deserializaztion logic:
+This has been shown multiple times in previous chapters. It's also a benchmark use case for our custom deserialization logic:
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
-
 FString Str = TEXT(R"(
     {
         "ColorField1" : "#0000FFFF",
@@ -58,7 +57,7 @@ struct FDcExtraTestStructWithBase64
 };
 ```
 
-You can add arbitrary meta data into the `meta = ()`. Note that the meta data is only available when `WITH_EDITORDATA` flag is defined.
+UE support arbitrary meta data in the `meta = ()` segment. But beware that the meta data is only available when `WITH_EDITORDATA` flag is defined.
 
 ## Deserialize `FDcAnyStruct`
 
@@ -66,7 +65,7 @@ we've implemented `FDcAnyStruct` that can be used to store a heap allocated `UST
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.cpp
-//  instantiate from stack allocated structs
+//  instantiate from heap allocated structs
 FDcAnyStruct Any1 = new FDcExtraTestSimpleStruct1();
 Any1.GetChecked<FDcExtraTestSimpleStruct1>()->NameField = TEXT("Foo");
 
@@ -121,7 +120,6 @@ This is an example of using `FDcDeserializer` with non `FDcJsonReader`. It uses 
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp
-
 //  struct equivelent to this:
 FString Str = TEXT(R"(
     {
@@ -140,7 +138,7 @@ FString Str = TEXT(R"(
     }
 )");
 
-// ... deserialize with renaming `FromXXX` to `ToXXX`:
+// ... deserialize with a functor renaming `FromXXX` to `ToXXX`:
 UTEST_OK("...", DcExtra::DeserializeStructRenaming(FromDatum, ToDatum, FDcExtraRenamer::CreateLambda([](const FName& FromName){
     FString FromStr = FromName.ToString();
     if (FromStr.StartsWith(TEXT("From")))
@@ -170,7 +168,7 @@ FString Str = TEXT(R"(
 
 ## Access property by path
 
-UE builtin module `PropertyPath` allow accesing nested object properties by a path like `Foo.Bar.Baz`:
+UE built-in module `PropertyPath` allow accessing nested object properties by a path like `Foo.Bar.Baz`:
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
@@ -197,5 +195,5 @@ UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "Stru
 UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField", TEXT("AltFooValue")));
 ```
 
-Comparing to `PropertyPathHelpers` these new ones support `Array` and `Map` in between, and support `USTRUCT` roots. We're also missing some features like expanding weak/lazy object references but it should be easy to implement.
+Comparing to `PropertyPathHelpers` these new ones support `Array` and `Map`, and support `USTRUCT` roots. We're also missing some features like expanding weak/lazy object references but it should be easy to implement.
 

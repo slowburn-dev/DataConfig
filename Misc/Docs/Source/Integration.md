@@ -2,7 +2,7 @@
 
 ## Integrate `DataConfig` Plugin
 
-You should try adding DataConfig as a plugin into your C++ project to get started.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
+The easiest way to try out DataConfig is to add it as a plugin into your C++ project.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
 
 1. Get a copy of this repository. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
 
