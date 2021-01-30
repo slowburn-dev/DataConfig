@@ -5,6 +5,7 @@ There's a set of deserialize handlers in `DcPropertyPipeHandlers` namespace. It'
 Simply speaking it's equivalent to doing a `FDcPipeVisitor`  pipe visit.
 
 ```c++
+// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
 //  these two blocks are equivalent
 {
     FDcPropertyReader Reader(FromDatum);

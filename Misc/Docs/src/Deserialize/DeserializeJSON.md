@@ -107,7 +107,7 @@ Expect.EnumFlagField2 = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestE
 
 ## Sub Objects
 
-By default We treat `UOBJECT` marked with `DefaultToInstanced, EditInlineNew` and `UPROPERTY` marked with `Instanced` as subobject. In this case we'll actually instantiate new object during deserialization, using `Ctx.TopObject()` as parent:
+By default We treat `UOBJECT` marked with `DefaultToInstanced, EditInlineNew` and `UPROPERTY` marked with `Instanced` as sub object. In this case we'll actually instantiate new object during deserialization, using `Ctx.TopObject()` as parent:
 
 ```c++
 // DataConfig/Source/DataConfigTests/Public/DcTestProperty.h
@@ -152,11 +152,6 @@ struct FDcEditorExtraTestObjectRefs1
     UPROPERTY() UObject* ObjField3;
     UPROPERTY() UObject* ObjField4;
 };
-
-
-
-
-;
 
 // DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
 FString Str = TEXT(R"(
