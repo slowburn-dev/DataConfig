@@ -18,7 +18,6 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 
 	FORCEINLINE bool IsNone() const
 	{
-		check((!Property.IsValid() && DataPtr == nullptr) || (Property.IsValid() && DataPtr != nullptr));
 		return Property == nullptr;
 	}
 
@@ -48,8 +47,15 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 		return ::CastChecked<UClass>(Property.ToUObject());
 	}
 
+	FORCEINLINE void Reset()
+	{
+		Property = nullptr;
+		DataPtr = nullptr;
+	}
+
 	template<typename T>
 	FORCEINLINE bool IsA() const { return Property.IsA<T>(); }
+
 
 	static const FDcPropertyDatum NONE;
 };

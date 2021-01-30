@@ -149,58 +149,6 @@ DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeseriali
 	return DcOkWithProcessed(OutRet);
 }
 
-FDcResult HandlerBPStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
-{
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::MapRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
-	bool bPropertyPass = Struct != nullptr;
-	if (!(bReadPass && bWritePass && bPropertyPass))
-		return DcOkWithFallThrough(OutRet);
-
-	DC_TRY(Ctx.Reader->ReadMapRoot());
-	DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat()));
-
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-		if (CurPeek == EDcDataEntry::MapEnd)
-			break;
-
-		FString Str;
-		DC_TRY(Ctx.Reader->ReadString(&Str));
-
-		FName TargetName(*Str);
-		FProperty* TargetProperty = DcPropertyUtils::NextEffectivePropertyByName(Struct->PropertyLink, TargetName);
-		if (TargetProperty == nullptr)
-		{
-			//	second chance for UserDefinedStruct. Its names are actually `Foo_2_1234ABCE` and
-			//	it's converted through `CustomFindProperty`
-			TargetProperty = Struct->CustomFindProperty(TargetName);
-		}
-
-		if (TargetProperty == nullptr)
-			return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << TargetName;
-
-		DC_TRY(Ctx.Writer->WriteName(TargetProperty->GetFName()));
-
-		FDcScopedProperty ScopedValueProperty(Ctx);
-		DC_TRY(ScopedValueProperty.PushProperty());
-		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-	}
-
-	DC_TRY(Ctx.Reader->ReadMapEnd());
-	DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat()));
-
-	return DcOkWithProcessed(OutRet);
-}
-
 } // namespace DcEditorExtra
 
 FString UDcTestBPClassBase::GetClassID_Implementation()
@@ -338,7 +286,10 @@ DC_TEST("DataConfig.EditorExtra.BPStruct")
 				FDcDeserializePredicate::CreateStatic(PredicateIsColorStruct),
 				FDcDeserializeDelegate::CreateStatic(HandlerColorDeserialize)
 			);
-			Deserializer.AddDirectHandler(UUserDefinedStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPStructDeserialize));
+			Deserializer.AddDirectHandler(
+				UUserDefinedStruct::StaticClass(),
+				FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize)
+			);
 		}));
 
 

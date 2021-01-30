@@ -15,7 +15,7 @@ DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldC
 
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* FirstEffectiveProperty(FProperty* Property);
-DATACONFIGCORE_API FProperty* NextEffectivePropertyByName(FProperty* InProperty, const FName& Name);
+DATACONFIGCORE_API FProperty* FindEffectivePropertyByName(UStruct* Struct, const FName& Name);
 DATACONFIGCORE_API FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset);
 
 DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);

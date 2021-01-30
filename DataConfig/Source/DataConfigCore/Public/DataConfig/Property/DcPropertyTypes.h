@@ -21,7 +21,8 @@ struct DATACONFIGCORE_API FDcPropertyConfig
 	bool ShouldProcessProperty(FProperty* Property);
 	FProperty* NextProcessProperty(FProperty* Property);
 	FProperty* FirstProcessProperty(FProperty* Property);
-	FProperty* NextProcessPropertyByName(FProperty* InProperty, const FName& Name);
+	FProperty* NextProcessPropertyByName(UStruct* Struct, FProperty* InProperty, const FName& Name);
+	FProperty* FindProcessPropertyByName(UStruct* Struct, const FName& Name);
 
 	bool ShouldExpandObject(FObjectProperty* ObjectProperty);
 };

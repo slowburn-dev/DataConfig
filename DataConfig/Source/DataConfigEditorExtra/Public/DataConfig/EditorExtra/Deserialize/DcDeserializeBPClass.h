@@ -12,8 +12,6 @@ DATACONFIGEDITOREXTRA_API FDcResult HandlerBPClassReferenceDeserialize(FDcDeseri
 
 DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
-DATACONFIGEDITOREXTRA_API FDcResult HandlerBPStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
-
 } // namespace DcEditorExtra
 
 

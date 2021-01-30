@@ -2,6 +2,7 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/DcEnv.h"
+#include "UObject/PropertyAccessUtil.h"
 
 FDcPropertyConfig FDcPropertyConfig::MakeDefault()
 {
@@ -65,20 +66,26 @@ FProperty* FDcPropertyConfig::FirstProcessProperty(FProperty* Property)
 		: NextProcessProperty(Property);
 }
 
-FProperty* FDcPropertyConfig::NextProcessPropertyByName(FProperty* InProperty, const FName& Name)
+FProperty* FDcPropertyConfig::NextProcessPropertyByName(UStruct* Struct, FProperty* InProperty, const FName& Name)
 {
-	if (InProperty == nullptr)
-		return nullptr;
-
-	for (FProperty* Property = InProperty; Property; Property = Property->PropertyLinkNext)
+	if (InProperty
+		&& InProperty->PropertyLinkNext
+		&& InProperty->PropertyLinkNext->GetFName() == Name)
 	{
-		if (Property->GetFName() == Name
-			&& ShouldProcessProperty(Property))
-		{
-			return Property;
-		}
+		//	fast path
+		return InProperty->PropertyLinkNext;
 	}
+	else
+	{
+		return FindProcessPropertyByName(Struct, Name);
+	}
+}
 
-	return nullptr;
+FProperty* FDcPropertyConfig::FindProcessPropertyByName(UStruct* Struct, const FName& Name)
+{
+	FProperty* Target = DcPropertyUtils::FindEffectivePropertyByName(Struct, Name);
+	return ShouldProcessProperty(Target)
+		? Target
+		: nullptr;
 }
 

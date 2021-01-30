@@ -4,6 +4,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "UObject/UnrealType.h"
 #include "UObject/TextProperty.h"
+#include "UObject/PropertyAccessUtil.h"
 
 namespace DcPropertyUtils
 {
@@ -120,21 +121,12 @@ FProperty* FirstEffectiveProperty(FProperty* Property)
 		: NextEffectiveProperty(Property);
 }
 
-FProperty* NextEffectivePropertyByName(FProperty* InProperty, const FName& Name)
+FProperty* FindEffectivePropertyByName(UStruct* Struct, const FName& Name)
 {
-	if (InProperty == nullptr)
-		return nullptr;
-
-	for (FProperty* Property = InProperty; Property; Property = Property->PropertyLinkNext)
-	{
-		if (Property->GetFName() == Name
-			&& IsEffectiveProperty(Property))
-		{
-			return Property;
-		}
-	}
-
-	return nullptr;
+	FProperty* Property = PropertyAccessUtil::FindPropertyByName(Name, Struct);
+	return IsEffectiveProperty(Property)
+		? Property
+		: nullptr;
 }
 
 FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset)

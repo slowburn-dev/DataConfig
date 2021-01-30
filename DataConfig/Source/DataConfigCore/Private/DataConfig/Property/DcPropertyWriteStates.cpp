@@ -105,7 +105,7 @@ FDcResult FDcWriteStateStruct::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
-		Property = _GetPropertyWriter()->Config.NextProcessPropertyByName(StructClass->PropertyLink, Value);
+		Property = _GetPropertyWriter()->Config.NextProcessPropertyByName(StructClass, Property, Value);
 		if (Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value << _GetPropertyWriter()->FormatHighlight();
@@ -162,6 +162,7 @@ FDcResult FDcWriteStateStruct::PeekWriteProperty(FFieldVariant* OutProperty)
 	else if (State == EState::ExpectValue)
 	{
 		return ReadOutOk(OutProperty, Property);
+
 	}
 	else
 	{
@@ -270,7 +271,9 @@ FDcResult FDcWriteStateClass::WriteName(const FName& Value)
 {
 	if (State == EState::ExpectExpandKeyOrEnd)
 	{
-		Datum.Property =  _GetPropertyWriter()->Config.NextProcessPropertyByName(Class->PropertyLink, Value);
+		Datum.Property =  _GetPropertyWriter()->Config.NextProcessPropertyByName(Class, Datum.CastField<FProperty>(), Value);
+		Datum.DataPtr = nullptr;
+
 		if (Datum.Property == nullptr)
 			return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
 				<< Value << _GetPropertyWriter()->FormatHighlight();
@@ -301,7 +304,7 @@ FDcResult FDcWriteStateClass::WriteDataEntry(FFieldClass* ExpectedPropertyClass,
 	DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(Property, ExpectedPropertyClass));
 
 	OutDatum.Property = Property;
-	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(Datum.DataPtr);
+	OutDatum.DataPtr = Property->ContainerPtrToValuePtr<void>(ClassObject);
 
 	State = EState::ExpectExpandKeyOrEnd;
 	return DcOk();
@@ -352,7 +355,6 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 		{
 			State = EState::ExpectReference;
 		}
-
 		else if (ClassStat.Control == FDcClassStat::EControl::ExpandObject)
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
@@ -364,10 +366,9 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
 				//	rewrite class as it might be a more derived
 				Class = ClassObject->GetClass();
-				Datum.DataPtr = ClassObject;
-				Datum.Property = Class;
+				Datum.Reset();
 
-				if (!Datum.DataPtr)
+				if (!ClassObject)
 				{
 					//	inline object needs to be created by user
 					return DC_FAIL(DcDReadWrite, WriteClassInlineNotCreated)
