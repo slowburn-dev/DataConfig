@@ -202,3 +202,33 @@ DC_TEST("DataConfig.Core.Blurb.JSONReader")
 
 	return true;
 }
+
+DC_TEST("DataConfig.Core.Blurb.Uninitialized")
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(FName(TEXT("LogDataConfigCore")), ELogVerbosity::NoLogging);
+
+	 UTEST_OK("Blurb Uninitialized", [&]{
+
+		FString Str = TEXT(R"(
+			{
+				// pass
+			} 
+		)");
+		FDcJsonReader Reader(Str);
+
+		FDcTestExampleSimple Dest;
+		FDcPropertyDatum DestDatum(FDcTestExampleSimple::StaticStruct(), &Dest);
+
+		DC_TRY(DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+
+		check(Dest.StrField.IsEmpty());
+		//	but Dest.IntField contains uninitialized value
+		DcAutomationUtils::DumpToLog(DestDatum);
+
+		return DcOk();
+
+	}());
+
+	return true;
+};
+

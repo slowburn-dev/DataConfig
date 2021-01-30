@@ -41,6 +41,20 @@ _ExpectEqual(const T& Lhs, const T& Rhs)
 	}
 }
 
+template<>
+FDcResult _ExpectEqual<EDcDataEntry>(const EDcDataEntry& Lhs, const EDcDataEntry& Rhs)
+{
+	if (Lhs != Rhs)
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+			<< Lhs << Rhs;
+	}
+	else
+	{
+		return DcOk();
+	}
+}
+
 FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
 {
 	FDcPropertyReader LhsReader(LhsDatum);

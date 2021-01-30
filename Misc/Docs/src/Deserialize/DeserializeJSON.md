@@ -142,7 +142,21 @@ struct FDcTestStructShapeContainer1
     UPROPERTY() UDcBaseShape* ShapeField1;
     UPROPERTY() UDcBaseShape* ShapeField2;
     UPROPERTY() UDcBaseShape* ShapeField3;
+}USTRUCT()
+struct FDcEditorExtraTestObjectRefs1
+{
+    GENERATED_BODY()
+
+    UPROPERTY() UObject* ObjField1;
+    UPROPERTY() UObject* ObjField2;
+    UPROPERTY() UObject* ObjField3;
+    UPROPERTY() UObject* ObjField4;
 };
+
+
+
+
+;
 
 // DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
 FString Str = TEXT(R"(
@@ -178,4 +192,129 @@ Expect.ShapeField3 = nullptr;
 ```
 
 Note that the sub object criteria can be easily overridden with a new deserialize predicate or alternative `FDcPropertyConfig` when constructing the reader.
+
+## Object and Class Reference
+
+We support multiple ways of referencing a `UObject` in memory or serialized on disk:
+
+```c++
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Tests/DcTestDeserializeEditor.h
+USTRUCT()
+struct FDcEditorExtraTestObjectRefs1
+{
+    GENERATED_BODY()
+
+    UPROPERTY() UObject* ObjField1;
+    UPROPERTY() UObject* ObjField2;
+    UPROPERTY() UObject* ObjField3;
+    UPROPERTY() UObject* ObjField4;
+};
+
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Tests/DcTestDeserializeEditor.cpp
+FString Str = TEXT(R"(
+    {
+        "ObjField1" : "DcEditorExtraNativeDataAsset'/DataConfig/DcFixture/DcTestNativeDataAssetAlpha.DcTestNativeDataAssetAlpha'",
+        "ObjField2" : "/DataConfig/DcFixture/DcTestNativeDataAssetAlpha",
+        "ObjField3" : 
+        {
+            "$type" : "DcEditorExtraNativeDataAsset",
+            "$path" : "/DataConfig/DcFixture/DcTestNativeDataAssetAlpha"
+        },
+        "ObjField4" : null,
+    }
+)");
+
+//  deserialized equivelent
+UDcEditorExtraNativeDataAsset* DataAsset = Cast<UDcEditorExtraNativeDataAsset>(StaticLoadObject(
+    UDcEditorExtraNativeDataAsset::StaticClass(),
+    nullptr,
+    TEXT("/DataConfig/DcFixture/DcTestNativeDataAssetAlpha"),
+    nullptr
+));
+
+Expect.ObjField1 = DataAsset;
+Expect.ObjField2 = DataAsset;
+Expect.ObjField3 = DataAsset;
+Expect.ObjField4 = nullptr;
+```
+
+In the example above, `ObjField1` is using the reference string that can be retrieved in editor context menu:
+
+![Deserialize-CopyReference](Images/Deserialize-CopyReference.png)
+
+For `ObjField2/ObjField3` it's using a relative path to the `uasset` but without file name suffix.
+
+We also support class reference fields of `TSubclassOf<>`s:
+
+```c++
+// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.h
+USTRUCT()
+struct FDcTestStructSubClass1
+{
+    GENERATED_BODY()
+
+    UPROPERTY() TSubclassOf<UStruct> StructSubClassField1;
+    UPROPERTY() TSubclassOf<UStruct> StructSubClassField2;
+    UPROPERTY() TSubclassOf<UStruct> StructSubClassField3;
+};
+
+// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
+FString Str = TEXT(R"(
+    {
+        "StructSubClassField1" : null,
+        "StructSubClassField2" : "ScriptStruct",
+        "StructSubClassField3" : "DynamicClass",
+    }
+)");
+
+//  deserialized equivelent
+FDcTestStructSubClass1 Expect;
+Expect.StructSubClassField1 = nullptr;
+Expect.StructSubClassField2 = UScriptStruct::StaticClass();
+Expect.StructSubClassField3 = UDynamicClass::StaticClass();
+```
+
+Note that these do not support Blueprint classes. The direct reason is that Blueprint depends on `Engine` module and we'd like not to take dependency on in `DataConfigCore`. 
+
+We do have an example that supports Blueprint classes, see `DataConfigEditorExtra - 
+DcDeserializeBPClass.h/cpp`
+
+## Conclusion
+
+The built-in JSON deserialize handlers are designed to support full JSON data types plus a few common conversion to Unreal objects.
+
+Some closing notes:
+
+- Remember that you always have the option to override or selectively enable the handlers. See `DcSetupJsonDeserializeHandlers()` body how handlers are registered. You can skip this method and select the ones you want and provide additional handlers.
+
+- The JSON handlers are designed to *NOT* read anything during the deserialization. This is crucial since `USTRUCT` can contain uninitialized fields. For example:
+
+    ```c++
+    // DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+    FString Str = TEXT(R"(
+        {
+            // pass
+        } 
+    )");
+    FDcJsonReader Reader(Str);
+    
+    FDcTestExampleSimple Dest;
+    FDcPropertyDatum DestDatum(FDcTestExampleSimple::StaticStruct(), &Dest);
+    
+    DC_TRY(DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+    
+    check(Dest.StrField.IsEmpty());
+    //  but Dest.IntField contains uninitialized value
+    DcAutomationUtils::DumpToLog(DestDatum);
+
+    // dump results
+    <StructRoot> 'DcTestExampleSimple'
+    |---<Name> 'StrField'
+    |---<String> ''
+    |---<Name> 'IntField'
+    |---<Int32> '1689777552' // <- arbitrary value
+    <StructEnd> 'DcTestExampleSimple'
+    ```
+
+    This would cause trouble when you try read a pointer field during deserialization. Remember that primitive fields might be uninitialized during deserialization when implementing your own handlers.
 

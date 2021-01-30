@@ -195,7 +195,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		else if (Value.StartsWith(TEXT("/")))
 		{
 			//	/Game/Path/To/Object
-			//	`Game` is a Mount Point
+			//	`Game` is a Mount Point, and there's no `.uasset` suffix
 			UObject* Loaded = nullptr;
 			DC_TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
 
