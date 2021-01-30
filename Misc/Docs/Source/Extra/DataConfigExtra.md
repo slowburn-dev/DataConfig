@@ -2,7 +2,7 @@
 
 Module `DataConfigExtra` contains examples that doesn't dependent on `Engine/UnrealEd`.
 
-## Deseraizlie `FColor`
+## Deserialize `FColor`
 
 This has been shown multiple times in previous chapters. It's also a benchmark usecase for custom deserializaztion logic:
 
@@ -114,3 +114,88 @@ UTEST_TRUE("...", !Dest.AnyStructField3.IsValid());
 ```
 
 Note how custom `FColor` deserializing works inside a `FDcAnyStruct`.
+
+## Copying struct while renaming field names
+
+This is an example of using `FDcDeserializer` with non `FDcJsonReader`. It uses `FDcPropertyReader` with the `DcPropertyPipeHandlers` to do renaming:
+
+```c++
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp
+
+//  struct equivelent to this:
+FString Str = TEXT(R"(
+    {
+        "FromName1" : "Foo",
+        "FromStructSet1" : 
+        [
+            {
+                "FromStr1" : "One",
+                "FromInt1" : 1,
+            },
+            {
+                "FromStr1" : "Two",
+                "FromInt1" : 2,
+            }
+        ]
+    }
+)");
+
+// ... deserialize with renaming `FromXXX` to `ToXXX`:
+UTEST_OK("...", DcExtra::DeserializeStructRenaming(FromDatum, ToDatum, FDcExtraRenamer::CreateLambda([](const FName& FromName){
+    FString FromStr = FromName.ToString();
+    if (FromStr.StartsWith(TEXT("From")))
+        return FName(TEXT("To") + FromStr.Mid(4));
+    else
+        return FromName;
+})));
+
+// ... results into a struct equivelent to this: 
+FString Str = TEXT(R"(
+    {
+        "ToName1" : "Foo",
+        "ToStructSet1" : 
+        [
+            {
+                "ToStr1" : "One",
+                "ToInt1" : 1,
+            },
+            {
+                "ToStr1" : "Two",
+                "ToInt1" : 2,
+            }
+        ]
+    }
+)");
+```
+
+## Access property by path
+
+UE builtin module `PropertyPath` allow accesing nested object properties by a path like `Foo.Bar.Baz`:
+
+```c++
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
+FString Str;
+UTEST_TRUE("...", PropertyPathHelpers::GetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), Str));
+UTEST_TRUE("...", Str == TEXT("Foo"));
+
+UTEST_TRUE("...", PropertyPathHelpers::SetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), FString(TEXT("Bar"))));
+UTEST_TRUE("...", Outer->StructRoot.Middle.InnerMost.StrField == TEXT("Bar"));
+```
+
+We implemented a pair of methods `GetDatumPropertyByPath/SetDatumPropertyByPath` with `FDcPropertyReader`:
+
+```c++
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
+UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("Foo"));
+UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("Bar0"));
+UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("Bar1"));
+UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("FooValue"));
+
+UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField", TEXT("AltFoo")));
+UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField", TEXT("AltBar0")));
+UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField", TEXT("AltBar1")));
+UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField", TEXT("AltFooValue")));
+```
+
+Comparing to `PropertyPathHelpers` these new ones support `Array` and `Map` in between, and support `USTRUCT` roots. We're also missing some features like expanding weak/lazy object references but it should be easy to implement.
+
