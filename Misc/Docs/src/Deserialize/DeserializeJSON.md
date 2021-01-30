@@ -280,7 +280,9 @@ The built-in JSON deserialize handlers are designed to support full JSON data ty
 
 Some closing notes:
 
-- Remember that you always have the option to override or selectively enable the handlers. See `DcSetupJsonDeserializeHandlers()` body how handlers are registered. You can skip this method and select the ones you want and provide additional handlers.
+- For meta fields like `$type` we require it to be the first member, meaning object fields are order dependent. This means that the JSON we're supporting is a super set of standard JSON spec (again).
+
+- There're many data types that can not be deserialized from JSON, for example `Delegate/WeakObjectReference`. Remember that you always have the option to override or selectively enable the handlers to support additional property that makes sense in your context. See `DcSetupJsonDeserializeHandlers()` body how handlers are registered. You can skip this method and select the ones you want and provide additional handlers.
 
 - The JSON handlers are designed to *NOT* read anything during the deserialization. This is crucial since `USTRUCT` can contain uninitialized fields. For example:
 
@@ -312,4 +314,5 @@ Some closing notes:
     ```
 
     This would cause trouble when you try read a pointer field during deserialization. Remember that primitive fields might be uninitialized during deserialization when implementing your own handlers.
+
 

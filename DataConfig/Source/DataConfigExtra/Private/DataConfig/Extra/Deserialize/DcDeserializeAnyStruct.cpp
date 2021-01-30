@@ -97,6 +97,30 @@ static FDcAnyStruct _IdentityByValue(FDcAnyStruct Handle)
 
 DC_TEST("DataConfig.Extra.Deserialize.AnyStructUsage")
 {
+	//	instantiate from stack allocated structs
+	FDcAnyStruct Any1 = new FDcExtraTestSimpleStruct1();
+	Any1.GetChecked<FDcExtraTestSimpleStruct1>()->NameField = TEXT("Foo");
+
+	//	supports moving
+	FDcAnyStruct Any2 = MoveTemp(Any1);
+	check(!Any1.IsValid());
+	check(Any2.GetChecked<FDcExtraTestSimpleStruct1>()->NameField == TEXT("Foo"));
+	Any2.Reset();
+
+	//	supports shared referencing
+	Any2 = new FDcExtraTestSimpleStruct2();
+	Any2.GetChecked<FDcExtraTestSimpleStruct2>()->StrField = TEXT("Bar");
+
+	Any1 = Any2;
+
+	check(Any1.DataPtr == Any2.DataPtr);
+	check(Any1.StructClass == Any2.StructClass);
+
+	return true;
+}
+
+DC_TEST("DataConfig.Extra.Deserialize.AnyStructRefCounts")
+{
 	{
 		FDcAnyStruct Alhpa(new FDcExtraTestSimpleStruct1());
 		FDcAnyStruct Beta = Alhpa;

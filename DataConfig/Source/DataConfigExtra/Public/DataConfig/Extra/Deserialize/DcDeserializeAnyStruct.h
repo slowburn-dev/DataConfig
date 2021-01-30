@@ -5,7 +5,7 @@
 #include "DataConfig/Extra/Types/DcAnyStruct.h"
 #include "DcDeserializeAnyStruct.generated.h"
 
-namespace DcExtra 
+namespace DcExtra
 {
 
 DATACONFIGEXTRA_API EDcDeserializePredicateResult PredicateIsDcAnyStruct(FDcDeserializeContext& Ctx);
@@ -15,12 +15,21 @@ DATACONFIGEXTRA_API FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContex
 }	//	namespace DcExtra
 
 USTRUCT()
-struct FDcExtraTestSimpleStruct1 
+struct FDcExtraTestSimpleStruct1
 {
 	GENERATED_BODY()
 
 	UPROPERTY() FName NameField;
 };
+
+USTRUCT()
+struct FDcExtraTestSimpleStruct2
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FString StrField;
+};
+
 
 DECLARE_DELEGATE(FDcExtraTestSingularAction);
 

@@ -71,6 +71,13 @@ DC_TEST("DataConfig.Extra.Deserialize.Base64")
 	)");
 	FDcJsonReader Reader(Str);
 
+	FDcExtraTestStructWithBase64 Expect;
+
+	const char* Literal = "these are my twisted words";
+	Expect.BlobField1 = TArray<uint8>((uint8*)Literal, FCStringAnsi::Strlen(Literal));
+	Expect.BlobField2 = TArray<uint8>();
+
+	FDcPropertyDatum ExpectDatum(FDcExtraTestStructWithBase64::StaticStruct(), &Expect);
 
 #if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcExtraTestStructWithBase64::StaticStruct(), TEXT("BlobField1"), TEXT("DcExtraBase64"), TEXT(""));
@@ -85,9 +92,13 @@ DC_TEST("DataConfig.Extra.Deserialize.Base64")
 		);
 	}));
 
+	UTEST_OK("Extra Base64 Blob Deserialize", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
 	FString BlobField1AsStr(Dest.BlobField1.Num(), (ANSICHAR*)Dest.BlobField1.GetData());
 	UTEST_EQUAL("Extra Base64 Blob Deserialize", "these are my twisted words", BlobField1AsStr);
 	UTEST_EQUAL("Extra Base64 Blob Deserialize", Dest.BlobField2.Num(), 0);
+
+
 
 	return true;
 }
