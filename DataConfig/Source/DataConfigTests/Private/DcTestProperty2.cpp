@@ -70,8 +70,8 @@ DC_TEST("DataConfig.Core.Property.Config")
 			return !Property->IsA<FStrProperty>();
 		});
 
-		Reader.SetConfig(IgnoreStrConfig);
-		Writer.SetConfig(IgnoreStrConfig);
+		DC_TRY(Reader.SetConfig(IgnoreStrConfig));
+		DC_TRY(Writer.SetConfig(IgnoreStrConfig));
 		return DcOk();
 	}));
 

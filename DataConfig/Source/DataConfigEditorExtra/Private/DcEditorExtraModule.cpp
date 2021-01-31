@@ -1,6 +1,8 @@
 #include "DcEditorExtraModule.h"
 #include "Modules/ModuleManager.h"
 #include "MessageLogModule.h"
+#include "Logging/MessageLog.h"
+#include "GameplayTagsManager.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"

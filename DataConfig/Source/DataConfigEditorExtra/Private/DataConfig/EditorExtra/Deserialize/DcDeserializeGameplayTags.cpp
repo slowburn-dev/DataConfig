@@ -31,7 +31,7 @@ static FDcResult _StringToGameplayTag(FDcDeserializeContext& Ctx, const FString&
 	return DcOk();
 }
 
-EDcDeserializePredicateResult DcEditorExtra::PredicateIsGameplayTag(FDcDeserializeContext& Ctx)
+EDcDeserializePredicateResult PredicateIsGameplayTag(FDcDeserializeContext& Ctx)
 {
 	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
 	return Struct && Struct == FGameplayTag::StaticStruct()

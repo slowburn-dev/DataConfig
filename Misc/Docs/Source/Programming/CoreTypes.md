@@ -150,11 +150,11 @@ In the example above `FDcReader` behave like a iterator as each `ReadXXX()` call
 ```c++
 DC_TRY(Writer.WriteStructRoot(FDcStructStat{})); // `FDcTestExampleSimple` Struct Root
 
-DC_TRY(Writer.WriteName(TEXT("StrField")));      // 'StrField' as FName
-DC_TRY(Writer.WriteString(TEXT("Alt Str")));     // "Foo STr"
+    DC_TRY(Writer.WriteName(TEXT("StrField")));      // 'StrField' as FName
+    DC_TRY(Writer.WriteString(TEXT("Alt Str")));     // "Foo STr"
 
-DC_TRY(Writer.WriteName(TEXT("IntField")));      // 'IntField' as FName
-DC_TRY(Writer.WriteInt32(233));                  // 233
+    DC_TRY(Writer.WriteName(TEXT("IntField")));      // 'IntField' as FName
+    DC_TRY(Writer.WriteInt32(233));                  // 233
 
 DC_TRY(Writer.WriteStructEnd(FDcStructStat{}));  // `FDcTestExampleSimple` Struct Root
 ```

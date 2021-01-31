@@ -280,8 +280,8 @@ DC_TEST("DataConfig.Core.Deserialize.SubClass")
 		}
 
 	)");
-	Reader.SetNewString(*BadStr);
 
+	UTEST_OK("Deserialize into FDcTestStructSubClass1 Fail", Reader.SetNewString(*BadStr));
 	UTEST_DIAG("Deserialize into FDcTestStructSubClass1 Fail", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum),
 		DcDDeserialize, ClassLhsIsNotChildOfRhs);
 
