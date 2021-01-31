@@ -16,17 +16,13 @@ FDcResult HandlerScalarDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 
 template<EDcDataEntry EntryStart,
 	EDcDataEntry EntryEnd,
-	typename TReadMethodStart,
-	typename TReadMethodEnd,
-	typename TWriteMethodStart,
-	typename TWriteMethodEnd>
+	FDcResult (FDcReader::*ReadMethodStart)(),
+	FDcResult (FDcReader::*ReadMethodEnd)(),
+	FDcResult (FDcPropertyWriter::*WriteMethodStart)(),
+	FDcResult (FDcPropertyWriter::*WriteMethodEnd)()>
 FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 	FDcDeserializeContext& Ctx,
-	EDcDeserializeResult& OutRet,
-	TReadMethodStart ReadMethodStart,
-	TReadMethodEnd ReadMethodEnd,
-	TWriteMethodStart WriteMethodStart,
-	TWriteMethodEnd WriteMethodEnd
+	EDcDeserializeResult& OutRet
 )
 {
 	EDcDataEntry Next;
@@ -63,25 +59,29 @@ FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 
 FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayRoot, EDcDataEntry::ArrayEnd>(
-		Ctx,
-		OutRet,
+	return _HandlerLinearContainerDeserialize<
+		EDcDataEntry::ArrayRoot,
+		EDcDataEntry::ArrayEnd,
 		&FDcReader::ReadArrayRoot,
 		&FDcReader::ReadArrayEnd,
-		&FDcWriter::WriteArrayRoot,
-		&FDcWriter::WriteArrayEnd
+		&FDcPropertyWriter::WriteArrayRoot,
+		&FDcPropertyWriter::WriteArrayEnd>(
+		Ctx,
+		OutRet
 	);
 }
 
 FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot, EDcDataEntry::SetEnd>(
-		Ctx,
-		OutRet,
+	return _HandlerLinearContainerDeserialize<
+		EDcDataEntry::SetRoot,
+		EDcDataEntry::SetEnd,
 		&FDcReader::ReadSetRoot,
 		&FDcReader::ReadSetEnd,
-		&FDcWriter::WriteSetRoot,
-		&FDcWriter::WriteSetEnd
+		&FDcPropertyWriter::WriteSetRoot,
+		&FDcPropertyWriter::WriteSetEnd>(
+		Ctx,
+		OutRet
 	);
 }
 

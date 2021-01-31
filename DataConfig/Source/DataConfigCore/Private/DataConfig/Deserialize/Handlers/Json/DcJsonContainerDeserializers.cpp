@@ -7,12 +7,12 @@
 
 namespace DcJsonHandlers {
 
-template<EDcDataEntry EntryStart, typename TMethodStart, typename TMethodEnd>
+template<EDcDataEntry EntryStart,
+	FDcResult (FDcPropertyWriter::*MethodStart)(),
+	FDcResult (FDcPropertyWriter::*MethodEnd)()>
 FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 	FDcDeserializeContext& Ctx,
-	EDcDeserializeResult& OutRet,
-	TMethodStart MethodStart,
-	TMethodEnd MethodEnd)
+	EDcDeserializeResult& OutRet)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
@@ -49,12 +49,12 @@ FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 
 FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayRoot>(Ctx, OutRet, &FDcWriter::WriteArrayRoot, &FDcWriter::WriteArrayEnd);
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayRoot, &FDcPropertyWriter::WriteArrayRoot, &FDcPropertyWriter::WriteArrayEnd>(Ctx, OutRet);
 }
 
 FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot>(Ctx, OutRet, &FDcWriter::WriteSetRoot, &FDcWriter::WriteSetEnd);
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot, &FDcPropertyWriter::WriteSetRoot, &FDcPropertyWriter::WriteSetEnd>(Ctx, OutRet);
 }
 
 FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
