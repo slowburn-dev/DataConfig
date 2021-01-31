@@ -6,6 +6,6 @@ public class DcProjectEditorTarget : TargetRules
     {
         Type = TargetType.Editor;
         DefaultBuildSettings = BuildSettingsVersion.V2;
-        ExtraModuleNames.AddRange( new string[] { "DcProjectGame" } );
+        ExtraModuleNames.AddRange( new string[] { "DcProjectGame", "DcProjectEditor", } );
     }
 }

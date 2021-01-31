@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleInterface.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogDcProjectGame, All, All);
+DCPROJECTGAME_API DECLARE_LOG_CATEGORY_EXTERN(LogDcProjectGame, All, All);
 
 class FDcProjectGame : public IModuleInterface
 {
