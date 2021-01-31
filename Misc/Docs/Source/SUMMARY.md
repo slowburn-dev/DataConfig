@@ -26,7 +26,7 @@
   - [DataConfigExtra](Extra/DataConfigExtra.md)
   - [DataConfigEditorExtra](Extra/DataConfigEditorExtra.md)
 
-- [Credits](Credits.md)
+- [License](License.md)
 
   
 

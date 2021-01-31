@@ -262,3 +262,7 @@ The full expression to evaluate is:
 ```
 
 We need DLL name to locate `gDcDebug` in a non monolith build.
+
+## More
+
+There's more detailed examples in [DataConfigExtra](./Extra/DataConfigExtra.md) and [DataConfigEditorExtra](./Extra/DataConfigEditorExtra.md)

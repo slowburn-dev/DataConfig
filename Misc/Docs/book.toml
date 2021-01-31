@@ -8,3 +8,7 @@ language = "en"
 theme = "Theme"
 additional-css = ["custom.css"]
 site-url = "/DataConfig/"
+
+[output.html.fold]
+enable = true
+level = 0

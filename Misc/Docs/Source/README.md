@@ -10,6 +10,7 @@ __Serialization framework for Unreal Engine Property System that just works!__
 - See: [Integration](Integration.md) for quick integration guide.
 - See: [Design](Design.md) for more context about the project.
 
-## Credits
+## License
 
-**DataConfig** is released under a free and permissive license. But we really appreciate you to credit us if you find it useful. See [Credits](Credits.md) for details
+**DataConfig** is released under a free and permissive license. But we really appreciate you to credit us if you find it useful. See [License](License.md) for details
+
