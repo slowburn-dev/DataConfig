@@ -6,5 +6,12 @@
             "Type": "Runtime",
             "LoadingPhase": "Default"
         }
+    ],
+    "DisableEnginePluginsByDefault" : true,
+    "Plugins": [
+        {
+            "Name": "PluginBrowser",
+            "Enabled": true
+        }
     ]
 }
