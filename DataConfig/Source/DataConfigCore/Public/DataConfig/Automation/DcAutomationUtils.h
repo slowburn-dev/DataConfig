@@ -18,6 +18,7 @@ struct DATACONFIGCORE_API FDcDebug
 	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
 	FORCENOINLINE void DumpObject(UObject* Obj);
 	FORCENOINLINE void DumpDatum(void* DatumPtr);
+	FORCENOINLINE FString DumpName(FName* NamePtr);
 };
 
 ///	Access `gDcDebugg` in MSVC immediate window:

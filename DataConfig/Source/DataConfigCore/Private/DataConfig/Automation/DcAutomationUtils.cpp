@@ -544,6 +544,14 @@ void FDcDebug::DumpDatum(void* DatumPtr)
 	DcAutomationUtils::DumpToLowLevelDebugOutput(*(FDcPropertyDatum*)DatumPtr);
 }
 
+FString FDcDebug::DumpName(FName* NamePtr)
+{
+	FString Str = NamePtr->ToString();
+	FPlatformMisc::LowLevelOutputDebugString(*Str);
+	FPlatformMisc::LowLevelOutputDebugString(LINE_TERMINATOR);
+	return Str;
+}
+
 FDcDebug gDcDebug;
 #endif // DC_BUILD_DEBUG
 
