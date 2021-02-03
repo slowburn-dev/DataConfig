@@ -5,7 +5,7 @@ DataConfig is released in [MIT License][1].
 ```
 MIT License
 
-Copyright (c) 2021-present Chen Tao 
+Copyright (c) 2021 Chen Tao 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,13 @@ SOFTWARE.
 
 ## Credits
 
-If you find DataConfig useful in your project, consider credit us in your project with this single line:
+If you find DataConfig useful in your project, consider credit us in your project with the full license above or the shorter snippets below.
 
 ```
-TODO take a look how this looks
+DataConfig <https//slowburn.dev/dataconfig>
+Copyright (c) 2021 Chen Tao
 ```
 
-You can also let us know by sending a email to <hislowburn@gmail.com> or reach us on [@slowburndev](https://twitter.com/slowburndev). 
+You can also reach us by email to <hislowburn@gmail.com> or on twitter [@slowburndev](https://twitter.com/slowburndev). 
 
 [1]: https://choosealicense.com/licenses/mit/ "MIT License"
