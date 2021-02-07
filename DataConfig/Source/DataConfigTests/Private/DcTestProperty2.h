@@ -130,3 +130,25 @@ struct FDcTestStructEnum1
 	UPROPERTY() EDcTestEnum_Flag EnumFlagField;
 };
 
+USTRUCT()
+struct FDcTestStructDefaultValue1
+{
+	GENERATED_BODY()
+
+	UPROPERTY() int IntField1;
+	UPROPERTY() int IntField2 = 123;
+	UPROPERTY() int IntField3 = 234;
+};
+
+USTRUCT()
+struct FDcTestStructDefaultValue2
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TArray<FDcTestStructDefaultValue1> StructsArray;
+	UPROPERTY() TMap<FName, FDcTestStructDefaultValue1> StructsMap;
+};
+
+
+
+

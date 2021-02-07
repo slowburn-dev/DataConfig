@@ -20,6 +20,7 @@ struct FDcExtraTestSimpleStruct1
 	GENERATED_BODY()
 
 	UPROPERTY() FName NameField;
+	UPROPERTY() int IntFieldWithDefault = 253;
 };
 
 USTRUCT()

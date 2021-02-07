@@ -364,9 +364,6 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 
 				FObjectProperty* ObjProperty = Datum.CastFieldChecked<FObjectProperty>();
 				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
-				//	rewrite class as it might be a more derived
-				Class = ClassObject->GetClass();
-				Datum.Reset();
 
 				if (!ClassObject)
 				{
@@ -375,6 +372,10 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 						<< ObjProperty->GetFName() << ObjProperty->GetClass()->GetFName()
 						<< _GetPropertyWriter()->FormatHighlight();
 				}
+
+				//	rewrite class as it might be a more derived
+				Class = ClassObject->GetClass();
+				Datum.Reset();
 			}
 
 			State = EState::ExpectExpandKeyOrEnd;

@@ -81,4 +81,27 @@ DC_TEST("DataConfig.Core.Property.Config")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Property.DefaultValue")
+{
+	FDcTestStructDefaultValue2 Source;
+
+	Source.StructsArray.Emplace(FDcTestStructDefaultValue1{1});
+	Source.StructsArray.Emplace(FDcTestStructDefaultValue1{2});
+	Source.StructsArray.Emplace(FDcTestStructDefaultValue1{3});
+
+	Source.StructsMap.Emplace(TEXT("One"), FDcTestStructDefaultValue1{1});
+	Source.StructsMap.Emplace(TEXT("Two"), FDcTestStructDefaultValue1{2});
+	Source.StructsMap.Emplace(TEXT("Three"), FDcTestStructDefaultValue1{3});
+
+	FDcTestStructDefaultValue2 Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStructDefaultValue2::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStructDefaultValue2::StaticStruct(), &Dest);
+
+	UTEST_OK("FDcTestStructDefaultValue2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStructDefaultValue2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}
+
 

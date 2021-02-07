@@ -185,6 +185,7 @@ DC_TEST("DataConfig.Extra.Deserialize.AnyStructDeserialize")
 	}));
 
 	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField1.GetChecked<FDcExtraTestSimpleStruct1>()->NameField == TEXT("Foo"));
+	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField1.GetChecked<FDcExtraTestSimpleStruct1>()->IntFieldWithDefault == 253);
 	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField2.GetChecked<FDcExtraTestStructWithColor1>()->ColorField1 == FColor::Blue);
 	UTEST_TRUE("Extra FAnyStruct Deserialize", Dest.AnyStructField2.GetChecked<FDcExtraTestStructWithColor1>()->ColorField2 == FColor::Red);
 	UTEST_TRUE("Extra FAnyStruct Deserialize", !Dest.AnyStructField3.IsValid());
