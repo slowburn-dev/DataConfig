@@ -13,6 +13,7 @@ public class DataConfigEditorExtra : ModuleRules
             "Engine",
             "MessageLog",
             "GameplayTags",
+            "GameplayAbilities",
             "DataConfigCore",
             "DataConfigExtra",
             });

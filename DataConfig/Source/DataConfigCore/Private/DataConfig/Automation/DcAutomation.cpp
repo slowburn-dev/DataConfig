@@ -22,7 +22,7 @@ struct FDcAutomationFeedbackContext : public FFeedbackContextAnsi
 
 uint32 FDcAutomationBase::GetTestFlags() const
 {
-	return _FLAGS;
+	return FLAGS;
 }
 
 uint32 FDcAutomationBase::GetRequiredDeviceNum() const

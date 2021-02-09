@@ -11,7 +11,7 @@
 class DATACONFIGCORE_API FDcAutomationBase : public FAutomationTestBase
 {
 public:
-	constexpr static uint32 _FLAGS = EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter;
+	constexpr static uint32 FLAGS = EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter;
 
 	using FAutomationTestBase::FAutomationTestBase;
 
