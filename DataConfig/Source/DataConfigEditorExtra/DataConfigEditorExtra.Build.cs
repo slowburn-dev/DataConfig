@@ -11,6 +11,7 @@ public class DataConfigEditorExtra : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
+            "UnrealEd",
             "MessageLog",
             "GameplayTags",
             "GameplayAbilities",

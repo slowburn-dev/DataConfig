@@ -274,11 +274,9 @@ Note that these do not support Blueprint classes. The direct reason is that Blue
 We do have an example that supports Blueprint classes, see `DataConfigEditorExtra - 
 DcDeserializeBPClass.h/cpp`
 
-## Conclusion
+## Caveats
 
-The built-in JSON deserialize handlers are designed to support full JSON data types plus a few common conversion to Unreal objects.
-
-Some closing notes:
+Here're some closing notes:
 
 - For meta fields like `$type` we require it to be the first member, meaning object fields are order dependent. This means that the JSON we're supporting is a super set of standard JSON spec (again).
 
@@ -314,5 +312,7 @@ Some closing notes:
     ```
 
     This would cause trouble when you try read a pointer field during deserialization. Remember that primitive fields might be uninitialized during deserialization when implementing your own handlers.
+    
+- One interesting trait of the pull/push styled API is that `FDcJsonReader` does __not__ preemptively parse number into double and convert it to `int/float` later on. When reading a number token it would do the number parsing at call site. If `ReadIntX()` is called then the number is parsed as integer. If `ReadFloat()/ReadDouble()` is called the token will be parsed as floating point.
 
 
