@@ -3,10 +3,12 @@
 #include "MessageLogModule.h"
 #include "Logging/MessageLog.h"
 #include "GameplayTagsManager.h"
+
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
+#include "DataConfig/Automation/DcAutomation.h"
 
 struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
 {
@@ -51,3 +53,38 @@ void FDcEditorExtraModule::ShutdownModule()
 }
 
 IMPLEMENT_MODULE(FDcEditorExtraModule, DataConfigEditorExtra);
+
+UDcEditorExtraTestsCommandlet::UDcEditorExtraTestsCommandlet()
+{
+	IsClient = false;
+	IsServer = false;
+	IsEditor = true;
+	LogToConsole = true;
+}
+
+int32 UDcEditorExtraTestsCommandlet::Main(const FString& Params)
+{
+	UE_SET_LOG_VERBOSITY(LogDataConfigCore, Display);
+	UE_LOG(LogDataConfigCore, Display, TEXT("================================================================="));
+
+	TArray<FString> Tokens;
+	TArray<FString> Switches;
+	UCommandlet::ParseCommandLine(*Params, Tokens, Switches);
+	Tokens.RemoveAt(0); // 0 is always commandlet name
+
+	FDcAutomationConsoleRunner Runner;
+
+	FDcAutomationConsoleRunner::FArgs Args;
+	Args.Filters.Add(TEXT("DataConfig"));
+	for (FString& Token : Tokens)
+		Args.Filters.Add(Token);
+
+	Args.RequestedTestFilter = FDcAutomationBase::FLAGS;
+
+	Runner.Prepare(Args);
+	int32 Ret = Runner.RunTests();
+
+	UE_LOG(LogDataConfigCore, Display, TEXT("================================================================="));
+
+	return Ret;
+}

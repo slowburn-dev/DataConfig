@@ -65,7 +65,7 @@ DC_TEST("DataConfig.Core.Blurb.Frontpage")
 
 DC_TEST("DataConfig.Core.Blurb.Dump")
 {
-	FLogScopedCategoryAndVerbosityOverride LogOverride(FName(TEXT("LogDataConfigCore")), ELogVerbosity::NoLogging);
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::NoLogging);
 
 	FVector Vec(1.0f, 2.0f, 3.0f);
 	FDcPropertyDatum VecDatum(TBaseStructure<FVector>::Get(), &Vec);
@@ -205,9 +205,9 @@ DC_TEST("DataConfig.Core.Blurb.JSONReader")
 
 DC_TEST("DataConfig.Core.Blurb.Uninitialized")
 {
-	FLogScopedCategoryAndVerbosityOverride LogOverride(FName(TEXT("LogDataConfigCore")), ELogVerbosity::NoLogging);
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::NoLogging);
 
-	 UTEST_OK("Blurb Uninitialized", [&]{
+	UTEST_OK("Blurb Uninitialized", [&]{
 
 		FString Str = TEXT(R"(
 			{

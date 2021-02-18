@@ -24,14 +24,15 @@ Eventually we implemented all these in DataConfig. We also tried not limit this 
   - DataConfig API are `UObject` free and stack friendly.
   - Built-in features serve as examples and sensible defaults. Users are expected to write on their own `Reader/Writer/Handlers`.
   
-- Favor idiomatic, user friendly, small code size over runtime performance.
+- Runtime performance is **not** top priority.
 
   We expect users to use DataConfig in a offline, editor only scenario. In this use case we favor some other aspects over runtime performance:
 
-    - Follow [UE4 coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
-  - When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
-  - DataConfig try not to don't expose template API. `TDcJsonReader` is explicit instantiated with its definition in private files.
-  
+  - Idiomatic. We follow [UE4 c++ coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
+
+  - Friendly. When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
+  - Small code size / fast compile time. DataConfig try not to don't expose template API. `TDcJsonReader` is explicit instantiated with its definition in private files.
+
 - Works with whatever property system supports.
 
   The idea is that DataConfig supports everything that can be marked with `UCLASS/USTRUCT/UPROPERTY/UENUM` macros, which covers the full data model of the property system.

@@ -13,6 +13,11 @@ struct FDcAutomationFeedbackContext : public FFeedbackContextAnsi
 			LocalPrint(V);
 			LocalPrint(TEXT("\n"));
 		}
+		else if (Category == FName(TEXT("LogDataConfigCore"))
+			&& Verbosity == ELogVerbosity::NoLogging)
+		{
+			//	pass
+		}
 		else
 		{
 			FFeedbackContextAnsi::Serialize(V, Verbosity, Category);
