@@ -1,5 +1,10 @@
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.h"
 
+#include "Abilities/GameplayAbility.h"
+#include "GameplayAbilityBlueprint.h"
+#include "Textures/SlateIcon.h"
+#include "ToolMenuSection.h"
+
 namespace DcEditorExtra
 {
 
@@ -15,11 +20,39 @@ FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, const TCHAR* Str)
 
 FText FAssetTypeActions_DcGameplayAbility::GetName() const
 {
-	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayAbility", "DataConfig GameplayAbility Action"); 
+	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayAbility", "DataConfig GameplayAbility"); 
 }
 
-void FAssetTypeActions_DcGameplayAbility::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
+FColor FAssetTypeActions_DcGameplayAbility::GetTypeColor() const
 {
+	return FColor(201, 29, 85); 
+}
+
+uint32 FAssetTypeActions_DcGameplayAbility::GetCategories()
+{
+	return EAssetTypeCategories::Misc;
+}
+
+void FAssetTypeActions_DcGameplayAbility::GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section)
+{
+	TArray<TWeakObjectPtr<UGameplayAbilityBlueprint>> Abilities = GetTypedWeakObjectPtrs<UGameplayAbilityBlueprint>(InObjects);
+
+	if (Abilities.Num() != 1)
+		return;
+
+	Section.AddMenuEntry(
+		TEXT("DcEditorExtra_LoadFromJson"),
+		NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
+		NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
+		FSlateIcon(),
+		FUIAction(
+			FExecuteAction::CreateLambda([]
+			{
+				// pass
+			}),
+			FCanExecuteAction()
+		)
+	);
 }
 
 bool FAssetTypeActions_DcGameplayAbility::HasActions(const TArray<UObject*>& InObjects) const
@@ -29,15 +62,25 @@ bool FAssetTypeActions_DcGameplayAbility::HasActions(const TArray<UObject*>& InO
 
 UClass* FAssetTypeActions_DcGameplayAbility::GetSupportedClass() const
 {
-	return nullptr;
+	return UGameplayAbilityBlueprint::StaticClass();
 }
 
 FText FAssetTypeActions_DcGameplayEffect::GetName() const
 {
-	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayEffect", "DataConfig GameplayEffect Action"); 
+	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayEffect", "DataConfig GameplayEffect"); 
 }
 
-void FAssetTypeActions_DcGameplayEffect::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
+FColor FAssetTypeActions_DcGameplayEffect::GetTypeColor() const
+{
+	return FColor(201, 29, 85); 
+}
+
+uint32 FAssetTypeActions_DcGameplayEffect::GetCategories()
+{
+	return EAssetTypeCategories::Misc;
+}
+
+void FAssetTypeActions_DcGameplayEffect::GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section)
 {
 }
 
@@ -48,7 +91,7 @@ bool FAssetTypeActions_DcGameplayEffect::HasActions(const TArray<UObject*>& InOb
 
 UClass* FAssetTypeActions_DcGameplayEffect::GetSupportedClass() const
 {
-	return nullptr;
+	return UGameplayEffect::StaticClass();
 }
 
 } // namespace DcEditorExtra

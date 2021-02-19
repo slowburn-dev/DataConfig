@@ -6,6 +6,8 @@
 #include "Commandlets/Commandlet.h"
 #include "DcEditorExtraModule.generated.h"
 
+class FAssetTypeActions_Base;
+
 class FDcEditorExtraModule : public IModuleInterface
 {
 public:
@@ -21,6 +23,9 @@ public:
 
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+	TArray<TOptional<TSharedRef<FAssetTypeActions_Base>>> AssetActions;
+
 };
 
 UCLASS()

@@ -18,7 +18,10 @@ DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayEffect(UGameplayEffect* I
 class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAssetTypeActions_Base
 {
 	FText GetName() const override;
-	void GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) override;
+	FColor GetTypeColor() const override;
+	uint32 GetCategories() override;
+
+	void GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section) override;
 	bool HasActions(const TArray<UObject*>& InObjects) const override;
 	UClass* GetSupportedClass() const override;
 };
@@ -26,7 +29,10 @@ class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAs
 class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayEffect : public FAssetTypeActions_Base
 {
 	FText GetName() const override;
-	void GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) override;
+	FColor GetTypeColor() const override;
+	uint32 GetCategories() override;
+
+	void GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section) override;
 	bool HasActions(const TArray<UObject*>& InObjects) const override;
 	UClass* GetSupportedClass() const override;
 };

@@ -1,4 +1,6 @@
 #include "DcEditorExtraModule.h"
+
+#include "AssetToolsModule.h"
 #include "Modules/ModuleManager.h"
 #include "MessageLogModule.h"
 #include "Logging/MessageLog.h"
@@ -8,6 +10,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
+#include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.h"
 #include "DataConfig/Automation/DcAutomation.h"
 
 struct FDcMessageLogDiagnosticConsumer : public IDcDiagnosticConsumer
@@ -41,10 +44,27 @@ void FDcEditorExtraModule::StartupModule()
 	MessageLogModule.RegisterLogListing("DataConfig", FText::FromString(TEXT("DataConfig")), InitOptions);
 
 	_PopulateEditorExtraGameplayTagFixtures();
+
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	AssetActions.Emplace(MakeShareable(new DcEditorExtra::FAssetTypeActions_DcGameplayAbility()));
+	AssetActions.Emplace(MakeShareable(new DcEditorExtra::FAssetTypeActions_DcGameplayEffect()));
+	for (auto& ImportedDataAssetAction : AssetActions)
+		AssetTools.RegisterAssetTypeActions(ImportedDataAssetAction.GetValue());
 }
 
 void FDcEditorExtraModule::ShutdownModule()
 {
+	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
+	{
+		IAssetTools& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+		for (auto& ImportedDataAssetAction : AssetActions)
+		{
+			check(ImportedDataAssetAction.IsSet());
+			AssetToolsModule.UnregisterAssetTypeActions(ImportedDataAssetAction.GetValue());
+		}
+		AssetActions.Empty();
+	}
+
 	DcShutDown();
 	UE_LOG(LogDataConfigCore, Log, TEXT("DcEditorExtraModule module shutting down"));
 
