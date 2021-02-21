@@ -116,7 +116,7 @@ FProperty* FirstEffectiveProperty(FProperty* Property)
 	if (Property == nullptr)
 		return nullptr;
 
-	return  IsEffectiveProperty(Property)
+	return IsEffectiveProperty(Property)
 		? Property
 		: NextEffectiveProperty(Property);
 }
@@ -124,6 +124,9 @@ FProperty* FirstEffectiveProperty(FProperty* Property)
 FProperty* FindEffectivePropertyByName(UStruct* Struct, const FName& Name)
 {
 	FProperty* Property = PropertyAccessUtil::FindPropertyByName(Name, Struct);
+	if (Property == nullptr)
+		return nullptr;
+	
 	return IsEffectiveProperty(Property)
 		? Property
 		: nullptr;

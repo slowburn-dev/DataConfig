@@ -4,8 +4,10 @@
 #include "EditorDirectories.h"
 #include "Abilities/GameplayAbility.h"
 #include "GameplayAbilityBlueprint.h"
+#include "MessageLogModule.h"
 #include "Textures/SlateIcon.h"
 #include "ToolMenuSection.h"
+#include "DataConfig/DcEnv.h"
 #include "Misc/FileHelper.h"
 
 #include "DataConfig/DcTypes.h"
@@ -127,7 +129,13 @@ void FAssetTypeActions_DcGameplayAbility::GetActions(const TArray<UObject*>& InO
 					Reader.SetNewString(*JsonStr);
 					Reader.DiagFilePath = MoveTemp(Filename);
 					
-					DeserializeGameplayAbility(AbilityCDO, Reader);
+					if (!DeserializeGameplayAbility(AbilityCDO, Reader).Ok())
+					{
+						DcEnv().FlushDiags();
+
+						FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+						MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
+					}
 				}
 			}),
 			FCanExecuteAction()

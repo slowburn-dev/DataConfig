@@ -3,7 +3,7 @@
 ///  Populate GameplayAbility / GameplayEffect instance fields from JSON
 
 #include "DataConfig/DcTypes.h"
-#include "AssetTypeActions_Base.h"
+#include "AssetTypeActions/AssetTypeActions_Blueprint.h"
 
 class UGameplayAbility;
 class UGameplayEffect;
@@ -16,7 +16,7 @@ DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility*
 
 DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcJsonReader& Reader);
 
-class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAssetTypeActions_Base
+class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAssetTypeActions_Blueprint
 {
 	FText GetName() const override;
 	FColor GetTypeColor() const override;
@@ -27,7 +27,7 @@ class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAs
 	UClass* GetSupportedClass() const override;
 };
 
-class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayEffect : public FAssetTypeActions_Base
+class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayEffect : public FAssetTypeActions_Blueprint
 {
 	FText GetName() const override;
 	FColor GetTypeColor() const override;

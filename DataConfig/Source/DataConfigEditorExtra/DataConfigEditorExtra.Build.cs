@@ -14,6 +14,7 @@ public class DataConfigEditorExtra : ModuleRules
             "UnrealEd",
             "MessageLog",
             "DesktopPlatform",
+            "AssetTools",
             "GameplayTags",
             "GameplayAbilities",
             "DataConfigCore",
