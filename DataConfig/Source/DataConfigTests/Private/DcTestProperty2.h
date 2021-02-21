@@ -111,7 +111,6 @@ enum class EDcTestEnum_Flag
 };
 ENUM_CLASS_FLAGS(EDcTestEnum_Flag);
 
-
 USTRUCT()
 struct FDcTestStructEnum1
 {
@@ -128,6 +127,27 @@ struct FDcTestStructEnum1
 	UPROPERTY() EDcTestEnum_Int64 EnumInt64Field;
 
 	UPROPERTY() EDcTestEnum_Flag EnumFlagField;
+};
+
+UENUM()
+namespace EDcTestEnum_Namespaced
+{
+	enum Type
+	{
+		Cero 	UMETA(DisplayName = "0"),
+		Uno		UMETA(DisplayName = "1"),
+		Dos		UMETA(DisplayName = "2"),
+		Tres	UMETA(DisplayName = "3"),
+	};
+}
+
+USTRUCT()
+struct FDcTestStructEnum2
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TEnumAsByte<EDcTestEnum_Namespaced::Type> EnumNamespaced1;
+	UPROPERTY() TEnumAsByte<EDcTestEnum_Namespaced::Type> EnumNamespaced2;
 };
 
 USTRUCT()

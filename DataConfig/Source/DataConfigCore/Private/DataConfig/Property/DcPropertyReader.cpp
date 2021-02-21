@@ -216,16 +216,16 @@ FDcResult FDcPropertyReader::ReadEnum(FDcEnumData* OutPtr)
 	FScopedStackedReader StackedReader(this);
 
 	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).ReadDataEntry(FEnumProperty::StaticClass(), Datum));
+	DC_TRY(GetTopState(this).ReadDataEntry(FProperty::StaticClass(), Datum));
+	
+	UEnum* Enum = nullptr;
+	FNumericProperty* UnderlyingProperty = nullptr;
+	
+	DC_TRY(DcPropertyUtils::GetEnumProperty(Datum, Enum, UnderlyingProperty));
 
 	if (OutPtr)
 	{
-		FEnumProperty* EnumProperty = Datum.CastFieldChecked<FEnumProperty>();
-		FNumericProperty* UnderlyingProperty = EnumProperty->GetUnderlyingProperty();
-
 		bool bIsUnsigned = DcPropertyUtils::IsUnsignedProperty(UnderlyingProperty);
-
-		UEnum* Enum = EnumProperty->GetEnum();
 		OutPtr->Type = Enum->GetFName();
 		OutPtr->bIsUnsigned = bIsUnsigned;
 		if (bIsUnsigned)

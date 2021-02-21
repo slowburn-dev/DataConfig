@@ -168,13 +168,14 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 	FScopedStackedWriter StackedWriter(this);
 
 	FDcPropertyDatum Datum;
-	DC_TRY(GetTopState(this).WriteDataEntry(FEnumProperty::StaticClass(), Datum));
+	DC_TRY(GetTopState(this).WriteDataEntry(FProperty::StaticClass(), Datum));
 
-	FEnumProperty* EnumProperty = Datum.CastFieldChecked<FEnumProperty>();
-	FNumericProperty* UnderlyingProperty = EnumProperty->GetUnderlyingProperty();
+	UEnum* Enum = nullptr;
+	FNumericProperty* UnderlyingProperty = nullptr;
+
+	DC_TRY(DcPropertyUtils::GetEnumProperty(Datum, Enum, UnderlyingProperty));
+	
 	bool bIsUnsigned = DcPropertyUtils::IsUnsignedProperty(UnderlyingProperty);
-
-	UEnum* Enum = EnumProperty->GetEnum();
 
 	if (Value.Flag & FDcEnumData::WriteCheckType
 		&& Value.Type != Enum->GetFName())
@@ -184,12 +185,14 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 			<< FormatHighlight();
 	}
 
-	if (Value.Flag & FDcEnumData::WriteCheckNameAndValue
-		&& Value.Name != Enum->GetNameByValue(Value.Signed64))
+	if (Value.Flag & FDcEnumData::WriteCheckNameAndValue)
 	{
-		return DC_FAIL(DcDReadWrite, EnumNameNotFound)
-			<< Enum->GetName() << Value.Name
-			<< FormatHighlight();
+		if (Value.Name != Enum->GetNameByValue(Value.Signed64))
+		{
+			return DC_FAIL(DcDReadWrite, EnumNameNotFound)
+				<< Enum->GetName() << Value.Name
+				<< FormatHighlight();
+		}
 
 		//	only check validness when there's name, otherwise it might be flags
 		if (!Enum->IsValidEnumValue(Value.Signed64))
@@ -209,9 +212,9 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 	}
 
 	if (bIsUnsigned)
-		EnumProperty->GetUnderlyingProperty()->SetIntPropertyValue(Datum.DataPtr, Value.Unsigned64);
+		UnderlyingProperty->SetIntPropertyValue(Datum.DataPtr, Value.Unsigned64);
 	else
-		EnumProperty->GetUnderlyingProperty()->SetIntPropertyValue(Datum.DataPtr, Value.Signed64);
+		UnderlyingProperty->SetIntPropertyValue(Datum.DataPtr, Value.Signed64);
 
 	return DcOk();
 }

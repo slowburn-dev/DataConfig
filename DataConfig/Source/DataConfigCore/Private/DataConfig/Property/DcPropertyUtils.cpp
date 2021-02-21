@@ -175,18 +175,28 @@ EDcDataEntry PropertyToDataEntry(FField* Property)
 	if (Property->IsA<FTextProperty>()) return EDcDataEntry::Text;
 	if (Property->IsA<FEnumProperty>()) return EDcDataEntry::Enum;
 
-	if (Property->IsA<FInt8Property>()) return EDcDataEntry::Int8;
-	if (Property->IsA<FInt16Property>()) return EDcDataEntry::Int16;
-	if (Property->IsA<FIntProperty>()) return EDcDataEntry::Int32;
-	if (Property->IsA<FInt64Property>()) return EDcDataEntry::Int64;
+	if (FNumericProperty* NumericProperty = CastField<FNumericProperty>(Property))
+	{
+		if (NumericProperty->IsEnum())
+		{
+			return EDcDataEntry::Enum;
+		}
+		else
+		{
+			if (Property->IsA<FInt8Property>()) return EDcDataEntry::Int8;
+			if (Property->IsA<FInt16Property>()) return EDcDataEntry::Int16;
+			if (Property->IsA<FIntProperty>()) return EDcDataEntry::Int32;
+			if (Property->IsA<FInt64Property>()) return EDcDataEntry::Int64;
 
-	if (Property->IsA<FByteProperty>()) return EDcDataEntry::UInt8;
-	if (Property->IsA<FUInt16Property>()) return EDcDataEntry::UInt16;
-	if (Property->IsA<FUInt32Property>()) return EDcDataEntry::UInt32;
-	if (Property->IsA<FUInt64Property>()) return EDcDataEntry::UInt64;
+			if (Property->IsA<FByteProperty>()) return EDcDataEntry::UInt8;
+			if (Property->IsA<FUInt16Property>()) return EDcDataEntry::UInt16;
+			if (Property->IsA<FUInt32Property>()) return EDcDataEntry::UInt32;
+			if (Property->IsA<FUInt64Property>()) return EDcDataEntry::UInt64;
 
-	if (Property->IsA<FFloatProperty>()) return EDcDataEntry::Float;
-	if (Property->IsA<FDoubleProperty>()) return EDcDataEntry::Double;
+			if (Property->IsA<FFloatProperty>()) return EDcDataEntry::Float;
+			if (Property->IsA<FDoubleProperty>()) return EDcDataEntry::Double;
+		}
+	}
 
 	{
 		//	order significant
@@ -435,6 +445,30 @@ UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant)
 	else
 	{
 		return nullptr;
+	}
+}
+
+FDcResult GetEnumProperty(const FDcPropertyDatum& Datum, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
+{
+	if (Datum.IsA<FEnumProperty>())
+	{
+		FEnumProperty* EnumProperty = Datum.CastFieldChecked<FEnumProperty>();
+		OutNumeric = EnumProperty->GetUnderlyingProperty();
+		OutEnum = EnumProperty->GetEnum();
+		return DcOk();
+	}
+	else if (Datum.IsA<FNumericProperty>())
+	{
+		OutNumeric = Datum.CastFieldChecked<FNumericProperty>();
+		OutEnum = OutNumeric->GetIntPropertyEnum();
+		check(OutEnum);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, PropertyMismatch2)
+			<< TEXT("EnumProperty")  << TEXT("<NumericProperty with Enum>")
+			<< Datum.Property.GetFName() << Datum.Property.GetClassName();
 	}
 }
 

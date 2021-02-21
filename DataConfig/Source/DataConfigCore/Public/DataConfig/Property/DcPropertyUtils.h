@@ -9,6 +9,7 @@ struct FDcPropertyDatum;
 
 namespace DcPropertyUtils
 {
+
 DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
 DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor);
@@ -34,6 +35,8 @@ DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);
 DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
 DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant);
 DATACONFIGCORE_API UStruct* TryGetStruct(const FDcPropertyDatum& Datum);
+
+DATACONFIGCORE_API FDcResult GetEnumProperty(const FDcPropertyDatum& Datum, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
 
 FORCEINLINE FString SafeNameToString(const FName& Value)
 {

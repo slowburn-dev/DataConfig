@@ -104,4 +104,20 @@ DC_TEST("DataConfig.Core.Property.DefaultValue")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Property.EnumNamespace")
+{
+	FDcTestStructEnum2 Source;
 
+	Source.EnumNamespaced1 = EDcTestEnum_Namespaced::Cero;
+	Source.EnumNamespaced2 = EDcTestEnum_Namespaced::Tres;
+
+	FDcTestStructEnum2 Dest;
+
+	FDcPropertyDatum SourceDatum(FDcTestStructEnum2::StaticStruct(), &Source);
+	FDcPropertyDatum DestDatum(FDcTestStructEnum2::StaticStruct(), &Dest);
+
+	UTEST_OK("FDcTestStructEnum2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStructEnum2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+
+	return true;
+}

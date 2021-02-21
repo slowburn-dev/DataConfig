@@ -16,6 +16,7 @@ enum Type : uint16
 	DataTypeMismatch,
 	DataTypeMismatch2,
 	PropertyMismatch,
+	PropertyMismatch2,
 	AlreadyEnded,
 	CantFindPropertyByName,
 	WriteClassInlineNotCreated,

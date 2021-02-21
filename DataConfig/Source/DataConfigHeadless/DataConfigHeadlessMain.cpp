@@ -23,7 +23,7 @@ static int32 TestRunnerBody(TArray<FString>& Tokens)
 	for (FString& Token : Tokens)
 		Args.Filters.Add(Token);
 
-	Args.RequestedTestFilter = FDcAutomationBase::_FLAGS;
+	Args.RequestedTestFilter = FDcAutomationBase::FLAGS;
 
 	Runner.Prepare(Args);
 	return Runner.RunTests();
