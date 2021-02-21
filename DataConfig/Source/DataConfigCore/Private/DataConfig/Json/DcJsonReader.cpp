@@ -41,7 +41,7 @@ TDcJsonReader<CharType>::TDcJsonReader()
 template<typename CharType>
 void TDcJsonReader<CharType>::AbortAndUninitialize()
 {
-	State = TDcJsonReader::EState::Unitialized;
+	State = TDcJsonReader::EState::Uninitialized;
 	States.Empty();
 	Keys.Empty();
 
@@ -75,7 +75,7 @@ FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 
 	if (State == EState::InProgress)
 		DC_TRY(FinishRead());
 
-	if (State != EState::Unitialized
+	if (State != EState::Uninitialized
 		&& State != EState::FinishedStr)
 	{
 		return DC_FAIL(DcDJSON, ExpectStateUninitializedOrFinished) << State;
@@ -947,7 +947,7 @@ void TDcJsonReader<CharType>::PutbackToken(const FToken& Putback)
 template<typename CharType>
 bool TDcJsonReader<CharType>::IsAtEnd(int N)
 {
-	check(State != EState::Unitialized && State != EState::Invalid);
+	check(State != EState::Uninitialized && State != EState::Invalid);
 	check(Cur >= 0);
 	return Cur + N >= Buf.Num;
 }

@@ -86,12 +86,12 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	enum class EState
 	{
-		Unitialized,
+		Uninitialized,
 		InProgress,
 		FinishedStr,
 		Invalid,
 	};
-	EState State = EState::Unitialized;
+	EState State = EState::Uninitialized;
 
 	SourceView Buf = {};
 	FDcSourceLocation Loc = {1, 0};
@@ -168,8 +168,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FORCEINLINE void PopTopState(EParseState InState) { check(GetTopState() == InState); States.Pop(); }
 	FORCEINLINE bool IsAtObjectKey() { return GetTopState() == EParseState::Object && !bTopObjectAtValue; }
 
-	bool bTopObjectAtValue;
-	bool bNeedConsumeToken;
+	bool bTopObjectAtValue = false;
+	bool bNeedConsumeToken = false;
 
 	FDcResult ReadTokenAsDataEntry(EDcDataEntry* OutPtr);
 	FDcResult CheckConsumeToken(EDcDataEntry Expect);
@@ -205,7 +205,7 @@ struct FDcJsonReader : public TDcJsonReader<TCHAR>
 	FDcJsonReader(const FString& Str) : Super()
 	{
 		bool bOk = SetNewString(*Str).Ok();
-		check(bOk);	// guarenteed not to fail
+		check(bOk);	// guaranteed not to fail
 	}
 };
 
