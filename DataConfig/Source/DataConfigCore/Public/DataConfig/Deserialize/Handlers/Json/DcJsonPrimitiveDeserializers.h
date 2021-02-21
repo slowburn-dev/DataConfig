@@ -12,6 +12,8 @@ DATACONFIGCORE_API FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, 
 DATACONFIGCORE_API FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 DATACONFIGCORE_API FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 DATACONFIGCORE_API FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+
+DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsEnumFlagsProperty(FDcDeserializeContext& Ctx);

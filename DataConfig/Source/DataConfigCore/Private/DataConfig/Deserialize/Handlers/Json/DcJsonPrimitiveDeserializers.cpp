@@ -129,8 +129,22 @@ FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	}
 }
 
+EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx)
+{
+	FEnumProperty* EnumProperty = DcPropertyUtils::CastFieldVariant<FEnumProperty>(Ctx.TopProperty());
+	FNumericProperty* NumericProperty = DcPropertyUtils::CastFieldVariant<FNumericProperty>(Ctx.TopProperty());
+
+	return (EnumProperty || (NumericProperty && NumericProperty->IsEnum()))
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
+}
+
 FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
+	///// TODO
+	// extract GetEnumProperty() and get EnumFlags working, or consider merge these 2 methods
+
+	
 	if (!Ctx.TopProperty().IsA<FEnumProperty>())
 	{
 		return DcOkWithFallThrough(OutRet);

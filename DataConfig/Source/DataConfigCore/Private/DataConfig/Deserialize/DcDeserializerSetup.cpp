@@ -19,20 +19,28 @@ void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 	using namespace DcJsonHandlers;
 
 	//	Primitives
-	Deserializer.AddPredicatedHandler(
-		FDcDeserializePredicate::CreateStatic(PredicateIsNumericProperty),
-		FDcDeserializeDelegate::CreateStatic(HandlerNumericDeserialize)
-	);
 	Deserializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerBoolDeserialize));
 	Deserializer.AddDirectHandler(FNameProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerNameDeserialize));
 	Deserializer.AddDirectHandler(FStrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStringDeserialize));
 	Deserializer.AddDirectHandler(FTextProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTextDeserialize));
-	Deserializer.AddDirectHandler(FEnumProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerEnumDeserialize));
 
-	Deserializer.AddPredicatedHandler(
-		FDcDeserializePredicate::CreateStatic(PredicateIsEnumFlagsProperty),
-		FDcDeserializeDelegate::CreateStatic(HandleEnumFlagsDeserialize)
-	);
+	{
+		// order significant
+		Deserializer.AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(PredicateIsEnumFlagsProperty),
+			FDcDeserializeDelegate::CreateStatic(HandleEnumFlagsDeserialize)
+		);
+
+		Deserializer.AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(PredicateIsEnumProperty),
+			FDcDeserializeDelegate::CreateStatic(HandlerEnumDeserialize)
+		);
+
+		Deserializer.AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(PredicateIsNumericProperty),
+			FDcDeserializeDelegate::CreateStatic(HandlerNumericDeserialize)
+		);
+	}
 
 	//	Containers
 	Deserializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));
