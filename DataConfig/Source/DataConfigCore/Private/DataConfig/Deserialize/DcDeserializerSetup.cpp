@@ -27,11 +27,6 @@ void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 	{
 		// order significant
 		Deserializer.AddPredicatedHandler(
-			FDcDeserializePredicate::CreateStatic(PredicateIsEnumFlagsProperty),
-			FDcDeserializeDelegate::CreateStatic(HandleEnumFlagsDeserialize)
-		);
-
-		Deserializer.AddPredicatedHandler(
 			FDcDeserializePredicate::CreateStatic(PredicateIsEnumProperty),
 			FDcDeserializeDelegate::CreateStatic(HandlerEnumDeserialize)
 		);

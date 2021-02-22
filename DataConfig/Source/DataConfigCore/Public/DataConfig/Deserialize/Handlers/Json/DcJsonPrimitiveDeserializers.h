@@ -16,7 +16,4 @@ DATACONFIGCORE_API FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, 
 DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
-DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsEnumFlagsProperty(FDcDeserializeContext& Ctx);
-DATACONFIGCORE_API FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
-
 }	// namespace DcHandlers

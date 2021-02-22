@@ -131,107 +131,91 @@ FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 
 EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx)
 {
-	FEnumProperty* EnumProperty = DcPropertyUtils::CastFieldVariant<FEnumProperty>(Ctx.TopProperty());
-	FNumericProperty* NumericProperty = DcPropertyUtils::CastFieldVariant<FNumericProperty>(Ctx.TopProperty());
-
-	return (EnumProperty || (NumericProperty && NumericProperty->IsEnum()))
+	UEnum* Enum = nullptr;
+	FNumericProperty* UnderlyingProperty = nullptr;
+	bool bFoundEnum = DcPropertyUtils::TryGetEnumPropertyOut(Ctx.TopProperty(), Enum, UnderlyingProperty);
+	
+	return bFoundEnum
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
 }
 
 FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
 {
-	///// TODO
-	// extract GetEnumProperty() and get EnumFlags working, or consider merge these 2 methods
+	UEnum* Enum = nullptr;
+	FNumericProperty* UnderlyingProperty = nullptr;
 
-	
-	if (!Ctx.TopProperty().IsA<FEnumProperty>())
-	{
-		return DcOkWithFallThrough(OutRet);
-	}
+	DC_TRY(DcPropertyUtils::GetEnumProperty(Ctx.TopProperty(), Enum, UnderlyingProperty));
 
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	if (Next != EDcDataEntry::String)
-	{
-		return DC_FAIL(DcDDeserialize, DataEntryMismatch)
-			<< EDcDataEntry::String << Next;
-	}
-
-	FEnumProperty* EnumProperty = CastFieldChecked<FEnumProperty>(Ctx.TopProperty().ToFieldUnsafe());
-	UEnum* EnumClass = EnumProperty->GetEnum();
-
-	FString Value;
-	DC_TRY(Ctx.Reader->ReadString(&Value));
-
-	FName ValueName(EnumClass->GenerateFullEnumName(*Value));
-	if (!EnumClass->IsValidEnumName(ValueName))
-		return DC_FAIL(DcDDeserialize, EnumNameNotFound) << EnumClass->GetFName() << Value;
-
-	FDcEnumData EnumData;
-	EnumData.Signed64 = EnumClass->GetValueByName(ValueName);
-
-	DC_TRY(Ctx.Writer->WriteEnum(EnumData));
-	return DcOkWithProcessed(OutRet);
-}
-
-EDcDeserializePredicateResult PredicateIsEnumFlagsProperty(FDcDeserializeContext& Ctx)
-{
-	FEnumProperty* EnumProperty = DcPropertyUtils::CastFieldVariant<FEnumProperty>(Ctx.TopProperty());
-	if (EnumProperty == nullptr)
-		return EDcDeserializePredicateResult::Pass;
-
-	UEnum* EnumClass = EnumProperty->GetEnum();
+	bool bIsBitFlags;
 #if WITH_METADATA
-	return EnumClass->HasMetaData(TEXT("Bitflags"))
-		? EDcDeserializePredicateResult::Process
-		: EDcDeserializePredicateResult::Pass;
+	bIsBitFlags = Enum->HasMetaData(TEXT("Bitflags"));
 #else
 	//	Program target is missing `UEnum::HasMetaData`
-	return ((UField*)EnumClass)->HasMetaData(TEXT("Bitflags"))
-		? EDcDeserializePredicateResult::Process
-		: EDcDeserializePredicateResult::Pass;
+	bIsBitFlags = ((UField*)Enum)->HasMetaData(TEXT("Bitflags"));
 #endif
-}
-
-FDcResult HandleEnumFlagsDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
-{
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::ArrayRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Enum, &bWritePass));
-
-	if (!(bReadPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
-
-	FEnumProperty* EnumProperty = CastFieldChecked<FEnumProperty>(Ctx.TopProperty().ToFieldUnsafe());
-	UEnum* EnumClass = EnumProperty->GetEnum();
-
-	FDcEnumData EnumData;
-	EnumData.Signed64 = 0;
-
-	DC_TRY(Ctx.Reader->ReadArrayRoot());
-	while (true)
+	
+	if (!bIsBitFlags)
 	{
+		EDcDataEntry Next;
 		DC_TRY(Ctx.Reader->PeekRead(&Next));
-		if (Next == EDcDataEntry::ArrayEnd)
-			break;
+		bool bReadPass = Next == EDcDataEntry::String;
 
+		bool bWritePass;
+		DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Enum, &bWritePass));
+
+		if (!(bReadPass && bWritePass))
+			return DcOkWithFallThrough(OutRet);
+		
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value));
 
-		FName ValueName(EnumClass->GenerateFullEnumName(*Value));
-		if (!EnumClass->IsValidEnumName(ValueName))
-			return DC_FAIL(DcDDeserialize, EnumNameNotFound) << EnumClass->GetFName() << Value;
+		FName ValueName(Enum->GenerateFullEnumName(*Value));
+		if (!Enum->IsValidEnumName(ValueName))
+			return DC_FAIL(DcDDeserialize, EnumNameNotFound) << Enum->GetFName() << Value;
 
-		EnumData.Signed64 |= EnumClass->GetValueByName(ValueName);
+		FDcEnumData EnumData;
+		EnumData.Signed64 = Enum->GetValueByName(ValueName);
+
+		DC_TRY(Ctx.Writer->WriteEnum(EnumData));
+		return DcOkWithProcessed(OutRet);
 	}
-	DC_TRY(Ctx.Reader->ReadArrayEnd());
-	DC_TRY(Ctx.Writer->WriteEnum(EnumData));
+	else
+	{
+		EDcDataEntry Next;
+		DC_TRY(Ctx.Reader->PeekRead(&Next));
+		bool bReadPass = Next == EDcDataEntry::ArrayRoot;
 
-	return DcOkWithProcessed(OutRet);
+		bool bWritePass;
+		DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Enum, &bWritePass));
+
+		if (!(bReadPass && bWritePass))
+			return DcOkWithFallThrough(OutRet);
+
+		FDcEnumData EnumData;
+		EnumData.Signed64 = 0;
+
+		DC_TRY(Ctx.Reader->ReadArrayRoot());
+		while (true)
+		{
+			DC_TRY(Ctx.Reader->PeekRead(&Next));
+			if (Next == EDcDataEntry::ArrayEnd)
+				break;
+
+			FString Value;
+			DC_TRY(Ctx.Reader->ReadString(&Value));
+
+			FName ValueName(Enum->GenerateFullEnumName(*Value));
+			if (!Enum->IsValidEnumName(ValueName))
+				return DC_FAIL(DcDDeserialize, EnumNameNotFound) << Enum->GetFName() << Value;
+
+			EnumData.Signed64 |= Enum->GetValueByName(ValueName);
+		}
+		DC_TRY(Ctx.Reader->ReadArrayEnd());
+		DC_TRY(Ctx.Writer->WriteEnum(EnumData));
+
+		return DcOkWithProcessed(OutRet);
+	}
 }
 
 }	// namespace DcJsonHandlers

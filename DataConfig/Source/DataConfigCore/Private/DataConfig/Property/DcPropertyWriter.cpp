@@ -173,7 +173,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 	UEnum* Enum = nullptr;
 	FNumericProperty* UnderlyingProperty = nullptr;
 
-	DC_TRY(DcPropertyUtils::GetEnumProperty(Datum, Enum, UnderlyingProperty));
+	DC_TRY(DcPropertyUtils::GetEnumProperty(Datum.Property, Enum, UnderlyingProperty));
 	
 	bool bIsUnsigned = DcPropertyUtils::IsUnsignedProperty(UnderlyingProperty);
 

@@ -221,7 +221,7 @@ FDcResult FDcPropertyReader::ReadEnum(FDcEnumData* OutPtr)
 	UEnum* Enum = nullptr;
 	FNumericProperty* UnderlyingProperty = nullptr;
 	
-	DC_TRY(DcPropertyUtils::GetEnumProperty(Datum, Enum, UnderlyingProperty));
+	DC_TRY(DcPropertyUtils::GetEnumProperty(Datum.Property, Enum, UnderlyingProperty));
 
 	if (OutPtr)
 	{
