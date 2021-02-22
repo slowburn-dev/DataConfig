@@ -1,6 +1,6 @@
 #include "DcEditorExtraModule.h"
 
-#include "AssetToolsModule.h"
+#include "ContentBrowserModule.h"
 #include "Modules/ModuleManager.h"
 #include "MessageLogModule.h"
 #include "Logging/MessageLog.h"
@@ -45,31 +45,29 @@ void FDcEditorExtraModule::StartupModule()
 
 	_PopulateEditorExtraGameplayTagFixtures();
 
-	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	AssetActions.Emplace(MakeShareable(new DcEditorExtra::FAssetTypeActions_DcGameplayAbility()));
-	AssetActions.Emplace(MakeShareable(new DcEditorExtra::FAssetTypeActions_DcGameplayEffect()));
-	for (auto& ImportedDataAssetAction : AssetActions)
-		AssetTools.RegisterAssetTypeActions(ImportedDataAssetAction.GetValue());
+	auto &ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
+    auto &ContextMenuExtenders = ContentBrowserModule.GetAllAssetViewContextMenuExtenders();
+	ContextMenuExtenders.Add(FContentBrowserMenuExtender_SelectedAssets::CreateStatic(DcEditorExtra::GameplayAbilityEffectExtender));
+	ContentExplorerExtenderHandler = ContextMenuExtenders.Last().GetHandle();
 }
 
 void FDcEditorExtraModule::ShutdownModule()
 {
-	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
-	{
-		IAssetTools& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
-		for (auto& ImportedDataAssetAction : AssetActions)
-		{
-			check(ImportedDataAssetAction.IsSet());
-			AssetToolsModule.UnregisterAssetTypeActions(ImportedDataAssetAction.GetValue());
-		}
-		AssetActions.Empty();
-	}
-
 	DcShutDown();
 	UE_LOG(LogDataConfigCore, Log, TEXT("DcEditorExtraModule module shutting down"));
 
 	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
 	MessageLogModule.UnregisterLogListing("DataConfig");
+
+	if ( ContentExplorerExtenderHandler.IsValid() && FModuleManager::Get().IsModuleLoaded("ContentBrowser"))
+	{
+		auto &ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
+		auto &ContextMenuExtenders = ContentBrowserModule.GetAllAssetViewContextMenuExtenders();
+		ContextMenuExtenders.RemoveAll([this](const FContentBrowserMenuExtender_SelectedAssets& Delegate)
+		{
+			return Delegate.GetHandle() == ContentExplorerExtenderHandler;
+		});
+	}
 }
 
 IMPLEMENT_MODULE(FDcEditorExtraModule, DataConfigEditorExtra);

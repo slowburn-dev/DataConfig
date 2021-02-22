@@ -48,6 +48,8 @@ DC_TEST("DataConfig.Core.Property.Enum")
 	UTEST_OK("FDcTestStructEnum1 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructEnum1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
+	UTEST_TRUE("FDcTestStructEnum1 roundtrip equal", Dest.EnumFlagField == (EDcTestEnum_Flag::Alpha | EDcTestEnum_Flag::Gamma));
+
 	return true;
 }
 

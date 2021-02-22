@@ -2,6 +2,7 @@
 
 ///  Populate GameplayAbility / GameplayEffect instance fields from JSON
 
+#include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
 #include "AssetTypeActions/AssetTypeActions_Blueprint.h"
 
@@ -16,6 +17,9 @@ DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility*
 
 DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcJsonReader& Reader);
 
+DATACONFIGEDITOREXTRA_API TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& SelectedAssets);
+
+	
 class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAssetTypeActions_Blueprint
 {
 	FText GetName() const override;

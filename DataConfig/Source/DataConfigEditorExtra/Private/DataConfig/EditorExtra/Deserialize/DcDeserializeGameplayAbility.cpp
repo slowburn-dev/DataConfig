@@ -61,6 +61,41 @@ FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, const TCHAR* Str)
 	return DcOk();
 }
 
+TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& SelectedAssets)
+{
+	TSharedRef<FExtender> Extender(new FExtender());
+
+	for (auto& Asset : SelectedAssets)
+	{
+		if (!Asset.AssetClass.IsNone())
+		{
+			Extender->AddMenuExtension("GetAssetActions", EExtensionHook::After, TSharedPtr<FUICommandList>(),
+				FMenuExtensionDelegate::CreateLambda([=](FMenuBuilder& MenuBuilder)
+				{
+					MenuBuilder.AddMenuEntry(
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
+						FSlateIcon(),
+						FUIAction(
+							FExecuteAction::CreateLambda([=]{
+
+							}),
+							FCanExecuteAction()
+						)
+					);
+				}));
+			
+			break;
+		}
+	}
+
+    return Extender;
+}
+
+
+
+	
+
 FText FAssetTypeActions_DcGameplayAbility::GetName() const
 {
 	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayAbility", "DataConfig GameplayAbility"); 

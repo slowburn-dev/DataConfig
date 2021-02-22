@@ -1,6 +1,5 @@
 {
     /// Tags
-    /*
     "AbilityTags" : [
         "DataConfig.Foo.Bar",
         "DataConfig.Foo.Bar.Baz",
@@ -9,7 +8,6 @@
         "DataConfig.Foo.Bar.Baz",
         "DataConfig.Tar.Taz",
     ],
-    */
     /// Advanced
     "ReplicationPolicy" : "ReplicateYes",
     "InstancingPolicy" : "InstancedPerExecution",

@@ -11,12 +11,12 @@ class FAssetTypeActions_Base;
 class FDcEditorExtraModule : public IModuleInterface
 {
 public:
-	static inline FDcEditorExtraModule& Get()
+	FORCEINLINE static FDcEditorExtraModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<FDcEditorExtraModule>("DataConfigEditorExtra");
 	}
 
-	static inline bool IsAvailable()
+	FORCEINLINE static bool IsAvailable()
 	{
 		return FModuleManager::Get().IsModuleLoaded("DataConfigEditorExtra");
 	}
@@ -26,6 +26,7 @@ public:
 
 	TArray<TOptional<TSharedRef<FAssetTypeActions_Base>>> AssetActions;
 
+	FDelegateHandle ContentExplorerExtenderHandler;
 };
 
 UCLASS()

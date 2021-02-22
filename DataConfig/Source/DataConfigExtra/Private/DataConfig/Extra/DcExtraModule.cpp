@@ -6,12 +6,12 @@
 class FDcExtraModule : public IModuleInterface
 {
 public:
-	static inline FDcExtraModule& Get()
+	FORCEINLINE static FDcExtraModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<FDcExtraModule>("DataConfigExtra");
 	}
 
-	static inline bool IsAvailable()
+	FORCEINLINE static bool IsAvailable()
 	{
 		return FModuleManager::Get().IsModuleLoaded("DataConfigExtra");
 	}
