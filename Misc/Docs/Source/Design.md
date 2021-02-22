@@ -7,7 +7,7 @@ This page documents the overall design, goals and reasoning around DataConfig.
 At the time we started this project we're looking for a JSON parser that:
 
 - Supports a relaxed JSON spec, i.e. comment and trailing comma.
-- Supports custom deserialization logic, i.e. deserialize `FColor` from `#RRGGBBAA` string.
+- Supports custom deserialization logic, i.e. deserialize `FColor` from `#RRGGBBAA`.
 - Supports UE4 instanced sub objects and polymorphism.
 
 Eventually we implemented all these in DataConfig. We also tried not limit this to be a JSON parser but deliver as a set of helpful tools for reading-from and writing-to the property system. 
@@ -29,9 +29,9 @@ Eventually we implemented all these in DataConfig. We also tried not limit this 
   We expect users to use DataConfig in a offline, editor only scenario. In this use case we favor some other aspects over runtime performance:
 
   - Idiomatic. We follow [UE4 c++ coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
-
-  - Friendly. When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
+- Friendly. When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
   - Small code size / fast compile time. DataConfig try not to don't expose template API. `TDcJsonReader` is explicit instantiated with its definition in private files.
+  - Light memory footprint. For example the JSON parser do parsing while deserializing. It would *not* construct the loaded JSON document in memory at all.
 
 - Works with whatever property system supports.
 

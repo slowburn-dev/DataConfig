@@ -93,7 +93,7 @@ In case of a invalid tag it would report the reason and fixed string:
 
 ## Deserialize Blueprint Class Instances
 
-The Property System is so powerful that you can create new Blueprint Class, which is equivalent to C++ `UCLASS` to some extents, within the Blueprint Editor.  In this example we implemented deserializing these.
+The Property System is so powerful that you can create new Blueprint Class, which is equivalent to C++ `UCLASS` to some extents, within the Blueprint Editor. In this example we implemented deserializing these.
 
 Blueprint Class can be referenced by the blueprint asset path:
 
@@ -154,7 +154,5 @@ There's a quirk that Blueprint Struct actually mangle its field names. The struc
 ```
 
 The good news is that DataConfig already got this covered. 
-
-
 
 [1]: https://docs.unrealengine.com/en-US/ProgrammingAndScripting/Tags/index.html "Gameplay Tags"

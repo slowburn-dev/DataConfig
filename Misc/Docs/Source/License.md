@@ -26,15 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Credits
+## Attribution
 
-If you find DataConfig useful in your project, consider credit us in your project with the full license above or the shorter snippets below.
+If you find DataConfig useful in your project, consider credit us in your project with the full license above or the shorter snippets below. 
 
 ```
 DataConfig <https//slowburn.dev/dataconfig>
-Copyright (c) 2021 Chen Tao
+MIT License, Copyright (c) 2021 Chen Tao
 ```
 
 You can also reach us by email to <hislowburn@gmail.com> or on twitter [@slowburndev](https://twitter.com/slowburndev). 
+
+We'll setup a section showcasing projects using DataConfig in the future.
 
 [1]: https://choosealicense.com/licenses/mit/ "MIT License"
