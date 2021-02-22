@@ -448,28 +448,34 @@ UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant)
 	}
 }
 
-FDcResult GetEnumProperty(const FDcPropertyDatum& Datum, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
+bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
 {
-	if (Datum.IsA<FEnumProperty>())
+	if (FEnumProperty* EnumProperty = CastFieldVariant<FEnumProperty>(Field))
 	{
-		FEnumProperty* EnumProperty = Datum.CastFieldChecked<FEnumProperty>();
 		OutNumeric = EnumProperty->GetUnderlyingProperty();
 		OutEnum = EnumProperty->GetEnum();
-		return DcOk();
+		return true;
 	}
-	else if (Datum.IsA<FNumericProperty>())
+	else if (FNumericProperty* NumericProperty = CastFieldVariant<FNumericProperty>(Field))
 	{
-		OutNumeric = Datum.CastFieldChecked<FNumericProperty>();
+		OutNumeric = NumericProperty;
 		OutEnum = OutNumeric->GetIntPropertyEnum();
 		check(OutEnum);
-		return DcOk();
+		return true;
 	}
 	else
 	{
-		return DC_FAIL(DcDReadWrite, PropertyMismatch2)
+		return false;
+	}
+}
+
+FDcResult GetEnumProperty(const FDcPropertyDatum& Datum, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
+{
+	return TryGetEnumPropertyOut(Datum.Property, OutEnum, OutNumeric)
+		? DcOk()
+		: DC_FAIL(DcDReadWrite, PropertyMismatch2)
 			<< TEXT("EnumProperty")  << TEXT("<NumericProperty with Enum>")
 			<< Datum.Property.GetFName() << Datum.Property.GetClassName();
-	}
 }
 
 UStruct* TryGetStruct(const FDcPropertyDatum& Datum)

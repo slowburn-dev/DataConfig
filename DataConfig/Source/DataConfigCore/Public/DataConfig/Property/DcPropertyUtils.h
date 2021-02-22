@@ -17,8 +17,8 @@ DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldC
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* FirstEffectiveProperty(FProperty* Property);
 DATACONFIGCORE_API FProperty* FindEffectivePropertyByName(UStruct* Struct, const FName& Name);
-DATACONFIGCORE_API FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset);
 
+DATACONFIGCORE_API FProperty* FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset);
 DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);
 
 DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
@@ -36,6 +36,7 @@ DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
 DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant);
 DATACONFIGCORE_API UStruct* TryGetStruct(const FDcPropertyDatum& Datum);
 
+DATACONFIGCORE_API bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
 DATACONFIGCORE_API FDcResult GetEnumProperty(const FDcPropertyDatum& Datum, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
 
 FORCEINLINE FString SafeNameToString(const FName& Value)
@@ -83,20 +84,20 @@ template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = FMul
 static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes");
 
 template<typename T>
-FORCEINLINE T* CastFieldVariant(FFieldVariant& FieldVariant)
+FORCEINLINE T* CastFieldVariant(const FFieldVariant& FieldVariant)
 {
 	static_assert(TIsDerivedFrom<T, FField>::Value, "expect TProperty to be a field");
 	return ::CastField<T>(FieldVariant.ToField());
 }
 
 template<>
-FORCEINLINE UClass* CastFieldVariant<UClass>(FFieldVariant& FieldVariant)
+FORCEINLINE UClass* CastFieldVariant<UClass>(const FFieldVariant& FieldVariant)
 {
 	return ::Cast<UClass>(FieldVariant.ToUObject());
 }
 
 template<>
-FORCEINLINE UScriptStruct* CastFieldVariant<UScriptStruct>(FFieldVariant& FieldVariant)
+FORCEINLINE UScriptStruct* CastFieldVariant<UScriptStruct>(const FFieldVariant& FieldVariant)
 {
 	return ::Cast<UScriptStruct>(FieldVariant.ToUObject());
 }
