@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
-#include "AssetTypeActions/AssetTypeActions_Blueprint.h"
 
 class UGameplayAbility;
 class UGameplayEffect;
@@ -18,29 +17,6 @@ DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility*
 DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcJsonReader& Reader);
 
 DATACONFIGEDITOREXTRA_API TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& SelectedAssets);
-
-	
-class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayAbility : public FAssetTypeActions_Blueprint
-{
-	FText GetName() const override;
-	FColor GetTypeColor() const override;
-	uint32 GetCategories() override;
-
-	void GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section) override;
-	bool HasActions(const TArray<UObject*>& InObjects) const override;
-	UClass* GetSupportedClass() const override;
-};
-
-class DATACONFIGEDITOREXTRA_API FAssetTypeActions_DcGameplayEffect : public FAssetTypeActions_Blueprint
-{
-	FText GetName() const override;
-	FColor GetTypeColor() const override;
-	uint32 GetCategories() override;
-
-	void GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section) override;
-	bool HasActions(const TArray<UObject*>& InObjects) const override;
-	UClass* GetSupportedClass() const override;
-};
 
 } // namespace DcEditorExtra
 

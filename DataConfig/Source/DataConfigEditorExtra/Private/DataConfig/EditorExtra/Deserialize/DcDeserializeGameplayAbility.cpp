@@ -3,7 +3,6 @@
 #include "DesktopPlatformModule.h"
 #include "EditorDirectories.h"
 #include "Abilities/GameplayAbility.h"
-#include "GameplayAbilityBlueprint.h"
 #include "MessageLogModule.h"
 #include "Textures/SlateIcon.h"
 #include "ToolMenuSection.h"
@@ -67,18 +66,68 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 
 	for (auto& Asset : SelectedAssets)
 	{
-		if (!Asset.AssetClass.IsNone())
+		FString ParentClassPath;
+		if(!Asset.GetTagValue(FBlueprintTags::NativeParentClassPath, ParentClassPath))
+			continue;
+
+		UObject* Outer = nullptr;
+		ResolveName( Outer, ParentClassPath, false, false );
+		UClass* NativeParentClass = FindObject<UClass>( ANY_PACKAGE, *ParentClassPath );
+
+		if (NativeParentClass->IsChildOf(UGameplayAbility::StaticClass()))
 		{
 			Extender->AddMenuExtension("GetAssetActions", EExtensionHook::After, TSharedPtr<FUICommandList>(),
-				FMenuExtensionDelegate::CreateLambda([=](FMenuBuilder& MenuBuilder)
+				FMenuExtensionDelegate::CreateLambda([Asset](FMenuBuilder& MenuBuilder)
 				{
 					MenuBuilder.AddMenuEntry(
 						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
 						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
 						FSlateIcon(),
 						FUIAction(
-							FExecuteAction::CreateLambda([=]{
+							FExecuteAction::CreateLambda([Asset]{
+								IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+								if (DesktopPlatform)
+								{
+									const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+									TArray<FString> OpenFilenames;
+									int32 FilterIndex = -1;
+									bool bSelected = DesktopPlatform->OpenFileDialog(
+										ParentWindowWindowHandle,
+										TEXT("Select JSON File"),
+										FEditorDirectories::Get().GetLastDirectory(ELastDirectory::GENERIC_IMPORT),
+										TEXT(""),
+										TEXT("Json config file (*.json)|*.json"),
+										EFileDialogFlags::None,
+										OpenFilenames,
+										FilterIndex
+									);
 
+									if (!bSelected)
+										return;
+
+									check(OpenFilenames.Num() == 1);
+									FString Filename = OpenFilenames.Pop();
+
+									FString JsonStr;
+									bool bLoadFile = FFileHelper::LoadFileToString(JsonStr, *Filename, FFileHelper::EHashOptions::None);
+									if (!bLoadFile)
+										return;
+
+									FDcJsonReader Reader;
+									Reader.SetNewString(*JsonStr);
+									Reader.DiagFilePath = MoveTemp(Filename);
+
+									UBlueprint* AbilityBP = CastChecked<UBlueprint>(Asset.GetAsset());
+									UGameplayAbility* AbilityCDO = CastChecked<UGameplayAbility>(AbilityBP->GeneratedClass->ClassDefaultObject);
+									
+									if (!DeserializeGameplayAbility(AbilityCDO, Reader).Ok())
+									{
+										DcEnv().FlushDiags();
+
+										FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+										MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
+									}
+								}
 							}),
 							FCanExecuteAction()
 						)
@@ -90,131 +139,6 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 	}
 
     return Extender;
-}
-
-
-
-	
-
-FText FAssetTypeActions_DcGameplayAbility::GetName() const
-{
-	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayAbility", "DataConfig GameplayAbility"); 
-}
-
-FColor FAssetTypeActions_DcGameplayAbility::GetTypeColor() const
-{
-	return FColor(201, 29, 85); 
-}
-
-uint32 FAssetTypeActions_DcGameplayAbility::GetCategories()
-{
-	return EAssetTypeCategories::Misc;
-}
-
-void FAssetTypeActions_DcGameplayAbility::GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section)
-{
-	TArray<TWeakObjectPtr<UGameplayAbilityBlueprint>> Abilities = GetTypedWeakObjectPtrs<UGameplayAbilityBlueprint>(InObjects);
-
-	if (Abilities.Num() != 1)
-		return;
-
-	TWeakObjectPtr<UGameplayAbilityBlueprint> AbilityBP = Abilities[0];
-	if (!AbilityBP.IsValid())
-		return;
-
-	UGameplayAbility* AbilityCDO = CastChecked<UGameplayAbility>(AbilityBP->GeneratedClass->ClassDefaultObject);
-	
-	Section.AddMenuEntry(
-		TEXT("DcEditorExtra_LoadFromJson"),
-		NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
-		NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
-		FSlateIcon(),
-		FUIAction(
-			FExecuteAction::CreateLambda([=]
-			{
-				IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
-				if (DesktopPlatform)
-				{
-					const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
-					TArray<FString> OpenFilenames;
-					int32 FilterIndex = -1;
-					bool bSelected = DesktopPlatform->OpenFileDialog(
-						ParentWindowWindowHandle,
-						TEXT("Select JSON File"),
-						FEditorDirectories::Get().GetLastDirectory(ELastDirectory::GENERIC_IMPORT),
-						TEXT(""),
-						TEXT("Json config file (*.json)|*.json"),
-						EFileDialogFlags::None,
-						OpenFilenames,
-						FilterIndex
-					);
-
-					if (!bSelected)
-						return;
-
-					check(OpenFilenames.Num() == 1);
-					FString Filename = OpenFilenames.Pop();
-
-					FString JsonStr;
-					bool bLoadFile = FFileHelper::LoadFileToString(JsonStr, *Filename, FFileHelper::EHashOptions::None);
-					if (!bLoadFile)
-						return;
-
-					FDcJsonReader Reader;
-					Reader.SetNewString(*JsonStr);
-					Reader.DiagFilePath = MoveTemp(Filename);
-					
-					if (!DeserializeGameplayAbility(AbilityCDO, Reader).Ok())
-					{
-						DcEnv().FlushDiags();
-
-						FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
-						MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
-					}
-				}
-			}),
-			FCanExecuteAction()
-		)
-	);
-}
-
-bool FAssetTypeActions_DcGameplayAbility::HasActions(const TArray<UObject*>& InObjects) const
-{
-	return true;
-}
-
-UClass* FAssetTypeActions_DcGameplayAbility::GetSupportedClass() const
-{
-	return UGameplayAbilityBlueprint::StaticClass();
-}
-
-FText FAssetTypeActions_DcGameplayEffect::GetName() const
-{
-	return NSLOCTEXT("AssetTypeActions", "AssetTypeActions_DcGameplayEffect", "DataConfig GameplayEffect"); 
-}
-
-FColor FAssetTypeActions_DcGameplayEffect::GetTypeColor() const
-{
-	return FColor(201, 29, 85); 
-}
-
-uint32 FAssetTypeActions_DcGameplayEffect::GetCategories()
-{
-	return EAssetTypeCategories::Misc;
-}
-
-void FAssetTypeActions_DcGameplayEffect::GetActions(const TArray<UObject*>& InObjects, FToolMenuSection& Section)
-{
-}
-
-bool FAssetTypeActions_DcGameplayEffect::HasActions(const TArray<UObject*>& InObjects) const
-{
-	return true;
-}
-
-UClass* FAssetTypeActions_DcGameplayEffect::GetSupportedClass() const
-{
-	return UGameplayEffect::StaticClass();
 }
 
 } // namespace DcEditorExtra
