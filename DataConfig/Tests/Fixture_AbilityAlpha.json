@@ -10,5 +10,5 @@
     ],
     /// Advanced
     "ReplicationPolicy" : "ReplicateYes",
-    "InstancingPolicy" : "InstancedPerExecution",
+    "InstancingPolicy" : "NonInstanced",
 }

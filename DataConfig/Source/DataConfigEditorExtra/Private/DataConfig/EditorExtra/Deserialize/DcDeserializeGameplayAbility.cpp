@@ -15,6 +15,8 @@
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/KismetEditorUtilities.h"
 
 namespace DcEditorExtra
 {
@@ -126,7 +128,12 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 
 										FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
 										MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
+										return;
 									}
+
+									FBlueprintEditorUtils::MarkBlueprintAsModified(AbilityBP);
+									FKismetEditorUtilities::CompileBlueprint(AbilityBP);
+									//	TODO check BP->Status
 								}
 							}),
 							FCanExecuteAction()
