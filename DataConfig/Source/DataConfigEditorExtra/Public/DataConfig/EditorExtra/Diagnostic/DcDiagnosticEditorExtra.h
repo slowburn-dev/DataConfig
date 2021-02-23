@@ -18,6 +18,8 @@ enum Type : uint16
 	InvalidGameplayTagStringFixErr,
 	//	BP Class
 	LoadObjectByPathFail,
+	//	IO
+	LoadFileByPathFail,
 };
 
 extern DATACONFIGEDITOREXTRA_API FDcDiagnosticGroup Details;

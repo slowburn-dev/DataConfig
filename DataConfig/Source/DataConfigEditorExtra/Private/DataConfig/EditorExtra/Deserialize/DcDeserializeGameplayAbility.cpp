@@ -13,6 +13,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h"
+#include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -41,7 +42,7 @@ static void LazyInitializeDeserializer()
 	);
 }
 
-FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcJsonReader& Reader)
+FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader)
 {
 	LazyInitializeDeserializer();
 
@@ -57,8 +58,64 @@ FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcJsonReader& 
 	return GameplayAbilityDeserializer->Deserialize(Ctx);
 }
 
-FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, const TCHAR* Str)
+FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcReader& Reader)
 {
+	LazyInitializeDeserializer();
+
+	FDcPropertyWriter Writer(FDcPropertyDatum(UGameplayEffect::StaticClass(), Instance));
+
+	FDcDeserializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &GameplayAbilityDeserializer.GetValue();
+	Ctx.Properties.Push(UGameplayEffect::StaticClass());
+	DC_TRY(Ctx.Prepare());
+	
+	return GameplayAbilityDeserializer->Deserialize(Ctx);
+}
+
+static FDcResult SelectJSONAndLoadIntoBlueprintCDO(FAssetData Asset, TFunctionRef<FDcResult(UBlueprint*, FDcReader& Reader)> DeserializeFunc)
+{
+	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+	if (!DesktopPlatform)
+		return DcOk(); // silently fail on non desktop
+
+	const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+	TArray<FString> OpenFilenames;
+	int32 FilterIndex = -1;
+	bool bSelected = DesktopPlatform->OpenFileDialog(
+		ParentWindowWindowHandle,
+		TEXT("Select JSON File"),
+		FEditorDirectories::Get().GetLastDirectory(ELastDirectory::GENERIC_IMPORT),
+		TEXT(""),
+		TEXT("Json config file (*.json)|*.json"),
+		EFileDialogFlags::None,
+		OpenFilenames,
+		FilterIndex
+	);
+
+	if (!bSelected)
+		return DcOk();	// cancel is OK
+
+	check(OpenFilenames.Num() == 1);
+	FString Filename = OpenFilenames.Pop();
+
+	FString JsonStr;
+	bool bLoadFile = FFileHelper::LoadFileToString(JsonStr, *Filename, FFileHelper::EHashOptions::None);
+	if (!bLoadFile)
+		return DC_FAIL(DcDEditorExtra, LoadFileByPathFail) << Filename;
+
+	FDcJsonReader Reader;
+	Reader.SetNewString(*JsonStr);
+	Reader.DiagFilePath = MoveTemp(Filename);
+
+	UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
+
+	DC_TRY(DeserializeFunc(Blueprint, Reader));
+
+	FBlueprintEditorUtils::MarkBlueprintAsModified(Blueprint);
+	FKismetEditorUtilities::CompileBlueprint(Blueprint);
+
 	return DcOk();
 }
 
@@ -87,53 +144,52 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 						FSlateIcon(),
 						FUIAction(
 							FExecuteAction::CreateLambda([Asset]{
-								IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
-								if (DesktopPlatform)
+
+								FDcResult Ret = SelectJSONAndLoadIntoBlueprintCDO(Asset, [](UBlueprint* Blueprint, FDcReader& Reader)
 								{
-									const void* ParentWindowWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
-									TArray<FString> OpenFilenames;
-									int32 FilterIndex = -1;
-									bool bSelected = DesktopPlatform->OpenFileDialog(
-										ParentWindowWindowHandle,
-										TEXT("Select JSON File"),
-										FEditorDirectories::Get().GetLastDirectory(ELastDirectory::GENERIC_IMPORT),
-										TEXT(""),
-										TEXT("Json config file (*.json)|*.json"),
-										EFileDialogFlags::None,
-										OpenFilenames,
-										FilterIndex
-									);
+									UGameplayAbility* AbilityCDO = CastChecked<UGameplayAbility>(Blueprint->GeneratedClass->ClassDefaultObject);
+									return DeserializeGameplayAbility(AbilityCDO, Reader);
+								});
 
-									if (!bSelected)
-										return;
+								if (!Ret.Ok())
+								{
+									DcEnv().FlushDiags();
 
-									check(OpenFilenames.Num() == 1);
-									FString Filename = OpenFilenames.Pop();
+									FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+									MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
+								}
+							}),
+							FCanExecuteAction()
+						)
+					);
+				}));
+			
+			break;
+		}
+		else if (NativeParentClass->IsChildOf(UGameplayEffect::StaticClass()))
+		{
+			Extender->AddMenuExtension("GetAssetActions", EExtensionHook::After, TSharedPtr<FUICommandList>(),
+				FMenuExtensionDelegate::CreateLambda([Asset](FMenuBuilder& MenuBuilder)
+				{
+					MenuBuilder.AddMenuEntry(
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
+						FSlateIcon(),
+						FUIAction(
+							FExecuteAction::CreateLambda([Asset]{
 
-									FString JsonStr;
-									bool bLoadFile = FFileHelper::LoadFileToString(JsonStr, *Filename, FFileHelper::EHashOptions::None);
-									if (!bLoadFile)
-										return;
+								FDcResult Ret = SelectJSONAndLoadIntoBlueprintCDO(Asset, [](UBlueprint* Blueprint, FDcReader& Reader)
+								{
+									UGameplayEffect* EffectCDO = CastChecked<UGameplayEffect>(Blueprint->GeneratedClass->ClassDefaultObject);
+									return DeserializeGameplayEffect(EffectCDO, Reader);
+								});
 
-									FDcJsonReader Reader;
-									Reader.SetNewString(*JsonStr);
-									Reader.DiagFilePath = MoveTemp(Filename);
+								if (!Ret.Ok())
+								{
+									DcEnv().FlushDiags();
 
-									UBlueprint* AbilityBP = CastChecked<UBlueprint>(Asset.GetAsset());
-									UGameplayAbility* AbilityCDO = CastChecked<UGameplayAbility>(AbilityBP->GeneratedClass->ClassDefaultObject);
-									
-									if (!DeserializeGameplayAbility(AbilityCDO, Reader).Ok())
-									{
-										DcEnv().FlushDiags();
-
-										FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
-										MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
-										return;
-									}
-
-									FBlueprintEditorUtils::MarkBlueprintAsModified(AbilityBP);
-									FKismetEditorUtilities::CompileBlueprint(AbilityBP);
-									//	TODO check BP->Status
+									FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+									MessageLogModule.OpenMessageLog(TEXT("DataConfig"));
 								}
 							}),
 							FCanExecuteAction()

@@ -7,14 +7,14 @@
 
 class UGameplayAbility;
 class UGameplayEffect;
-struct FDcJsonReader;
+struct FDcReader;
 
 namespace DcEditorExtra
 {
 
-DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcJsonReader& Reader);
+DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader);
 
-DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcJsonReader& Reader);
+DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcReader& Reader);
 
 DATACONFIGEDITOREXTRA_API TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& SelectedAssets);
 
