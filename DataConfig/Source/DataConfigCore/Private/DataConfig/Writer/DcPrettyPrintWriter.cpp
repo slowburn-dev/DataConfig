@@ -133,17 +133,14 @@ FDcResult FDcPrettyPrintWriter::WriteSetEnd()
 
 FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 {
-	check(Value);	// note that this is guarenteed to be non-null 
-	Output.Logf(TEXT("%s<ObjectReference> '%d'"), *Indent, Value->GetUniqueID());
+	check(Value);	// note that this is guaranteed to be non-null 
+	Output.Logf(TEXT("%s<ObjectReference> '%d' '%s'"), *Indent, Value->GetUniqueID(), *GetNameSafe(Value));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteClassReference(const UClass* Value)
 {
-	Output.Logf(TEXT("%s<ClassReference> '%s'"), *Indent, (Value == nullptr 
-		? TEXT("<null>") 
-		: *Value->GetName())
-	);
+	Output.Logf(TEXT("%s<ClassReference> '%s'"), *Indent,  *GetNameSafe(Value));
 	return DcOk();
 }
 
@@ -190,10 +187,7 @@ FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Va
 
 FDcResult FDcPrettyPrintWriter::WriteInterfaceReference(const FScriptInterface& Value)
 {
-	Output.Logf(TEXT("%s<InterfaceReference> '%s'"), *Indent, (Value.GetObject()
-		? *Value.GetObject()->GetName()
-		: TEXT("<null>"))
-	);
+	Output.Logf(TEXT("%s<InterfaceReference> '%s'"), *Indent, *GetNameSafe(Value.GetObject()));
 	return DcOk();
 }
 
@@ -243,7 +237,7 @@ FDcResult FDcPrettyPrintWriter::WriteInt32(const int32& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteInt64(const int64& Value)
 {
-	Output.Logf(TEXT("%s<Int64> '%d'"), *Indent, Value);
+	Output.Logf(TEXT("%s<Int64> '%lld'"), *Indent, Value);
 	return DcOk();
 }
 
@@ -267,7 +261,7 @@ FDcResult FDcPrettyPrintWriter::WriteUInt32(const uint32& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteUInt64(const uint64& Value)
 {
-	Output.Logf(TEXT("%s<UInt64> '%u'"), *Indent, Value);
+	Output.Logf(TEXT("%s<UInt64> '%llu'"), *Indent, Value);
 	return DcOk();
 }
 
@@ -285,7 +279,7 @@ FDcResult FDcPrettyPrintWriter::WriteDouble(const double& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteBlob(const FDcBlobViewData& Value)
 {
-	Output.Logf(TEXT("%s<Blob>: Address: '0x%x', Size: '%d'"), *Indent, (UPTRINT)Value.DataPtr, Value.Num);
+	Output.Logf(TEXT("%s<Blob>: Address: '0x%llu', Size: '%d'"), *Indent, (UPTRINT)Value.DataPtr, Value.Num);
 	return DcOk();
 }
 

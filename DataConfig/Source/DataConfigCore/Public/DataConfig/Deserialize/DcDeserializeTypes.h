@@ -21,7 +21,6 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 	EState State = EState::Uninitialized;
 
 	FString Name;
-	TArray<FName, TInlineAllocator<4>> Pathes;
 	TArray<UObject*, TInlineAllocator<4>> Objects;
 	TArray<FFieldVariant, TInlineAllocator<8>> Properties;
 
