@@ -16,6 +16,8 @@ enum Type : uint16
 	//	Gameplay Tag
 	InvalidGameplayTagString,
 	InvalidGameplayTagStringFixErr,
+	//	Gameplay Ability
+	InvalidGameplayAttribute,
 	//	BP Class
 	LoadObjectByPathFail,
 	//	IO

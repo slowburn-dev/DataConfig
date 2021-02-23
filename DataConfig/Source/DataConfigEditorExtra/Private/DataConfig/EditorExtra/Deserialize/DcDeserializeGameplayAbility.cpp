@@ -12,6 +12,8 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
@@ -34,6 +36,10 @@ static void LazyInitializeDeserializer()
 	DcSetupJsonDeserializeHandlers(GameplayAbilityDeserializer.GetValue());
 
 	GameplayAbilityDeserializer->AddPredicatedHandler(
+		FDcDeserializePredicate::CreateStatic(PredicateIsGameplayAttribute),
+		FDcDeserializeDelegate::CreateStatic(HandlerGameplayAttributeDeserialize)
+	);
+	GameplayAbilityDeserializer->AddPredicatedHandler(
 		FDcDeserializePredicate::CreateStatic(PredicateIsGameplayTag),
 		FDcDeserializeDelegate::CreateStatic(HandlerGameplayTagDeserialize)
 	);
@@ -41,6 +47,45 @@ static void LazyInitializeDeserializer()
 		FDcDeserializePredicate::CreateStatic(PredicateIsGameplayTagContainer),
 		FDcDeserializeDelegate::CreateStatic(HandlerGameplayTagContainerDeserialize)
 	);
+}
+
+EDcDeserializePredicateResult PredicateIsGameplayAttribute(FDcDeserializeContext& Ctx)
+{
+	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
+	return Struct && Struct == FGameplayAttribute::StaticStruct()
+		? EDcDeserializePredicateResult::Process
+		: EDcDeserializePredicateResult::Pass;
+}
+
+FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+{
+	FString AttributeStr;
+	DC_TRY(Ctx.Reader->ReadString(&AttributeStr));
+
+	int32 Ix;
+	bool bFound = AttributeStr.FindChar(TCHAR('.'), Ix);
+	if (!bFound)
+		return DC_FAIL(DcDEditorExtra, InvalidGameplayAttribute) << AttributeStr;
+	
+	FStringView View =  AttributeStr;
+	FString Head = FString(View.Left(Ix));
+	FString Tail = FString(View.RightChop(Ix + 1));
+	
+	UClass* AttributeClass = FindObject<UClass>(ANY_PACKAGE, *Head, true);	
+	if (AttributeClass == nullptr)
+		return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << Head;
+
+	FProperty* AttributeProperty = DcPropertyUtils::FindEffectivePropertyByName(AttributeClass, *Tail);
+	if (AttributeProperty == nullptr)
+		return DC_FAIL(DcDReadWrite, CantFindPropertyByName) << Tail;
+
+	FDcPropertyDatum Datum;
+	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
+
+	FGameplayAttribute* Attribute = (FGameplayAttribute*)Datum.DataPtr;
+	Attribute->SetUProperty(AttributeProperty);
+	
+	return DcOkWithProcessed(OutRet);
 }
 
 FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader)

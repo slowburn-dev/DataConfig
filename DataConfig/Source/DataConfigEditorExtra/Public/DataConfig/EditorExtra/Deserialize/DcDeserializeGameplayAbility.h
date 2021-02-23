@@ -6,7 +6,10 @@
 
 #include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
+
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/Deserialize/DcDeserializeTypes.h"
+
 #include "DcDeserializeGameplayAbility.generated.h"
 
 class UGameplayAbility;
@@ -15,6 +18,8 @@ struct FDcReader;
 
 namespace DcEditorExtra
 {
+DATACONFIGEDITOREXTRA_API EDcDeserializePredicateResult PredicateIsGameplayAttribute(FDcDeserializeContext& Ctx);
+DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
 
 DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader);
 
