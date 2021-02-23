@@ -14,6 +14,7 @@
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -133,6 +134,26 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 		ResolveName( Outer, ParentClassPath, false, false );
 		UClass* NativeParentClass = FindObject<UClass>( ANY_PACKAGE, *ParentClassPath );
 
+		Extender->AddMenuExtension("GetAssetActions", EExtensionHook::After, TSharedPtr<FUICommandList>(),
+			FMenuExtensionDelegate::CreateLambda([Asset](FMenuBuilder& MenuBuilder)
+			{
+				MenuBuilder.AddMenuEntry(
+					NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_DumpToLog", "Dump To Log"), 
+					NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_DumpToLogTooltip", "Dump Blueprint CDO content to log"),
+					FSlateIcon(),
+					FUIAction(
+						FExecuteAction::CreateLambda([Asset]{
+
+							UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
+							DcAutomationUtils::DumpToLog(FDcPropertyDatum(Blueprint->GeneratedClass->ClassDefaultObject));
+							FGlobalTabmanager::Get()->InvokeTab(FName("OutputLog"));
+							
+							}),
+							FCanExecuteAction()
+						)
+					);
+		}));
+		
 		if (NativeParentClass->IsChildOf(UGameplayAbility::StaticClass()))
 		{
 			Extender->AddMenuExtension("GetAssetActions", EExtensionHook::After, TSharedPtr<FUICommandList>(),
@@ -162,7 +183,7 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 							FCanExecuteAction()
 						)
 					);
-				}));
+			}));
 			
 			break;
 		}
@@ -195,7 +216,7 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 							FCanExecuteAction()
 						)
 					);
-				}));
+			}));
 			
 			break;
 		}
