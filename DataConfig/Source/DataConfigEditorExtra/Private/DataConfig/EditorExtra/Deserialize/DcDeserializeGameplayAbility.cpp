@@ -147,6 +147,8 @@ static FDcResult SelectJSONAndLoadIntoBlueprintCDO(FAssetData Asset, TFunctionRe
 	check(OpenFilenames.Num() == 1);
 	FString Filename = OpenFilenames.Pop();
 
+	FEditorDirectories::Get().SetLastDirectory(ELastDirectory::GENERIC_IMPORT, FPaths::GetPath(Filename));
+
 	FString JsonStr;
 	bool bLoadFile = FFileHelper::LoadFileToString(JsonStr, *Filename, FFileHelper::EHashOptions::None);
 	if (!bLoadFile)
@@ -157,14 +159,15 @@ static FDcResult SelectJSONAndLoadIntoBlueprintCDO(FAssetData Asset, TFunctionRe
 	Reader.DiagFilePath = MoveTemp(Filename);
 
 	UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
-	Blueprint->GeneratedClass->PurgeClass(false);
 
+	//  regenerate CDO before deserializing from JSON to avoid stale values from last run
+	Blueprint->GeneratedClass->PurgeClass(false);
 	FCompilerResultsLog Results;
 	FKismetCompilerOptions CompileOptions;
 	FKismetCompilerContext Compiler(Blueprint, Results, CompileOptions);
 	Compiler.Compile();
 
-	if (Results.NumErrors() > 0)
+	if (Results.NumErrors > 0)
 		return DC_FAIL(DcDEditorExtra, KismetCompileFail) << Blueprint->GetFriendlyName();
 
 	DC_TRY(DeserializeFunc(Blueprint, Reader));
