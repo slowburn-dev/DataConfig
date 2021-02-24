@@ -8,6 +8,9 @@
 #include "ToolMenuSection.h"
 #include "DataConfig/DcEnv.h"
 #include "Misc/FileHelper.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/KismetEditorUtilities.h"
+#include "KismetCompiler.h"
 
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
@@ -19,9 +22,8 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
-#include "Kismet2/BlueprintEditorUtils.h"
-#include "Kismet2/KismetEditorUtilities.h"
-#include "KismetCompiler.h"
+#include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
 
 namespace DcEditorExtra
 {
@@ -284,3 +286,53 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 }
 
 } // namespace DcEditorExtra
+
+
+DC_TEST("DataConfig.EditorExtra.GameplayAbility")
+{
+	FString Str = TEXT(R"(
+		{
+		    /// Tags
+			"AbilityTags" : [
+				"DataConfig.Foo.Bar",
+				"DataConfig.Foo.Bar.Baz",
+			],
+			"CancelAbilitiesWithTag" : [
+				"DataConfig.Foo.Bar.Baz",
+				"DataConfig.Tar.Taz",
+			],
+			/// Advanced
+			"ReplicationPolicy" : "ReplicateYes",
+			"InstancingPolicy" : "NonInstanced",
+		}
+	)");
+	FDcJsonReader Reader(Str);
+
+	UGameplayAbility* TmpAbility = NewObject<UGameplayAbility>();
+	DcEditorExtra::DeserializeGameplayAbility(TmpAbility, Reader);
+
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", TmpAbility->GetReplicationPolicy() == EGameplayAbilityReplicationPolicy::ReplicateYes);
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", TmpAbility->GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::NonInstanced);
+
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", TmpAbility->AbilityTags.HasTagExact(
+		UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar"))
+	));
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", TmpAbility->AbilityTags.HasTagExact(
+		UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar.Baz"))
+	));
+
+	//	TODO make get struct/class reference or pointer work
+	/*
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize",
+		DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), "CancelAbilitiesWithTag").HasTagExact(
+			UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar"))
+	));
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize",
+		DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), "CancelAbilitiesWithTag").HasTagExact(
+			UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Tar.Taz"))
+	));
+	*/
+	
+	return true;
+}
+
