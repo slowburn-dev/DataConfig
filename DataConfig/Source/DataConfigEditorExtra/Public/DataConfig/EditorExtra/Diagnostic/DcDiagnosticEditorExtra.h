@@ -20,6 +20,7 @@ enum Type : uint16
 	InvalidGameplayAttribute,
 	//	BP Class
 	LoadObjectByPathFail,
+	KismetCompileFail,
 	//	IO
 	LoadFileByPathFail,
 };

@@ -21,6 +21,7 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "KismetCompiler.h"
 
 namespace DcEditorExtra
 {
@@ -156,6 +157,15 @@ static FDcResult SelectJSONAndLoadIntoBlueprintCDO(FAssetData Asset, TFunctionRe
 	Reader.DiagFilePath = MoveTemp(Filename);
 
 	UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
+	Blueprint->GeneratedClass->PurgeClass(false);
+
+	FCompilerResultsLog Results;
+	FKismetCompilerOptions CompileOptions;
+	FKismetCompilerContext Compiler(Blueprint, Results, CompileOptions);
+	Compiler.Compile();
+
+	if (Results.NumErrors() > 0)
+		return DC_FAIL(DcDEditorExtra, KismetCompileFail) << Blueprint->GetFriendlyName();
 
 	DC_TRY(DeserializeFunc(Blueprint, Reader));
 

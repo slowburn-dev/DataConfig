@@ -24,6 +24,8 @@ public class DataConfigEditorExtra : ModuleRules
             "Slate",
             "SlateCore",
             "ToolMenus",
+            "Kismet",
+            "KismetCompiler",
             });
 
     }
