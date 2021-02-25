@@ -321,18 +321,51 @@ DC_TEST("DataConfig.EditorExtra.GameplayAbility")
 		UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar.Baz"))
 	));
 
-	//	TODO make get struct/class reference or pointer work
-	/*
-	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize",
-		DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), "CancelAbilitiesWithTag").HasTagExact(
-			UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar"))
+	//	use `DcExtra::GetDatumPropertyByPath` to get protected properties here
+	FGameplayTagContainer* ContainerPtr = DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), "CancelAbilitiesWithTag");
+	UTEST_NOT_NULL("Editor Extra UGameplayAbility Deserialize", ContainerPtr);
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", ContainerPtr->HasTagExact(
+			UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar.Baz"))
 	));
-	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize",
-		DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), "CancelAbilitiesWithTag").HasTagExact(
+	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", ContainerPtr->HasTagExact(
 			UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Tar.Taz"))
 	));
-	*/
 	
 	return true;
 }
+
+DC_TEST("DataConfig.EditorExtra.GameplayEffect")
+{
+	FString Str = TEXT(R"(
+		{
+			/// Effect
+			"DurationPolicy" : "Infinite",
+			"Modifiers" : [
+				{
+					"Attribute" : "DcTestAttributeSet.Mana",
+				},
+				{
+					"Attribute" : "DcTestAttributeSet.Health",
+				},
+			],
+		}
+	)");
+	FDcJsonReader Reader(Str);
+
+	UGameplayEffect* TmpEffect = NewObject<UGameplayEffect>();
+	DcEditorExtra::DeserializeGameplayEffect(TmpEffect, Reader);
+
+	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->DurationPolicy == EGameplayEffectDurationType::Infinite);
+	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->Modifiers.Num() == 2);
+
+	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->Modifiers[0].Attribute.AttributeName == TEXT("Mana"));
+	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->Modifiers[0].Attribute.GetAttributeSetClass() == UDcTestAttributeSet::StaticClass());
+	
+	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->Modifiers[1].Attribute.AttributeName == TEXT("Health"));
+	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->Modifiers[1].Attribute.GetAttributeSetClass() == UDcTestAttributeSet::StaticClass());
+
+	return true;
+}
+
+
 
