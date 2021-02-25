@@ -46,6 +46,7 @@ FORCEINLINE FString SafeNameToString(const FName& Value)
 
 
 //	Cpp type to Property
+	
 template<typename T>
 struct TPropertyTypeMap
 {};
@@ -81,8 +82,14 @@ template<> struct TPropertyTypeMap<FFieldPath> { using Type = FFieldPathProperty
 template<> struct TPropertyTypeMap<FScriptDelegate> { using Type = FDelegateProperty; };
 template<> struct TPropertyTypeMap<FMulticastScriptDelegate> { using Type = FMulticastInlineDelegateProperty; };
 
+template<typename T>
+struct TIsInPropertyMap
+{
+	template <typename C> static uint16 Test(typename TPropertyTypeMap<C>::Type*);
+	template <typename C> static uint8 Test(...);
 
-static_assert(TIsSame<TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "yes");
+	enum { Value = sizeof(Test<T>(0)) - 1 };
+};
 
 template<typename T>
 FORCEINLINE T* CastFieldVariant(const FFieldVariant& FieldVariant)

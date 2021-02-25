@@ -194,22 +194,34 @@ DC_TEST("DataConfig.Extra.PathAccess.ReadWriteByPath")
 	Outer->StructRoot.Arr.Emplace(FDcExtraTestStructNestInnerMost{TEXT("Bar0")});
 	Outer->StructRoot.Arr.Emplace(FDcExtraTestStructNestInnerMost{TEXT("Bar1")});
 	Outer->StructRoot.NameMap.Emplace(TEXT("FooKey"), FDcExtraTestStructNestInnerMost{TEXT("FooValue")});
+	Outer->StructRoot.Middle.InnerMost.ObjField = Outer;
 
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("Foo"));
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("Bar0"));
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("Bar1"));
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("FooValue"));
+	auto CheckStrPtr = [](FString* StrPtr, const TCHAR* Expect)
+	{
+		if (!StrPtr)
+			return false;
+
+		return *StrPtr == Expect;
+	};
+
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField"), TEXT("Foo")));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField"), TEXT("Bar0")));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField"), TEXT("Bar1")));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField"), TEXT("FooValue")));
 
 	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField", TEXT("AltFoo")));
 	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField", TEXT("AltBar0")));
 	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField", TEXT("AltBar1")));
 	UTEST_TRUE("Extra PathAccess WriteByPath", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField", TEXT("AltFooValue")));
 
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("AltFoo"));
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("AltBar0"));
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("AltBar1"));
-	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("AltFooValue"));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField"), TEXT("AltFoo")));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField"), TEXT("AltBar0")));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField"), TEXT("AltBar1")));
+	UTEST_TRUE("Extra PathAccess ReadByPath", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField"), TEXT("AltFooValue")));
 
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<FDcExtraTestStructNestMiddle>(FDcPropertyDatum(Outer), "StructRoot.Middle") == &Outer->StructRoot.Middle);
+	UTEST_TRUE("Extra PathAccess ReadByPath", GetDatumPropertyByPath<UDcExtraTestClassOuter>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.ObjField") == Outer->StructRoot.Middle.InnerMost.ObjField);
+	
 	return true;
 }
 
@@ -228,7 +240,7 @@ DC_TEST("DataConfig.Extra.PathAccess.PropertyPathHelpers")
 
 	FDcExtraTestStructNestMiddle CopiedMiddle;
 	UTEST_TRUE("Extra PropertyPathHelpers", PropertyPathHelpers::GetPropertyValue(Outer, TEXT("StructRoot.Middle"), CopiedMiddle));
-	//	note that GetPropertyValue creates a copy
+	//	note that PropertyPathHelpers::GetPropertyValue creates a copy
 	UTEST_TRUE("Extra PropertyPathHelpers", &CopiedMiddle != &Outer->StructRoot.Middle);
 	
 	return true;

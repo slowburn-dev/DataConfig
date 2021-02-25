@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
 
@@ -21,20 +22,59 @@ DATACONFIGEXTRA_API FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, co
 DATACONFIGEXTRA_API FDcResult GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path, FDcPropertyDatum& OutDatum);
 
 template<typename T>
-T GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path)
+typename TEnableIf<DcTypeUtils::TIsUClass<T>::Value, T*>::Type
+GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path)
+{
+	FDcPropertyDatum ResultDatum;
+	FDcResult Ret = GetDatumPropertyByPath(RootDatum, Path, ResultDatum);
+	if (!Ret.Ok())
+		return nullptr;
+
+	FObjectProperty* Property = ResultDatum.CastField<FObjectProperty>();
+	if (!Property)
+		return nullptr;
+
+	if (Property->PropertyClass != T::StaticClass())
+		return nullptr;
+
+	return (T*)Property->GetObjectPropertyValue(ResultDatum.DataPtr);
+}
+
+template<typename T>
+typename TEnableIf<DcTypeUtils::TIsUStruct<T>::Value, T*>::Type
+GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path)
+{
+	FDcPropertyDatum ResultDatum;
+	FDcResult Ret = GetDatumPropertyByPath(RootDatum, Path, ResultDatum);
+	if (!Ret.Ok())
+		return nullptr;
+
+	FStructProperty* Property = ResultDatum.CastField<FStructProperty>();
+	if (!Property)
+		return nullptr;
+
+	if (Property->Struct != T::StaticStruct())
+		return nullptr;
+
+	return (T*)(ResultDatum.DataPtr);
+}
+	
+template<typename T>
+typename TEnableIf<DcPropertyUtils::TIsInPropertyMap<T>::Value, T*>::Type
+GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path)
 {
 	using TProperty = typename DcPropertyUtils::TPropertyTypeMap<T>::Type;
 
 	FDcPropertyDatum ResultDatum;
 	FDcResult Ret = GetDatumPropertyByPath(RootDatum, Path, ResultDatum);
 	if (!Ret.Ok())
-		return T{};
+		return nullptr;
 
 	TProperty* Property = ResultDatum.CastField<TProperty>();
 	if (!Property)
-		return T{};
+		return nullptr;
 
-	return Property->GetPropertyValue(ResultDatum.DataPtr);
+	return Property->GetPropertyValuePtr(ResultDatum.DataPtr);
 }
 
 template<typename T>
@@ -64,6 +104,7 @@ struct FDcExtraTestStructNestInnerMost
 	GENERATED_BODY()
 
 	UPROPERTY() FString StrField;
+	UPROPERTY() class UDcExtraTestClassOuter* ObjField;
 
 };
 

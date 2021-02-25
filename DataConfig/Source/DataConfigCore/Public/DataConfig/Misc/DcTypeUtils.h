@@ -71,5 +71,6 @@ struct TIsUStruct
 	enum { Value = sizeof(Test<T>(0)) - 1};
 };
 
+
 }	// namespace FDcTypeUtils
 
