@@ -55,7 +55,6 @@ bool SetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Pa
 	return true;
 }
 
-
 } // namespace DcExtra
 
 

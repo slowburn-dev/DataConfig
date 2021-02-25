@@ -226,6 +226,10 @@ DC_TEST("DataConfig.Extra.PathAccess.PropertyPathHelpers")
 	UTEST_TRUE("Extra PropertyPathHelpers", PropertyPathHelpers::SetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), FString(TEXT("Bar"))));
 	UTEST_TRUE("Extra PropertyPathHelpers", Outer->StructRoot.Middle.InnerMost.StrField == TEXT("Bar"));
 
+	FDcExtraTestStructNestMiddle CopiedMiddle;
+	UTEST_TRUE("Extra PropertyPathHelpers", PropertyPathHelpers::GetPropertyValue(Outer, TEXT("StructRoot.Middle"), CopiedMiddle));
+	//	note that GetPropertyValue creates a copy
+	UTEST_TRUE("Extra PropertyPathHelpers", &CopiedMiddle != &Outer->StructRoot.Middle);
+	
 	return true;
 }
-

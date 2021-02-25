@@ -53,5 +53,23 @@ template<> struct TDcDataEntryType<uint16> { static constexpr EDcDataEntry Value
 template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt32; };
 template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
 
+template<typename T>
+struct TIsUClass
+{
+	template <typename C> static uint16 Test(decltype(C::StaticClass));
+	template <typename C> static uint8 Test(...);
+	
+	enum { Value = sizeof(Test<T>(0)) - 1};
+};
+	
+template<typename T>
+struct TIsUStruct
+{
+	template <typename C> static uint16 Test(decltype(C::StaticStruct));
+	template <typename C> static uint8 Test(...);
+	
+	enum { Value = sizeof(Test<T>(0)) - 1};
+};
+
 }	// namespace FDcTypeUtils
 
