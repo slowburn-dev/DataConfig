@@ -22,7 +22,6 @@ enum Type : uint16
 	ExpectNumericEntry,
 	CoercionFail,
 	EnumNameNotFound,
-	HandlerNotWritingDeserializeResult,
 	StructNotFound,
 	ClassLhsIsNotChildOfRhs,
 	UObjectTypeMismatch,

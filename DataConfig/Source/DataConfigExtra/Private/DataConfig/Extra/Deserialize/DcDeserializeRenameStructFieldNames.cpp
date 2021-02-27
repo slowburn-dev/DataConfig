@@ -23,7 +23,7 @@ struct FRenameStructRootDeserialize : public TSharedFromThis<FRenameStructRootDe
 			return EDcDeserializePredicateResult::Pass;
 	}
 
-	FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+	FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx)
 	{
 		FDcStructStat StructStat;
 		DC_TRY(Ctx.Reader->ReadStructRoot(&StructStat));
@@ -51,7 +51,7 @@ struct FRenameStructRootDeserialize : public TSharedFromThis<FRenameStructRootDe
 			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
 		}
 
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 
 	FDcDeserializeDelegate MakeDeserializeDelegate()

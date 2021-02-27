@@ -16,11 +16,8 @@ EDcDeserializePredicateResult PredicateIsNumericProperty(FDcDeserializeContext& 
 		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx)
 {
-	if (!Ctx.TopProperty().IsA<FNumericProperty>())
-		return DcOkWithFallThrough(OutRet);
-
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 
@@ -33,16 +30,11 @@ FDcResult HandlerNumericDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRe
 		return DC_FAIL(DcDDeserialize, CoercionFail) << Next;;
 
 	DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
-FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx)
 {
-	if (!Ctx.TopProperty().IsA<FBoolProperty>())
-	{
-		return DcOkWithFallThrough(OutRet);
-	}
-
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 
@@ -56,17 +48,11 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	DC_TRY(Ctx.Reader->ReadBool(&Value));
 	DC_TRY(Ctx.Writer->WriteBool(Value));
 
-	OutRet = EDcDeserializeResult::Success;
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
-FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx)
 {
-	if (!Ctx.TopProperty().IsA<FNameProperty>())
-	{
-		return DcOkWithFallThrough(OutRet);
-	}
-
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	if (Next == EDcDataEntry::String)
@@ -74,7 +60,7 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value));
 		DC_TRY(Ctx.Writer->WriteName(FName(*Value)));
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else
 	{
@@ -83,13 +69,8 @@ FDcResult HandlerNameDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	}
 }
 
-FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx)
 {
-	if (!Ctx.TopProperty().IsA<FStrProperty>())
-	{
-		return DcOkWithFallThrough(OutRet);
-	}
-
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	if (Next == EDcDataEntry::String)
@@ -97,7 +78,7 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value));
 		DC_TRY(Ctx.Writer->WriteString(Value));
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else
 	{
@@ -106,13 +87,8 @@ FDcResult HandlerStringDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeRes
 	}
 }
 
-FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx)
 {
-	if (!Ctx.TopProperty().IsA<FTextProperty>())
-	{
-		return DcOkWithFallThrough(OutRet);
-	}
-
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	if (Next == EDcDataEntry::String)
@@ -120,7 +96,7 @@ FDcResult HandlerTextDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value));
 		DC_TRY(Ctx.Writer->WriteText(FText::FromString(MoveTemp(Value))));
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else
 	{
@@ -140,7 +116,7 @@ EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx
 		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx)
 {
 	UEnum* Enum = nullptr;
 	FNumericProperty* UnderlyingProperty = nullptr;
@@ -157,16 +133,6 @@ FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 	
 	if (!bIsBitFlags)
 	{
-		EDcDataEntry Next;
-		DC_TRY(Ctx.Reader->PeekRead(&Next));
-		bool bReadPass = Next == EDcDataEntry::String;
-
-		bool bWritePass;
-		DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Enum, &bWritePass));
-
-		if (!(bReadPass && bWritePass))
-			return DcOkWithFallThrough(OutRet);
-		
 		FString Value;
 		DC_TRY(Ctx.Reader->ReadString(&Value));
 
@@ -178,26 +144,17 @@ FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		EnumData.Signed64 = Enum->GetValueByName(ValueName);
 
 		DC_TRY(Ctx.Writer->WriteEnum(EnumData));
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else
 	{
-		EDcDataEntry Next;
-		DC_TRY(Ctx.Reader->PeekRead(&Next));
-		bool bReadPass = Next == EDcDataEntry::ArrayRoot;
-
-		bool bWritePass;
-		DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::Enum, &bWritePass));
-
-		if (!(bReadPass && bWritePass))
-			return DcOkWithFallThrough(OutRet);
-
 		FDcEnumData EnumData;
 		EnumData.Signed64 = 0;
 
 		DC_TRY(Ctx.Reader->ReadArrayRoot());
 		while (true)
 		{
+			EDcDataEntry Next;
 			DC_TRY(Ctx.Reader->PeekRead(&Next));
 			if (Next == EDcDataEntry::ArrayEnd)
 				break;
@@ -214,7 +171,7 @@ FDcResult HandlerEnumDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
 		DC_TRY(Ctx.Reader->ReadArrayEnd());
 		DC_TRY(Ctx.Writer->WriteEnum(EnumData));
 
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 }
 

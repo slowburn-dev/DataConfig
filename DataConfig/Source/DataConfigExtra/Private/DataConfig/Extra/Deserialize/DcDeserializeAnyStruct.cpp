@@ -7,6 +7,7 @@
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Types/DcAnyStruct.h"
 #include "DataConfig/Reader/DcPutbackReader.h"
@@ -17,6 +18,7 @@
 
 namespace DcExtra
 {
+
 EDcDeserializePredicateResult PredicateIsDcAnyStruct(FDcDeserializeContext& Ctx)
 {
 	if (FStructProperty* StructProperty = DcPropertyUtils::CastFieldVariant<FStructProperty>(Ctx.TopProperty()))
@@ -31,18 +33,10 @@ EDcDeserializePredicateResult PredicateIsDcAnyStruct(FDcDeserializeContext& Ctx)
 	}
 }
 
-FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::MapRoot
-		|| Next == EDcDataEntry::Nil;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	if (!(bReadPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
 
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
@@ -52,8 +46,10 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
 		AnyStructPtr->Reset();
+
+		return DcOk();
 	}
-	else
+	else if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
 		FString Str;
@@ -81,9 +77,14 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 		FDcScopedProperty ScopedValueProperty(Ctx);
 		DC_TRY(ScopedValueProperty.PushProperty());
 		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-	}
 
-	return DcOkWithProcessed(OutRet);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
+			<< EDcDataEntry::MapRoot << EDcDataEntry::Nil << Next;
+	}
 }
 
 } // namespace DcExtra

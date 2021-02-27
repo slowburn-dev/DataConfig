@@ -10,21 +10,8 @@ template<EDcDataEntry EntryStart,
 	FDcResult (FDcPropertyWriter::*MethodStart)(),
 	FDcResult (FDcPropertyWriter::*MethodEnd)()>
 FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
-	FDcDeserializeContext& Ctx,
-	EDcDeserializeResult& OutRet)
+	FDcDeserializeContext& Ctx)
 {
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::ArrayRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EntryStart, &bWritePass));
-
-	if (!(bRootPeekPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
-
-	check(Next == EDcDataEntry::ArrayRoot);
-
 	DC_TRY(Ctx.Reader->ReadArrayRoot());
 	DC_TRY((Ctx.Writer->*MethodStart)());
 
@@ -43,33 +30,21 @@ FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
 	DC_TRY(Ctx.Reader->ReadArrayEnd());
 	DC_TRY((Ctx.Writer->*MethodEnd)());
 
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
-FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayRoot, &FDcPropertyWriter::WriteArrayRoot, &FDcPropertyWriter::WriteArrayEnd>(Ctx, OutRet);
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::ArrayRoot, &FDcPropertyWriter::WriteArrayRoot, &FDcPropertyWriter::WriteArrayEnd>(Ctx);
 }
 
-FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx)
 {
-	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot, &FDcPropertyWriter::WriteSetRoot, &FDcPropertyWriter::WriteSetEnd>(Ctx, OutRet);
+	return _HandlerLinearContainerDeserialize<EDcDataEntry::SetRoot, &FDcPropertyWriter::WriteSetRoot, &FDcPropertyWriter::WriteSetEnd>(Ctx);
 }
 
-FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx)
 {
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::MapRoot, &bWritePass));
-
-	if (!(bRootPeekPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
-
-	check(Next == EDcDataEntry::MapRoot);
-
 	DC_TRY(Ctx.Reader->ReadMapRoot());
 	DC_TRY(Ctx.Writer->WriteMapRoot());
 
@@ -93,7 +68,7 @@ FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult
 	DC_TRY(Ctx.Reader->ReadMapEnd());
 	DC_TRY(Ctx.Writer->WriteMapEnd());
 
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
 }	// namespace DcJsonHandlers

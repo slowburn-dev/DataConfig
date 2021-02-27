@@ -6,29 +6,23 @@
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "UObject/Package.h"
 
 namespace DcJsonHandlers {
 
-FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::String
-		|| Next == EDcDataEntry::Nil;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassReference, &bWritePass));
-
-	bool bPropertyPass = Ctx.TopProperty().IsA<FClassProperty>();
-	if (!(bRootPeekPass && bWritePass && bPropertyPass))
-		return DcOkWithFallThrough(OutRet);
 
 	if (Next == EDcDataEntry::Nil)
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
 		DC_TRY(Ctx.Writer->WriteClassReference(nullptr));
+
+		return DcOk();
 	}
 	else if (Next == EDcDataEntry::String)
 	{
@@ -48,29 +42,20 @@ FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeseri
 		}
 
 		DC_TRY(Ctx.Writer->WriteClassReference(LoadClass));
+
+		return DcOk();
 	}
 	else
 	{
-		return DcNoEntry();
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
+			<< EDcDataEntry::Nil << EDcDataEntry::String << Next;
 	}
-
-	return DcOkWithProcessed(OutRet);
 }
 
-FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::MapRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
-
-	bool bPropertyPass = Ctx.TopProperty().IsA<UClass>();
-	if (!(bRootPeekPass && bWritePass && bPropertyPass))
-	{
-		return DcOkWithFallThrough(OutRet);
-	}
 
 	if (Next == EDcDataEntry::MapRoot)
 	{
@@ -117,7 +102,7 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserialize
 
 		DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else
 	{
@@ -137,24 +122,17 @@ static FDcResult LoadObjectByPath(FObjectProperty* ObjectProperty, UClass* LoadC
 	return DcOk();
 }
 
-FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::String
-		|| Next == EDcDataEntry::Nil
-		|| Next == EDcDataEntry::MapRoot;
 
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
-
-	bool bPropertyPass = Ctx.TopProperty().IsA<FObjectProperty>();
-	if (!(bRootPeekPass && bWritePass && bPropertyPass))
+	FObjectProperty* ObjectProperty = DcPropertyUtils::CastFieldVariant<FObjectProperty>(Ctx.TopProperty());
+	if (ObjectProperty == nullptr)
 	{
-		return DcOkWithFallThrough(OutRet);
+		return DC_FAIL(DcDReadWrite, PropertyMismatch)
+			<< TEXT("ObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
 	}
-
-	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 
 	FDcClassStat RefStat {
 		ObjectProperty->PropertyClass->GetFName(), FDcClassStat::EControl::ReferenceOrNil
@@ -186,7 +164,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 					DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
 					DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-					return DcOkWithProcessed(OutRet);
+					return DcOk();
 				}
 			}
 
@@ -203,7 +181,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 			DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
 			DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-			return DcOkWithProcessed(OutRet);
+			return DcOk();
 		}
 		else
 		{
@@ -244,7 +222,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
 		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else if (Next == EDcDataEntry::Nil)
 	{
@@ -253,7 +231,7 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeser
 		DC_TRY(Ctx.Writer->WriteNil());
 		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 	else
 	{
@@ -273,27 +251,20 @@ EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext
 		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 {
 	FDcPutbackReader PutbackReader(Ctx.Reader);
 
 	EDcDataEntry Next;
 	DC_TRY(PutbackReader.PeekRead(&Next));
 
-	bool bRootPeekPass = Next == EDcDataEntry::MapRoot
-		|| Next == EDcDataEntry::Nil;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassRoot, &bWritePass));
-
-	bool bPropertyPass = Ctx.TopProperty().IsA<FObjectProperty>();
-
-	if (!(bRootPeekPass && bWritePass && bPropertyPass))
+	FObjectProperty* ObjectProperty = DcPropertyUtils::CastFieldVariant<FObjectProperty>(Ctx.TopProperty());
+	if (ObjectProperty == nullptr)
 	{
-		return DcOkWithFallThrough(OutRet);
+		return DC_FAIL(DcDReadWrite, PropertyMismatch)
+			<< TEXT("ObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
 	}
 
-	FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
 	if (!DcPropertyUtils::IsSubObjectProperty(ObjectProperty))
 	{
 		return DcFail();
@@ -308,7 +279,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 		DC_TRY(Ctx.Writer->WriteNil());
 		DC_TRY(Ctx.Writer->WriteClassEnd(NilStat));
 
-		return DcOkWithProcessed(OutRet);
+		return DcOk();
 	}
 
 	DC_TRY(PutbackReader.ReadMapRoot());
@@ -319,7 +290,6 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	DC_TRY(PutbackReader.ReadString(&MetaKey));
 	if (MetaKey == TEXT("$type"))
 	{
-
 		//	has `$type`
 		FString TypeStr;
 		DC_TRY(PutbackReader.ReadString(&TypeStr));
@@ -397,7 +367,7 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx, EDcDe
 	DC_TRY(Ctx.Writer->WriteClassEnd(WriteClassStat));
 
 	check(PutbackReader.Cached.Num() == 0);
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
 }	// namespace DcJsonHandlers

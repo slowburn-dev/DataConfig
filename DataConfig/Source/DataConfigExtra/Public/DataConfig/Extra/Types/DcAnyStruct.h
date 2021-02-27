@@ -91,12 +91,12 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 		return *this;
 	}
 
-	const int32 GetSharedReferenceCount() const
+	int32 GetSharedReferenceCount() const
 	{
 		return SharedReferenceCount.GetSharedReferenceCount();
 	}
 
-	const bool IsValid() const
+	bool IsValid() const
 	{
 		return SharedReferenceCount.IsValid();
 	}

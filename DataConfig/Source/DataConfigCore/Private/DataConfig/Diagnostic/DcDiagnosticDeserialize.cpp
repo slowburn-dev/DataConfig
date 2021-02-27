@@ -17,7 +17,6 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ ExpectNumericEntry, TEXT("Expect numeric data but not found, Actual: '{0}'")},
 	{ CoercionFail, TEXT("Reader coercion failed, Actual: '{0}'")},
 	{ EnumNameNotFound, TEXT("Enum name not found in enum type: '{0}', Actual: '{1}'")},
-	{ HandlerNotWritingDeserializeResult, TEXT("Deserialize handler forgot to write to 'EDcDeserializeResult& OutRet'") },
 	{ StructNotFound, TEXT("Expect struct root or property but not found:, Expect: '{0}', Actual: '{1}'") },
 	{ ClassLhsIsNotChildOfRhs, TEXT("Class '{0}' is not child of '{1}'") },
 	{ UObjectTypeMismatch, TEXT("UObject type mismatch, Expect: '{0}, Actual: '{1}'") },

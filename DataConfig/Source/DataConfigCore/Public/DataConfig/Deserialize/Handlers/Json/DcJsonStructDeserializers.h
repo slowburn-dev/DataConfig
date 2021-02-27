@@ -6,7 +6,7 @@
 
 namespace DcJsonHandlers {
 
-DATACONFIGCORE_API FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGCORE_API FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx);
 
 }	// namespace DcHandlers
 

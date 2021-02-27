@@ -12,27 +12,14 @@ namespace DcDeserializerDetails
 
 static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeserializeDelegate& Handler)
 {
-	EDcDeserializeResult HandlerRet = EDcDeserializeResult::Unknown;
-
 	if (!Handler.IsBound())
 		return DC_FAIL(DcDCommon, StaleDelegate);
 
-	FDcResult Result = Handler.Execute(Ctx, HandlerRet);
+	FDcResult Result = Handler.Execute(Ctx);
 	if (!Result.Ok())
 	{
 		DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
 		return Result;
-	}
-
-	if (HandlerRet == EDcDeserializeResult::Unknown)
-	{
-		return DC_FAIL(DcDDeserialize, HandlerNotWritingDeserializeResult);
-	}
-	else if (HandlerRet == EDcDeserializeResult::FallThrough)
-	{
-		return DC_FAIL(DcDDeserialize, NoMatchingHandler)
-			<< Ctx.TopProperty().GetClassName()
-			<< Ctx.TopProperty().GetFName();
 	}
 	else
 	{

@@ -43,29 +43,8 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 	FDcResult Prepare();
 };
 
-enum class EDcDeserializeResult
-{
-	Unknown,
-	FallThrough,		//	Pass and let other handlers to try 
-	Success,			//	Success and finish processing
-	//	note that failure is propagated through DC_FAIL just like other APIs
-};
-
-FORCEINLINE FDcResult DcOkWithFallThrough(EDcDeserializeResult& OutResult)
-{
-	OutResult = EDcDeserializeResult::FallThrough;
-	return DcOk();
-}
-
-FORCEINLINE FDcResult DcOkWithProcessed(EDcDeserializeResult& OutResult)
-{
-	OutResult = EDcDeserializeResult::Success;
-	return DcOk();
-}
-
-
-using FDcDeserializeDelegateSignature = FDcResult(*)(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
-DECLARE_DELEGATE_RetVal_TwoParams(FDcResult, FDcDeserializeDelegate, FDcDeserializeContext&, EDcDeserializeResult&);
+using FDcDeserializeDelegateSignature = FDcResult(*)(FDcDeserializeContext& Ctx);
+DECLARE_DELEGATE_RetVal_OneParam(FDcResult, FDcDeserializeDelegate, FDcDeserializeContext&);
 
 enum class EDcDeserializePredicateResult
 {

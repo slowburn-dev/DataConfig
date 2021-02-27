@@ -90,30 +90,20 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(cons
 }
 
 template<EDcColorDeserializeMethod Method>
-FDcResult TemplatedHandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult TemplatedHandlerColorDeserialize(FDcDeserializeContext& Ctx)
 {
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::String;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	if (!(bReadPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
-
 	FString ColorStr;
 	DC_TRY(Ctx.Reader->ReadString(&ColorStr));
 
 	FColor Color = FColor::FromHex(ColorStr);
 
 	DC_TRY(TemplatedWriteColorDispatch<Method>(Color, Ctx));
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
-FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx)
 {
-	return TemplatedHandlerColorDeserialize<EDcColorDeserializeMethod::WriteBlob>(Ctx, OutRet);
+	return TemplatedHandlerColorDeserialize<EDcColorDeserializeMethod::WriteBlob>(Ctx);
 }
 
 } // namespace DcExtra

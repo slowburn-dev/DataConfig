@@ -8,18 +8,8 @@
 
 namespace DcJsonHandlers {
 
-FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx)
 {
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::MapRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	if (!(bReadPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
-
 	DC_TRY(Ctx.Reader->ReadMapRoot());
 	DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat()));
 
@@ -52,7 +42,7 @@ FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx, EDcDeserializ
 
 	DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat{}));
 
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
 }	// namespace DcJsonHandlers
