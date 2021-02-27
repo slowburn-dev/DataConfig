@@ -12,6 +12,71 @@ This is a good reference of integrating `DataConfigCore` in a editor module. Her
 
 `FDcMessageLogDiagnosticConsumer` is an example of redirecting diagnostics into UE Message Log window with its own category.
 
+
+## Deserialize Blueprint Class Instances
+
+The Property System is so powerful that you can create new Blueprint Class, which is equivalent to C++ `UCLASS` to some extents, within the Blueprint Editor. In this example we implemented deserializing these.
+
+Blueprint Class can be referenced by the blueprint asset path:
+
+```c++
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
+FString Str = TEXT(R"(
+    {
+        //...
+        "ClassField3" : "/DataConfig/DcFixture/DcTestBlueprintClassBeta",
+    }
+)");
+
+UTEST_TRUE("...", Dest.ClassField3->GetFName() == TEXT("DcTestBlueprintClassBeta_C"));
+```
+
+And Blueprint structs can also be deserialized from JSON. We need to rewrite the handler `HandlerBPDcAnyStructDeserialize` for looking up Blueprint Struct by path:
+
+```C++
+// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
+FString Str = TEXT(R"(
+    {
+        "AnyStructField1" : {
+            "$type" : "/DataConfig/DcFixture/DcTestBlueprintStructWithColor",
+            "NameField" : "Foo",
+            "StrField" : "Bar",
+            "IntField" : 123,
+            "ColorField" : "#FF0000FF"
+        }
+    }
+)");
+```
+
+There's a quirk that Blueprint Struct actually mangle its field names. The struct above dumps to something like this:
+
+```
+-----------------------------------------
+# Datum: 'UserDefinedStruct', 'DcTestBlueprintStructWithColor'
+<StructRoot> 'DcTestBlueprintStructWithColor'
+|---<Name> 'NameField_5_97BFF114405C1934C2F33E8668BF1652'
+|---<Name> 'Foo'
+|---<Name> 'StrField_9_FAA71EFE4896F4E6B1478B9C13B2CE52'
+|---<String> 'Bar'
+|---<Name> 'IntField_11_3BC7CB0F42439CE2196F7AA82A1AC374'
+|---<Int32> '123'
+|---<Name> 'ColorField_14_F676BCF245B2977B678B65A8216E94EB'
+|---<StructRoot> 'Color'
+|   |---<Name> 'B'
+|   |---<UInt8> '0'
+|   |---<Name> 'G'
+|   |---<UInt8> '0'
+|   |---<Name> 'R'
+|   |---<UInt8> '255'
+|   |---<Name> 'A'
+|   |---<UInt8> '255'
+|---<StructEnd> 'Color'
+<StructEnd> 'DcTestBlueprintStructWithColor'
+-----------------------------------------
+```
+
+The good news is that DataConfig already got this covered. 
+
 ## Deserialize GameplayTags
 
 [GameplayTags][1] is a built-in runtime module that implements hierarchical tags. In this example we implemented deserializing into `FGameplayTag` from a string.
@@ -91,68 +156,44 @@ In case of a invalid tag it would report the reason and fixed string:
  [C:\DevUE\UnrealEngine\Engine\Source\Developer\MessageLog\Private\Model\MessageLogListingModel.cpp(73)]
 ```
 
-## Deserialize Blueprint Class Instances
+## Deserialize Gameplay Abilities
 
-The Property System is so powerful that you can create new Blueprint Class, which is equivalent to C++ `UCLASS` to some extents, within the Blueprint Editor. In this example we implemented deserializing these.
+We'll conclude examples with a concrete user story: populating `GameplayAbility` and `GameplayEffect` blueprint from JSON file.
 
-Blueprint Class can be referenced by the blueprint asset path:
+[Gameplay Ability System][2] is a built-in plugin for building data driven abilities. Users are expected to derived and modify `GameplayAbility` and `GameplayEffect` blueprint for custom logic. 
+
+Given a JSON like this:
 
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
-FString Str = TEXT(R"(
-    {
-        //...
-        "ClassField3" : "/DataConfig/DcFixture/DcTestBlueprintClassBeta",
-    }
-)");
-
-UTEST_TRUE("...", Dest.ClassField3->GetFName() == TEXT("DcTestBlueprintClassBeta_C"));
+// DataConfig/Tests/Fixture_AbilityAlpha.json
+{
+    /// Tags
+    "AbilityTags" : [
+        "DataConfig.Foo.Bar",
+        "DataConfig.Foo.Bar.Baz",
+    ],
+    "CancelAbilitiesWithTag" : [
+        "DataConfig.Foo.Bar.Baz",
+        "DataConfig.Tar.Taz",
+    ],
+    /// Costs
+    "CostGameplayEffectClass" : "/DataConfig/DcFixture/DcTestGameplayEffectAlpha",
+    /// Advanced
+    "ReplicationPolicy" : "ReplicateYes",
+    "InstancingPolicy" : "NonInstanced",
+}
 ```
 
-And Blueprint structs can also be deserialized from JSON. We need to rewrite the handler `HandlerBPDcAnyStructDeserialize` for looking up Blueprint Struct by path:
+Right click on a `GameplayAbility` blueprint asset and select `Load From JSON`. Select this file and it would correctly populate the fields with the values above, as seen in the pic below:
 
-```C++
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp
-FString Str = TEXT(R"(
-    {
-        "AnyStructField1" : {
-            "$type" : "/DataConfig/DcFixture/DcTestBlueprintStructWithColor",
-            "NameField" : "Foo",
-            "StrField" : "Bar",
-            "IntField" : 123,
-            "ColorField" : "#FF0000FF"
-        }
-    }
-)");
-```
+![DataConfigEditorExtra-LoadJsonIntoAbility](Images/DataConfigEditorExtra-LoadJsonIntoAbility.png)
 
-There's a quirk that Blueprint Struct actually mangle its field names. The struct above dumps to something like this:
+Most of the logic is in `DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.cpp`
 
-```
------------------------------------------
-# Datum: 'UserDefinedStruct', 'DcTestBlueprintStructWithColor'
-<StructRoot> 'DcTestBlueprintStructWithColor'
-|---<Name> 'NameField_5_97BFF114405C1934C2F33E8668BF1652'
-|---<Name> 'Foo'
-|---<Name> 'StrField_9_FAA71EFE4896F4E6B1478B9C13B2CE52'
-|---<String> 'Bar'
-|---<Name> 'IntField_11_3BC7CB0F42439CE2196F7AA82A1AC374'
-|---<Int32> '123'
-|---<Name> 'ColorField_14_F676BCF245B2977B678B65A8216E94EB'
-|---<StructRoot> 'Color'
-|   |---<Name> 'B'
-|   |---<UInt8> '0'
-|   |---<Name> 'G'
-|   |---<UInt8> '0'
-|   |---<Name> 'R'
-|   |---<UInt8> '255'
-|   |---<Name> 'A'
-|   |---<UInt8> '255'
-|---<StructEnd> 'Color'
-<StructEnd> 'DcTestBlueprintStructWithColor'
------------------------------------------
-```
-
-The good news is that DataConfig already got this covered. 
+- The context menu is added from `GameplayAbilityEffectExtender`. There's another handy item named `Dump To Log` which dumps any blueprint CDO into the log.
+- DataConfig deserializer is setup in `LazyInitializeDeserializer()`. We added custom logic for deserializing `FGameplayAttribute` from a string like `DcTestAttributeSet.Mana`.
+- We also reused many methods from previous examples to support `FGameplayTag` deserialization and Blueprint class look up by path.
 
 [1]: https://docs.unrealengine.com/en-US/ProgrammingAndScripting/Tags/index.html "Gameplay Tags"
+[2]: https://docs.unrealengine.com/en-US/InteractiveExperiences/GameplayAbilitySystem/index.html "Gameplay Ability System"
+
