@@ -184,10 +184,10 @@ We implemented a pair of methods `GetDatumPropertyByPath/SetDatumPropertyByPath`
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
-UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField") == TEXT("Foo"));
-UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField") == TEXT("Bar0"));
-UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField") == TEXT("Bar1"));
-UTEST_TRUE("...", GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField") == TEXT("FooValue"));
+UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField"), TEXT("Foo")));
+UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField"), TEXT("Bar0")));
+UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField"), TEXT("Bar1")));
+UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.NameMap.FooKey.StrField"), TEXT("FooValue")));
 
 UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField", TEXT("AltFoo")));
 UTEST_TRUE("...", SetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField", TEXT("AltBar0")));
