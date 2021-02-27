@@ -322,7 +322,7 @@ DC_TEST("DataConfig.EditorExtra.GameplayAbility")
 	));
 
 	//	use `DcExtra::GetDatumPropertyByPath` to get protected properties here
-	FGameplayTagContainer* ContainerPtr = DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), "CancelAbilitiesWithTag");
+	FGameplayTagContainer* ContainerPtr = DcExtra::GetDatumPropertyByPath<FGameplayTagContainer>(FDcPropertyDatum(TmpAbility), TEXT("CancelAbilitiesWithTag"));
 	UTEST_NOT_NULL("Editor Extra UGameplayAbility Deserialize", ContainerPtr);
 	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", ContainerPtr->HasTagExact(
 			UGameplayTagsManager::Get().RequestGameplayTag(TEXT("DataConfig.Foo.Bar.Baz"))

@@ -14,6 +14,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Extra/Deserialize/DcDeserializeAnyStruct.h"
 #include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
+#include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
 #include "DataConfig/Deserialize/DcDeserializeUtils.h"
 
 #include "Engine/Blueprint.h"
@@ -298,6 +299,10 @@ DC_TEST("DataConfig.EditorExtra.BPStruct")
 	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FName>(Field1Datum, TEXT("NameField")) == FName(TEXT("Foo")));
 	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<FString>(Field1Datum, TEXT("StrField")) == FString(TEXT("Bar")));
 	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", DcAutomationUtils::DebugGetScalarPropertyValue<int32>(Field1Datum, TEXT("IntField")) == 123);
+
+	FDcPropertyDatum ColorDatum;
+	UTEST_OK("Extra BPStruct FAnyStruct Deserialize", DcExtra::GetDatumPropertyByPath(Field1Datum, TEXT("ColorField"), ColorDatum));
+	UTEST_TRUE("Extra BPStruct FAnyStruct Deserialize", *((FColor*)ColorDatum.DataPtr) == FColor::Red);
 
 	return true;
 }

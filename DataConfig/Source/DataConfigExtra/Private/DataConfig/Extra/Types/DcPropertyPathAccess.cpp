@@ -41,6 +41,11 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 
 		if (Next == EDcDataEntry::StructRoot)
 		{
+			FFieldVariant StructField;
+			DC_TRY(Reader->PeekReadProperty(&StructField));
+			UStruct* Struct = DcPropertyUtils::TryGetStruct(StructField);
+			check(Struct);
+			
 			DC_TRY(Reader->ReadStructRoot(nullptr));
 			while (true)
 			{
@@ -48,25 +53,31 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 				FName FieldName;
 				DC_TRY(Reader->ReadName(&FieldName));
 
-				if (FieldName == CurName)
+				if (FProperty* Property = DcPropertyUtils::FindEffectivePropertyByName(Struct, CurName))
 				{
-					//	found
-					break;
+					if (Property->GetFName() == FieldName)
+					{
+						//	found
+						break;
+					}
 				}
-				else
-				{
-					//	move to next position
-					DC_TRY(Reader->SkipRead());
 
-					DC_TRY(Reader->PeekRead(&Next));
-					if (Next == EDcDataEntry::StructEnd)
-						return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
-							<< Cur << Reader->FormatHighlight();
-				}
+				//	move to next position
+				DC_TRY(Reader->SkipRead());
+
+				DC_TRY(Reader->PeekRead(&Next));
+				if (Next == EDcDataEntry::StructEnd)
+					return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
+						<< Cur << Reader->FormatHighlight();
 			}
 		}
 		else if (Next == EDcDataEntry::ClassRoot)
 		{
+			FFieldVariant ClassField;
+			DC_TRY(Reader->PeekReadProperty(&ClassField));
+			UStruct* Struct = DcPropertyUtils::TryGetStruct(ClassField);
+			check(Struct);
+			
 			FDcClassStat Stat;
 			DC_TRY(Reader->ReadClassRoot(&Stat));
 
@@ -79,21 +90,22 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 				FName FieldName;
 				DC_TRY(Reader->ReadName(&FieldName));
 
-				if (FieldName == CurName)
+				if (FProperty* Property = DcPropertyUtils::FindEffectivePropertyByName(Struct, CurName))
 				{
-					//	found
-					break;
+					if (Property->GetFName() == FieldName)
+					{
+						//	found
+						break;
+					}
 				}
-				else
-				{
-					//	move to next position
-					DC_TRY(Reader->SkipRead());
 
-					DC_TRY(Reader->PeekRead(&Next));
-					if (Next == EDcDataEntry::ClassEnd)
-						return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
-							<< Cur << Reader->FormatHighlight();
-				}
+				//	move to next position
+				DC_TRY(Reader->SkipRead());
+
+				DC_TRY(Reader->PeekRead(&Next));
+				if (Next == EDcDataEntry::ClassEnd)
+					return DC_FAIL(DcDReadWrite, CantFindPropertyByName)
+						<< Cur << Reader->FormatHighlight();
 			}
 		}
 		else if (Next == EDcDataEntry::ArrayRoot)

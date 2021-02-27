@@ -34,6 +34,8 @@ DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);
 
 DATACONFIGCORE_API FName GetStructTypeName(FFieldVariant& Property);
 DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant);
+
+DATACONFIGCORE_API UStruct* TryGetStruct(const FFieldVariant& FieldVariant);
 DATACONFIGCORE_API UStruct* TryGetStruct(const FDcPropertyDatum& Datum);
 
 DATACONFIGCORE_API bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);

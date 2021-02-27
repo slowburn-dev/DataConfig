@@ -485,23 +485,23 @@ FDcResult GetEnumProperty(const FFieldVariant& Field, UEnum*& OutEnum, FNumericP
 			<< Field.GetFName() << Field.GetClassName();
 }
 
-UStruct* TryGetStruct(const FDcPropertyDatum& Datum)
+UStruct* TryGetStruct(const FFieldVariant& FieldVariant)
 {
-	if (Datum.IsA<UScriptStruct>())
+	if (FieldVariant.IsA<UScriptStruct>())
 	{
-		return Datum.CastUScriptStructChecked();
+		return (UScriptStruct*)FieldVariant.ToUObjectUnsafe();
 	}
-	else if (Datum.IsA<UClass>())
+	else if (FieldVariant.IsA<UClass>())
 	{
-		return Datum.CastUClassChecked();
+		return (UClass*)FieldVariant.ToUObjectUnsafe();
 	}
-	else if (Datum.IsA<FStructProperty>())
+	else if (FieldVariant.IsA<FStructProperty>())
 	{
-		return Datum.CastFieldChecked<FStructProperty>()->Struct;
+		return CastFieldChecked<FStructProperty>(FieldVariant.ToFieldUnsafe())->Struct;
 	}
-	else if (Datum.IsA<FObjectProperty>())
+	else if (FieldVariant.IsA<FObjectProperty>())
 	{
-		return Datum.CastFieldChecked<FObjectProperty>()->PropertyClass;
+		return CastFieldChecked<FObjectProperty>(FieldVariant.ToFieldUnsafe())->PropertyClass;
 	}
 	else
 	{
@@ -509,4 +509,8 @@ UStruct* TryGetStruct(const FDcPropertyDatum& Datum)
 	}
 }
 
+UStruct* TryGetStruct(const FDcPropertyDatum& Datum)
+{
+	return TryGetStruct(Datum.Property);
+}
 }	// namespace DcPropertyUtils
