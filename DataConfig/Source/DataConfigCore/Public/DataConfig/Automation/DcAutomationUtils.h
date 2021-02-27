@@ -21,7 +21,7 @@ struct DATACONFIGCORE_API FDcDebug
 	FORCENOINLINE FString DumpName(FName* NamePtr);
 };
 
-///	Access `gDcDebugg` in MSVC immediate window:
+///	Access `gDcDebug` in MSVC immediate window:
 ///
 ///	- in monolith builds:
 ///	gDcDebug.DumpObject(Obj)

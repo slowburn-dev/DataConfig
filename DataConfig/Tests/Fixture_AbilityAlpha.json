@@ -8,6 +8,8 @@
         "DataConfig.Foo.Bar.Baz",
         "DataConfig.Tar.Taz",
     ],
+    /// Costs
+    "CostGameplayEffectClass" : "/DataConfig/DcFixture/DcTestGameplayEffectAlpha",
     /// Advanced
     "ReplicationPolicy" : "ReplicateYes",
     "InstancingPolicy" : "NonInstanced",

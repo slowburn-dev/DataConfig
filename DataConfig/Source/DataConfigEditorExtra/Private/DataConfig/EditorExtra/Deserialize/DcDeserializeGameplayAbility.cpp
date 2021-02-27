@@ -23,6 +23,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.h"
 #include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
 
 namespace DcEditorExtra
@@ -37,6 +38,8 @@ static void LazyInitializeDeserializer()
 
 	GameplayAbilityDeserializer.Emplace();
 	DcSetupJsonDeserializeHandlers(GameplayAbilityDeserializer.GetValue());
+
+	GameplayAbilityDeserializer->FieldClassDeserializerMap[FClassProperty::StaticClass()] = FDcDeserializeDelegate::CreateStatic(HandlerBPClassReferenceDeserialize);
 
 	GameplayAbilityDeserializer->AddPredicatedHandler(
 		FDcDeserializePredicate::CreateStatic(PredicateIsGameplayAttribute),
@@ -301,6 +304,8 @@ DC_TEST("DataConfig.EditorExtra.GameplayAbility")
 				"DataConfig.Foo.Bar.Baz",
 				"DataConfig.Tar.Taz",
 			],
+			/// Costs
+			"CostGameplayEffectClass" : "/DataConfig/DcFixture/DcTestGameplayEffectAlpha",
 			/// Advanced
 			"ReplicationPolicy" : "ReplicateYes",
 			"InstancingPolicy" : "NonInstanced",
