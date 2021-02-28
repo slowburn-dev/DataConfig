@@ -2,6 +2,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
+#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
 
 namespace DcDeserializeUtils {
 
@@ -284,6 +285,61 @@ FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Wri
 	}
 
 	return DcOk();
+}
+
+FDcResult ExpectMetaKey(const FString& Actual, const TCHAR* Expect)
+{
+	return Actual == Expect
+		? DcOk()
+		: DC_FAIL(DcDDeserialize, MetaKeyMismatch)
+			<< Expect << Actual;
+}
+
+FDcResult TryStaticFindObject(UClass* Class, UObject* Outer, const TCHAR* Name, bool ExactClass, UObject*& OutObject)
+{
+	check(Class);
+	UObject* Ret = StaticFindObject(Class, Outer, Name, ExactClass);
+	if (!Ret)
+	{
+		return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << Class->GetFName() << Name;
+	}
+	else
+	{
+		OutObject = Ret;
+		return DcOk();
+	}
+}
+
+FDcResult TryStaticLoadObject(UClass* Class, UObject* Outer, const TCHAR* LoadPath, UObject*& OutObject)
+{
+	check(Class);
+	UObject* Ret = StaticLoadObject(Class, Outer, LoadPath, nullptr);
+	if (!Ret)
+	{
+		return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << Class->GetFName() << LoadPath;
+	}
+	else
+	{
+		OutObject = Ret;
+		return DcOk();
+	}
+}
+
+FDcResult ExpectLhsChildOfRhs(UClass* Lhs, UClass* Rhs)
+{
+	return Lhs->IsChildOf(Rhs)
+		? DcOk()
+		: DC_FAIL(DcDDeserialize, ClassLhsIsNotChildOfRhs)
+			<< Lhs->GetFName() << Rhs->GetFName();
+
+}
+
+FDcResult ExpectNonAbstract(UClass* Class)
+{
+	return !Class->HasAnyClassFlags(CLASS_Abstract)
+		? DcOk()
+		: DC_FAIL(DcDDeserialize, ClassExpectNonAbstract)
+			<< Class->GetFName();
 }
 
 }	// namespace DcDeserializeUtils

@@ -17,10 +17,12 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ CoercionFail, TEXT("Reader coercion failed, Actual: '{0}'")},
 	{ EnumNameNotFound, TEXT("Enum name not found in enum type: '{0}', Actual: '{1}'")},
 	{ StructNotFound, TEXT("Expect struct root or property but not found:, Expect: '{0}', Actual: '{1}'") },
-	{ ClassLhsIsNotChildOfRhs, TEXT("Class '{0}' is not child of '{1}'") },
 	{ UObjectTypeMismatch, TEXT("UObject type mismatch, Expect: '{0}, Actual: '{1}'") },
 	{ UObjectByStrNotFound, TEXT("Find UObject by string failed, Expected Type: '{0}', Str: '{1}'"), },
 	{ ObjectPropertyNotInline, TEXT("Object Property isn't inline property, Property: {0}' '{1}'"), },
+
+	//	Meta
+	{ MetaKeyMismatch, TEXT("Expect meta key but not found, Expect: '{0}', Actual: '{1}'")},
 
 	//	Context
 	{ ContextInvalidState, TEXT("Deserializer context invalid internal state, Actual: '{0}'")},
@@ -32,8 +34,7 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 
 	//	Class
 	{ ClassExpectNonAbstract, TEXT("Expect class to be non abstract but failed, Class: '{0}'"), },
-
-
+	{ ClassLhsIsNotChildOfRhs, TEXT("Class '{0}' is not child of '{1}'") },
 };
 
 FDcDiagnosticGroup Details = {

@@ -22,10 +22,12 @@ enum Type : uint16
 	CoercionFail,
 	EnumNameNotFound,
 	StructNotFound,
-	ClassLhsIsNotChildOfRhs,
 	UObjectTypeMismatch,
 	UObjectByStrNotFound,
 	ObjectPropertyNotInline,
+
+	//	Meta
+	MetaKeyMismatch,
 
 	//	Context
 	ContextInvalidState,
@@ -37,6 +39,7 @@ enum Type : uint16
 
 	//	Class
 	ClassExpectNonAbstract,
+	ClassLhsIsNotChildOfRhs,
 };
 
 } // namespace DcDDeserialize

@@ -51,8 +51,8 @@ bool bInitialized = false;
 
 FDcResult DcFail()
 {
-	//	attach a stack trace as otherwise it's very diffcult to find
-	return DC_FAIL(DcDCommon, Unhandled)
+	//	attach a stack trace as otherwise it's very difficult to find
+	return DC_FAIL(DcDCommon, PlaceHoldError)
 		<< FDcDiagnosticStringNoEscape(DcDiagnosticUtils::StackWalkToString(0));
 }
 

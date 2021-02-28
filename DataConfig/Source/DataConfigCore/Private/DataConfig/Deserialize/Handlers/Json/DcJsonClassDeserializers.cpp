@@ -116,17 +116,6 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx)
 	}
 }
 
-static FDcResult LoadObjectByPath(FObjectProperty* ObjectProperty, UClass* LoadClass, FString LoadPath, FDcDeserializeContext& Ctx, UObject*& OutLoaded)
-{
-	DC_TRY(DcExpect(LoadClass != nullptr));
-	DC_TRY(DcExpect(LoadClass->IsChildOf(ObjectProperty->PropertyClass)));
-	UObject* Loaded = StaticLoadObject(LoadClass, nullptr, *LoadPath, nullptr);
-	DC_TRY(DcExpect(Loaded != nullptr));
-
-	OutLoaded = Loaded;
-	return DcOk();
-}
-
 FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
@@ -180,8 +169,8 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 		{
 			//	/Game/Path/To/Object
 			//	`Game` is a Mount Point, and there's no `.uasset` suffix
-			UObject* Loaded = nullptr;
-			DC_TRY(LoadObjectByPath(ObjectProperty, ObjectProperty->PropertyClass, Value, Ctx, Loaded));
+			UObject* Loaded;
+			DC_TRY(DcDeserializeUtils::TryStaticLoadObject(ObjectProperty->PropertyClass, nullptr, *Value, Loaded));
 
 			DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
 			DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
@@ -208,23 +197,25 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 		DC_TRY(Ctx.Reader->ReadMapRoot());
 		FString MetaKey;
 		DC_TRY(Ctx.Reader->ReadString(&MetaKey));
-		DC_TRY(DcExpect(MetaKey == TEXT("$type")));
+		DC_TRY(DcDeserializeUtils::ExpectMetaKey(MetaKey, TEXT("$type")));
 
 		FString LoadClassName;
 		DC_TRY(Ctx.Reader->ReadString(&LoadClassName));
 
 		DC_TRY(Ctx.Reader->ReadString(&MetaKey));
-		DC_TRY(DcExpect(MetaKey == TEXT("$path")));
+		DC_TRY(DcDeserializeUtils::ExpectMetaKey(MetaKey, TEXT("$path")));
 
 		FString LoadPath;
 		DC_TRY(Ctx.Reader->ReadString(&LoadPath));
 		DC_TRY(Ctx.Reader->ReadMapEnd());
 
-		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *LoadClassName, true);
-		DC_TRY(DcExpect(LoadClass != nullptr));
+		UClass* LoadClass;
+		DC_TRY(DcDeserializeUtils::TryFindObject<UClass>(ANY_PACKAGE, *LoadClassName, true, LoadClass));
 
-		UObject* Loaded = nullptr;
-		DC_TRY(LoadObjectByPath(ObjectProperty, LoadClass, LoadPath, Ctx, Loaded));
+		DC_TRY(DcDeserializeUtils::ExpectLhsChildOfRhs(LoadClass, ObjectProperty->PropertyClass));
+		
+		UObject* Loaded;
+		DC_TRY(DcDeserializeUtils::TryStaticLoadObject(LoadClass, nullptr, *LoadPath, Loaded));
 
 		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
 		DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
@@ -321,13 +312,8 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 
 	check(SubClassType);
 
-	//	can't be abstract
-	if (SubClassType->HasAnyClassFlags(CLASS_Abstract))
-		return DC_FAIL(DcDDeserialize, ClassExpectNonAbstract)
-			<< SubClassType->GetFName();
-
-	if (!SubClassType->IsChildOf(ObjectProperty->PropertyClass))
-		return DcFail();
+	DC_TRY(DcDeserializeUtils::ExpectNonAbstract(SubClassType));
+	DC_TRY(DcDeserializeUtils::ExpectLhsChildOfRhs(SubClassType, ObjectProperty->PropertyClass));
 
 	//	construct the item
 	FDcPropertyDatum Datum;
@@ -335,9 +321,10 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 
 	FObjectProperty* SubObjectProperty = Datum.CastField<FObjectProperty>();
 	if (!SubObjectProperty)
-		return DcFail();
+		return DC_FAIL(DcDReadWrite, PropertyMismatch)
+			<< TEXT("ObjectProperty") << Datum.Property.GetFName() << Datum.Property.GetClassName();
 
-	//	don't read *Datum.DataPtr as it might be unitnialized, handle reload elsewhere
+	//	don't read *Datum.DataPtr as it might be uninitialized, handle reload elsewhere
 	UObject* SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
 
 	ObjectProperty->SetPropertyValue(Datum.DataPtr, SubObject);
