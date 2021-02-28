@@ -20,7 +20,7 @@ namespace DcEditorExtra
 {
 
 DATACONFIGEDITOREXTRA_API EDcDeserializePredicateResult PredicateIsGameplayAttribute(FDcDeserializeContext& Ctx);
-DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx);
 
 DATACONFIGEDITOREXTRA_API FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader);
 

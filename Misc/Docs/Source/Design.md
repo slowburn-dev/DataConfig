@@ -12,7 +12,7 @@ At the time we started this project we're looking for a JSON parser that:
 
 Eventually we implemented all these in DataConfig. We also tried not limit this to be a JSON parser but deliver as a set of helpful tools for reading-from and writing-to the property system. 
 
-## Manifests
+## Manifesto
 
 - Deliver as a quality C++ source library.
   
@@ -24,14 +24,14 @@ Eventually we implemented all these in DataConfig. We also tried not limit this 
   - DataConfig API are `UObject` free and stack friendly.
   - Built-in features serve as examples and sensible defaults. Users are expected to write on their own `Reader/Writer/Handlers`.
   
-- Runtime performance is **not** top priority.
+- Runtime performance is *not* top priority.
 
   We expect users to use DataConfig in a offline, editor only scenario. In this use case we favor some other aspects over runtime performance:
 
   - Idiomatic. We follow [UE4 c++ coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
-- Friendly. When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
+  - Friendly. When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
   - Small code size / fast compile time. DataConfig try not to don't expose template API. `TDcJsonReader` is explicit instantiated with its definition in private files.
-  - Light memory footprint. For example the JSON parser do parsing while deserializing. It would *not* construct the loaded JSON document in memory at all.
+  - Light memory footprint. Our JSON parser do stream parsing and would *not* construct the loaded JSON document in memory at all.
 
 - Works with whatever property system supports.
 

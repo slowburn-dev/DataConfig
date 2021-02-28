@@ -9,10 +9,10 @@
 namespace DcEditorExtra {
 
 DATACONFIGEDITOREXTRA_API EDcDeserializePredicateResult PredicateIsGameplayTag(FDcDeserializeContext& Ctx);
-DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx);
 
 DATACONFIGEDITOREXTRA_API EDcDeserializePredicateResult PredicateIsGameplayTagContainer(FDcDeserializeContext& Ctx);
-DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
+DATACONFIGEDITOREXTRA_API FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx);
 
 } // namespace DcEditorExtra
 

@@ -2,7 +2,7 @@
 
 __Serialization framework for Unreal Engine Property System that just works!__
 
-**DataConfig** is a serialization framework built on top of Unreal Engine's Property System. It aims to be friendly and robust while offering reasonable performance. 
+**DataConfig** is a serialization framework built on top of Unreal Engine's Property System. It aims to be friendly and robust while offering good performance. 
 
 ## Getting Started.
 

@@ -63,7 +63,7 @@ EDcDeserializePredicateResult PredicateIsGameplayAttribute(FDcDeserializeContext
 		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx)
 {
 	FString AttributeStr;
 	DC_TRY(Ctx.Reader->ReadString(&AttributeStr));
@@ -91,7 +91,7 @@ FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx, EDcDes
 	FGameplayAttribute* Attribute = (FGameplayAttribute*)Datum.DataPtr;
 	Attribute->SetUProperty(AttributeProperty);
 	
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
 FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader)

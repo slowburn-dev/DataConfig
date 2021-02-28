@@ -17,6 +17,13 @@ FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 
+	FClassProperty* ClassProperty = DcPropertyUtils::CastFieldVariant<FClassProperty>(Ctx.TopProperty());
+	if (ClassProperty == nullptr)
+	{
+		return DC_FAIL(DcDReadWrite, PropertyMismatch)
+			<< TEXT("ClassProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+	}
+
 	if (Next == EDcDataEntry::Nil)
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
@@ -33,8 +40,6 @@ FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 		if (LoadClass == nullptr)
 			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << ClassStr;
 
-		FClassProperty* ClassProperty = CastFieldChecked<FClassProperty>(Ctx.TopProperty().ToFieldUnsafe());
-		check(ClassProperty && ClassProperty->MetaClass);
 		if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
 		{
 			return DC_FAIL(DcDDeserialize, ClassLhsIsNotChildOfRhs)

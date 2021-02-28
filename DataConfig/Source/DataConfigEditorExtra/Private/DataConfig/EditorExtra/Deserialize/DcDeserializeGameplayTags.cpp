@@ -39,18 +39,10 @@ EDcDeserializePredicateResult PredicateIsGameplayTag(FDcDeserializeContext& Ctx)
 		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::String
-		|| Next == EDcDataEntry::Nil;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	if (!bReadPass && bWritePass)
-		return DcOkWithFallThrough(OutRet);
 
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
@@ -69,19 +61,22 @@ FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx, EDcDeseriali
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
 		*TagPtr = FGameplayTag::EmptyTag;
+
+		return DcOk();
 	}
 	else if (Next == EDcDataEntry::String)
 	{
 		FString Str;
 		DC_TRY(Ctx.Reader->ReadString(&Str));
 		DC_TRY(_StringToGameplayTag(Ctx, Str, TagPtr));
+
+		return DcOk();
 	}
 	else
 	{
-		return DcNoEntry();
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
+			<< EDcDataEntry::Nil << EDcDataEntry::String << Next;
 	}
-
-	return DcOkWithProcessed(OutRet);
 }
 
 EDcDeserializePredicateResult PredicateIsGameplayTagContainer(FDcDeserializeContext& Ctx)
@@ -92,17 +87,10 @@ EDcDeserializePredicateResult PredicateIsGameplayTagContainer(FDcDeserializeCont
 		: EDcDeserializePredicateResult::Pass;
 }
 
-FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::ArrayRoot;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	if (!bReadPass && bWritePass)
-		return DcOkWithFallThrough(OutRet);
 
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
@@ -137,7 +125,7 @@ FDcResult HandlerGameplayTagContainerDeserialize(FDcDeserializeContext& Ctx, EDc
 
 	DC_TRY(Ctx.Reader->ReadArrayEnd());
 
-	return DcOkWithProcessed(OutRet);
+	return DcOk();
 }
 
 } // namespace DcEditorExtra

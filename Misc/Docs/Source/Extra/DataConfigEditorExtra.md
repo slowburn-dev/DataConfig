@@ -184,11 +184,11 @@ Given a JSON like this:
 }
 ```
 
-Right click on a `GameplayAbility` blueprint asset and select `Load From JSON`. Select this file and it would correctly populate the fields with the values above, as seen in the pic below:
+Right click on a `GameplayAbility` blueprint asset and select `Load From JSON`， then select this file and confirm. It would correctly populate the fields with the values in JSON, as seen in the pic below:
 
 ![DataConfigEditorExtra-LoadJsonIntoAbility](Images/DataConfigEditorExtra-LoadJsonIntoAbility.png)
 
-Most of the logic is in `DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.cpp`
+Most of the logic is in `DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.cpp`:
 
 - The context menu is added from `GameplayAbilityEffectExtender`. There's another handy item named `Dump To Log` which dumps any blueprint CDO into the log.
 - DataConfig deserializer is setup in `LazyInitializeDeserializer()`. We added custom logic for deserializing `FGameplayAttribute` from a string like `DcTestAttributeSet.Mana`.

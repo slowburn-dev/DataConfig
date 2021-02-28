@@ -25,22 +25,16 @@ Custom deserialize logic is provided through `FDcDeserializeDelegate`:
 
 ```c++
 // DataConfig/Source/DataConfigCore/Public/DataConfig/Deserialize/DcDeserializeTypes.h
-using FDcDeserializeDelegateSignature = FDcResult(*)(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet);
-DECLARE_DELEGATE_RetVal_TwoParams(FDcResult, FDcDeserializeDelegate, FDcDeserializeContext&, EDcDeserializeResult&);
-
+using FDcDeserializeDelegateSignature = FDcResult(*)(FDcDeserializeContext& Ctx);
+DECLARE_DELEGATE_RetVal_OneParam(FDcResult, FDcDeserializeDelegate, FDcDeserializeContext&);
 ```
 
 We call these functions **handlers**. Here's a simple one that deserialize booleans:
 
 ```c++
 // DataConfig/Source/DataConfigCore/Private/DataConfig/Deserialize/Handlers/Json/DcJsonPrimitiveDeserializers.cpp
-FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx)
 {
-    if (!Ctx.TopProperty().IsA<FBoolProperty>())
-    {
-        return DcOkWithFallThrough(OutRet);
-    }
-
     EDcDataEntry Next;
     DC_TRY(Ctx.Reader->PeekRead(&Next));
 
@@ -54,18 +48,11 @@ FDcResult HandlerBoolDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResul
     DC_TRY(Ctx.Reader->ReadBool(&Value));
     DC_TRY(Ctx.Writer->WriteBool(Value));
 
-    OutRet = EDcDeserializeResult::Success;
-    return DcOkWithProcessed(OutRet);
+    return DcOk();
 }
 ```
 
-The body of handlers basically follows the same pattern:
-
-- Start by checking context for precondition:
-    - `Ctx.TopProperty()` which points to the current writing property.
-    - Peek `Ctx.Reader` state to see if it's reading the correct data type.
-- If any precondition failed return `DcOkWithFallThrough(OutRet)`. Deserializer will try others if possible.
-- If all precondition passed then do the read and writing calls and finally return `DcOkWithProcessed(OutRet)`.
+Note how we propagate errors to the caller by using `DC_TRY` or fail explicitly by returning `DC_FAIL`with diagnostic.
 
 ## Predicates
 
@@ -191,7 +178,7 @@ Sometimes you want to peek the content of the next entry. For example in `DcExtr
 }
 ```
 
-We want to consume the `$type` key and its value, and then delegate the logic back to the deserializer. The solution here is first to consume the pair. Then we putback a `{`  then replace the reader:
+We want to consume the `$type` key and its value, and then delegate the logic back to the deserializer. The solution here is first to consume the pair. Then we put back a `{`  then replace the reader:
 
 ```c++
 // DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.cpp

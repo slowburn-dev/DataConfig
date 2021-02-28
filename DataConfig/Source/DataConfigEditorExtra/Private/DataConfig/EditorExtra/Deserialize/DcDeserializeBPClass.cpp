@@ -8,6 +8,7 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonStructDeserializers.h"
 #include "DataConfig/Deserialize/Handlers/Json/DcJsonClassDeserializers.h"
 #include "DataConfig/Json/DcJsonReader.h"
@@ -22,24 +23,24 @@
 
 namespace DcEditorExtra {
 
-FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bRootPeekPass = Next == EDcDataEntry::String
-		|| Next == EDcDataEntry::Nil;
 
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::ClassReference, &bWritePass));
-
-	bool bPropertyPass = Ctx.TopProperty().IsA<FClassProperty>();
-	if (!(bRootPeekPass && bWritePass && bPropertyPass))
-		return DcOkWithFallThrough(OutRet);
+	FClassProperty* ClassProperty = DcPropertyUtils::CastFieldVariant<FClassProperty>(Ctx.TopProperty());
+	if (ClassProperty == nullptr)
+	{
+		return DC_FAIL(DcDReadWrite, PropertyMismatch)
+			<< TEXT("ClassProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+	}
 
 	if (Next == EDcDataEntry::Nil)
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
 		DC_TRY(Ctx.Writer->WriteClassReference(nullptr));
+
+		return DcOk();
 	}
 	else if (Next == EDcDataEntry::String)
 	{
@@ -62,7 +63,6 @@ FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDese
 		}
 		check(LoadClass);
 
-		FClassProperty* ClassProperty = CastFieldChecked<FClassProperty>(Ctx.TopProperty().ToFieldUnsafe());
 		check(ClassProperty && ClassProperty->MetaClass);
 		if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
 		{
@@ -71,27 +71,20 @@ FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx, EDcDese
 		}
 
 		DC_TRY(Ctx.Writer->WriteClassReference(LoadClass));
+
+		return DcOk();
 	}
 	else
 	{
-		return DcNoEntry();
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
+			<< EDcDataEntry::Nil << EDcDataEntry::String << Next;
 	}
-
-	return DcOkWithProcessed(OutRet);
 }
 
-DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeserializeContext& Ctx, EDcDeserializeResult& OutRet)
+FDcResult HandlerBPDcAnyStructDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	bool bReadPass = Next == EDcDataEntry::MapRoot
-		|| Next == EDcDataEntry::Nil;
-
-	bool bWritePass;
-	DC_TRY(Ctx.Writer->PeekWrite(EDcDataEntry::StructRoot, &bWritePass));
-
-	if (!(bReadPass && bWritePass))
-		return DcOkWithFallThrough(OutRet);
 
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
@@ -101,8 +94,10 @@ DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeseriali
 	{
 		DC_TRY(Ctx.Reader->ReadNil());
 		AnyStructPtr->Reset();
+
+		return DcOk();
 	}
-	else
+	else if (Next == EDcDataEntry::MapRoot)
 	{
 		DC_TRY(Ctx.Reader->ReadMapRoot());
 		FString Str;
@@ -144,9 +139,14 @@ DATACONFIGEDITOREXTRA_API FDcResult HandlerBPDcAnyStructDeserialize(FDcDeseriali
 		FDcScopedProperty ScopedValueProperty(Ctx);
 		DC_TRY(ScopedValueProperty.PushProperty());
 		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-	}
 
-	return DcOkWithProcessed(OutRet);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
+			<< EDcDataEntry::Nil << EDcDataEntry::MapRoot << Next;
+	}
 }
 
 } // namespace DcEditorExtra
