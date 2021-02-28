@@ -4,6 +4,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
@@ -284,6 +285,29 @@ DC_TEST("DataConfig.Core.Deserialize.SubClass")
 	UTEST_OK("Deserialize into FDcTestStructSubClass1 Fail", Reader.SetNewString(*BadStr));
 	UTEST_DIAG("Deserialize into FDcTestStructSubClass1 Fail", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum),
 		DcDDeserialize, ClassLhsIsNotChildOfRhs);
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Deserialize.Fails1")
+{
+
+	{
+		FString Str = TEXT(R"(
+
+			{
+				"WhatField" : "Doesnt Exist",
+			}
+
+		)");
+		FDcJsonReader Reader(Str);
+
+		FDcTestStruct1 Dest;
+		FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
+
+		UTEST_DIAG("Deserialize Fails", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum), DcDReadWrite, CantFindPropertyByName);
+	}
+
 
 	return true;
 }
