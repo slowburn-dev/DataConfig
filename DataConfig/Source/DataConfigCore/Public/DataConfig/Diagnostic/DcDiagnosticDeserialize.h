@@ -18,13 +18,14 @@ enum Type : uint16
 	DataEntryMismatch3,
 	ExpectMetaType,
 	PropertyMismatch,
-	UObjectByNameNotFound,
 	ExpectNumericEntry,
 	CoercionFail,
 	EnumNameNotFound,
 	StructNotFound,
 	ClassLhsIsNotChildOfRhs,
 	UObjectTypeMismatch,
+	UObjectByStrNotFound,
+	ObjectPropertyNotInline,
 
 	//	Context
 	ContextInvalidState,
@@ -33,6 +34,9 @@ enum Type : uint16
 	ContextDeserializerNotFound,
 	ContextExpectOneProperty,
 	ContextExpectOneObject,
+
+	//	Class
+	ClassExpectNonAbstract,
 };
 
 } // namespace DcDDeserialize

@@ -60,7 +60,7 @@ FDcResult HandlerDcAnyStructDeserialize(FDcDeserializeContext& Ctx)
 		DC_TRY(Ctx.Reader->ReadString(&Str));
 		UScriptStruct* LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *Str, true);
 		if (LoadStruct == nullptr)
-			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("ScriptStruct") << MoveTemp(Str);
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("ScriptStruct") << MoveTemp(Str);
 
 		void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
 		LoadStruct->InitializeStruct(DataPtr);

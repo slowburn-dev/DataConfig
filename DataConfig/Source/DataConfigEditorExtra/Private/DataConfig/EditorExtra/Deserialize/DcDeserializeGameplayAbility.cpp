@@ -79,7 +79,7 @@ FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx)
 	
 	UClass* AttributeClass = FindObject<UClass>(ANY_PACKAGE, *Head, true);	
 	if (AttributeClass == nullptr)
-		return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << Head;
+		return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("Class") << Head;
 
 	FProperty* AttributeProperty = DcPropertyUtils::FindEffectivePropertyByName(AttributeClass, *Tail);
 	if (AttributeProperty == nullptr)

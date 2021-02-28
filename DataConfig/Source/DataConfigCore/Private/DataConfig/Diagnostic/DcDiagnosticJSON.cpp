@@ -6,6 +6,7 @@ namespace DcDJSON
 
 static FDcDiagnosticDetail _JSONDetails[] = {
 	{ ExpectWordButNotFound, TEXT("Expect word '{0}' but found '{1}' instead."), },
+	{ ExpectWordButEOF, TEXT("Expect word '{0}' but reaching end of input."), },
 	{ UnexpectedChar, TEXT("Unexpected char '{0}'"), },
 	{ UnexpectedToken, TEXT("Unexpected token"), },
 	{ UnclosedBlockComment, TEXT("Unclosed block comment"), },

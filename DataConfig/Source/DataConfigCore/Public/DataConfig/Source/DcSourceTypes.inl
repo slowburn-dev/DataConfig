@@ -3,7 +3,9 @@ template<class CharType>
 FString TDcSourceRef<CharType>::ToString() const
 {
 	//	this constructor already accept both char types
-	return FString(Num, Buffer->Buffer + Begin);
+	return IsValid()
+		? FString(Num, Buffer->Buffer + Begin)
+		: TEXT("<INVALIDREF>");
 }
 
 template<class CharType>

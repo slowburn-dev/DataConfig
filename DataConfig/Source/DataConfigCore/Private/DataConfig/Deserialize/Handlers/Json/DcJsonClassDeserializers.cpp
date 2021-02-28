@@ -38,7 +38,7 @@ FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 
 		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *ClassStr, true);
 		if (LoadClass == nullptr)
-			return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << ClassStr;
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("Class") << ClassStr;
 
 		if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
 		{
@@ -152,7 +152,6 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 		{
 			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
 			//	UE4 copied reference style
-			//	ref: FPropertyHandleObject::SetValueFromFormattedString
 			UObject* Loaded = nullptr;
 			const TCHAR* ValueBuffer = *Value;
 			if (FObjectPropertyBase::ParseObjectPropertyValue(
@@ -173,7 +172,9 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 				}
 			}
 
-			return DcFail();
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
+				<< ObjectProperty->PropertyClass->GetFName()
+				<< Value;
 		}
 		else if (Value.StartsWith(TEXT("/")))
 		{
@@ -190,7 +191,9 @@ FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
 		}
 		else
 		{
-			return DcFail();
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
+				<< ObjectProperty->PropertyClass->GetFName()
+				<< Value;
 		}
 	}
 	else if (Next == EDcDataEntry::MapRoot)
@@ -272,7 +275,8 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 
 	if (!DcPropertyUtils::IsSubObjectProperty(ObjectProperty))
 	{
-		return DcFail();
+		return DC_FAIL(DcDDeserialize, ObjectPropertyNotInline)
+			<< ObjectProperty->GetFName() << ObjectProperty->GetClass()->GetFName();
 	}
 
 	if (Next == EDcDataEntry::Nil)
@@ -302,6 +306,11 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 		//	"Character"
 		//	Plain class name, note that 'U' is automatically stripped
 		SubClassType = FindObject<UClass>(ANY_PACKAGE, *TypeStr, true);
+		if (!SubClassType)
+		{
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
+				<< TEXT("Class") << TypeStr;
+		}
 	}
 	else
 	{
@@ -310,12 +319,12 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 		PutbackReader.Putback(MetaKey);
 	}
 
-	if (!SubClassType)
-		return DcFail();
+	check(SubClassType);
 
 	//	can't be abstract
 	if (SubClassType->HasAnyClassFlags(CLASS_Abstract))
-		return DcFail();
+		return DC_FAIL(DcDDeserialize, ClassExpectNonAbstract)
+			<< SubClassType->GetFName();
 
 	if (!SubClassType->IsChildOf(ObjectProperty->PropertyClass))
 		return DcFail();

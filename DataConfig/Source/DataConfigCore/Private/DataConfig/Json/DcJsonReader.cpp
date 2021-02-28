@@ -988,7 +988,8 @@ FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 
 	if (IsAtEnd(WordLen))
 	{
-		return DcFail();
+		return DC_FAIL(DcDJSON, ExpectWordButEOF)
+			<< Word << FormatHighlight(Token.Ref);
 	}
 
 	for (int Ix = 0; Ix < WordLen; Ix++)

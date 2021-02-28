@@ -11,6 +11,7 @@ enum Type : uint16
 {
 	Unknown = 0,
 	ExpectWordButNotFound,
+	ExpectWordButEOF,
 	UnexpectedChar,
 	UnexpectedToken,
 	UnclosedBlockComment,

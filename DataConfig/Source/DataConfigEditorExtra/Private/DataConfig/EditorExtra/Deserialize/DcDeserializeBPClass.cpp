@@ -59,7 +59,7 @@ FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 		{
 			LoadClass = FindObject<UClass>(ANY_PACKAGE, *ClassStr, true);
 			if (LoadClass == nullptr)
-				return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("Class") << ClassStr;
+				return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("Class") << ClassStr;
 		}
 		check(LoadClass);
 
@@ -121,7 +121,7 @@ FDcResult HandlerBPDcAnyStructDeserialize(FDcDeserializeContext& Ctx)
 		{
 			LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *Str, true);
 			if (LoadStruct == nullptr)
-				return DC_FAIL(DcDDeserialize, UObjectByNameNotFound) << TEXT("ScriptStruct") << MoveTemp(Str);
+				return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("ScriptStruct") << MoveTemp(Str);
 		}
 
 		void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
