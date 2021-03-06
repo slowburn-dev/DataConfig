@@ -27,7 +27,7 @@ DATACONFIGCORE_API FDcResult ExpectMetaKey(const FString& Actual, const TCHAR* E
 DATACONFIGCORE_API FDcResult TryStaticFindObject(UClass* Class, UObject* Outer, const TCHAR* Name, bool ExactClass, UObject*& OutObject);
 	
 template<typename T>
- FDcResult TryFindObject(UObject* Outer, const TCHAR* Name, bool ExactClass, T*& OutObject)
+FDcResult TryFindObject(UObject* Outer, const TCHAR* Name, bool ExactClass, T*& OutObject)
 {
 	return TryStaticFindObject(T::StaticClass(), Outer, Name, ExactClass, (UObject*&)OutObject);
 }

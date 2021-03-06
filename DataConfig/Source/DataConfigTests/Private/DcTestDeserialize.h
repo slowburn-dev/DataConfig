@@ -58,5 +58,24 @@ struct FDcTestStructSubClass1
 	UPROPERTY() TSubclassOf<UStruct> StructSubClassField3;
 };
 
+USTRUCT()
+struct FDcTestStructRefs1
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UObject* ObjectField1;
+	UPROPERTY() UObject* ObjectField2;
+
+	UPROPERTY() TSoftObjectPtr<UObject> SoftField1;
+	UPROPERTY() TSoftObjectPtr<UObject> SoftField2;
+
+	UPROPERTY() TWeakObjectPtr<UObject> WeakField1;
+	UPROPERTY() TWeakObjectPtr<UObject> WeakField2;
+
+	UPROPERTY() TLazyObjectPtr<UObject> LazyField1;
+	UPROPERTY() TLazyObjectPtr<UObject> LazyField2;
+};
+
+
 
 

@@ -289,6 +289,47 @@ DC_TEST("DataConfig.Core.Deserialize.SubClass")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Deserialize.ObjRefs")
+{
+	FString Str = TEXT(R"(
+
+		{
+			"ObjectField1" : "Object'/Script/DataConfigTests'",
+			"ObjectField2" : null,
+			"SoftField1" : "Object'/Script/DataConfigTests'",
+			"SoftField2" : null,
+			"WeakField1" : "Object'/Script/DataConfigTests'",
+			"WeakField2" : null,
+			"LazyField1" : "Object'/Script/DataConfigTests'",
+			"LazyField2" : null,
+		}
+
+	)");
+	FDcJsonReader Reader(Str);
+
+	FDcTestStructRefs1 Dest;
+	FDcPropertyDatum DestDatum(FDcTestStructRefs1::StaticStruct(), &Dest);
+
+	FDcTestStructRefs1 Expect;
+	UObject* TestsObject = StaticFindObject(UObject::StaticClass(), nullptr, TEXT("/Script/DataConfigTests"));
+
+	Expect.ObjectField1 = TestsObject;
+	Expect.ObjectField2 = nullptr;
+	Expect.SoftField1 = TestsObject;
+	Expect.SoftField2 = nullptr;
+	Expect.WeakField1 = TestsObject;
+	Expect.WeakField2 = nullptr;
+	Expect.LazyField1 = TestsObject;
+	Expect.LazyField2 = nullptr;
+
+	FDcPropertyDatum ExpectDatum(FDcTestStructRefs1::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStructRefs1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructRefs1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+	return true;
+}
+
 DC_TEST("DataConfig.Core.Deserialize.Fails1")
 {
 

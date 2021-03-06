@@ -1,6 +1,6 @@
 # License
 
-DataConfig is released in [MIT License][1].
+DataConfig is released under [MIT License][1].
 
 ```
 MIT License
