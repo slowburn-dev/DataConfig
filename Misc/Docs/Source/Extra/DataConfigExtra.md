@@ -2,6 +2,29 @@
 
 Module `DataConfigExtra` contains examples that doesn't dependent on `Engine/UnrealEd`.
 
+## Deserialize JSON into Struct
+
+There's a built-in method in `JsonUtilities` module that simply deserialize a JSON string into a struct. In this example we implemented a similar method with almost identical API:
+
+```c++
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
+FString Str = TEXT(R"(
+    {
+        "StrField" : "Foo",
+        "IntField" : 253,
+        "BoolField" : true
+    }
+)");
+
+FDcTestJsonConverter1 Lhs;
+bool LhsOk = DcExtra::JsonObjectStringToUStruct(Str, &Lhs);
+
+FDcTestJsonConverter1 Rhs;
+bool RhsOk = FJsonObjectConverter::JsonObjectStringToUStruct(Str, &Rhs, 0, 0);
+```
+
+Comparing to the stock method `DcExtra::JsonObjectStringToUStruct` allows relaxed JSON with comments and trailing comma. It would also provide better diagnostics on parse error.
+
 ## Deserialize `FColor`
 
 This has been shown multiple times in previous chapters. It's also a benchmark use case for our custom deserialization logic:
