@@ -4,6 +4,7 @@
 	#define DC_BUILD_DEBUG 0
 #endif
 
+// note that DC_BUILD_FAST does nothing atm, we'll do a performance pass in a future release
 #ifndef DC_BUILD_FAST
 	#define DC_BUILD_FAST 0
 #endif

@@ -294,13 +294,13 @@ DC_TEST("DataConfig.Core.Deserialize.ObjRefs")
 	FString Str = TEXT(R"(
 
 		{
-			"ObjectField1" : "Object'/Script/DataConfigTests'",
+			"ObjectField1" : "'/Script/DataConfigTests'",
 			"ObjectField2" : null,
-			"SoftField1" : "Object'/Script/DataConfigTests'",
+			"SoftField1" : "'/Script/DataConfigTests'",
 			"SoftField2" : null,
-			"WeakField1" : "Object'/Script/DataConfigTests'",
+			"WeakField1" : "'/Script/DataConfigTests'",
 			"WeakField2" : null,
-			"LazyField1" : "Object'/Script/DataConfigTests'",
+			"LazyField1" : "'/Script/DataConfigTests'",
 			"LazyField2" : null,
 		}
 
@@ -326,6 +326,7 @@ DC_TEST("DataConfig.Core.Deserialize.ObjRefs")
 
 	UTEST_OK("Deserialize into FDcTestStructRefs1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStructRefs1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
 
 	return true;
 }

@@ -23,7 +23,8 @@ FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader*
 		FString Value;
 		DC_TRY(Reader->ReadString(&Value));
 
-		if (Value.EndsWith(TEXT("'")))
+		if (!Value.StartsWith(TEXT("'"))
+			&& Value.EndsWith(TEXT("'")))
 		{
 			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
 			//	UE4 copied reference style
@@ -58,11 +59,28 @@ FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader*
 			OutObject = Loaded;
 			return DcOk();
 		}
+		else if (Value.Len() > 1
+			&& Value.StartsWith(TEXT("'"))
+			&& Value.EndsWith(TEXT("'")))
+		{
+			//	'/Foo/Bar'
+			//	single quoted name, just strip it 
+			FString Unquoted = Value.Mid(1, Value.Len() - 2);
+			
+			UObject* Loaded;
+			DC_TRY(DcDeserializeUtils::TryStaticFindObject(UObject::StaticClass(), ANY_PACKAGE, *Value, false, Loaded));
+
+			OutObject = Loaded;
+			return DcOk();
+		}
 		else
 		{
-			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
-				<< ObjectProperty->PropertyClass->GetFName()
-				<< Value;
+			//	Foo
+			//	try find by name
+			UObject* Loaded;
+			DC_TRY(DcDeserializeUtils::TryStaticFindObject(UObject::StaticClass(), ANY_PACKAGE, *Value, false, Loaded));
+
+			return DcOk();
 		}
 	}
 	else if (Next == EDcDataEntry::MapRoot)
