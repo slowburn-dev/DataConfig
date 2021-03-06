@@ -29,6 +29,9 @@
 namespace DcEditorExtra
 {
 
+namespace GameplayAbilityDetails
+{
+
 static TOptional<FDcDeserializer> GameplayAbilityDeserializer;
 
 static void LazyInitializeDeserializer()
@@ -54,7 +57,10 @@ static void LazyInitializeDeserializer()
 		FDcDeserializeDelegate::CreateStatic(HandlerGameplayTagContainerDeserialize)
 	);
 }
+	
+} // namespace GameplayAbilityDetails
 
+	
 EDcDeserializePredicateResult PredicateIsGameplayAttribute(FDcDeserializeContext& Ctx)
 {
 	UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());
@@ -96,6 +102,8 @@ FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx)
 
 FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Reader)
 {
+	using namespace GameplayAbilityDetails;
+	
 	LazyInitializeDeserializer();
 
 	FDcPropertyWriter Writer(FDcPropertyDatum(UGameplayAbility::StaticClass(), Instance));
@@ -112,6 +120,7 @@ FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Read
 
 FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcReader& Reader)
 {
+	using namespace GameplayAbilityDetails;
 	LazyInitializeDeserializer();
 
 	FDcPropertyWriter Writer(FDcPropertyDatum(UGameplayEffect::StaticClass(), Instance));
