@@ -12,6 +12,108 @@
 
 namespace DcJsonHandlers {
 
+FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader* Reader, UObject*& OutObject)
+{
+	check(ObjectProperty);
+
+	EDcDataEntry Next;
+	DC_TRY(Reader->PeekRead(&Next));
+	if (Next == EDcDataEntry::String)
+	{
+		FString Value;
+		DC_TRY(Reader->ReadString(&Value));
+
+		if (Value.EndsWith(TEXT("'")))
+		{
+			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
+			//	UE4 copied reference style
+			UObject* Loaded = nullptr;
+			const TCHAR* ValueBuffer = *Value;
+			if (FObjectPropertyBase::ParseObjectPropertyValue(
+				ObjectProperty,
+				nullptr,	// see PropertyHandleImpl.cpp it's using nullptr
+				ObjectProperty->PropertyClass,
+				0,
+				ValueBuffer,
+				Loaded))
+			{
+				if (Loaded)
+				{
+					OutObject = Loaded;
+					return DcOk();
+				}
+			}
+
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
+				<< ObjectProperty->PropertyClass->GetFName()
+				<< Value;
+		}
+		else if (Value.StartsWith(TEXT("/")))
+		{
+			//	/Game/Path/To/Object
+			//	`Game` is a Mount Point, and there's no `.uasset` suffix
+			UObject* Loaded;
+			DC_TRY(DcDeserializeUtils::TryStaticLoadObject(ObjectProperty->PropertyClass, nullptr, *Value, Loaded));
+
+			OutObject = Loaded;
+			return DcOk();
+		}
+		else
+		{
+			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
+				<< ObjectProperty->PropertyClass->GetFName()
+				<< Value;
+		}
+	}
+	else if (Next == EDcDataEntry::MapRoot)
+	{
+		//	{
+		//		"$type" : "FooType",
+		//		"$path" : "/Game/Path/To/Object",
+		//	}
+		//
+		//	note that this is ordred and type and path needs to be first 2 items
+
+		DC_TRY(Reader->ReadMapRoot());
+		FString MetaKey;
+		DC_TRY(Reader->ReadString(&MetaKey));
+		DC_TRY(DcDeserializeUtils::ExpectMetaKey(MetaKey, TEXT("$type")));
+
+		FString LoadClassName;
+		DC_TRY(Reader->ReadString(&LoadClassName));
+
+		DC_TRY(Reader->ReadString(&MetaKey));
+		DC_TRY(DcDeserializeUtils::ExpectMetaKey(MetaKey, TEXT("$path")));
+
+		FString LoadPath;
+		DC_TRY(Reader->ReadString(&LoadPath));
+		DC_TRY(Reader->ReadMapEnd());
+
+		UClass* LoadClass;
+		DC_TRY(DcDeserializeUtils::TryFindObject<UClass>(ANY_PACKAGE, *LoadClassName, true, LoadClass));
+
+		DC_TRY(DcDeserializeUtils::ExpectLhsChildOfRhs(LoadClass, ObjectProperty->PropertyClass));
+		
+		UObject* Loaded;
+		DC_TRY(DcDeserializeUtils::TryStaticLoadObject(LoadClass, nullptr, *LoadPath, Loaded));
+
+		OutObject = Loaded;
+		return DcOk();
+	}
+	else if (Next == EDcDataEntry::Nil)
+	{
+		DC_TRY(Reader->ReadNil());
+
+		OutObject = nullptr;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDDeserialize, DataEntryMismatch3)
+			<< EDcDataEntry::MapRoot << EDcDataEntry::String << EDcDataEntry::String << Next;
+	}
+}
+
 FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 {
 	EDcDataEntry Next;
@@ -116,127 +218,91 @@ FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx)
 	}
 }
 
-FDcResult HandlerObjectReferenceDeserialize(FDcDeserializeContext& Ctx)
+FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeObjectReferenceHandler()
 {
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-
-	FObjectProperty* ObjectProperty = DcPropertyUtils::CastFieldVariant<FObjectProperty>(Ctx.TopProperty());
-	if (ObjectProperty == nullptr)
+	return FDcDeserializeDelegate::CreateLambda([CapObjectReader{FuncObjectReader}](FDcDeserializeContext& Ctx) -> FDcResult
 	{
-		return DC_FAIL(DcDReadWrite, PropertyMismatch)
-			<< TEXT("ObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
-	}
-
-	FDcClassStat RefStat {
-		ObjectProperty->PropertyClass->GetFName(), FDcClassStat::EControl::ReferenceOrNil
-	};
-
-	if (Next == EDcDataEntry::String)
-	{
-		FString Value;
-		DC_TRY(Ctx.Reader->ReadString(&Value));
-
-		if (Value.EndsWith(TEXT("'")))
+		FObjectProperty* ObjectProperty = DcPropertyUtils::CastFieldVariant<FObjectProperty>(Ctx.TopProperty());
+		if (ObjectProperty == nullptr)
 		{
-			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
-			//	UE4 copied reference style
-			UObject* Loaded = nullptr;
-			const TCHAR* ValueBuffer = *Value;
-			if (FObjectPropertyBase::ParseObjectPropertyValue(
-				ObjectProperty,
-				nullptr,	// see PropertyHandleImpl.cpp it's using nullptr
-				ObjectProperty->PropertyClass,
-				0,
-				ValueBuffer,
-				Loaded))
-			{
-				if (Loaded)
-				{
-					DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-					DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
-					DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
-
-					return DcOk();
-				}
-			}
-
-			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
-				<< ObjectProperty->PropertyClass->GetFName()
-				<< Value;
+			return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("ObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
 		}
-		else if (Value.StartsWith(TEXT("/")))
-		{
-			//	/Game/Path/To/Object
-			//	`Game` is a Mount Point, and there's no `.uasset` suffix
-			UObject* Loaded;
-			DC_TRY(DcDeserializeUtils::TryStaticLoadObject(ObjectProperty->PropertyClass, nullptr, *Value, Loaded));
 
-			DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-			DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
-			DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
+		FDcClassStat RefStat {
+			ObjectProperty->PropertyClass->GetFName(), FDcClassStat::EControl::ReferenceOrNil
+		};
 
-			return DcOk();
-		}
-		else
-		{
-			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound)
-				<< ObjectProperty->PropertyClass->GetFName()
-				<< Value;
-		}
-	}
-	else if (Next == EDcDataEntry::MapRoot)
-	{
-		//	{
-		//		"$type" : "FooType",
-		//		"$path" : "/Game/Path/To/Object",
-		//	}
-		//
-		//	note that this is ordred and type and path needs to be first 2 items
-
-		DC_TRY(Ctx.Reader->ReadMapRoot());
-		FString MetaKey;
-		DC_TRY(Ctx.Reader->ReadString(&MetaKey));
-		DC_TRY(DcDeserializeUtils::ExpectMetaKey(MetaKey, TEXT("$type")));
-
-		FString LoadClassName;
-		DC_TRY(Ctx.Reader->ReadString(&LoadClassName));
-
-		DC_TRY(Ctx.Reader->ReadString(&MetaKey));
-		DC_TRY(DcDeserializeUtils::ExpectMetaKey(MetaKey, TEXT("$path")));
-
-		FString LoadPath;
-		DC_TRY(Ctx.Reader->ReadString(&LoadPath));
-		DC_TRY(Ctx.Reader->ReadMapEnd());
-
-		UClass* LoadClass;
-		DC_TRY(DcDeserializeUtils::TryFindObject<UClass>(ANY_PACKAGE, *LoadClassName, true, LoadClass));
-
-		DC_TRY(DcDeserializeUtils::ExpectLhsChildOfRhs(LoadClass, ObjectProperty->PropertyClass));
-		
 		UObject* Loaded;
-		DC_TRY(DcDeserializeUtils::TryStaticLoadObject(LoadClass, nullptr, *LoadPath, Loaded));
-
+		DC_TRY(CapObjectReader(ObjectProperty, Ctx.Reader, Loaded));
+		
 		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-		DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
+		if (Loaded)
+			DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
+		else
+			DC_TRY(Ctx.Writer->WriteNil());
 		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
 
 		return DcOk();
-	}
-	else if (Next == EDcDataEntry::Nil)
-	{
-		DC_TRY(Ctx.Reader->ReadNil());
-		DC_TRY(Ctx.Writer->WriteClassRoot(RefStat));
-		DC_TRY(Ctx.Writer->WriteNil());
-		DC_TRY(Ctx.Writer->WriteClassEnd(RefStat));
+	});
+}
 
-		return DcOk();
-	}
-	else
+FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeSoftObjectReferenceHandler()
+{
+	return FDcDeserializeDelegate::CreateLambda([CapObjectReader{FuncObjectReader}](FDcDeserializeContext& Ctx) -> FDcResult
 	{
-		return DC_FAIL(DcDDeserialize, DataEntryMismatch3)
-			<< EDcDataEntry::MapRoot << EDcDataEntry::String << EDcDataEntry::String << Next;
-	}
+		FSoftObjectProperty* SoftObjectProperty = DcPropertyUtils::CastFieldVariant<FSoftObjectProperty>(Ctx.TopProperty());
+		if (SoftObjectProperty == nullptr)
+		{
+			return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("SoftObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+		}
+
+		UObject* Loaded;
+		DC_TRY(CapObjectReader(SoftObjectProperty, Ctx.Reader, Loaded));
+
+		DC_TRY(Ctx.Writer->WriteSoftObjectReference(Loaded));
+		return DcOk();
+	});
+}
+
+FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeWeakObjectReferenceHandler()
+{
+	return FDcDeserializeDelegate::CreateLambda([CapObjectReader{FuncObjectReader}](FDcDeserializeContext& Ctx) -> FDcResult
+	{
+		FWeakObjectProperty* WeakObjectProperty = DcPropertyUtils::CastFieldVariant<FWeakObjectProperty>(Ctx.TopProperty());
+		if (WeakObjectProperty == nullptr)
+		{
+			return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("WeakObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+		}
+
+		UObject* Loaded;
+		DC_TRY(CapObjectReader(WeakObjectProperty, Ctx.Reader, Loaded));
+
+		DC_TRY(Ctx.Writer->WriteWeakObjectReference(Loaded));
+		return DcOk();
+	});
+}
+
+FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeLazyObjectReferenceHandler()
+{
+	return FDcDeserializeDelegate::CreateLambda([CapObjectReader{FuncObjectReader}](FDcDeserializeContext& Ctx) -> FDcResult
+	{
+		FLazyObjectProperty* LazyObjectProperty = DcPropertyUtils::CastFieldVariant<FLazyObjectProperty>(Ctx.TopProperty());
+		if (LazyObjectProperty == nullptr)
+		{
+			return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("LazyObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+		}
+
+		UObject* Loaded;
+		DC_TRY(CapObjectReader(LazyObjectProperty, Ctx.Reader, Loaded));
+
+		FLazyObjectPtr LazyPtr{Loaded};
+		DC_TRY(Ctx.Writer->WriteLazyObjectReference(LazyPtr));
+		return DcOk();
+	});
 }
 
 EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx)

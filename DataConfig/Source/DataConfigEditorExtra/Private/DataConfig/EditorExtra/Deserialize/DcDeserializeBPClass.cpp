@@ -161,8 +161,11 @@ static void _SetupTestBPJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize));
 	Deserializer.AddDirectHandler(FStructProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize));
 
+	using namespace DcJsonHandlers;
+	FObjectReferenceHandlerGenerator ObjHandlerGen(&TryReadObjectReference);
+
 	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPClassReferenceDeserialize));
-	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerObjectReferenceDeserialize));
+	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), ObjHandlerGen.MakeObjectReferenceHandler());
 }
 
 ///	Note that these test depends on '.uasset` that comes with the plugin
