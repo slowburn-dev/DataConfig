@@ -8,8 +8,6 @@ namespace DcJsonHandlers {
 
 DATACONFIGCORE_API FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader* Reader, UObject*& OutObject);
 
-DATACONFIGCORE_API FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx);
-
 DATACONFIGCORE_API FDcResult HandlerClassRootDeserialize(FDcDeserializeContext& Ctx);
 
 struct DATACONFIGCORE_API FObjectReferenceHandlerGenerator
@@ -25,7 +23,11 @@ struct DATACONFIGCORE_API FObjectReferenceHandlerGenerator
 	FDcDeserializeDelegate MakeSoftObjectReferenceHandler();
 	FDcDeserializeDelegate MakeWeakObjectReferenceHandler();
 	FDcDeserializeDelegate MakeLazyObjectReferenceHandler();
+
+	FDcDeserializeDelegate MakeClassReferenceHandler();
+	FDcDeserializeDelegate MakeSoftClassReferenceHandler();
 };
+	
 
 DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx);

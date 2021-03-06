@@ -52,13 +52,15 @@ void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 		FDcDeserializePredicate::CreateStatic(PredicateIsSubObjectProperty),
 		FDcDeserializeDelegate::CreateStatic(HandlerInstancedSubObjectDeserialize)
 	);
-	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassReferenceDeserialize));
 
 	FObjectReferenceHandlerGenerator ObjHandlerGen(&TryReadObjectReference);
 	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), ObjHandlerGen.MakeObjectReferenceHandler());
 	Deserializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), ObjHandlerGen.MakeSoftObjectReferenceHandler());
 	Deserializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), ObjHandlerGen.MakeWeakObjectReferenceHandler());
 	Deserializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), ObjHandlerGen.MakeLazyObjectReferenceHandler());
+
+	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), ObjHandlerGen.MakeClassReferenceHandler());
+	Deserializer.AddDirectHandler(FSoftClassProperty::StaticClass(), ObjHandlerGen.MakeSoftClassReferenceHandler());
 }
 
 void DATACONFIGCORE_API DcSetupPropertyPipeDeserializeHandlers(FDcDeserializer& Deserializer)

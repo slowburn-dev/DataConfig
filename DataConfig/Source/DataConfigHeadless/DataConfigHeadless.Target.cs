@@ -33,6 +33,6 @@ public class DataConfigHeadlessTarget : TargetRules
 
 		//	toggle to use clang-cl
 		//	it works mostly except breaks FName natvis
-		WindowsPlatform.Compiler = WindowsCompiler.Clang;
+		// WindowsPlatform.Compiler = WindowsCompiler.Clang;
 	}
 }

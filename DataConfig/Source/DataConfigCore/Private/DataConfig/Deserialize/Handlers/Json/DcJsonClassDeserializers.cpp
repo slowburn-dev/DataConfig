@@ -80,6 +80,7 @@ FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader*
 			UObject* Loaded;
 			DC_TRY(DcDeserializeUtils::TryStaticFindObject(UObject::StaticClass(), ANY_PACKAGE, *Value, false, Loaded));
 
+			OutObject = Loaded;
 			return DcOk();
 		}
 	}
@@ -129,51 +130,6 @@ FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader*
 	{
 		return DC_FAIL(DcDDeserialize, DataEntryMismatch3)
 			<< EDcDataEntry::MapRoot << EDcDataEntry::String << EDcDataEntry::String << Next;
-	}
-}
-
-FDcResult HandlerClassReferenceDeserialize(FDcDeserializeContext& Ctx)
-{
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-
-	FClassProperty* ClassProperty = DcPropertyUtils::CastFieldVariant<FClassProperty>(Ctx.TopProperty());
-	if (ClassProperty == nullptr)
-	{
-		return DC_FAIL(DcDReadWrite, PropertyMismatch)
-			<< TEXT("ClassProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
-	}
-
-	if (Next == EDcDataEntry::Nil)
-	{
-		DC_TRY(Ctx.Reader->ReadNil());
-		DC_TRY(Ctx.Writer->WriteClassReference(nullptr));
-
-		return DcOk();
-	}
-	else if (Next == EDcDataEntry::String)
-	{
-		FString ClassStr;
-		DC_TRY(Ctx.Reader->ReadString(&ClassStr));
-
-		UClass* LoadClass = FindObject<UClass>(ANY_PACKAGE, *ClassStr, true);
-		if (LoadClass == nullptr)
-			return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("Class") << ClassStr;
-
-		if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
-		{
-			return DC_FAIL(DcDDeserialize, ClassLhsIsNotChildOfRhs)
-				<< LoadClass->GetFName() << ClassProperty->MetaClass->GetFName();
-		}
-
-		DC_TRY(Ctx.Writer->WriteClassReference(LoadClass));
-
-		return DcOk();
-	}
-	else
-	{
-		return DC_FAIL(DcDDeserialize, DataEntryMismatch2)
-			<< EDcDataEntry::Nil << EDcDataEntry::String << Next;
 	}
 }
 
@@ -319,6 +275,83 @@ FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeLazyObjectReference
 
 		FLazyObjectPtr LazyPtr{Loaded};
 		DC_TRY(Ctx.Writer->WriteLazyObjectReference(LazyPtr));
+		return DcOk();
+	});
+}
+
+FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeClassReferenceHandler()
+{
+	return FDcDeserializeDelegate::CreateLambda([CapObjectReader{FuncObjectReader}](FDcDeserializeContext& Ctx) -> FDcResult
+	{
+		FClassProperty* ClassProperty = DcPropertyUtils::CastFieldVariant<FClassProperty>(Ctx.TopProperty());
+		if (ClassProperty == nullptr)
+		{
+			return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("ClassProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+		}
+
+		UObject* Loaded;
+		DC_TRY(CapObjectReader(ClassProperty, Ctx.Reader, Loaded));
+
+		if (!Loaded)
+		{
+			DC_TRY(Ctx.Writer->WriteClassReference(nullptr));
+			return DcOk();
+		}
+		
+		if (!Loaded->IsA<UClass>())
+		{
+			return DC_FAIL(DcDDeserialize, UObjectTypeMismatch)
+				<< TEXT("UClass") << Loaded->GetClass()->GetFName();
+		}
+
+		UClass* LoadClass = CastChecked<UClass>(Loaded);
+		if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
+		{
+			return DC_FAIL(DcDDeserialize, ClassLhsIsNotChildOfRhs)
+				<< LoadClass->GetFName() << ClassProperty->MetaClass->GetFName();
+		}
+	
+		DC_TRY(Ctx.Writer->WriteClassReference(LoadClass));
+		return DcOk();
+	});
+}
+
+FDcDeserializeDelegate FObjectReferenceHandlerGenerator::MakeSoftClassReferenceHandler()
+{
+	return FDcDeserializeDelegate::CreateLambda([CapObjectReader{FuncObjectReader}](FDcDeserializeContext& Ctx) -> FDcResult
+	{
+		FSoftClassProperty* SoftClassProperty = DcPropertyUtils::CastFieldVariant<FSoftClassProperty>(Ctx.TopProperty());
+		if (SoftClassProperty == nullptr)
+		{
+			return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("SoftClassProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
+		}
+
+		UObject* Loaded;
+		DC_TRY(CapObjectReader(SoftClassProperty, Ctx.Reader, Loaded));
+
+		if (!Loaded)
+		{
+			FSoftClassPath NullPath;
+			DC_TRY(Ctx.Writer->WriteSoftClassReference(NullPath));
+			return DcOk();
+		}
+		
+		if (!Loaded->IsA<UClass>())
+		{
+			return DC_FAIL(DcDDeserialize, UObjectTypeMismatch)
+				<< TEXT("UClass") << Loaded->GetClass()->GetFName();
+		}
+
+		UClass* LoadClass = CastChecked<UClass>(Loaded);
+		if (!LoadClass->IsChildOf(SoftClassProperty->MetaClass))
+		{
+			return DC_FAIL(DcDDeserialize, ClassLhsIsNotChildOfRhs)
+				<< LoadClass->GetFName() << SoftClassProperty->MetaClass->GetFName();
+		}
+	
+		DC_TRY(Ctx.Writer->WriteSoftClassReference(LoadClass));
 		return DcOk();
 	});
 }

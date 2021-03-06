@@ -77,5 +77,20 @@ struct FDcTestStructRefs1
 };
 
 
+USTRUCT()
+struct FDcTestStructRefs2
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UClass* RawClassField1;
+	UPROPERTY() UClass* RawClassField2;
+
+	UPROPERTY() TSubclassOf<UObject> SubClassField1;
+	UPROPERTY() TSubclassOf<UObject> SubClassField2;
+
+	UPROPERTY() TSoftClassPtr<UObject> SoftClassField1;
+	UPROPERTY() TSoftClassPtr<UObject> SoftClassField2;
+};
+
 
 

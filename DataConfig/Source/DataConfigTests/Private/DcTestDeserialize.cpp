@@ -327,6 +327,42 @@ DC_TEST("DataConfig.Core.Deserialize.ObjRefs")
 	UTEST_OK("Deserialize into FDcTestStructRefs1", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
 	UTEST_OK("Deserialize into FDcTestStructRefs1", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Deserialize.ClassRefs")
+{
+	FString Str = TEXT(R"(
+
+		{
+			"RawClassField1" : "DynamicClass",
+			"RawClassField2" : null,
+			"SubClassField1" : "DynamicClass",
+			"SubClassField2" : null,
+			"SoftClassField1" : "DynamicClass",
+			"SoftClassField2" : null,
+		}
+
+	)");
+	FDcJsonReader Reader(Str);
+
+	FDcTestStructRefs2 Dest;
+	FDcPropertyDatum DestDatum(FDcTestStructRefs2::StaticStruct(), &Dest);
+
+	FDcTestStructRefs2 Expect;
+	UClass* DynamicMetaClass = FindObject<UClass>(ANY_PACKAGE, TEXT("DynamicClass"));
+
+	Expect.RawClassField1 = DynamicMetaClass;
+	Expect.RawClassField2 = nullptr;
+	Expect.SubClassField1 = DynamicMetaClass;
+	Expect.SubClassField2 = nullptr;
+	Expect.SoftClassField1 = DynamicMetaClass;
+	Expect.SoftClassField2 = nullptr;
+
+	FDcPropertyDatum ExpectDatum(FDcTestStructRefs2::StaticStruct(), &Expect);
+
+	UTEST_OK("Deserialize into FDcTestStructRefs2", DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+	UTEST_OK("Deserialize into FDcTestStructRefs2", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
 
 	return true;
 }
