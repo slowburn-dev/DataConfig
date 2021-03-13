@@ -15,6 +15,17 @@ DATACONFIGCORE_API FDcResult DcExpect(bool CondToBeTrue);	// placeholder expect
 
 DATACONFIGCORE_API FDcResult DcReadNextExpect(FDcReader& Reader, EDcDataEntry Expect);
 
+struct DATACONFIGCORE_API FDcScopedDiagHandler
+{
+	using DiagHandlerType = TFunctionRef<void(FDcDiagnostic&)>; 
+	FDcScopedDiagHandler(DiagHandlerType InHandler);
+	~FDcScopedDiagHandler();
+
+	int StartDiagCount;
+	DiagHandlerType Handler;
+};
+
+
 namespace DcDiagnosticUtils
 {
 

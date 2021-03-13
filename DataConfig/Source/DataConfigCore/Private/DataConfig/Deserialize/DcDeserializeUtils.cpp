@@ -325,6 +325,44 @@ FDcResult TryStaticLoadObject(UClass* Class, UObject* Outer, const TCHAR* LoadPa
 	}
 }
 
+FDcResult TryLocateObjectByString(UClass* Class, const FString& Str, UObject*& OutObject)
+{
+	if (Str.StartsWith(TEXT("/")))
+	{
+		//	/Game/Path/To/Object
+		//	`Game` is a Mount Point, and there's no `.uasset` suffix
+		UObject* Loaded;
+		DC_TRY(DcDeserializeUtils::TryStaticLoadObject(Class, nullptr, *Str, Loaded));
+
+		OutObject = Loaded;
+		return DcOk();
+	}
+	else if (Str.Len() > 1
+		&& Str.StartsWith(TEXT("'"))
+		&& Str.EndsWith(TEXT("'")))
+	{
+		//	'/Foo/Bar'
+		//	single quoted name, it's object name starting with '/'
+		FString Unquoted = Str.Mid(1, Str.Len() - 2);
+		
+		UObject* Loaded;
+		DC_TRY(DcDeserializeUtils::TryStaticFindObject(Class, ANY_PACKAGE, *Str, false, Loaded));
+
+		OutObject = Loaded;
+		return DcOk();
+	}
+	else
+	{
+		//	Foo
+		//	try find by name
+		UObject* Loaded;
+		DC_TRY(DcDeserializeUtils::TryStaticFindObject(Class, ANY_PACKAGE, *Str, false, Loaded));
+
+		OutObject = Loaded;
+		return DcOk();
+	}
+}
+
 FDcResult ExpectLhsChildOfRhs(UClass* Lhs, UClass* Rhs)
 {
 	return Lhs->IsChildOf(Rhs)

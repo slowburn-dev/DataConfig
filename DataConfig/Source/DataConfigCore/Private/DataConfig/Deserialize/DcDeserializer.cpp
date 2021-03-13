@@ -82,17 +82,22 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 		{
 			Ctx.State = ECtxState::DeserializeEnded;
 		};
-
-		return DcDeserializerDetails::DeserializeBody(*this, Ctx);
+		//	fallthrough
 	}
 	else if (Ctx.State == FDcDeserializeContext::EState::DeserializeInProgress)
 	{
-		return DcDeserializerDetails::DeserializeBody(*this, Ctx);
+		//	fallthrough
 	}
 	else
 	{
 		return DcNoEntry();
 	}
+
+	FDcResult Result = DcDeserializerDetails::DeserializeBody(*this, Ctx);
+	if (!Result.Ok())
+		DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
+
+	return Result;
 }
 
 void FDcDeserializer::AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate)

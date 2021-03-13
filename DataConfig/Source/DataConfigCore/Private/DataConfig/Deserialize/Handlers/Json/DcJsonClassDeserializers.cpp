@@ -49,39 +49,12 @@ FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader*
 				<< ObjectProperty->PropertyClass->GetFName()
 				<< Value;
 		}
-		else if (Value.StartsWith(TEXT("/")))
-		{
-			//	/Game/Path/To/Object
-			//	`Game` is a Mount Point, and there's no `.uasset` suffix
-			UObject* Loaded;
-			DC_TRY(DcDeserializeUtils::TryStaticLoadObject(ObjectProperty->PropertyClass, nullptr, *Value, Loaded));
-
-			OutObject = Loaded;
-			return DcOk();
-		}
-		else if (Value.Len() > 1
-			&& Value.StartsWith(TEXT("'"))
-			&& Value.EndsWith(TEXT("'")))
-		{
-			//	'/Foo/Bar'
-			//	single quoted name, just strip it 
-			FString Unquoted = Value.Mid(1, Value.Len() - 2);
-			
-			UObject* Loaded;
-			DC_TRY(DcDeserializeUtils::TryStaticFindObject(UObject::StaticClass(), ANY_PACKAGE, *Value, false, Loaded));
-
-			OutObject = Loaded;
-			return DcOk();
-		}
 		else
 		{
-			//	Foo
-			//	try find by name
-			UObject* Loaded;
-			DC_TRY(DcDeserializeUtils::TryStaticFindObject(UObject::StaticClass(), ANY_PACKAGE, *Value, false, Loaded));
-
-			OutObject = Loaded;
-			return DcOk();
+			return DcDeserializeUtils::TryLocateObjectByString(
+				ObjectProperty->PropertyClass,
+				Value,
+				OutObject);
 		}
 	}
 	else if (Next == EDcDataEntry::MapRoot)
@@ -91,7 +64,7 @@ FDcResult TryReadObjectReference(FObjectPropertyBase* ObjectProperty, FDcReader*
 		//		"$path" : "/Game/Path/To/Object",
 		//	}
 		//
-		//	note that this is ordred and type and path needs to be first 2 items
+		//	note that this is ordered and type and path needs to be first 2 items
 
 		DC_TRY(Reader->ReadMapRoot());
 		FString MetaKey;

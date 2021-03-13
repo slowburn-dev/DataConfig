@@ -33,9 +33,11 @@ FDcResult TryFindObject(UObject* Outer, const TCHAR* Name, bool ExactClass, T*& 
 }
 
 DATACONFIGCORE_API FDcResult TryStaticLoadObject(UClass* Class, UObject* Outer, const TCHAR* LoadPath, UObject*& OutObject);
+DATACONFIGCORE_API FDcResult TryLocateObjectByString(UClass* Class, const FString& Str, UObject*& OutObject);
+	
 DATACONFIGCORE_API FDcResult ExpectLhsChildOfRhs(UClass* Lhs, UClass* Rhs);
 DATACONFIGCORE_API FDcResult ExpectNonAbstract(UClass* Class);
-	
+
 
 }	// namespace DcDeserializeUtils
 

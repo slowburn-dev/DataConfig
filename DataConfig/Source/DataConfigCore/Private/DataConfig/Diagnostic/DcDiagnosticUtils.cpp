@@ -24,6 +24,19 @@ FDcResult DcReadNextExpect(FDcReader& Reader, EDcDataEntry Expect)
 	});
 }
 
+FDcScopedDiagHandler::FDcScopedDiagHandler(DiagHandlerType InHandler)
+	: Handler(InHandler)
+{
+	StartDiagCount = DcEnv().Diagnostics.Num();
+}
+
+FDcScopedDiagHandler::~FDcScopedDiagHandler()
+{
+	int EndDiagCount = DcEnv().Diagnostics.Num();
+	for (int Ix = StartDiagCount; Ix < EndDiagCount; Ix++)
+		Handler(DcEnv().Diagnostics[Ix]);
+}
+
 namespace DcDiagnosticUtils
 {
 
