@@ -13,9 +13,6 @@
 
 void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 {
-	//	note that this only handles deserialize into fresh, just created objects
-	//	reloading needs a seperated set of handlers
-
 	using namespace DcJsonHandlers;
 
 	//	Primitives

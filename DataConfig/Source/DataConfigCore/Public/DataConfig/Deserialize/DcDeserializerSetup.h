@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 
 DATACONFIGCORE_API void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer);

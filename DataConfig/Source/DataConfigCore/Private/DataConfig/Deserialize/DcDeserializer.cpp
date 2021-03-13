@@ -15,16 +15,7 @@ static FDcResult ExecuteDeserializeHandler(FDcDeserializeContext& Ctx, FDcDeseri
 	if (!Handler.IsBound())
 		return DC_FAIL(DcDCommon, StaleDelegate);
 
-	FDcResult Result = Handler.Execute(Ctx);
-	if (!Result.Ok())
-	{
-		DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
-		return Result;
-	}
-	else
-	{
-		return DcOk();
-	}
+	return Handler.Execute(Ctx);
 }
 
 static FDcResult DeserializeBody(FDcDeserializer& Self, FDcDeserializeContext& Ctx)
@@ -82,22 +73,25 @@ FDcResult FDcDeserializer::Deserialize(FDcDeserializeContext& Ctx)
 		{
 			Ctx.State = ECtxState::DeserializeEnded;
 		};
-		//	fallthrough
+
+		FDcResult Result = DcDeserializerDetails::DeserializeBody(*this, Ctx);
+		if (!Result.Ok())
+			DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
+
+		return Result;
 	}
 	else if (Ctx.State == FDcDeserializeContext::EState::DeserializeInProgress)
 	{
-		//	fallthrough
+		FDcResult Result = DcDeserializerDetails::DeserializeBody(*this, Ctx);
+		if (!Result.Ok())
+			DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
+
+		return Result;
 	}
 	else
 	{
 		return DcNoEntry();
 	}
-
-	FDcResult Result = DcDeserializerDetails::DeserializeBody(*this, Ctx);
-	if (!Result.Ok())
-		DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Ctx.Reader, Ctx.Writer);
-
-	return Result;
 }
 
 void FDcDeserializer::AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate)
