@@ -151,13 +151,11 @@ int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 	bool bAllSuccessful = true;
 
 	{
-		//	in console the stack line capture is always in `AutomationTest.h` so disable it for now
-		FAutomationTestFramework::Get().SetCaptureStack(false);
+		FAutomationTestFramework::Get().SetCaptureStack(true);
 
-
-		int runCount = 0;
-		int successCount = 0;
-		int failCount = 0;
+		int RunCount = 0;
+		int SuccessCount = 0;
+		int FailCount = 0;
 
 		{
 			//	shuffle tests for random execution order
@@ -179,9 +177,9 @@ int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 			const bool CurTestSuccessful = Framework.StopTest(CurExecutionInfo);
 
 			bAllSuccessful = bAllSuccessful && CurTestSuccessful;
-			++runCount;
-			if (CurTestSuccessful) ++successCount;
-			else ++ failCount;
+			++RunCount;
+			if (CurTestSuccessful) ++SuccessCount;
+			else ++ FailCount;
 
 			{
 				UE_LOG(LogDataConfigCore, Display, TEXT("- %4s | %s "),
@@ -195,12 +193,16 @@ int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 						*Entry.Event.Message,
 						*Entry.Event.Context
 					);
+					UE_LOG(LogDataConfigCore, Display, TEXT("  | %s:%d"),
+						*Entry.Filename,
+						Entry.LineNumber
+					);
 				}
 			}
 		}
 
 		UE_LOG(LogDataConfigCore, Display, TEXT("Run: %4d, Success: %4d, Fail: %4d"),
-			runCount, successCount, failCount
+			RunCount, SuccessCount, FailCount
 		);
 	}
 

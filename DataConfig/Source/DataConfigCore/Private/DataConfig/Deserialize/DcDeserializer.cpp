@@ -3,7 +3,6 @@
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
-#include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "Misc/ScopeExit.h"
 
