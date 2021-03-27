@@ -3,6 +3,9 @@
 template<class CharType>
 FString THightlightFormatter<CharType>::FormatHighlight(const SourceRef& SpanRef, const FDcSourceLocation& Loc)
 {
+	if (!SpanRef.IsValid())
+		return TEXT("");
+
 	LineHighlight = FindLine(SpanRef);
 	check(LineHighlight.IsValid());
 

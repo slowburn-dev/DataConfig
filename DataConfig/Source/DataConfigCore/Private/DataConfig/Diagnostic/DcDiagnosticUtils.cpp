@@ -46,15 +46,15 @@ void AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, FDcWriter* Writer)
 	bool bHasWriterDiag = false;
 	for (FDcDiagnosticHighlight& Highlight : Diag.Highlights)
 	{
-		if (Highlight.Owner == Reader)
+		if (Reader && Highlight.Owner == Reader)
 			bHasReaderDiag = true;
-		else if (Highlight.Owner == Writer)
+		else if (Writer && Highlight.Owner == Writer)
 			bHasWriterDiag = true;
 	}
 
-	if (!bHasReaderDiag)
+	if (!bHasReaderDiag && Reader)
 		Reader->FormatDiagnostic(Diag);
-	if (!bHasWriterDiag)
+	if (!bHasWriterDiag && Writer)
 		Writer->FormatDiagnostic(Diag);
 }
 

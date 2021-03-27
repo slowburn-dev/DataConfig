@@ -1018,6 +1018,9 @@ FDcDiagnosticHighlight TDcJsonReader<CharType>::FormatHighlight(SourceRef SpanRe
 	THightlightFormatter<CharType> Highlighter;
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
 
+	if (OutHighlight.Formatted.IsEmpty())
+		OutHighlight.Formatted = TEXT("<contents empty>");
+	
 	return OutHighlight;
 }
 

@@ -101,7 +101,7 @@ enum class EDcTestEnum_Int64 : int64
 	Max = TNumericLimits<int64>::Max(),
 };
 
-UENUM()
+UENUM(meta = (Bitflags))
 enum class EDcTestEnum_Flag
 {
 	Zero	= 0,
