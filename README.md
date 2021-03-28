@@ -108,8 +108,8 @@ See [DataConfig Book][2] for details.
 
 DataConfig is released under MIT License.
 
-It would be trememdously helpful for us if you credit us in your projects. See the [license page][3] for details.
+It would be trememdously helpful if you credit us in your projects. See the [license page][3] for details.
 
 [1]:https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection "Unreal Property System (Reflection)"
 [2]:https://slowburn.dev/dataconfig "DataConfig Book"
-[3]:https://slowburn.dev/dataconfig/license "DataConfig Book - License"
+[3]:https://slowburn.dev/dataconfig/License "DataConfig Book - License"

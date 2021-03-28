@@ -7,7 +7,7 @@ language = "en"
 [output.html]
 theme = "Theme"
 additional-css = ["custom.css"]
-site-url = "/DataConfig/"
+site-url = "/dataconfig/"
 
 [output.html.fold]
 enable = true
