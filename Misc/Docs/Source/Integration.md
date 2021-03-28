@@ -1,5 +1,10 @@
 # Integration
 
+This page shows integration instructions for DataConfig. At the moment it supports these the engine versions below:
+
+- UE 4.25
+- UE 4.26
+
 ## Integrate `DataConfig` Plugin
 
 The easiest way to try out DataConfig is to add it as a plugin into your C++ project.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
