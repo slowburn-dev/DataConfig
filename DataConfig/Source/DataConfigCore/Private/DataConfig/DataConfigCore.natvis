@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="DcPropertyReaderDetails::FReadState">
+    <DisplayString>{*(FDcBaseReadState*)(&amp;ImplStorage)}</DisplayString>
+    <Expand>
+      <Item Name="State">*(FDcBaseReadState*)(&amp;ImplStorage)</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="DcPropertyWriterDetails::FWriteState">
+    <DisplayString>{*(FDcBaseWriteState*)(&amp;ImplStorage)}</DisplayString>
+    <Expand>
+      <Item Name="State">*(FDcBaseWriteState*)(&amp;ImplStorage)</Item>
+    </Expand>
+  </Type>
+
+  <!-- `su` ref: https://docs.microsoft.com/en-us/visualstudio/debugger/format-specifiers-in-cpp?view=vs-2019 -->
+  <Type Name="TDcSourceRef&lt;wchar_t&gt;">
+  		<DisplayString>{Buffer->Buffer+Begin,[Num]su}</DisplayString>
+	    <StringView>Buffer->Buffer+Begin,[Num]su</StringView>
+  </Type>
+  <Type Name="TDcSourceRef&lt;char&gt;">
+  		<DisplayString>{Buffer->Buffer+Begin,[Num]s}</DisplayString>
+	    <StringView>Buffer->Buffer+Begin,[Num]s</StringView>
+  </Type>
+
+</AutoVisualizer>
+
+

@@ -1,0 +1,14 @@
+[book]
+title = "DataConfig Book"
+description = "Serialization framework for Unreal Engine Property System that just works!"
+src = "Source"
+language = "en"
+
+[output.html]
+theme = "Theme"
+additional-css = ["custom.css"]
+site-url = "/dataconfig/"
+
+[output.html.fold]
+enable = true
+level = 0

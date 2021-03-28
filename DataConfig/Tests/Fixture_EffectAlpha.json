@@ -1,0 +1,12 @@
+{
+    /// Effect
+    "DurationPolicy" : "Infinite",
+    "Modifiers" : [
+        {
+            "Attribute" : "DcTestAttributeSet.Mana",
+        },
+        {
+            "Attribute" : "DcTestAttributeSet.Health",
+        },
+    ],
+}

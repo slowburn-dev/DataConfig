@@ -1,0 +1,17 @@
+{
+    "FileVersion": 3,
+    "Modules": [
+        {
+            "Name": "DcProjectGame",
+            "Type": "Runtime",
+            "LoadingPhase": "Default"
+        }
+    ],
+    "DisableEnginePluginsByDefault" : true,
+    "Plugins": [
+        {
+            "Name": "PluginBrowser",
+            "Enabled": true
+        }
+    ]
+}

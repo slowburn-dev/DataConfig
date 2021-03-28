@@ -1,0 +1,12 @@
+:root {
+    --content-max-width: 1012px;
+}
+
+h2, h3 { margin-top: 1.5em; }
+h4, h5 { margin-top: 1em; }
+
+.nav-chapters {
+    font-size: 1.2em;
+    max-width: 64px;
+    min-width: 48px;
+}

@@ -1,0 +1,12 @@
+root=true
+
+[*.{cpp,h,inl}]
+indent_style = tab
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.{md,txt}]
+indent_style = space
+charset = utf-8
+indent_size = 4
+trim_trailing_whitespace = false
