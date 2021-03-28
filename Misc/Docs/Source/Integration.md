@@ -9,7 +9,7 @@ This page shows integration instructions for DataConfig. At the moment it suppor
 
 The easiest way to try out DataConfig is to add it as a plugin into your C++ project.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
 
-1. Get a copy of this repository. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
+1. Get a copy of [the repository][1]. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
 
 2. Restart your project. There should be a prompt to compile plugin sources. Confirm and wait until your project launches. Then open `Settings -> Plugins` you should see **Data Config** listed under Project Editor category.
 
@@ -73,3 +73,6 @@ Most projects should has a editor module already setup. In this section we'll go
    ![Integration-DataConfigCoreOutput](Images/Integration-DataConfigCoreOutput.png)
 
 You can refer to `DataConfigEditorExtra` module for more detailed integration options.
+
+[1]:https://github.com/slowburn-dev/DataConfig "slowburn-dev/DataConfig"
+
