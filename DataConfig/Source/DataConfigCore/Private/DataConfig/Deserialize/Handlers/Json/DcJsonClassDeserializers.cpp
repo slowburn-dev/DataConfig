@@ -414,6 +414,9 @@ FDcResult HandlerInstancedSubObjectDeserialize(FDcDeserializeContext& Ctx)
 		return DC_FAIL(DcDReadWrite, PropertyMismatch)
 			<< TEXT("ObjectProperty") << Datum.Property.GetFName() << Datum.Property.GetClassName();
 
+	if (Ctx.Objects.Num() == 0)
+		return DC_FAIL(DcDDeserialize, ContextMissingTopObject);
+
 	//	don't read *Datum.DataPtr as it might be uninitialized, handle reload elsewhere
 	UObject* SubObject = NewObject<UObject>(Ctx.TopObject(), SubClassType);
 

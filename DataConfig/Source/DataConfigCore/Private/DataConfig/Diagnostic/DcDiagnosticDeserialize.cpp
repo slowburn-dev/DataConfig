@@ -31,6 +31,7 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ ContextDeserializerNotFound, TEXT("Deserializer context missing 'Deserializer'")},
 	{ ContextExpectOneProperty, TEXT("Deserializer context expect exactly 1 Property on prepare, Actual: '{0}'")},
 	{ ContextExpectOneObject, TEXT("Deserializer context expect exactly 1 Object on prepare, Actual: '{0}'")},
+	{ ContextMissingTopObject, TEXT("Deserializer context missing top object")},
 
 	//	Class
 	{ ClassExpectNonAbstract, TEXT("Expect class to be non abstract but failed, Class: '{0}'"), },

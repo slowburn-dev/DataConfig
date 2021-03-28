@@ -36,6 +36,7 @@ enum Type : uint16
 	ContextDeserializerNotFound,
 	ContextExpectOneProperty,
 	ContextExpectOneObject,
+	ContextMissingTopObject,
 
 	//	Class
 	ClassExpectNonAbstract,
