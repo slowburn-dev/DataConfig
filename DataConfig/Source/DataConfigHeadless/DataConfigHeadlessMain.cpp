@@ -2,6 +2,7 @@
 #include "Misc/CommandLine.h"
 #include "RequiredProgramMainCPPInclude.h"
 
+#include "DataConfig/DcVersion.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
@@ -66,6 +67,11 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 
 		FCommandLine::Parse(*ShortCmdLine, Tokens, Switches);
 	}
+
+	UE_LOG(LogDataConfigCore, Display, TEXT("DataConfigCore Version: %s, %d"),
+		TEXT(DATA_CONFIG_CORE_VERSION),
+		DATA_CONFIG_CORE_VERSION_NUMBER
+	);
 
 	int32 RetCode;
 	{

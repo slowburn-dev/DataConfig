@@ -9,6 +9,10 @@ Unreal Engine features a powerful [Property System][1] which implements C++ runt
 - Out of the box JSON deserialization that supports custom conversion logic.
 - Designed as a collection of tools that can be easily extended to support other formats.
 
+## Documentation
+
+See [DataConfig Book][2] for details.
+
 ## Example
 
 Given a struct annotated and processed with Unreal's Property System:
@@ -99,10 +103,6 @@ Say if we accidentally mistyped the `EnumField` value:
    6 |            "#FF0000FF", "#00FF00FF", "#0000FFFF"
 - [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
 ```
-
-## Documentation
-
-See [DataConfig Book][2] for details.
 
 ## License
 
