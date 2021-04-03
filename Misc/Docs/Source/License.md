@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Attribution
+## Attribution 
 
 If you find DataConfig useful in your project, consider credit us in your project with the full license above or the shorter snippets below. 
 
@@ -35,8 +35,12 @@ DataConfig <https//slowburn.dev/dataconfig>
 MIT License, Copyright (c) 2021 Chen Tao
 ```
 
-You can also reach us by email to <hislowburn@gmail.com> or on twitter [@slowburndev](https://twitter.com/slowburndev). 
+There's also [DataConfig JSON Asset][2] on UE Marketplace. It's a premium plugin for importing JSON to UE data assets.
+
+You can reach us by email to <hislowburn@gmail.com> or on twitter [@slowburndev](https://twitter.com/slowburndev). 
 
 We'll setup a section showcasing projects using DataConfig in the future.
 
 [1]: https://choosealicense.com/licenses/mit/ "MIT License"
+
+[2]: https://www.unrealengine.com/marketplace/en-US/product/dataconfig-json-asset "DataConfig JSON Asset"
