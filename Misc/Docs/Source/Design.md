@@ -12,6 +12,15 @@ At the time we started this project we're looking for a JSON parser that:
 
 Eventually we implemented all these in DataConfig. We also tried not limit this to be a JSON parser but deliver as a set of tools for reading-from and writing-to the property system. 
 
+If you're Unreal Engine C++ developers that:
+
+- Looking for alternative JSON parser.
+- Looking for a textual configuration format.
+- Thinking of implementing custom textual/binary format.
+- Regularly dealing with `FProperty` related code.
+
+You should give DataConfig a try and it's highly likely DataConfig might fit into part of your solution.
+
 ## Manifesto
 
 - Deliver as a quality C++ source library.
