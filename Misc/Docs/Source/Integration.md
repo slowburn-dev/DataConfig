@@ -11,12 +11,14 @@ The easiest way to try out DataConfig is to add it as a plugin into your C++ pro
 
 1. Get a copy of [the repository][1]. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
 
-2. Restart your project. There should be a prompt to compile plugin sources. Confirm and wait until your project launches. Then open `Settings -> Plugins` you should see **Data Config** listed under Project Editor category.
+2. **Delete `DataConfig\Source\DataConfigHeadless`** folder. It has a `DataConfigHeadless.Target.cs` file which is a hack to build a headless binary during development. **This step is crucial or you your project won't build**.
+
+3. Restart your project. There should be a prompt to compile plugin sources. Confirm and wait until your project launches. Then open `Settings -> Plugins` you should see **Data Config** listed under Project Editor category.
 
    ![Integration-DataConfigPlugin](Images/Integration-DataConfigPlugin.png)
 
-3. The plugin comes with a set of tests. Open menu `Window -> Developer Tools  -> Session Frontend`. Find and run the `DataConfig` tests and it should all pass.
-  
+4. The plugin comes with a set of tests. Open menu `Window -> Developer Tools  -> Session Frontend`. Find and run the `DataConfig` tests and it should all pass.
+
    ![Integration-DataConfigAutomations](Images/Integration-DataConfigAutomations.png)
 
 ## Integrate `DataConfigCore` Module
