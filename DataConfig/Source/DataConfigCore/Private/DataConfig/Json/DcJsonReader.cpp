@@ -355,7 +355,16 @@ FDcResult TDcJsonReader<CharType>::ParseStringToken(FString &OutStr)
 	literalRef.Num -= 2;
 	if (!Token.Flag.bStringHasEscapeChar)
 	{
-		OutStr = literalRef.ToString();
+		if (TIsSame<CharType, ANSICHAR>::Value)
+		{
+			FUTF8ToTCHAR UTF8Conv((const ANSICHAR*)literalRef.GetBeginPtr(), literalRef.Num);
+			OutStr = FString(UTF8Conv.Length(), UTF8Conv.Get());
+		}
+		else
+		{
+			OutStr = literalRef.ToString();
+		}
+
 		return DcOk();
 	}
 	else

@@ -209,5 +209,15 @@ struct FDcJsonReader : public TDcJsonReader<TCHAR>
 	}
 };
 
-using FDcAnsiJsonReader = TDcJsonReader<ANSICHAR>;
+struct FDcAnsiJsonReader : public TDcJsonReader<ANSICHAR>
+{
+	using Super = TDcJsonReader;
+
+	FDcAnsiJsonReader() : Super() {}
+	FDcAnsiJsonReader(const char* Str) : Super()
+	{
+		bool bOk = SetNewString(Str).Ok();
+		check(bOk);	// guaranteed not to fail
+	}
+};
 
