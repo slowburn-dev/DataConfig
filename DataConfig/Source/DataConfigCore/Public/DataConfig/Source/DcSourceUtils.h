@@ -56,6 +56,10 @@ struct TDcCSourceUtils
 		return CChar::IsDigit(Char);
 	}
 
+	static bool IsAscii(const CharType& Char)
+	{
+		return Char >= 0 && Char <= 0x7f;
+	}
 };
 
 namespace FDcSourceUtils

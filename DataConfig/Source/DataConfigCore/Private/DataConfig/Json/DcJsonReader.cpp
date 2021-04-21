@@ -339,6 +339,12 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 		}
 		else
 		{
+			if (TIsSame<CharType, ANSICHAR>::Value)
+			{
+				if (!SourceUtils::IsAscii(Char))
+					Token.Flag.bStringHasNonAscii = true;
+			}
+			
 			Advance();
 		}
 	}
@@ -353,24 +359,28 @@ FDcResult TDcJsonReader<CharType>::ParseStringToken(FString &OutStr)
 	SourceRef literalRef = Token.Ref;
 	literalRef.Begin += 1;
 	literalRef.Num -= 2;
+
+	FString RawStr;
+	if (TIsSame<CharType, ANSICHAR>::Value
+		&& Token.Flag.bStringHasNonAscii)
+	{
+		//	UTF8 conv when detects non ascii chars
+		FUTF8ToTCHAR UTF8Conv((const ANSICHAR*)literalRef.GetBeginPtr(), literalRef.Num);
+		RawStr = FString(UTF8Conv.Length(), UTF8Conv.Get());
+	}
+	else
+	{
+		RawStr = literalRef.ToString();
+	}
+	
 	if (!Token.Flag.bStringHasEscapeChar)
 	{
-		if (TIsSame<CharType, ANSICHAR>::Value)
-		{
-			FUTF8ToTCHAR UTF8Conv((const ANSICHAR*)literalRef.GetBeginPtr(), literalRef.Num);
-			OutStr = FString(UTF8Conv.Length(), UTF8Conv.Get());
-		}
-		else
-		{
-			OutStr = literalRef.ToString();
-		}
-
+		OutStr = RawStr;
 		return DcOk();
 	}
 	else
 	{
 		// FParse::QuotedString needs string to be quoted
-		FString RawStr = Token.Ref.ToString();
 		int32 CharsRead = 0;
 		bool bOk = FParse::QuotedString(RawStr.GetCharArray().GetData(), OutStr, &CharsRead);
 		if (!bOk)
