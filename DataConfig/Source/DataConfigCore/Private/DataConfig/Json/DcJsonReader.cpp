@@ -352,35 +352,39 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 	return DcNoEntry();
 }
 
-template<typename CharType>
-FDcResult TDcJsonReader<CharType>::ParseStringToken(FString &OutStr)
+template <typename CharType>
+FString TDcJsonReader<CharType>::ConvertStringTokenToLiteral(SourceRef Ref)
 {
-	check(Token.Type == ETokenType::String);
-	SourceRef literalRef = Token.Ref;
-	literalRef.Begin += 1;
-	literalRef.Num -= 2;
-
-	FString RawStr;
 	if (TIsSame<CharType, ANSICHAR>::Value
 		&& Token.Flag.bStringHasNonAscii)
 	{
 		//	UTF8 conv when detects non ascii chars
-		FUTF8ToTCHAR UTF8Conv((const ANSICHAR*)literalRef.GetBeginPtr(), literalRef.Num);
-		RawStr = FString(UTF8Conv.Length(), UTF8Conv.Get());
+		FUTF8ToTCHAR UTF8Conv((const ANSICHAR*)Ref.GetBeginPtr(), Ref.Num);
+		return FString(UTF8Conv.Length(), UTF8Conv.Get());
 	}
 	else
 	{
-		RawStr = literalRef.ToString();
+		return Ref.ToString();
 	}
-	
+}
+
+template<typename CharType>
+FDcResult TDcJsonReader<CharType>::ParseStringToken(FString &OutStr)
+{
+	check(Token.Type == ETokenType::String);
+
 	if (!Token.Flag.bStringHasEscapeChar)
 	{
-		OutStr = RawStr;
+		SourceRef UnquotedRef = Token.Ref;
+		UnquotedRef.Begin += 1;
+		UnquotedRef.Num -= 2;
+		OutStr = ConvertStringTokenToLiteral(UnquotedRef);
 		return DcOk();
 	}
 	else
 	{
 		// FParse::QuotedString needs string to be quoted
+		FString RawStr = ConvertStringTokenToLiteral(Token.Ref);
 		int32 CharsRead = 0;
 		bool bOk = FParse::QuotedString(RawStr.GetCharArray().GetData(), OutStr, &CharsRead);
 		if (!bOk)

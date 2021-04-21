@@ -160,19 +160,52 @@ DC_TEST("DataConfig.Core.JSON.EndRead")
 DC_TEST("DataConfig.Core.JSON.UTF8")
 {
 	{
+		//	no escape char
 		const char* UTF8Literal =  "\"\xe4\xbd\xa0\xe5\xa5\xbd\"";
 
 		FDcAnsiJsonReader Reader(UTF8Literal);
 		FString LoadedStr;
 		UTEST_OK("Read UTF8 String", Reader.ReadString(&LoadedStr));
-
-		FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
 		UTEST_EQUAL("Read UTF8 String", LoadedStr, TEXT("\u4f60\u597d"));
+	}
+
+	{
+		//	has escape char
+		const char* UTF8Literal =  "\"\\t\xe4\xbd\xa0\xe5\xa5\xbd\"";
+
+		FDcAnsiJsonReader Reader(UTF8Literal);
+		FString LoadedStr;
+		UTEST_OK("Read UTF8 String", Reader.ReadString(&LoadedStr));
+		UTEST_EQUAL("Read UTF8 String", LoadedStr, TEXT("\t\u4f60\u597d"));
 	}
 
 	return true;
 }
 
+DC_TEST("DataConfig.Core.JSON.TCHARUnicode")
+{
+	{
+		//	no escape char
+		const TCHAR* TCharLiteral = TEXT("\"\u4f60\u597d\"");
+
+		FDcJsonReader Reader(TCharLiteral);
+		FString LoadedStr;
+		UTEST_OK("Read TCHARUnicode String", Reader.ReadString(&LoadedStr));
+		UTEST_EQUAL("Read TCHARUnicode String", LoadedStr, TEXT("\u4f60\u597d"));
+	}
+
+	{
+		//	has escape char
+		const char* UTF8Literal =  "\"\\t\u4f60\u597d\"";
+
+		FDcAnsiJsonReader Reader(UTF8Literal);
+		FString LoadedStr;
+		UTEST_OK("Read TCHARUnicode String", Reader.ReadString(&LoadedStr));
+		UTEST_EQUAL("Read TCHARUnicode String", LoadedStr, TEXT("\t\u4f60\u597d"));
+	}
+
+	return true;
+}
 
 
 

@@ -193,6 +193,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+
+	FString ConvertStringTokenToLiteral(SourceRef Ref);
 };
 
 extern template struct TDcJsonReader<ANSICHAR>;
@@ -203,6 +205,12 @@ struct FDcJsonReader : public TDcJsonReader<TCHAR>
 	using Super = TDcJsonReader;
 
 	FDcJsonReader() : Super() {}
+	FDcJsonReader(const TCHAR* Str) : Super()
+	{
+		bool bOk = SetNewString(Str).Ok();
+		check(bOk);	// guaranteed not to fail
+	}
+
 	FDcJsonReader(const FString& Str) : Super()
 	{
 		bool bOk = SetNewString(*Str).Ok();
