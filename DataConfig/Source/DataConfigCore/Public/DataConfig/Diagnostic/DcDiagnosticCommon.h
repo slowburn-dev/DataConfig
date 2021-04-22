@@ -18,6 +18,7 @@ enum Type : uint16
 	StaleDelegate,
 	StaleDelegateWithName,
 
+	CustomMessage,
 
 	PlaceHoldError,
 };

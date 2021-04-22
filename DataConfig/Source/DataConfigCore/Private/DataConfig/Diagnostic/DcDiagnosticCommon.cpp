@@ -14,6 +14,7 @@ static FDcDiagnosticDetail _CommonDetails[] = {
 	{ StaleDelegate, TEXT("Stale delegate") },
 	{ StaleDelegateWithName, TEXT("Stale delegate: {0}") },
 
+	{ CustomMessage, TEXT("Custom Diagnostic Message: {0}") },
 };
 
 FDcDiagnosticGroup Details = {

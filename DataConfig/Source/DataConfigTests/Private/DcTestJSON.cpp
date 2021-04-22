@@ -3,7 +3,10 @@
 #include "DataConfig/Writer/DcNoopWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
+#include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DcTestCommon.h"
+#include "Misc/FileHelper.h"
 
 static FDcResult _NoopPipeVisit(FDcReader* Reader)
 {
@@ -207,5 +210,93 @@ DC_TEST("DataConfig.Core.JSON.TCHARUnicode")
 	return true;
 }
 
+struct FDcJsonTestFixure
+{
+	FString Filename;
+	FString Content;
+};
 
+static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
+{
+	enum class EAccept
+	{
+		Unknown,
+		Yes,
+		No,
+		Irrelevant,
+	};
 
+	FString Basename = FPaths::GetBaseFilename(Fixture.Filename);
+	EAccept Accept = EAccept::Unknown;
+	if (Basename.StartsWith(TEXT("y_")))
+		Accept = EAccept::Yes;
+	else if (Basename.StartsWith(TEXT("n_")))
+		Accept = EAccept::No;
+	else if (Basename.StartsWith(TEXT("i_")))
+		Accept = EAccept::Irrelevant;
+	
+	FDcJsonReader Reader(Fixture.Content);
+
+	if (Accept == EAccept::Irrelevant)
+	{
+		FDcResult Ret = _NoopPipeVisit(&Reader);
+		Ret.Ok();	//	discard the resutl
+	}
+	else if (Accept == EAccept::Yes)
+	{
+		FDcResult Ret = _NoopPipeVisit(&Reader);
+		if (!Ret.Ok())
+		{
+			return DC_FAIL(DcDCommon, CustomMessage)
+				<< FString::Printf(TEXT("DcJsonFixture: Expect Accept but failed: %s"), *Basename);
+		}
+	}
+	else if (Accept == EAccept::No)
+	{
+		FDcResult Ret = _NoopPipeVisit(&Reader);
+		if (Ret.Ok())
+		{
+			return DC_FAIL(DcDCommon, CustomMessage)
+				<< FString::Printf(TEXT("DcJsonFixture: Expect Reject but succeeded: %s"), *Basename);
+		}
+	}
+	else
+	{
+		return DC_FAIL(DcDCommon, CustomMessage)
+			<< FString::Printf(TEXT("DcTests: Unknown Acceptance: %s"), *Basename);
+	}
+
+	return DcOk();
+}
+
+DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+
+	IFileManager& FileManager = IFileManager::Get();
+	TArray<FDcJsonTestFixure> Fixtures;
+	
+	FileManager.IterateDirectory(*DcGetFixturePath(TEXT("DcJSONFixtures")), [&](const TCHAR* VisitFilename, bool VisitIsDir)
+	{
+		FString Filename(VisitFilename);
+		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("Case: %s"), VisitFilename);
+
+			FString JsonStr;
+			check(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
+			Fixtures.Emplace(FDcJsonTestFixure{VisitFilename, MoveTemp(JsonStr)});
+		}
+		
+		return true;
+	});
+
+	bool bAllPass = true;
+	for (FDcJsonTestFixure& Fixture : Fixtures)
+	{
+		if (!RunSingleJsonFixture(Fixture).Ok())
+			bAllPass =false;
+	}
+	
+	return bAllPass;
+}
