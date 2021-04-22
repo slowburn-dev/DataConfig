@@ -1013,12 +1013,6 @@ FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 	WordRef.Begin = Cur;
 	WordRef.Num = WordLen;
 
-	if (IsAtEnd(WordLen))
-	{
-		return DC_FAIL(DcDJSON, ExpectWordButEOF)
-			<< Word << FormatHighlight(Token.Ref);
-	}
-
 	for (int Ix = 0; Ix < WordLen; Ix++)
 	{
 		if (CharType(Word[Ix]) != PeekChar(Ix))

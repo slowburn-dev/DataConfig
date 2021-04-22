@@ -236,13 +236,16 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 		Accept = EAccept::Irrelevant;
 	
 	FDcJsonReader Reader(Fixture.Content);
+	DcEnv().FlushDiags();
 
 	if (Accept == EAccept::Irrelevant)
 	{
 		TDcStoreThenReset<bool> ScopedExpectFail(DcEnv().bExpectFail, true);
 
 		FDcResult Ret = _NoopPipeVisit(&Reader);
-		Ret.Ok();	//	discard the resutl
+		Ret.Ok();	//	discard the result
+		
+		DcEnv().Diagnostics.Empty();
 	}
 	else if (Accept == EAccept::Yes)
 	{
@@ -263,6 +266,10 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 			return DC_FAIL(DcDCommon, CustomMessage)
 				<< FString::Printf(TEXT("DcJsonFixture: Expect Reject but succeeded: %s"), *Basename);
 		}
+		else
+		{
+			DcEnv().Diagnostics.Empty();
+		}
 	}
 	else
 	{
@@ -275,8 +282,6 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 
 DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 {
-	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-
 	IFileManager& FileManager = IFileManager::Get();
 	TArray<FDcJsonTestFixure> Fixtures;
 	
@@ -285,8 +290,6 @@ DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 		FString Filename(VisitFilename);
 		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("Case: %s"), VisitFilename);
-
 			FString JsonStr;
 			check(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
 			Fixtures.Emplace(FDcJsonTestFixure{VisitFilename, MoveTemp(JsonStr)});
@@ -308,8 +311,6 @@ DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 
 DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
 {
-	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-
 	IFileManager& FileManager = IFileManager::Get();
 	TArray<FDcJsonTestFixure> Fixtures;
 	
@@ -318,8 +319,6 @@ DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
 		FString Filename(VisitFilename);
 		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
 		{
-			UE_LOG(LogDataConfigCore, Display, TEXT("Case: %s"), VisitFilename);
-
 			FString JsonStr;
 			check(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
 			Fixtures.Emplace(FDcJsonTestFixure{VisitFilename, MoveTemp(JsonStr)});
