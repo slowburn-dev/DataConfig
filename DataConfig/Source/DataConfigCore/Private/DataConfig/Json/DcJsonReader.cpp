@@ -662,6 +662,9 @@ FDcResult TDcJsonReader<CharType>::ReadMapRoot()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadMapEnd()
 {
+	if (GetTopState() != EParseState::Object)
+		return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
+	
 	DC_TRY(CheckConsumeToken(EDcDataEntry::MapEnd));
 	if (Token.Type == ETokenType::CurlyClose)
 	{
@@ -700,6 +703,9 @@ FDcResult TDcJsonReader<CharType>::ReadArrayRoot()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadArrayEnd()
 {
+	if (GetTopState() != EParseState::Array)
+		return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
+	
 	DC_TRY(CheckConsumeToken(EDcDataEntry::ArrayEnd));
 	if (Token.Type == ETokenType::SquareClose)
 	{
@@ -978,16 +984,14 @@ bool TDcJsonReader<CharType>::IsAtEnd(int N)
 template<typename CharType>
 void TDcJsonReader<CharType>::Advance()
 {
-	check(!IsAtEnd());
-	++Cur;
-	Loc.Column++;
+	AdvanceN(1);
 }
 
 template<typename CharType>
 void TDcJsonReader<CharType>::AdvanceN(int N)
 {
-	check(N != 0);
-	check(!IsAtEnd(N));
+	check(N > 0);
+	check(!IsAtEnd(N - 1));
 	Cur += N;
 	Loc.Column += N;
 }

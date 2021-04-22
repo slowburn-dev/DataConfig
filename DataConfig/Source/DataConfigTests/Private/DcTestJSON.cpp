@@ -239,6 +239,8 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 
 	if (Accept == EAccept::Irrelevant)
 	{
+		TDcStoreThenReset<bool> ScopedExpectFail(DcEnv().bExpectFail, true);
+
 		FDcResult Ret = _NoopPipeVisit(&Reader);
 		Ret.Ok();	//	discard the resutl
 	}
@@ -253,6 +255,8 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 	}
 	else if (Accept == EAccept::No)
 	{
+		TDcStoreThenReset<bool> ScopedExpectFail(DcEnv().bExpectFail, true);
+
 		FDcResult Ret = _NoopPipeVisit(&Reader);
 		if (Ret.Ok())
 		{
@@ -277,6 +281,39 @@ DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 	TArray<FDcJsonTestFixure> Fixtures;
 	
 	FileManager.IterateDirectory(*DcGetFixturePath(TEXT("DcJSONFixtures")), [&](const TCHAR* VisitFilename, bool VisitIsDir)
+	{
+		FString Filename(VisitFilename);
+		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
+		{
+			UE_LOG(LogDataConfigCore, Display, TEXT("Case: %s"), VisitFilename);
+
+			FString JsonStr;
+			check(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
+			Fixtures.Emplace(FDcJsonTestFixure{VisitFilename, MoveTemp(JsonStr)});
+		}
+		
+		return true;
+	});
+
+	bool bAllPass = true;
+	for (FDcJsonTestFixure& Fixture : Fixtures)
+	{
+		if (!RunSingleJsonFixture(Fixture).Ok())
+			bAllPass =false;
+	}
+	
+	return bAllPass;
+}
+
+
+DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
+{
+	FLogScopedCategoryAndVerbosityOverride LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+
+	IFileManager& FileManager = IFileManager::Get();
+	TArray<FDcJsonTestFixure> Fixtures;
+	
+	FileManager.IterateDirectory(*DcGetFixturePath(TEXT("JSONTestSuiteParsing")), [&](const TCHAR* VisitFilename, bool VisitIsDir)
 	{
 		FString Filename(VisitFilename);
 		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
