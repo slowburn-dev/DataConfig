@@ -49,6 +49,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	struct FTokenFlag
 	{
 		uint8 bStringHasEscapeChar : 1;
+		uint8 bStringHasNonAscii : 1;
 		uint8 bNumberIsNegative : 1;
 		uint8 bNumberHasDecimal : 1;
 		uint8 bNumberHasExp : 1;
@@ -192,6 +193,9 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+	FDcResult CheckNotAtEnd();
+
+	FString ConvertStringTokenToLiteral(SourceRef Ref);
 };
 
 extern template struct TDcJsonReader<ANSICHAR>;
@@ -202,6 +206,12 @@ struct FDcJsonReader : public TDcJsonReader<TCHAR>
 	using Super = TDcJsonReader;
 
 	FDcJsonReader() : Super() {}
+	FDcJsonReader(const TCHAR* Str) : Super()
+	{
+		bool bOk = SetNewString(Str).Ok();
+		check(bOk);	// guaranteed not to fail
+	}
+
 	FDcJsonReader(const FString& Str) : Super()
 	{
 		bool bOk = SetNewString(*Str).Ok();
@@ -209,5 +219,15 @@ struct FDcJsonReader : public TDcJsonReader<TCHAR>
 	}
 };
 
-using FDcAnsiJsonReader = TDcJsonReader<ANSICHAR>;
+struct FDcAnsiJsonReader : public TDcJsonReader<ANSICHAR>
+{
+	using Super = TDcJsonReader;
+
+	FDcAnsiJsonReader() : Super() {}
+	FDcAnsiJsonReader(const char* Str) : Super()
+	{
+		bool bOk = SetNewString(Str).Ok();
+		check(bOk);	// guaranteed not to fail
+	}
+};
 

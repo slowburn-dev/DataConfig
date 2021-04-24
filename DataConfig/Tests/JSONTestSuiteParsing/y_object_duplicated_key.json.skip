@@ -1,0 +1,3 @@
+{"a":"b","a":"c"}
+
+// we consider this an error

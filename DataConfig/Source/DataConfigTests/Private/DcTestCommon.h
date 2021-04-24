@@ -27,6 +27,8 @@ FORCEINLINE FDcResult DcTestPropertyRoundtrip(FAutomationTestBase* Fixture, FDcP
 }
 
 
+FString DcGetFixturePath(const FString& Str);
+
 
 
 

@@ -53,9 +53,18 @@ struct TDcCSourceUtils
 
 	static bool IsDigit(const CharType& Char)
 	{
-		return CChar::IsDigit(Char);
+		return (unsigned)Char - CharType('0') < 10;
 	}
 
+	static bool IsOneToNine(const CharType& Char)
+	{
+		return Char != CharType('0') && IsDigit(Char);
+	}
+
+	static bool IsAscii(const CharType& Char)
+	{
+		return Char >= 0 && Char <= 0x7f;
+	}
 };
 
 namespace FDcSourceUtils

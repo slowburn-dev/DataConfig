@@ -9,6 +9,7 @@ __Serialization framework for Unreal Engine Property System that just works!__
 - See [Examples](Examples.md) to look at some code.
 - See [Integration](Integration.md) for quick integration guide.
 - See [Design](Design.md) for more context about the project.
+- See [Changes](Changes.md) for versioning history.
 
 There's also [DataConfig JSON Asset][2] on UE Marketplace. It's a premium plugin for importing JSON to UE data assets.
 

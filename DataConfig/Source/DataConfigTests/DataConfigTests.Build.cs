@@ -13,6 +13,7 @@ public class DataConfigTests : ModuleRules
 				"DataConfigExtra",
 				"Core",
 				"CoreUObject",
+	            "Projects",
 			});
 	}
 }

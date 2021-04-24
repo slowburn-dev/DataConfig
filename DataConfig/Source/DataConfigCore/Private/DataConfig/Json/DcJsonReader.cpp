@@ -205,6 +205,15 @@ FDcResult TDcJsonReader<CharType>::CheckObjectDuplicatedKey(const FName& KeyName
 	return DcOk();
 }
 
+template <typename CharType>
+FDcResult TDcJsonReader<CharType>::CheckNotAtEnd()
+{
+	if (IsAtEnd())
+		return DC_FAIL(DcDJSON, UnexpectedEOF) << FormatHighlight(Cur, 1);
+
+	return DcOk();
+}
+
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 {
@@ -339,6 +348,12 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 		}
 		else
 		{
+			if (TIsSame<CharType, ANSICHAR>::Value)
+			{
+				if (!SourceUtils::IsAscii(Char))
+					Token.Flag.bStringHasNonAscii = true;
+			}
+			
 			Advance();
 		}
 	}
@@ -346,22 +361,39 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 	return DcNoEntry();
 }
 
+template <typename CharType>
+FString TDcJsonReader<CharType>::ConvertStringTokenToLiteral(SourceRef Ref)
+{
+	if (TIsSame<CharType, ANSICHAR>::Value
+		&& Token.Flag.bStringHasNonAscii)
+	{
+		//	UTF8 conv when detects non ascii chars
+		FUTF8ToTCHAR UTF8Conv((const ANSICHAR*)Ref.GetBeginPtr(), Ref.Num);
+		return FString(UTF8Conv.Length(), UTF8Conv.Get());
+	}
+	else
+	{
+		return Ref.ToString();
+	}
+}
+
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ParseStringToken(FString &OutStr)
 {
 	check(Token.Type == ETokenType::String);
-	SourceRef literalRef = Token.Ref;
-	literalRef.Begin += 1;
-	literalRef.Num -= 2;
+
 	if (!Token.Flag.bStringHasEscapeChar)
 	{
-		OutStr = literalRef.ToString();
+		SourceRef UnquotedRef = Token.Ref;
+		UnquotedRef.Begin += 1;
+		UnquotedRef.Num -= 2;
+		OutStr = ConvertStringTokenToLiteral(UnquotedRef);
 		return DcOk();
 	}
 	else
 	{
 		// FParse::QuotedString needs string to be quoted
-		FString RawStr = Token.Ref.ToString();
+		FString RawStr = ConvertStringTokenToLiteral(Token.Ref);
 		int32 CharsRead = 0;
 		bool bOk = FParse::QuotedString(RawStr.GetCharArray().GetData(), OutStr, &CharsRead);
 		if (!bOk)
@@ -377,33 +409,158 @@ FDcResult TDcJsonReader<CharType>::ReadNumberToken()
 	Token.Ref.Begin = Cur;
 	Token.Flag.Reset();
 
-	if (PeekChar() == CharType('-'))
-		Token.Flag.bNumberIsNegative = true;
-
-	Advance();
-	while (!IsAtEnd())
+	CharType Char = PeekChar();
+	if (Char == CharType('-'))
 	{
-		CharType Char = PeekChar();
-		if (Char == CharType('.'))
-		{
-			Token.Flag.bNumberHasDecimal = true;
-			Token.Flag.NumberDecimalOffset = Cur - Token.Ref.Begin;
-			Advance();
-		}
-		else if (Char == CharType('e') || Char == CharType('E'))
-		{
-			Token.Flag.bNumberHasExp = true;
-			Advance();
-		}
-		else if (Char == CharType('-') || Char == CharType('+') || SourceUtils::IsDigit(Char))
-		{
-			Advance();
-		}
-		else
-		{
-			break;
-		}
+		Advance();
+		goto READ_NUMBER_MINUS;
 	}
+	else if (Char == CharType('0'))
+	{
+		Advance();
+		goto READ_NUMBER_ZERO;
+	}
+	else if (SourceUtils::IsOneToNine(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY1;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberInvalidChar) << Char << FormatHighlight(Cur, 1);
+	}
+
+READ_NUMBER_MINUS:
+	Token.Flag.bNumberIsNegative = true;
+	Char = PeekChar();
+	if (Char == CharType('0'))
+	{
+		Advance();
+		goto READ_NUMBER_ZERO;
+	}
+	else if (SourceUtils::IsOneToNine(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY1;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectDigitAfterMinus) << Char << FormatHighlight(Cur, 1);
+	}
+
+READ_NUMBER_ZERO:
+	Char = PeekChar();
+	if (Char == CharType('.'))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL1;
+	}
+	else if (Char == CharType('e') || Char == CharType('E'))
+	{
+		Advance();
+		goto READ_NUMBER_EXPONENT;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+READ_NUMBER_ANY1:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY1;
+	}
+	else if (Char == CharType('.'))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL1;
+	}
+	else if (Char == CharType('e') || Char == CharType('E'))
+	{
+		Advance();
+		goto READ_NUMBER_EXPONENT;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+READ_NUMBER_DECIMAL1:
+	Token.Flag.bNumberHasDecimal = true;
+	Token.Flag.NumberDecimalOffset = Cur - Token.Ref.Begin;
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL2;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectDigitAfterDot) << Char << FormatHighlight(Cur, 1);
+	}
+READ_NUMBER_DECIMAL2:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL2;
+	}
+	else if (Char == CharType('e') || Char == CharType('E'))
+	{
+		Advance();
+		goto READ_NUMBER_EXPONENT;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+READ_NUMBER_EXPONENT:
+	Token.Flag.bNumberHasExp = true;
+	Char = PeekChar();
+	if (Char == CharType('-') || Char == CharType('+'))
+	{
+		Advance();
+		goto READ_NUMBER_SIGN;
+	}
+	else if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY2;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectSignDigitAfterExp) << Char << FormatHighlight(Cur, 1);
+	}
+
+READ_NUMBER_SIGN:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY2;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectDigitAfterExpSign) << Char << FormatHighlight(Cur, 1);
+	}
+READ_NUMBER_ANY2:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY2;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+
+READ_NUMBER_DONE:
 
 	Token.Type = ETokenType::Number;
 	Token.Ref.Num = Cur - Token.Ref.Begin;
@@ -639,6 +796,9 @@ FDcResult TDcJsonReader<CharType>::ReadMapRoot()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadMapEnd()
 {
+	if (GetTopState() != EParseState::Object)
+		return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
+	
 	DC_TRY(CheckConsumeToken(EDcDataEntry::MapEnd));
 	if (Token.Type == ETokenType::CurlyClose)
 	{
@@ -677,6 +837,9 @@ FDcResult TDcJsonReader<CharType>::ReadArrayRoot()
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadArrayEnd()
 {
+	if (GetTopState() != EParseState::Array)
+		return DC_FAIL(DcDJSON, UnexpectedToken) << FormatHighlight(Token.Ref);
+	
 	DC_TRY(CheckConsumeToken(EDcDataEntry::ArrayEnd));
 	if (Token.Type == ETokenType::SquareClose)
 	{
@@ -823,10 +986,21 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 
 	if (IsAtEnd())
 	{
-		Token.Type = ETokenType::EOF_;
-		Token.Ref.Reset();
-		State = EState::FinishedStr;
-		return DcOk();
+		if (GetTopState() == EParseState::Object)
+		{
+			return DC_FAIL(DcDJSON, EndUnclosedObject) << FormatHighlight(Cur, 1);
+		}
+		else if (GetTopState() == EParseState::Array)
+		{
+			return DC_FAIL(DcDJSON, EndUnclosedArray) << FormatHighlight(Cur, 1);
+		}
+		else
+		{
+			Token.Type = ETokenType::EOF_;
+			Token.Ref.Reset();
+			State = EState::FinishedStr;
+			return DcOk();
+		}
 	}
 
 	auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {
@@ -955,16 +1129,14 @@ bool TDcJsonReader<CharType>::IsAtEnd(int N)
 template<typename CharType>
 void TDcJsonReader<CharType>::Advance()
 {
-	check(!IsAtEnd());
-	++Cur;
-	Loc.Column++;
+	AdvanceN(1);
 }
 
 template<typename CharType>
 void TDcJsonReader<CharType>::AdvanceN(int N)
 {
-	check(N != 0);
-	check(!IsAtEnd(N));
+	check(N > 0);
+	check(!IsAtEnd(N - 1));
 	Cur += N;
 	Loc.Column += N;
 }
@@ -985,12 +1157,6 @@ FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 	SourceRef WordRef = Token.Ref;
 	WordRef.Begin = Cur;
 	WordRef.Num = WordLen;
-
-	if (IsAtEnd(WordLen))
-	{
-		return DC_FAIL(DcDJSON, ExpectWordButEOF)
-			<< Word << FormatHighlight(Token.Ref);
-	}
 
 	for (int Ix = 0; Ix < WordLen; Ix++)
 	{

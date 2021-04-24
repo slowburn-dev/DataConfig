@@ -136,6 +136,7 @@ void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 	});
 
 	SelectedTests = MoveTemp(TestInfos);
+	ParametersJoined = FString::Join(Args.Parameters, TEXT(" "));
 }
 
 namespace DcAutomationDetails
@@ -169,7 +170,7 @@ int32 RunTestsBody(FDcAutomationConsoleRunner* Self)
 
 		for (const FAutomationTestInfo& TestInfo: Self->SelectedTests)
 		{
-			FString TestCommand = TestInfo.GetTestName();
+			FString TestCommand = FString::Printf(TEXT("%s %s"), *TestInfo.GetTestName(), *Self->ParametersJoined);	
 			FAutomationTestExecutionInfo CurExecutionInfo;
 
 			int32 RoleIndex = 0; 
