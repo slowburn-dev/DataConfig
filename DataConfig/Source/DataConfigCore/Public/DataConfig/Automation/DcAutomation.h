@@ -81,6 +81,7 @@ struct DATACONFIGCORE_API FDcAutomationConsoleRunner
 	struct FArgs
 	{
 		TArray<FString> Filters;
+		TArray<FString> Parameters;
 		uint32 RequestedTestFilter;
 	};
 
@@ -88,6 +89,7 @@ struct DATACONFIGCORE_API FDcAutomationConsoleRunner
 	int32 RunTests();
 
 	TArray<FAutomationTestInfo> SelectedTests;
+	FString ParametersJoined;
 };
 
 

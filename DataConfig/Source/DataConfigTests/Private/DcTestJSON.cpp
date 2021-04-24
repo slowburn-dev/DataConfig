@@ -317,6 +317,12 @@ DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
 	FileManager.IterateDirectory(*DcGetFixturePath(TEXT("JSONTestSuiteParsing")), [&](const TCHAR* VisitFilename, bool VisitIsDir)
 	{
 		FString Filename(VisitFilename);
+		if (!Parameters.IsEmpty())
+		{
+			if (!Filename.Contains(Parameters))
+				return true;
+		}
+		
 		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
 		{
 			FString JsonStr;
