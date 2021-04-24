@@ -9,6 +9,7 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ ExpectWordButEOF, TEXT("Expect word '{0}' but reaching end of input."), },
 	{ UnexpectedChar, TEXT("Unexpected char '{0}'"), },
 	{ UnexpectedToken, TEXT("Unexpected token"), },
+	{ UnexpectedToken, TEXT("Unexpected EOF"), },
 	{ UnclosedBlockComment, TEXT("Unclosed block comment"), },
 	{ UnclosedStringLiteral, TEXT("Unclosed string literal"), },
 	{ InvalidStringEscaping, TEXT("Invalid string escaping"), },
@@ -23,6 +24,13 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ ExpectStateInProgress, TEXT("Expect internal state to be 'InProgress', Actual: {0}"), },
 	{ ExpectStateUninitializedOrFinished, TEXT("Expect internal state to be 'Uninitialized' or 'Finished', Actual: {0}"), },
 	{ UnexpectedTrailingToken, TEXT("Expect ending but found trailing tokens, Actual: {0}"), },
+
+	//	Number
+	{ NumberInvalidChar, TEXT("Invalid char in number: '{0}'"), },
+	{ NumberExpectDigitAfterMinus, TEXT("Number expect digit after '-' but found: '{0}'"), },
+	{ NumberExpectDigitAfterDot, TEXT("Number expect digit after '.' but found: '{0}'"), },
+	{ NumberExpectSignDigitAfterExp, TEXT("Number expect '-', '+' or digit after '.' but found: '{0}'"), },
+	{ NumberExpectDigitAfterExpSign, TEXT("Number expect digit after '.+/-' but found: '{0}'"), },
 };
 
 FDcDiagnosticGroup Details = {

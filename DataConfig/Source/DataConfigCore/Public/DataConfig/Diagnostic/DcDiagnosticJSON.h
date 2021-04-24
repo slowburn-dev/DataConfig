@@ -14,6 +14,7 @@ enum Type : uint16
 	ExpectWordButEOF,
 	UnexpectedChar,
 	UnexpectedToken,
+	UnexpectedEOF,
 	UnclosedBlockComment,
 	UnclosedStringLiteral,
 	InvalidStringEscaping,
@@ -28,6 +29,13 @@ enum Type : uint16
 	ExpectStateInProgress,
 	ExpectStateUninitializedOrFinished,
 	UnexpectedTrailingToken,
+
+	//	Number
+	NumberInvalidChar,
+	NumberExpectDigitAfterMinus,
+	NumberExpectDigitAfterDot,
+	NumberExpectSignDigitAfterExp,
+	NumberExpectDigitAfterExpSign,
 };
 
 } // namespace DcDJSON

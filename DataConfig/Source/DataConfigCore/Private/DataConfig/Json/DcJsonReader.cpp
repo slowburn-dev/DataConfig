@@ -205,6 +205,15 @@ FDcResult TDcJsonReader<CharType>::CheckObjectDuplicatedKey(const FName& KeyName
 	return DcOk();
 }
 
+template <typename CharType>
+FDcResult TDcJsonReader<CharType>::CheckNotAtEnd()
+{
+	if (IsAtEnd())
+		return DC_FAIL(DcDJSON, UnexpectedEOF) << FormatHighlight(Cur, 1);
+
+	return DcOk();
+}
+
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 {
@@ -400,33 +409,158 @@ FDcResult TDcJsonReader<CharType>::ReadNumberToken()
 	Token.Ref.Begin = Cur;
 	Token.Flag.Reset();
 
-	if (PeekChar() == CharType('-'))
-		Token.Flag.bNumberIsNegative = true;
-
-	Advance();
-	while (!IsAtEnd())
+	CharType Char = PeekChar();
+	if (Char == CharType('-'))
 	{
-		CharType Char = PeekChar();
-		if (Char == CharType('.'))
-		{
-			Token.Flag.bNumberHasDecimal = true;
-			Token.Flag.NumberDecimalOffset = Cur - Token.Ref.Begin;
-			Advance();
-		}
-		else if (Char == CharType('e') || Char == CharType('E'))
-		{
-			Token.Flag.bNumberHasExp = true;
-			Advance();
-		}
-		else if (Char == CharType('-') || Char == CharType('+') || SourceUtils::IsDigit(Char))
-		{
-			Advance();
-		}
-		else
-		{
-			break;
-		}
+		Advance();
+		goto READ_NUMBER_MINUS;
 	}
+	else if (Char == CharType('0'))
+	{
+		Advance();
+		goto READ_NUMBER_ZERO;
+	}
+	else if (SourceUtils::IsOneToNine(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY1;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberInvalidChar) << Char << FormatHighlight(Cur, 1);
+	}
+
+READ_NUMBER_MINUS:
+	Token.Flag.bNumberIsNegative = true;
+	Char = PeekChar();
+	if (Char == CharType('0'))
+	{
+		Advance();
+		goto READ_NUMBER_ZERO;
+	}
+	else if (SourceUtils::IsOneToNine(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY1;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectDigitAfterMinus) << Char << FormatHighlight(Cur, 1);
+	}
+
+READ_NUMBER_ZERO:
+	Char = PeekChar();
+	if (Char == CharType('.'))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL1;
+	}
+	else if (Char == CharType('e') || Char == CharType('E'))
+	{
+		Advance();
+		goto READ_NUMBER_EXPONENT;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+READ_NUMBER_ANY1:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY1;
+	}
+	else if (Char == CharType('.'))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL1;
+	}
+	else if (Char == CharType('e') || Char == CharType('E'))
+	{
+		Advance();
+		goto READ_NUMBER_EXPONENT;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+READ_NUMBER_DECIMAL1:
+	Token.Flag.bNumberHasDecimal = true;
+	Token.Flag.NumberDecimalOffset = Cur - Token.Ref.Begin;
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL2;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectDigitAfterDot) << Char << FormatHighlight(Cur, 1);
+	}
+READ_NUMBER_DECIMAL2:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_DECIMAL2;
+	}
+	else if (Char == CharType('e') || Char == CharType('E'))
+	{
+		Advance();
+		goto READ_NUMBER_EXPONENT;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+READ_NUMBER_EXPONENT:
+	Token.Flag.bNumberHasExp = true;
+	Char = PeekChar();
+	if (Char == CharType('-') || Char == CharType('+'))
+	{
+		Advance();
+		goto READ_NUMBER_SIGN;
+	}
+	else if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY2;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectSignDigitAfterExp) << Char << FormatHighlight(Cur, 1);
+	}
+
+READ_NUMBER_SIGN:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY2;
+	}
+	else
+	{
+		DC_TRY(CheckNotAtEnd());
+		return DC_FAIL(DcDJSON, NumberExpectDigitAfterExpSign) << Char << FormatHighlight(Cur, 1);
+	}
+READ_NUMBER_ANY2:
+	Char = PeekChar();
+	if (SourceUtils::IsDigit(Char))
+	{
+		Advance();
+		goto READ_NUMBER_ANY2;
+	}
+	else
+	{
+		goto READ_NUMBER_DONE;
+	}
+
+READ_NUMBER_DONE:
 
 	Token.Type = ETokenType::Number;
 	Token.Ref.Num = Cur - Token.Ref.Begin;

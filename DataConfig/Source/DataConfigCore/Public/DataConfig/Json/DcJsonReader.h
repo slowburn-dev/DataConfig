@@ -193,6 +193,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult CheckNotObjectKey();
 	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+	FDcResult CheckNotAtEnd();
 
 	FString ConvertStringTokenToLiteral(SourceRef Ref);
 };
