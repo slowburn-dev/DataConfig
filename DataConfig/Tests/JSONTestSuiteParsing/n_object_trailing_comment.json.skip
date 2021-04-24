@@ -1,0 +1,3 @@
+{"a":"b"}/**/
+
+// we explicitly support this as relaxed JSON spec

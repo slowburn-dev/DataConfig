@@ -53,7 +53,7 @@ struct TDcCSourceUtils
 
 	static bool IsDigit(const CharType& Char)
 	{
-		return CChar::IsDigit(Char);
+		return (unsigned)Char - CharType('0') < 10;
 	}
 
 	static bool IsOneToNine(const CharType& Char)

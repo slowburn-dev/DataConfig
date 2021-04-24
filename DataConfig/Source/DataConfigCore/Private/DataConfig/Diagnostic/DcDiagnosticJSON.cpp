@@ -31,6 +31,10 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ NumberExpectDigitAfterDot, TEXT("Number expect digit after '.' but found: '{0}'"), },
 	{ NumberExpectSignDigitAfterExp, TEXT("Number expect '-', '+' or digit after '.' but found: '{0}'"), },
 	{ NumberExpectDigitAfterExpSign, TEXT("Number expect digit after '.+/-' but found: '{0}'"), },
+
+	//	End
+	{ EndUnclosedArray, TEXT("End with unclosed array"), },
+	{ EndUnclosedObject, TEXT("End with unclosed object"), },
 };
 
 FDcDiagnosticGroup Details = {

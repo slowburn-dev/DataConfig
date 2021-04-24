@@ -36,6 +36,10 @@ enum Type : uint16
 	NumberExpectDigitAfterDot,
 	NumberExpectSignDigitAfterExp,
 	NumberExpectDigitAfterExpSign,
+
+	//	End
+	EndUnclosedArray,
+	EndUnclosedObject,
 };
 
 } // namespace DcDJSON

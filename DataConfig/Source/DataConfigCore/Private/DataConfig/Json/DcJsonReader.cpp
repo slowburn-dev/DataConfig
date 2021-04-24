@@ -986,10 +986,21 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 
 	if (IsAtEnd())
 	{
-		Token.Type = ETokenType::EOF_;
-		Token.Ref.Reset();
-		State = EState::FinishedStr;
-		return DcOk();
+		if (GetTopState() == EParseState::Object)
+		{
+			return DC_FAIL(DcDJSON, EndUnclosedObject) << FormatHighlight(Cur, 1);
+		}
+		else if (GetTopState() == EParseState::Array)
+		{
+			return DC_FAIL(DcDJSON, EndUnclosedArray) << FormatHighlight(Cur, 1);
+		}
+		else
+		{
+			Token.Type = ETokenType::EOF_;
+			Token.Ref.Reset();
+			State = EState::FinishedStr;
+			return DcOk();
+		}
 	}
 
 	auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {
