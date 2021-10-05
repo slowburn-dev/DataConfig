@@ -218,11 +218,16 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 
 							UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
 							DcAutomationUtils::DumpToLog(FDcPropertyDatum(Blueprint->GeneratedClass->ClassDefaultObject));
-#if ENGINE_MINOR_VERSION >= 26
+#if ENGINE_MAJOR_VERSION == 5
 							FGlobalTabmanager::Get()->TryInvokeTab(FName("OutputLog"));
 #else
+	#if ENGINE_MINOR_VERSION >= 26
+							FGlobalTabmanager::Get()->TryInvokeTab(FName("OutputLog"));
+	#else
 							FGlobalTabmanager::Get()->InvokeTab(FName("OutputLog"));
+	#endif
 #endif
+
 							}),
 							FCanExecuteAction()
 						)
