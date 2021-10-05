@@ -258,7 +258,7 @@ DC_TEST("DataConfig.Core.Property.Blob")
 		}
 	}
 
-	UTEST_OK("FDcTestStruct4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStruct_Blob roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
 }

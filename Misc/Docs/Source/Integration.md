@@ -4,6 +4,8 @@ This page shows integration instructions for DataConfig. At the moment it suppor
 
 - UE 4.25
 - UE 4.26
+- UE 4.27
+- UE 5 (tested on commit `e0fb0cfce32d` on `ue5-main` branch)
 
 ## Integrate `DataConfig` Plugin
 

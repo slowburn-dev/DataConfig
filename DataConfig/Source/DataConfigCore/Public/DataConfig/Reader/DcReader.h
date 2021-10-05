@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/DcTypes.h"
 
@@ -92,6 +93,11 @@ struct DATACONFIGCORE_API FDcReader
 		return Diag;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	template<typename TObject>
+	FDcResult ReadTObjectPtr(TObjectPtr<TObject>* OutPtr);
+#endif
+
 };
 
 template<typename TObject>
@@ -177,4 +183,17 @@ FDcResult FDcReader::ReadSparseDelegateField(TSparseDynamicDelegate<MulticastDel
 
 	return DcOk();
 }
+
+#if ENGINE_MAJOR_VERSION == 5
+template <typename TObject>
+FDcResult FDcReader::ReadTObjectPtr(TObjectPtr<TObject>* OutPtr)
+{
+	UObject* Obj;
+	DC_TRY(ReadObjectReference(&Obj));
+
+	TObject* TObj = ::CastChecked<TObject>(Obj);
+	ReadOut(OutPtr, TObj);
+	return DcOk();
+}
+#endif
 

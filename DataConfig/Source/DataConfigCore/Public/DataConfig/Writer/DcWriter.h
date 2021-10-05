@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "DataConfig/DcTypes.h"
 
 struct FDcDiagnostic;
@@ -88,6 +89,10 @@ struct DATACONFIGCORE_API FDcWriter
 		return Diag;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	template<typename TObject>
+	FDcResult WriteTObjectPtr(const TObjectPtr<TObject>& Value);
+#endif
 };
 
 template<typename TObject>
@@ -166,4 +171,12 @@ FDcResult FDcWriter::WriteSparseDelegateField(const TSparseDynamicDelegate<Multi
 		return WriteMulticastSparseDelegate(*MulticastDelegate);
 	}
 }
+
+#if ENGINE_MAJOR_VERSION == 5
+template <typename TObject>
+FDcResult FDcWriter::WriteTObjectPtr(const TObjectPtr<TObject>& Value)
+{
+	return WriteObjectReference(Value.Get());
+}
+#endif
 

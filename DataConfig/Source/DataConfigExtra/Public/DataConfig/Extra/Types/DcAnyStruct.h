@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Templates/SharedPointerInternals.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "DcAnyStruct.generated.h"
 
 ///	A struct that contains a heap stored struct of any type.
@@ -13,7 +14,15 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 {
 	GENERATED_BODY()
 
-	struct DATACONFIGEXTRA_API AnyStructReferenceController : public SharedPointerInternals::FReferenceControllerBase
+#if ENGINE_MAJOR_VERSION == 5
+	using FReferenceControllerBase = SharedPointerInternals::TReferenceControllerBase<ESPMode::NotThreadSafe>;
+	using FSharedReferencer = SharedPointerInternals::FSharedReferencer<ESPMode::NotThreadSafe>;
+#else
+	using FReferenceControllerBase = SharedPointerInternals::FReferenceControllerBase;
+	using FSharedReferencer = SharedPointerInternals::FSharedReferencer<ESPMode::Fast>;
+#endif
+
+	struct DATACONFIGEXTRA_API AnyStructReferenceController : public FReferenceControllerBase 
 	{
 		AnyStructReferenceController(FDcAnyStruct* InAnyStruct)
 		{
@@ -117,7 +126,7 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 
 	void* DataPtr = nullptr;
 	UScriptStruct* StructClass = nullptr;
-	SharedPointerInternals::FSharedReferencer<ESPMode::Fast> SharedReferenceCount;
+	FSharedReferencer SharedReferenceCount;
 
 	///	Dump contained class to output. Intended to be called in debugger immediate.
 	FORCENOINLINE void DebugDump();
