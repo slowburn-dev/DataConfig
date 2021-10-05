@@ -33,6 +33,9 @@ DC_TEST("DataConfig.Core.Property.TObjectPtr")
 		FDcReader Reader;
 		TObjectPtr<UDcTestClass1> ObjPtr;
 		Reader.ReadTObjectPtr(&ObjPtr).Ok();
+
+		FDcWriter Writer;
+		Writer.WriteTObjectPtr(ObjPtr).Ok();
 	}
 
 	return true;
