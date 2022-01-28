@@ -15,6 +15,8 @@ enum Type : uint16
 	InvalidStateWithExpect2,
 	DataTypeMismatch,
 	DataTypeMismatch2,
+	DataTypeMismatchNoExpect,
+	DataTypeMismatchNoCoercion,
 	PropertyMismatch,
 	PropertyMismatch2,
 	AlreadyEnded,
@@ -31,6 +33,10 @@ enum Type : uint16
 	DataTypeUnequal,
 	DataTypeUnequalLhsRhs,
 	ExpectFieldButFoundUObject,
+	FNameOverSize,
+	HeuristicInvalidPointer,
+	ReaderCastExpect,
+	WriterCastExpect,
 	
 	//	putback reader
 	CantUsePutbackValue,

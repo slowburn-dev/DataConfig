@@ -16,11 +16,10 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	{ InvalidControlCharInString, TEXT("Invalid control character found in string"), },
 	{ ReadUnsignedWithNegativeNumber, TEXT("Reading unsigned with negative number"), },
 	{ ParseIntegerFailed, TEXT("Parse integer failed"), },
-	{ DuplicatedKey, TEXT("Duplicated key within object"), },
+	{ DuplicatedKey, TEXT("Duplicated key within object: {0}"), },
 	{ KeyMustBeString, TEXT("Object key must be a string"), },
 	{ ReadTypeMismatch, TEXT("Reading type mismatch, expecting '{0}' actual '{1}'"), },
 	{ ExpectComma, TEXT("Expect ',' but not found"), },
-	{ ObjectKeyTooLong, TEXT("Object key string too long, UE4 FName has lengh limitation anyway"), },
 	{ ExpectStateInProgress, TEXT("Expect internal state to be 'InProgress', Actual: {0}"), },
 	{ ExpectStateUninitializedOrFinished, TEXT("Expect internal state to be 'Uninitialized' or 'Finished', Actual: {0}"), },
 	{ UnexpectedTrailingToken, TEXT("Expect ending but found trailing tokens, Actual: {0}"), },
@@ -35,10 +34,16 @@ static FDcDiagnosticDetail _JSONDetails[] = {
 	//	End
 	{ EndUnclosedArray, TEXT("End with unclosed array"), },
 	{ EndUnclosedObject, TEXT("End with unclosed object"), },
+
+	//	Writer
+	{ ExpectStringAtObjectKey, TEXT("Expect only string at object key"), },
+	{ UnexpectedArrayEnd, TEXT("Unexpected write array end"), },
+	{ UnexpectedObjectEnd, TEXT("Unexpected write object end"), },
+
 };
 
 FDcDiagnosticGroup Details = {
-	DcDJSON::Category,
+	Category,
 	DcDimOf(_JSONDetails),
 	_JSONDetails
 };

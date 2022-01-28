@@ -85,6 +85,8 @@ struct DATACONFIGCORE_API FDcAutomationConsoleRunner
 		uint32 RequestedTestFilter;
 	};
 
+	static FArgs FromCommandlineTokens(const TArray<FString>& Tokens);
+
 	void Prepare(const FArgs& Args);
 	int32 RunTests();
 

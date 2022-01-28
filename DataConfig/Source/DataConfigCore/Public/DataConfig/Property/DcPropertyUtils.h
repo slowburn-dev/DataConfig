@@ -10,7 +10,24 @@ struct FDcPropertyDatum;
 namespace DcPropertyUtils
 {
 
-DATACONFIGCORE_API bool IsEffectiveProperty(FProperty* Property);
+extern FName DC_META_SKIP;
+
+FORCEINLINE bool IsEffectiveProperty(FProperty* Property)
+{
+	check(Property);
+#if DC_BUILD_DEBUG
+	//	hook for globally ignore a property type
+	//	this is for development only.
+	//	For example if UE added a new property `FShinyProperty` we can start
+	//	with ignoring it globally like this
+
+	//	`return !Property->IsA<FShinyProperty>();`
+	return true;
+#else
+	return true;
+#endif
+}
+
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
 DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor);
 
@@ -40,6 +57,9 @@ DATACONFIGCORE_API UStruct* TryGetStruct(const FDcPropertyDatum& Datum);
 
 DATACONFIGCORE_API bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
 DATACONFIGCORE_API FDcResult GetEnumProperty(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
+
+DATACONFIGCORE_API bool HeuristicIsPointerInvalid(void* Ptr);
+DATACONFIGCORE_API FDcResult HeuristicVerifyPointer(void* Ptr);
 
 FORCEINLINE FString SafeNameToString(const FName& Value)
 {
@@ -76,8 +96,6 @@ template<> struct TPropertyTypeMap<UObject*> { using Type = FObjectProperty; };
 
 template<> struct TPropertyTypeMap<FWeakObjectPtr> { using Type = FWeakObjectProperty; };
 template<> struct TPropertyTypeMap<FLazyObjectPtr> { using Type = FLazyObjectProperty; };
-template<> struct TPropertyTypeMap<FSoftObjectPath> { using Type = FSoftObjectProperty; };
-template<> struct TPropertyTypeMap<FSoftClassPath> { using Type = FSoftClassProperty; };
 template<> struct TPropertyTypeMap<FScriptInterface> { using Type = FInterfaceProperty; };
 template<> struct TPropertyTypeMap<FFieldPath> { using Type = FFieldPathProperty; };
 

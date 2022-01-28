@@ -7,8 +7,6 @@
 
 struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 {
-	FDcResult Deserialize(FDcDeserializeContext& Ctx);
-
 	void AddDirectHandler(FFieldClass* PropertyClass, FDcDeserializeDelegate&& Delegate);
 	void AddDirectHandler(UClass* PropertyClass, FDcDeserializeDelegate&& Delegate);
 	void AddPredicatedHandler(FDcDeserializePredicate&& Predicate, FDcDeserializeDelegate&& Delegate);
@@ -17,4 +15,7 @@ struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 
 	TMap<UClass*, FDcDeserializeDelegate> UClassDeserializerMap;
 	TMap<FFieldClass*, FDcDeserializeDelegate> FieldClassDeserializerMap;
+
+	FDcResult Deserialize(FDcDeserializeContext& Ctx);
 };
+

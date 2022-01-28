@@ -12,7 +12,7 @@ namespace DcAutomationUtils
 {
 
 template<typename T>
-static typename TEnableIf<TDcIsDataVariantCompatible<T>::Value, FDcResult>::Type
+static typename TEnableIf<DcTypeUtils::TIsDataEntryType<T>::Value, FDcResult>::Type
 _ExpectEqual(const T& Lhs, const T& Rhs)
 {
 	if (Lhs != Rhs)
@@ -27,7 +27,7 @@ _ExpectEqual(const T& Lhs, const T& Rhs)
 }
 
 template<typename T>
-static typename TEnableIf<!TDcIsDataVariantCompatible<T>::Value, FDcResult>::Type
+static typename TEnableIf<!DcTypeUtils::TIsDataEntryType<T>::Value, FDcResult>::Type
 _ExpectEqual(const T& Lhs, const T& Rhs)
 {
 	if (Lhs != Rhs)
@@ -55,7 +55,7 @@ FDcResult _ExpectEqual<EDcDataEntry>(const EDcDataEntry& Lhs, const EDcDataEntry
 	}
 }
 
-FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum)
+FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum, EReadDatumEqualType Type)
 {
 	FDcPropertyReader LhsReader(LhsDatum);
 	FDcPropertyReader RhsReader(RhsDatum);
@@ -69,361 +69,487 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 
 		DC_TRY(_ExpectEqual(Next, RhsPeekEntry));
 
-		if (Next == EDcDataEntry::Ended)
+		switch (Next)
 		{
-			return DcOk();
-		}
-		else if (Next == EDcDataEntry::Nil)
-		{
-			DC_TRY(LhsReader.ReadNil());
-			DC_TRY(RhsReader.ReadNil());
-		}
-		else if (Next == EDcDataEntry::Bool)
-		{
-			bool Lhs;
-			DC_TRY(LhsReader.ReadBool(&Lhs));
+			case EDcDataEntry::Ended:
+			{
+				return DcOk();
+			}
+			case EDcDataEntry::Nil:
+			{
+				DC_TRY(LhsReader.ReadNil());
+				DC_TRY(RhsReader.ReadNil());
+				break;
+			}
+			case EDcDataEntry::Bool:
+			{
+				bool Lhs;
+				DC_TRY(LhsReader.ReadBool(&Lhs));
 
-			bool Rhs;
-			DC_TRY(RhsReader.ReadBool(&Rhs));
+				bool Rhs;
+				DC_TRY(RhsReader.ReadBool(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Name)
-		{
-			FName Lhs;
-			DC_TRY(LhsReader.ReadName(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Name:
+			{
+				FName Lhs;
+				DC_TRY(LhsReader.ReadName(&Lhs));
 
-			FName Rhs;
-			DC_TRY(RhsReader.ReadName(&Rhs));
+				FName Rhs;
+				DC_TRY(RhsReader.ReadName(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::String)
-		{
-			FString Lhs;
-			DC_TRY(LhsReader.ReadString(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::String:
+			{
+				FString Lhs;
+				DC_TRY(LhsReader.ReadString(&Lhs));
 
-			FString Rhs;
-			DC_TRY(RhsReader.ReadString(&Rhs));
+				FString Rhs;
+				DC_TRY(RhsReader.ReadString(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Text)
-		{
-			FText Lhs;
-			DC_TRY(LhsReader.ReadText(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Text:
+			{
+				FText Lhs;
+				DC_TRY(LhsReader.ReadText(&Lhs));
 
-			FText Rhs;
-			DC_TRY(RhsReader.ReadText(&Rhs));
+				FText Rhs;
+				DC_TRY(RhsReader.ReadText(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.ToString(), Rhs.ToString()));
-		}
-		else if (Next == EDcDataEntry::Enum)
-		{
-			FDcEnumData Lhs;
-			DC_TRY(LhsReader.ReadEnum(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.ToString(), Rhs.ToString()));
+				break;
+			}
+			case EDcDataEntry::Enum:
+			{
+				FDcEnumData Lhs;
+				DC_TRY(LhsReader.ReadEnum(&Lhs));
 
-			FDcEnumData Rhs;
-			DC_TRY(RhsReader.ReadEnum(&Rhs));
+				FDcEnumData Rhs;
+				DC_TRY(RhsReader.ReadEnum(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.Type, Rhs.Type));
-			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
-			DC_TRY(_ExpectEqual(Lhs.bIsUnsigned, Rhs.bIsUnsigned));
-			if (Lhs.bIsUnsigned)
-				DC_TRY(_ExpectEqual(Lhs.Signed64, Rhs.Signed64));
-			else
-				DC_TRY(_ExpectEqual(Lhs.Unsigned64, Rhs.Unsigned64));
-		}
-		else if (Next == EDcDataEntry::StructRoot)
-		{
-			FDcStructStat Lhs;
-			DC_TRY(LhsReader.ReadStructRoot(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.Type, Rhs.Type));
+				DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
+				DC_TRY(_ExpectEqual(Lhs.bIsUnsigned, Rhs.bIsUnsigned));
+				if (Lhs.bIsUnsigned)
+					DC_TRY(_ExpectEqual(Lhs.Signed64, Rhs.Signed64));
+				else
+					DC_TRY(_ExpectEqual(Lhs.Unsigned64, Rhs.Unsigned64));
+				break;
+			}
+			case EDcDataEntry::StructRoot:
+			{
+				FDcStructAccess Lhs;
+				DC_TRY(LhsReader.ReadStructRootAccess(Lhs));
 
-			FDcStructStat Rhs;
-			DC_TRY(RhsReader.ReadStructRoot(&Rhs));
+				FDcStructAccess Rhs;
+				DC_TRY(RhsReader.ReadStructRootAccess(Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
-		}
-		else if (Next == EDcDataEntry::StructEnd)
-		{
-			FDcStructStat Lhs;
-			DC_TRY(LhsReader.ReadStructEnd(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
+				break;
+			}
+			case EDcDataEntry::StructEnd:
+			{
+				FDcStructAccess Lhs;
+				DC_TRY(LhsReader.ReadStructEndAccess(Lhs));
 
-			FDcStructStat Rhs;
-			DC_TRY(RhsReader.ReadStructEnd(&Rhs));
+				FDcStructAccess Rhs;
+				DC_TRY(RhsReader.ReadStructEndAccess(Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
-		}
-		else if (Next == EDcDataEntry::MapRoot)
-		{
-			DC_TRY(LhsReader.ReadMapRoot());
-			DC_TRY(RhsReader.ReadMapRoot());
-		}
-		else if (Next == EDcDataEntry::MapEnd)
-		{
-			DC_TRY(LhsReader.ReadMapEnd());
-			DC_TRY(RhsReader.ReadMapEnd());
-		}
-		else if (Next == EDcDataEntry::ClassRoot)
-		{
-			FDcClassStat Lhs;
-			DC_TRY(LhsReader.ReadClassRoot(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
+				break;
+			}
+			case EDcDataEntry::MapRoot:
+			{
+				DC_TRY(LhsReader.ReadMapRoot());
+				DC_TRY(RhsReader.ReadMapRoot());
+				break;
+			}
+			case EDcDataEntry::MapEnd:
+			{
+				DC_TRY(LhsReader.ReadMapEnd());
+				DC_TRY(RhsReader.ReadMapEnd());
+				break;
+			}
+			case EDcDataEntry::ClassRoot:
+			{
+				FDcClassAccess Lhs;
+				if (Type == EReadDatumEqualType::ExpandAllObjects)
+					Lhs.Control = FDcClassAccess::EControl::ExpandObject;
+				DC_TRY(LhsReader.ReadClassRootAccess(Lhs));
 
-			FDcClassStat Rhs;
-			DC_TRY(RhsReader.ReadClassRoot(&Rhs));
+				FDcClassAccess Rhs;
+				if (Type == EReadDatumEqualType::ExpandAllObjects)
+					Rhs.Control = FDcClassAccess::EControl::ExpandObject;
+				DC_TRY(RhsReader.ReadClassRootAccess(Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
-		}
-		else if (Next == EDcDataEntry::ClassEnd)
-		{
-			FDcClassStat Lhs;
-			DC_TRY(LhsReader.ReadClassEnd(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
+				break;
+			}
+			case EDcDataEntry::ClassEnd:
+			{
+				FDcClassAccess Lhs;
+				if (Type == EReadDatumEqualType::ExpandAllObjects)
+					Lhs.Control = FDcClassAccess::EControl::ExpandObject;
+				DC_TRY(LhsReader.ReadClassEndAccess(Lhs));
 
-			FDcClassStat Rhs;
-			DC_TRY(RhsReader.ReadClassEnd(&Rhs));
+				FDcClassAccess Rhs;
+				if (Type == EReadDatumEqualType::ExpandAllObjects)
+					Lhs.Control = FDcClassAccess::EControl::ExpandObject;
+				DC_TRY(RhsReader.ReadClassEndAccess(Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
-		}
-		else if (Next == EDcDataEntry::ArrayRoot)
-		{
-			DC_TRY(LhsReader.ReadArrayRoot());
-			DC_TRY(RhsReader.ReadArrayRoot());
-		}
-		else if (Next == EDcDataEntry::ArrayEnd)
-		{
-			DC_TRY(LhsReader.ReadArrayEnd());
-			DC_TRY(RhsReader.ReadArrayEnd());
-		}
-		else if (Next == EDcDataEntry::SetRoot)
-		{
-			DC_TRY(LhsReader.ReadSetRoot());
-			DC_TRY(RhsReader.ReadSetRoot());
-		}
-		else if (Next == EDcDataEntry::SetEnd)
-		{
-			DC_TRY(LhsReader.ReadSetEnd());
-			DC_TRY(RhsReader.ReadSetEnd());
-		}
-		else if (Next == EDcDataEntry::ObjectReference)
-		{
-			UObject* Lhs;
-			DC_TRY(LhsReader.ReadObjectReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.Name, Rhs.Name));
+				break;
+			}
+			case EDcDataEntry::ArrayRoot:
+			{
+				DC_TRY(LhsReader.ReadArrayRoot());
+				DC_TRY(RhsReader.ReadArrayRoot());
+				break;
+			}
+			case EDcDataEntry::ArrayEnd:
+			{
+				DC_TRY(LhsReader.ReadArrayEnd());
+				DC_TRY(RhsReader.ReadArrayEnd());
+				break;
+			}
+			case EDcDataEntry::SetRoot:
+			{
+				DC_TRY(LhsReader.ReadSetRoot());
+				DC_TRY(RhsReader.ReadSetRoot());
+				break;
+			}
+			case EDcDataEntry::SetEnd:
+			{
+				DC_TRY(LhsReader.ReadSetEnd());
+				DC_TRY(RhsReader.ReadSetEnd());
+				break;
+			}
+			case EDcDataEntry::ObjectReference:
+			{
+				UObject* Lhs;
+				DC_TRY(LhsReader.ReadObjectReference(&Lhs));
 
-			UObject* Rhs;
-			DC_TRY(RhsReader.ReadObjectReference(&Rhs));
+				UObject* Rhs;
+				DC_TRY(RhsReader.ReadObjectReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::ClassReference)
-		{
-			UClass* Lhs;
-			DC_TRY(LhsReader.ReadClassReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::ClassReference:
+			{
+				UClass* Lhs;
+				DC_TRY(LhsReader.ReadClassReference(&Lhs));
 
-			UClass* Rhs;
-			DC_TRY(RhsReader.ReadClassReference(&Rhs));
+				UClass* Rhs;
+				DC_TRY(RhsReader.ReadClassReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::WeakObjectReference)
-		{
-			FWeakObjectPtr Lhs;
-			DC_TRY(LhsReader.ReadWeakObjectReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::WeakObjectReference:
+			{
+				FWeakObjectPtr Lhs;
+				DC_TRY(LhsReader.ReadWeakObjectReference(&Lhs));
 
-			FWeakObjectPtr Rhs;
-			DC_TRY(RhsReader.ReadWeakObjectReference(&Rhs));
+				FWeakObjectPtr Rhs;
+				DC_TRY(RhsReader.ReadWeakObjectReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::LazyObjectReference)
-		{
-			FLazyObjectPtr Lhs;
-			DC_TRY(LhsReader.ReadLazyObjectReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::LazyObjectReference:
+			{
+				FLazyObjectPtr Lhs;
+				DC_TRY(LhsReader.ReadLazyObjectReference(&Lhs));
 
-			FLazyObjectPtr Rhs;
-			DC_TRY(RhsReader.ReadLazyObjectReference(&Rhs));
+				FLazyObjectPtr Rhs;
+				DC_TRY(RhsReader.ReadLazyObjectReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::SoftObjectReference)
-		{
-			FSoftObjectPath Lhs;
-			DC_TRY(LhsReader.ReadSoftObjectReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::SoftObjectReference:
+			{
+				FSoftObjectPtr Lhs;
+				DC_TRY(LhsReader.ReadSoftObjectReference(&Lhs));
 
-			FSoftObjectPath Rhs;
-			DC_TRY(RhsReader.ReadSoftObjectReference(&Rhs));
+				FSoftObjectPtr Rhs;
+				DC_TRY(RhsReader.ReadSoftObjectReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::SoftClassReference)
-		{
-			FSoftClassPath Lhs;
-			DC_TRY(LhsReader.ReadSoftClassReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::SoftClassReference:
+			{
+				FSoftObjectPtr Lhs;
+				DC_TRY(LhsReader.ReadSoftClassReference(&Lhs));
 
-			FSoftClassPath Rhs;
-			DC_TRY(RhsReader.ReadSoftClassReference(&Rhs));
+				FSoftObjectPtr Rhs;
+				DC_TRY(RhsReader.ReadSoftClassReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::InterfaceReference)
-		{
-			FScriptInterface Lhs;
-			DC_TRY(LhsReader.ReadInterfaceReference(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::InterfaceReference:
+			{
+				FScriptInterface Lhs;
+				DC_TRY(LhsReader.ReadInterfaceReference(&Lhs));
 
-			FScriptInterface Rhs;
-			DC_TRY(RhsReader.ReadInterfaceReference(&Rhs));
+				FScriptInterface Rhs;
+				DC_TRY(RhsReader.ReadInterfaceReference(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::FieldPath)
-		{
-			FFieldPath Lhs;
-			DC_TRY(LhsReader.ReadFieldPath(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::FieldPath:
+			{
+				FFieldPath Lhs;
+				DC_TRY(LhsReader.ReadFieldPath(&Lhs));
 
-			FFieldPath Rhs;
-			DC_TRY(RhsReader.ReadFieldPath(&Rhs));
+				FFieldPath Rhs;
+				DC_TRY(RhsReader.ReadFieldPath(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Delegate)
-		{
-			FScriptDelegate Lhs;
-			DC_TRY(LhsReader.ReadDelegate(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Delegate:
+			{
+				FScriptDelegate Lhs;
+				DC_TRY(LhsReader.ReadDelegate(&Lhs));
 
-			FScriptDelegate Rhs;
-			DC_TRY(RhsReader.ReadDelegate(&Rhs));
+				FScriptDelegate Rhs;
+				DC_TRY(RhsReader.ReadDelegate(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::MulticastInlineDelegate)
-		{
-			FMulticastScriptDelegate Lhs;
-			DC_TRY(LhsReader.ReadMulticastInlineDelegate(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::MulticastInlineDelegate:
+			{
+				FMulticastScriptDelegate Lhs;
+				DC_TRY(LhsReader.ReadMulticastInlineDelegate(&Lhs));
 
-			FMulticastScriptDelegate Rhs;
-			DC_TRY(RhsReader.ReadMulticastInlineDelegate(&Rhs));
+				FMulticastScriptDelegate Rhs;
+				DC_TRY(RhsReader.ReadMulticastInlineDelegate(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.ToString<UObject>(), Rhs.ToString<UObject>()));
-		}
-		else if (Next == EDcDataEntry::MulticastSparseDelegate)
-		{
-			FMulticastScriptDelegate Lhs;
-			DC_TRY(LhsReader.ReadMulticastSparseDelegate(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.ToString<UObject>(), Rhs.ToString<UObject>()));
+				break;
+			}
+			case EDcDataEntry::MulticastSparseDelegate:
+			{
+				FMulticastScriptDelegate Lhs;
+				DC_TRY(LhsReader.ReadMulticastSparseDelegate(&Lhs));
 
-			FMulticastScriptDelegate Rhs;
-			DC_TRY(RhsReader.ReadMulticastSparseDelegate(&Rhs));
+				FMulticastScriptDelegate Rhs;
+				DC_TRY(RhsReader.ReadMulticastSparseDelegate(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs.ToString<UObject>(), Rhs.ToString<UObject>()));
-		}
-		else if (Next == EDcDataEntry::Int8)
-		{
-			int8 Lhs;
-			DC_TRY(LhsReader.ReadInt8(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs.ToString<UObject>(), Rhs.ToString<UObject>()));
+				break;
+			}
+			case EDcDataEntry::Int8:
+			{
+				int8 Lhs;
+				DC_TRY(LhsReader.ReadInt8(&Lhs));
 
-			int8 Rhs;
-			DC_TRY(RhsReader.ReadInt8(&Rhs));
+				int8 Rhs;
+				DC_TRY(RhsReader.ReadInt8(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Int16)
-		{
-			int16 Lhs;
-			DC_TRY(LhsReader.ReadInt16(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Int16:
+			{
+				int16 Lhs;
+				DC_TRY(LhsReader.ReadInt16(&Lhs));
 
-			int16 Rhs;
-			DC_TRY(RhsReader.ReadInt16(&Rhs));
+				int16 Rhs;
+				DC_TRY(RhsReader.ReadInt16(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Int32)
-		{
-			int32 Lhs;
-			DC_TRY(LhsReader.ReadInt32(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Int32:
+			{
+				int32 Lhs;
+				DC_TRY(LhsReader.ReadInt32(&Lhs));
 
-			int32 Rhs;
-			DC_TRY(RhsReader.ReadInt32(&Rhs));
+				int32 Rhs;
+				DC_TRY(RhsReader.ReadInt32(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Int64)
-		{
-			int64 Lhs;
-			DC_TRY(LhsReader.ReadInt64(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Int64:
+			{
+				int64 Lhs;
+				DC_TRY(LhsReader.ReadInt64(&Lhs));
 
-			int64 Rhs;
-			DC_TRY(RhsReader.ReadInt64(&Rhs));
+				int64 Rhs;
+				DC_TRY(RhsReader.ReadInt64(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::UInt8)
-		{
-			uint8 Lhs;
-			DC_TRY(LhsReader.ReadUInt8(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::UInt8:
+			{
+				uint8 Lhs;
+				DC_TRY(LhsReader.ReadUInt8(&Lhs));
 
-			uint8 Rhs;
-			DC_TRY(RhsReader.ReadUInt8(&Rhs));
+				uint8 Rhs;
+				DC_TRY(RhsReader.ReadUInt8(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::UInt16)
-		{
-			uint16 Lhs;
-			DC_TRY(LhsReader.ReadUInt16(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::UInt16:
+			{
+				uint16 Lhs;
+				DC_TRY(LhsReader.ReadUInt16(&Lhs));
 
-			uint16 Rhs;
-			DC_TRY(RhsReader.ReadUInt16(&Rhs));
+				uint16 Rhs;
+				DC_TRY(RhsReader.ReadUInt16(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::UInt32)
-		{
-			uint32 Lhs;
-			DC_TRY(LhsReader.ReadUInt32(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::UInt32:
+			{
+				uint32 Lhs;
+				DC_TRY(LhsReader.ReadUInt32(&Lhs));
 
-			uint32 Rhs;
-			DC_TRY(RhsReader.ReadUInt32(&Rhs));
+				uint32 Rhs;
+				DC_TRY(RhsReader.ReadUInt32(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::UInt64)
-		{
-			uint64 Lhs;
-			DC_TRY(LhsReader.ReadUInt64(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::UInt64:
+			{
+				uint64 Lhs;
+				DC_TRY(LhsReader.ReadUInt64(&Lhs));
 
-			uint64 Rhs;
-			DC_TRY(RhsReader.ReadUInt64(&Rhs));
+				uint64 Rhs;
+				DC_TRY(RhsReader.ReadUInt64(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Float)
-		{
-			float Lhs;
-			DC_TRY(LhsReader.ReadFloat(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Float:
+			{
+				float Lhs;
+				DC_TRY(LhsReader.ReadFloat(&Lhs));
 
-			float Rhs;
-			DC_TRY(RhsReader.ReadFloat(&Rhs));
+				float Rhs;
+				DC_TRY(RhsReader.ReadFloat(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else if (Next == EDcDataEntry::Double)
-		{
-			double Lhs;
-			DC_TRY(LhsReader.ReadDouble(&Lhs));
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			case EDcDataEntry::Double:
+			{
+				double Lhs;
+				DC_TRY(LhsReader.ReadDouble(&Lhs));
 
-			double Rhs;
-			DC_TRY(RhsReader.ReadDouble(&Rhs));
+				double Rhs;
+				DC_TRY(RhsReader.ReadDouble(&Rhs));
 
-			DC_TRY(_ExpectEqual(Lhs, Rhs));
-		}
-		else
-		{
-			return DcNoEntry();
+				DC_TRY(_ExpectEqual(Lhs, Rhs));
+				break;
+			}
+			default:
+				return DcNoEntry();
 		}
 	}
 
 	return DcOk();
 }
 
-namespace Details
+FDcResult DumpNextNumericAsString(FDcReader* Reader, FString* OutStr)
+{
+	EDcDataEntry Next;
+	DC_TRY(Reader->PeekRead(&Next));
+
+	auto _WriteInt64 = [](const int64& Value)
+	{
+		return FString::Printf(TEXT("%lld"), Value);
+	};
+
+	auto _WriteUInt64 = [](const uint64& Value)
+	{
+		return FString::Printf(TEXT("%llu"), Value);
+	};
+
+	if (Next == EDcDataEntry::UInt8)
+	{
+		uint8 Value;
+		DC_TRY(Reader->ReadUInt8(&Value));
+		return ReadOutOk(OutStr, _WriteUInt64(Value));
+	}
+	else if (Next == EDcDataEntry::UInt16)
+	{
+		uint16 Value;
+		DC_TRY(Reader->ReadUInt16(&Value));
+		return ReadOutOk(OutStr, _WriteUInt64(Value));
+	}
+	else if (Next == EDcDataEntry::UInt32)
+	{
+		uint32 Value;
+		DC_TRY(Reader->ReadUInt32(&Value));
+		return ReadOutOk(OutStr, _WriteUInt64(Value));
+	}
+	else if (Next == EDcDataEntry::UInt64)
+	{
+		uint64 Value;
+		DC_TRY(Reader->ReadUInt64(&Value));
+		return ReadOutOk(OutStr, _WriteUInt64(Value));
+	}
+	else if (Next == EDcDataEntry::Int8)
+	{
+		int8 Value;
+		DC_TRY(Reader->ReadInt8(&Value));
+		return ReadOutOk(OutStr, _WriteInt64(Value));
+	}
+	else if (Next == EDcDataEntry::Int16)
+	{
+		int16 Value;
+		DC_TRY(Reader->ReadInt16(&Value));
+		return ReadOutOk(OutStr, _WriteInt64(Value));
+	}
+	else if (Next == EDcDataEntry::Int32)
+	{
+		int32 Value;
+		DC_TRY(Reader->ReadInt32(&Value));
+		return ReadOutOk(OutStr, _WriteInt64(Value));
+	}
+	else if (Next == EDcDataEntry::Int64)
+	{
+		int64 Value;
+		DC_TRY(Reader->ReadInt64(&Value));
+		return ReadOutOk(OutStr, _WriteInt64(Value));
+	}
+	else if (Next == EDcDataEntry::Float)
+	{
+		float Value;
+		DC_TRY(Reader->ReadFloat(&Value));
+		return ReadOutOk(OutStr, FString::Printf(TEXT("%.17g"), Value));
+	}
+	else if (Next == EDcDataEntry::Double)
+	{
+		double Value;
+		DC_TRY(Reader->ReadDouble(&Value));
+		return ReadOutOk(OutStr, FString::Printf(TEXT("%.17g"), Value));
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeMismatchNoExpect) << Next;
+	}
+}
+namespace DcAutomationUtilDetails
 {
 
 void DumpToOutputDevice(FDcPropertyDatum Datum, FOutputDevice& Output, TSharedPtr<IDcDiagnosticConsumer> NewEnvConsumer)
@@ -450,6 +576,23 @@ void DumpToOutputDevice(FDcPropertyDatum Datum, FOutputDevice& Output, TSharedPt
 	}
 }
 
+void DumpToOutputDevice(FDcReader* Reader, FOutputDevice& Output, TSharedPtr<IDcDiagnosticConsumer> NewEnvConsumer)
+{
+	check(Reader);
+	FDcScopedEnv ScopedEnv{};
+	ScopedEnv.Get().DiagConsumer = NewEnvConsumer;
+
+	Output.Log(TEXT("-----------------------------------------"));
+	Output.Logf(TEXT("# Reader: '%s'"), *Reader->GetId().ToString());
+
+	FDcPrettyPrintWriter PrettyWriter(Output);
+	FDcPipeVisitor PrettyPrintVisit(Reader, &PrettyWriter);
+
+	if (!PrettyPrintVisit.PipeVisit().Ok())
+		ScopedEnv.Get().FlushDiags();
+	Output.Log(TEXT("-----------------------------------------"));
+}
+
 struct FLowLevelOutputDevice : public FOutputDevice
 {
 	void Serialize(const TCHAR* InData, ELogVerbosity::Type Verbosity, const class FName& Category) override
@@ -460,26 +603,46 @@ struct FLowLevelOutputDevice : public FOutputDevice
 };
 
 
-} // namespace Details
+} // namespace DcAutomationUtilDetails
 
 
 
 void DumpToLog(FDcPropertyDatum Datum)
 {
 	FOutputDevice& WarnOut = (FOutputDevice&)*GWarn;
-	Details::DumpToOutputDevice(Datum, WarnOut, DcEnv().DiagConsumer);
+	DcAutomationUtilDetails::DumpToOutputDevice(Datum, WarnOut, DcEnv().DiagConsumer);
 }
 
 void DumpToLowLevelDebugOutput(FDcPropertyDatum Datum)
 {
-	Details::FLowLevelOutputDevice Output;
-	Details::DumpToOutputDevice(Datum, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
+	DcAutomationUtilDetails::FLowLevelOutputDevice Output;
+	DcAutomationUtilDetails::DumpToOutputDevice(Datum, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
 }
 
 FString DumpFormat(FDcPropertyDatum Datum)
 {
 	DcCorePrivate::FStringNewlineDevice Output;
-	Details::DumpToOutputDevice(Datum, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
+	DcAutomationUtilDetails::DumpToOutputDevice(Datum, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
+
+	return MoveTemp(Output);
+}
+
+void DumpToLog(FDcReader* Reader)
+{
+	FOutputDevice& WarnOut = (FOutputDevice&)*GWarn;
+	DcAutomationUtilDetails::DumpToOutputDevice(Reader, WarnOut, DcEnv().DiagConsumer);
+}
+
+void DumpToLowLevelDebugOutput(FDcReader* Reader)
+{
+	DcAutomationUtilDetails::FLowLevelOutputDevice Output;
+	DcAutomationUtilDetails::DumpToOutputDevice(Reader, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
+}
+
+FString DumpFormat(FDcReader* Reader)
+{
+	DcCorePrivate::FStringNewlineDevice Output;
+	DcAutomationUtilDetails::DumpToOutputDevice(Reader, Output, MakeShareable(new FDcOutputDeviceDiagnosticConsumer{Output}));
 
 	return MoveTemp(Output);
 }
@@ -517,6 +680,78 @@ FDcPropertyDatum TryGetMemberDatum(const FDcPropertyDatum& Datum, const FName& N
 	Ret.DataPtr = Property->ContainerPtrToValuePtr<void*>(Datum.DataPtr);
 	return Ret;
 }
+
+int DebugGetEnumPropertyIndex(const FDcPropertyDatum& Datum, const FName& Name)
+{
+	UStruct* Struct = DcPropertyUtils::TryGetStruct(Datum);
+	if (!Struct)
+		return INDEX_NONE;
+
+	FFieldVariant EnumProperty = PropertyAccessUtil::FindPropertyByName(Name, Struct);
+	UEnum* Enum = nullptr;
+	FNumericProperty* UnderlyingProperty = nullptr;
+	FDcResult Result = DcPropertyUtils::GetEnumProperty(EnumProperty, Enum, UnderlyingProperty);
+	if (!Result.Ok()
+		|| Enum == nullptr
+		|| UnderlyingProperty == nullptr)
+		return INDEX_NONE;
+
+	void* FieldPtr = UnderlyingProperty->ContainerPtrToValuePtr<void*>(Datum.DataPtr);
+	int64 Value = UnderlyingProperty->GetSignedIntPropertyValue(FieldPtr);
+	return Enum->GetIndexByValue(Value);
+}
+
+FDcResult DeserializeFrom(FDcReader* Reader, FDcPropertyDatum Datum,
+	TFunctionRef<void(FDcDeserializeContext&)> Func, EDefaultSetupType SetupType)
+{
+	FDcDeserializer Deserializer;
+	if (SetupType == EDefaultSetupType::SetupJSONHandlers)
+	{
+		DcSetupJsonDeserializeHandlers(Deserializer);
+	}
+	else if (SetupType == EDefaultSetupType::SetupNothing)
+	{
+		//	pass
+	}
+
+	FDcPropertyWriter Writer(Datum);
+	FDcDeserializeContext Ctx;
+	Ctx.Reader = Reader;
+	Ctx.Writer = &Writer;
+	Ctx.Deserializer = &Deserializer;
+	Func(Ctx);
+	DC_TRY(Ctx.Prepare());
+
+	return Deserializer.Deserialize(Ctx);
+}
+
+FDcResult SerializeInto(FDcWriter* Writer, FDcPropertyDatum Datum,
+	TFunctionRef<void(FDcSerializeContext&)> Func, EDefaultSetupType SetupType)
+{
+{
+	FDcSerializer Serializer;
+	if (SetupType == EDefaultSetupType::SetupJSONHandlers)
+	{
+		DcSetupJsonSerializeHandlers(Serializer);
+	}
+	else if (SetupType == EDefaultSetupType::SetupNothing)
+	{
+		//	pass
+	}
+
+	FDcPropertyReader Reader(Datum);
+	FDcSerializeContext Ctx;
+	Ctx.Reader = &Reader;
+	Ctx.Writer = Writer;
+	Ctx.Serializer = &Serializer;
+	Func(Ctx);
+	DC_TRY(Ctx.Prepare());
+
+	return Serializer.Serialize(Ctx);
+}
+
+}
+
 
 }	// namespace DcAutomationUtils
 

@@ -10,7 +10,9 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ InvalidStateWithExpect2, TEXT("Invalid internal state. Expect '{0}' '{1}', Actual '{2}'."), },
 	{ DataTypeMismatch, TEXT("Datatype mismatch. Expected '{0}', Actual '{1}'") },
 	{ DataTypeMismatch2, TEXT("Datatype mismatch. Expected '{0}', '{1}', Actual '{2}'") },
-	{ PropertyMismatch, TEXT("Unexpected Property type. Expected type '{0}', Property '{0}' '{1}'") },
+	{ DataTypeMismatchNoExpect, TEXT("Datatype mismatch. Actual '{0}'") },
+	{ DataTypeMismatchNoCoercion, TEXT("Datatype mismatch and no valid coercion. Expected '{0}', Actual '{1}'") },
+	{ PropertyMismatch, TEXT("Unexpected Property type. Expected type '{0}', Property '{1}' '{2}'") },
 	{ PropertyMismatch2, TEXT("Unexpected Property type. Expected type '{0}' / '{1}', Property '{2}' '{3}'") },
 	{ AlreadyEnded, TEXT("Invalid access after already ended.") },
 	{ CantFindPropertyByName, TEXT("Can't find property by name. Name '{0}'") },
@@ -26,17 +28,20 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DataTypeUnequal, TEXT("Data entry value unequal, Type: '{0}'") },
 	{ DataTypeUnequalLhsRhs, TEXT("Data entry value unequal, Type: '{0}', Lhs: '{1}', Rhs: '{2}'") },
 	{ ExpectFieldButFoundUObject, TEXT("Expect FFieldVariant to be FField but found UObject. Property '{0}' '{1}'") },
+	{ FNameOverSize, TEXT("String is too long to be converted to FName, which is capped at 1024") },
+	{ ReaderCastExpect, TEXT("Reader cast failed. Expected '{0}, Actual '{1}'") },
+	{ WriterCastExpect, TEXT("Writer cast failed. Expected '{0}, Actual '{1}'") },
 
 	//	putback reader
 	{ CantUsePutbackValue, TEXT("Cannot use putback value in '{0}'") },
 	//	pipe visitor
-	{ PipeReadWriteMismatch, TEXT("Pipe visit read write mismatch. Actual '{0}'") },
+	{ PipeReadWriteMismatch, TEXT("Pipe visit read write mismatch. Reader peeks '{0}' but writer rejects it.") },
 	//	skip
 	{ SkipOutOfRange, TEXT("Skipping out of range, Container actual length : {0}") },
 };
 
 FDcDiagnosticGroup Details = {
-	DcDReadWrite::Category,
+	Category,
 	DcDimOf(_ReadWriteDetails),
 	_ReadWriteDetails
 };

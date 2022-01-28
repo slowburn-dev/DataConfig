@@ -20,13 +20,14 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 
 	EState State = EState::Uninitialized;
 
-	FString Name;
 	TArray<UObject*, TInlineAllocator<4>> Objects;
 	TArray<FFieldVariant, TInlineAllocator<8>> Properties;
 
-	FDcDeserializer* Deserializer;
-	FDcReader* Reader;
-	FDcPropertyWriter* Writer;
+	FDcDeserializer* Deserializer = nullptr;
+	FDcReader* Reader = nullptr;
+	FDcPropertyWriter* Writer = nullptr;
+
+	void* UserData = nullptr;
 
 	FORCEINLINE FFieldVariant& TopProperty() 
 	{

@@ -29,11 +29,11 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteText(const FText& Value) override;
 	FDcResult WriteEnum(const FDcEnumData& Value) override;
 
-	FDcResult WriteStructRoot(const FDcStructStat& Struct) override;
-	FDcResult WriteStructEnd(const FDcStructStat& Struct) override;
+	FDcResult WriteStructRootAccess(FDcStructAccess& Access) override;
+	FDcResult WriteStructEndAccess(FDcStructAccess& Access) override;
 
-	FDcResult WriteClassRoot(const FDcClassStat& Class) override;
-	FDcResult WriteClassEnd(const FDcClassStat& Class) override;
+	FDcResult WriteClassRootAccess(FDcClassAccess& Access) override;
+	FDcResult WriteClassEndAccess(FDcClassAccess& Access) override;
 
 	FDcResult WriteMapRoot() override;
 	FDcResult WriteMapEnd() override;
@@ -49,8 +49,8 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	FDcResult WriteWeakObjectReference(const FWeakObjectPtr& Value) override;
 	FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value) override;
-	FDcResult WriteSoftObjectReference(const FSoftObjectPath& Value) override;
-	FDcResult WriteSoftClassReference(const FSoftClassPath& Value) override;
+	FDcResult WriteSoftObjectReference(const FSoftObjectPtr& Value) override;
+	FDcResult WriteSoftClassReference(const FSoftObjectPtr& Value) override;
 	FDcResult WriteInterfaceReference(const FScriptInterface& Value) override;
 
 	FDcResult WriteFieldPath(const FFieldPath& Value) override;
@@ -72,16 +72,16 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcResult WriteDouble(const double& Value) override;
 	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
-	//	try skip write at current position
+	///	try skip write at current position
 	FDcResult SkipWrite();
-	//	get the next write property
+	///	get the next write property
 	FDcResult PeekWriteProperty(FFieldVariant* OutProperty);
-	//	manual writing
+	///	manual writing
 	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
 
-	//	manual writing supporting
-	void PushTopClassPropertyState(const FDcPropertyDatum& Datum);
-	void PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
+	///	manual writing supporting
+	FDcResult PushTopClassPropertyState(const FDcPropertyDatum& Datum);
+	FDcResult PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
 
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;
@@ -91,6 +91,8 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
+	static FName ClassId(); 
+	FName GetId() override;
 };
 
 

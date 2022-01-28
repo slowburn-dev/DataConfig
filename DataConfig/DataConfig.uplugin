@@ -12,6 +12,11 @@
 	"Installed" : false,
 	"Modules": [
 		{
+			"Name": "DataConfigCore",
+			"Type": "Editor",
+			"LoadingPhase": "None"
+		},
+		{
 			"Name": "DataConfigExtra",
 			"Type": "Editor",
 	    	"LoadingPhase": "Default"

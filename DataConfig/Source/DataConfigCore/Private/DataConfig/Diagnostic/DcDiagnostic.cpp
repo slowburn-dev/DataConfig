@@ -1,10 +1,9 @@
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
-#include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/DcCorePrivate.h"
 
-TBasicArray<FDcDiagnosticGroup*> DcDiagGroups;
+TArray<FDcDiagnosticGroup*> DcDiagGroups;
 
 namespace DcDiagnosticDetails
 {

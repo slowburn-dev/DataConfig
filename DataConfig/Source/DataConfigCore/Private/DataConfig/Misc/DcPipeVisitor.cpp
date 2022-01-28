@@ -2,7 +2,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Writer/DcWriter.h"
-#include "DataConfig/Deserialize/DcDeserializeUtils.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
@@ -13,26 +13,53 @@ static FDcResult ExecutePipeVisit(FDcPipeVisitor* Self)
 {
 	while (true)
 	{
-		Self->PreVisit.ExecuteIfBound(Self);
+		EPipeVisitControl Control = EPipeVisitControl::Pass;
+
+		if (Self->PreVisit.IsBound())
+		{
+			DC_TRY(Self->PreVisit.Execute(Self, Control));
+			if (Control == EPipeVisitControl::BreakVisit)
+				return DcOk();
+			if (Control == EPipeVisitControl::SkipContinue)
+				continue;
+		}
 
 		EDcDataEntry PeekEntry;
 		DC_TRY(Self->Reader->PeekRead(&PeekEntry));
 
-		bool bWriteOK;
-		DC_TRY(Self->Writer->PeekWrite(PeekEntry, &bWriteOK));
-		if (!bWriteOK)
-			return DC_FAIL(DcDReadWrite, PipeReadWriteMismatch) << PeekEntry;
+		if (Self->PeekVisit.IsBound())
+		{
+			DC_TRY(Self->PeekVisit.Execute(Self, PeekEntry, Control));
+			if (Control == EPipeVisitControl::BreakVisit)
+				return DcOk();
+			if (Control == EPipeVisitControl::SkipContinue)
+				continue;
+		}
 
-		if (PeekEntry == EDcDataEntry::Ended)
-			return DcOk();
-		else
-			DC_TRY(DcDeserializeUtils::DispatchPipeVisit(PeekEntry, Self->Reader, Self->Writer));
+		{
+			bool bWriteOK;
+			DC_TRY(Self->Writer->PeekWrite(PeekEntry, &bWriteOK));
+			if (!bWriteOK)
+				return DC_FAIL(DcDReadWrite, PipeReadWriteMismatch) << PeekEntry;
 
-		Self->PostVisit.ExecuteIfBound(Self);
+			if (PeekEntry == EDcDataEntry::Ended)
+				return DcOk();
+			else
+				DC_TRY(DcSerDeUtils::DispatchPipeVisit(PeekEntry, Self->Reader, Self->Writer));
+		}
+
+		if (Self->PostVisit.IsBound())
+		{
+			DC_TRY(Self->PostVisit.Execute(Self, PeekEntry, Control));
+			if (Control == EPipeVisitControl::BreakVisit)
+				return DcOk();
+			if (Control == EPipeVisitControl::SkipContinue)
+				continue;
+		}
 	}
 }
 
-}	// namespace DcPipeVisitorDetails
+} // namespace DcPipeVisitorDetails
 
 
 FDcPipeVisitor::FDcPipeVisitor(FDcReader* InReader, FDcWriter* InWriter)
@@ -44,7 +71,8 @@ FDcPipeVisitor::FDcPipeVisitor(FDcReader* InReader, FDcWriter* InWriter)
 FDcResult FDcPipeVisitor::PipeVisit()
 {
 	FDcResult Result = DcPipeVisitorDetails::ExecutePipeVisit(this);
-	if (!Result.Ok())
+	if (!Result.Ok()
+		&& !DcEnv().bExpectFail)
 		DcDiagnosticUtils::AmendDiagnostic(DcEnv().GetLastDiag(), Reader, Writer);
 
 	return Result;

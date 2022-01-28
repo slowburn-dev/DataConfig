@@ -2,9 +2,6 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 
-FDcWriter::FDcWriter()
-{}
-
 FDcWriter::~FDcWriter()
 {}
 
@@ -15,10 +12,10 @@ FDcResult FDcWriter::WriteName(const FName&) { return DC_FAIL(DcDCommon, NotImpl
 FDcResult FDcWriter::WriteString(const FString&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteText(const FText&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteEnum(const FDcEnumData&) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteStructRoot(const FDcStructStat& Struct) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteStructEnd(const FDcStructStat& Struct) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteClassRoot(const FDcClassStat& Class) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteClassEnd(const FDcClassStat& Class) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteStructRootAccess(FDcStructAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteStructEndAccess(FDcStructAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteClassRootAccess(FDcClassAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteClassEndAccess(FDcClassAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteMapRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteMapEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteArrayRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -29,8 +26,8 @@ FDcResult FDcWriter::WriteObjectReference(const UObject*) { return DC_FAIL(DcDCo
 FDcResult FDcWriter::WriteClassReference(const UClass*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteWeakObjectReference(const FWeakObjectPtr&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteLazyObjectReference(const FLazyObjectPtr&) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteSoftObjectReference(const FSoftObjectPath&) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteSoftClassReference(const FSoftClassPath&) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteSoftObjectReference(const FSoftObjectPtr&) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteSoftClassReference(const FSoftObjectPtr&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteInterfaceReference(const FScriptInterface&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteFieldPath(const FFieldPath& Value) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteDelegate(const FScriptDelegate&) { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -49,4 +46,7 @@ FDcResult FDcWriter::WriteDouble(const double&) { return DC_FAIL(DcDCommon, NotI
 FDcResult FDcWriter::WriteBlob(const FDcBlobViewData&) { return DC_FAIL(DcDCommon, NotImplemented); }
 
 void FDcWriter::FormatDiagnostic(FDcDiagnostic& Diag) { /*pass*/ }
+
+FName FDcWriter::ClassId() { return FName(TEXT("BaseDcWriter")); }
+FName FDcWriter::GetId() { return ClassId(); }
 

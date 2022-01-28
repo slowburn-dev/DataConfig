@@ -1,16 +1,22 @@
 #include "DcTestBlurb.h"
-#include "DcTestCommon.h"
+#include "DcTestSerDe.h"
+#include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
-#include "DataConfig/Extra/Deserialize/DcDeserializeColor.h"
+#include "DataConfig/Extra/SerDe/DcSerDeColor.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
+#include "DataConfig/Serialize/DcSerializer.h"
+#include "DataConfig/Serialize/DcSerializerSetup.h"
+#include "DataConfig/Serialize/DcSerializeTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Json/DcJsonWriter.h"
+#include "DataConfig/MsgPack/DcMsgPackReader.h"
+#include "DataConfig/MsgPack/DcMsgPackWriter.h"
 
-// short test code for example and showcases
-
+/// short test code for example and showcases
 DC_TEST("DataConfig.Core.Blurb.Frontpage")
 {
 	UTEST_OK("Blurb Frontpage", []{
@@ -27,28 +33,29 @@ DC_TEST("DataConfig.Core.Blurb.Frontpage")
 
 		FDcTestExampleStruct Dest;
 
-		//	create and setup a deserializer
-		FDcDeserializer Deserializer;
-		DcSetupJsonDeserializeHandlers(Deserializer);
-		Deserializer.AddPredicatedHandler(
-			FDcDeserializePredicate::CreateStatic(DcExtra::PredicateIsColorStruct),
-			FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
-		);
+		{
+			//	create and setup a deserializer
+			FDcDeserializer Deserializer;
+			DcSetupJsonDeserializeHandlers(Deserializer);
+			Deserializer.AddPredicatedHandler(
+				FDcDeserializePredicate::CreateStatic(DcExtra::PredicateIsColorStruct),
+				FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
+			);
 
-		//	prepare context for this run
-		FDcPropertyDatum Datum(FDcTestExampleStruct::StaticStruct(), &Dest);
-		FDcJsonReader Reader(Str);
-		FDcPropertyWriter Writer(Datum);
+			//	prepare deserialize context
+			FDcPropertyDatum Datum(&Dest);
+			FDcJsonReader Reader(Str);
+			FDcPropertyWriter Writer(Datum);
 
-		FDcDeserializeContext Ctx;
-		Ctx.Reader = &Reader;
-		Ctx.Writer = &Writer;
-		Ctx.Deserializer = &Deserializer;
-		Ctx.Properties.Push(Datum.Property);
-		DC_TRY(Ctx.Prepare());
+			FDcDeserializeContext Ctx;
+			Ctx.Reader = &Reader;
+			Ctx.Writer = &Writer;
+			Ctx.Deserializer = &Deserializer;
+			DC_TRY(Ctx.Prepare());
 
-		//	kick off deserialization
-		DC_TRY(Deserializer.Deserialize(Ctx));
+			//	kick off deserialization
+			DC_TRY(Deserializer.Deserialize(Ctx));
+		}
 
 		//	validate results
 		check(Dest.StrField == TEXT("Lorem ipsum dolor sit amet"));
@@ -56,6 +63,30 @@ DC_TEST("DataConfig.Core.Blurb.Frontpage")
 		check(Dest.Colors[0] == FColor::Red);
 		check(Dest.Colors[1] == FColor::Green);
 		check(Dest.Colors[2] == FColor::Blue);
+
+		//	then serialize to MsgPack
+		{
+			FDcSerializer Serializer;
+			DcSetupMsgPackSerializeHandlers(Serializer);
+
+			FDcPropertyDatum Datum(&Dest);
+			FDcPropertyReader Reader(Datum);
+			FDcMsgPackWriter Writer;
+
+			//	prepare serialize context
+			FDcSerializeContext Ctx;
+			Ctx.Reader = &Reader;
+			Ctx.Writer = &Writer;
+			Ctx.Serializer = &Serializer;
+			DC_TRY(Ctx.Prepare());
+
+			//	kick off serialization
+			DC_TRY(Serializer.Serialize(Ctx));
+
+			auto& Buffer = Writer.GetMainBuffer();
+			//	starts withMsgPack FIXMAP(3) header
+			check(Buffer[0] == 0x83);	
+		}
 
 		return DcOk();
 	}());
@@ -83,11 +114,9 @@ DC_TEST("DataConfig.Core.Blurb.ReadWrite")
 
 	UTEST_OK("Blurb Reader", [&]{
 
-		FDcPropertyReader Reader(FDcPropertyDatum(FDcTestExampleSimple::StaticStruct(), &SimpleStruct));
+		FDcPropertyReader Reader{FDcPropertyDatum(&SimpleStruct)};
 
-		FDcStructStat Struct;	// `FDcTestExampleSimple` Struct Root
-		DC_TRY(Reader.ReadStructRoot(&Struct));
-		check(Struct.Name == TEXT("DcTestExampleSimple"));
+		DC_TRY(Reader.ReadStructRoot()); // `FDcTestExampleSimple` Struct Root
 
 			FName FieldName;
 			DC_TRY(Reader.ReadName(&FieldName));	// 'StrField' as FName
@@ -104,17 +133,16 @@ DC_TEST("DataConfig.Core.Blurb.ReadWrite")
 			DC_TRY(Reader.ReadInt32(&IntValue));	// 253
 			check(IntValue == 253);
 
-		DC_TRY(Reader.ReadStructEnd(&Struct));	// `FDcTestExampleSimple` Struct Root
-		check(Struct.Name == TEXT("DcTestExampleSimple"));
+		DC_TRY(Reader.ReadStructEnd());	// `FDcTestExampleSimple` Struct Root
 
 		return DcOk();
 	}());
 
 	UTEST_OK("Blurb Writer", [&]{
 
-		FDcPropertyWriter Writer(FDcPropertyDatum(FDcTestExampleSimple::StaticStruct(), &SimpleStruct));
+		FDcPropertyWriter Writer{FDcPropertyDatum(&SimpleStruct)};
 
-		DC_TRY(Writer.WriteStructRoot(FDcStructStat{})); // `FDcTestExampleSimple` Struct Root
+		DC_TRY(Writer.WriteStructRoot()); // `FDcTestExampleSimple` Struct Root
 
 		DC_TRY(Writer.WriteName(TEXT("StrField")));      // 'StrField' as FName
 		DC_TRY(Writer.WriteString(TEXT("Alt Str")));     // "Foo STr"
@@ -123,7 +151,7 @@ DC_TEST("DataConfig.Core.Blurb.ReadWrite")
 		DC_TRY(Writer.WriteName(TEXT("IntField")));      // 'IntField' as FName
 		DC_TRY(Writer.WriteInt32(233));                  // 233
 
-		DC_TRY(Writer.WriteStructEnd(FDcStructStat{}));  // `FDcTestExampleSimple` Struct Root
+		DC_TRY(Writer.WriteStructEnd());  // `FDcTestExampleSimple` Struct Root
 
 		check(SimpleStruct.StrField == TEXT("Alt Str"));
 		check(SimpleStruct.IntField == 233);
@@ -160,14 +188,14 @@ DC_TEST("DataConfig.Core.Blurb.Result")
 
 DC_TEST("DataConfig.Core.Blurb.JSONReader")
 {
-	UTEST_OK("Blurb Writer", [&]{
+	UTEST_OK("Blurb JSONReader", [&]{
 
 		FString Str = TEXT(R"(
 			{
-				"Str":    "Fooo",
-				"Number": 1.875,
-				"Bool":   true
-			} 
+				"Str" : "Fooo",
+				"Number" : 1.875,
+				"Bool" : true
+			}
 		)");
 
 		FDcJsonReader Reader(Str);
@@ -217,9 +245,9 @@ DC_TEST("DataConfig.Core.Blurb.Uninitialized")
 		FDcJsonReader Reader(Str);
 
 		FDcTestExampleSimple Dest;
-		FDcPropertyDatum DestDatum(FDcTestExampleSimple::StaticStruct(), &Dest);
+		FDcPropertyDatum DestDatum(&Dest);
 
-		DC_TRY(DcAutomationUtils::DeserializeJsonInto(&Reader, DestDatum));
+		DC_TRY(DcAutomationUtils::DeserializeFrom(&Reader, DestDatum));
 
 		check(Dest.StrField.IsEmpty());
 		//	but Dest.IntField contains uninitialized value
@@ -244,8 +272,8 @@ DC_TEST("DataConfig.Core.Blurb.PropertyHandlers")
 		//	these two following blocks are equivalent
 		{
 			To  = FDcTestExampleSimple();
-			FDcPropertyDatum FromDatum(FDcTestExampleSimple::StaticStruct(), &From);
-			FDcPropertyDatum ToDatum(FDcTestExampleSimple::StaticStruct(), &To);
+			FDcPropertyDatum FromDatum(&From);
+			FDcPropertyDatum ToDatum(&To);
 
 			FDcPropertyReader Reader(FromDatum);
 			FDcPropertyWriter Writer(ToDatum);
@@ -257,8 +285,8 @@ DC_TEST("DataConfig.Core.Blurb.PropertyHandlers")
 
 		{
 			To  = FDcTestExampleSimple();
-			FDcPropertyDatum FromDatum(FDcTestExampleSimple::StaticStruct(), &From);
-			FDcPropertyDatum ToDatum(FDcTestExampleSimple::StaticStruct(), &To);
+			FDcPropertyDatum FromDatum(&From);
+			FDcPropertyDatum ToDatum(&To);
 
 			FDcDeserializer Deserializer;
 			DcSetupPropertyPipeDeserializeHandlers(Deserializer);
@@ -270,7 +298,6 @@ DC_TEST("DataConfig.Core.Blurb.PropertyHandlers")
 			Ctx.Reader = &Reader;
 			Ctx.Writer = &Writer;
 			Ctx.Deserializer = &Deserializer;
-			Ctx.Properties.Push(FromDatum.Property);
 			DC_TRY(Ctx.Prepare());
 
 			DC_TRY(Deserializer.Deserialize(Ctx));
@@ -284,3 +311,112 @@ DC_TEST("DataConfig.Core.Blurb.PropertyHandlers")
 	return true;
 };
 
+
+DC_TEST("DataConfig.Core.Blurb.JSONWriter")
+{
+	UTEST_OK("Blurb JSONWriter", [&]{
+
+		FDcJsonWriter Writer;
+
+		DC_TRY(Writer.WriteMapRoot());
+
+			DC_TRY(Writer.WriteString(TEXT("Str")));
+			DC_TRY(Writer.WriteString(TEXT("Fooo")));
+
+			DC_TRY(Writer.WriteString(TEXT("Number")));
+			DC_TRY(Writer.WriteFloat(1.875f));
+
+			DC_TRY(Writer.WriteString(TEXT("Bool")));
+			DC_TRY(Writer.WriteBool(true));
+
+		DC_TRY(Writer.WriteMapEnd());
+		Writer.Sb.Append(TCHAR('\n'));
+
+		FString Str = TEXT(R"(
+			{
+				"Str" : "Fooo",
+				"Number" : 1.875,
+				"Bool" : true
+			}
+		)");
+
+		//	validate results
+		check(DcReindentStringLiteral(Str) == Writer.Sb.ToString());
+		return DcOk();
+
+	}());
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Blurb.StringSoftLazy")
+{
+	UTEST_OK("Blurb StringSoftLazy", [&]{
+
+		FDcTestStructRefs1 Source{};
+		UObject* TestsObject = StaticFindObject(UObject::StaticClass(), nullptr, TEXT("/Script/DataConfigTests"));
+
+		Source.SoftField1 = TestsObject;
+		Source.LazyField1 = TestsObject;
+
+		FDcJsonWriter Writer;
+		DC_TRY(DcAutomationUtils::SerializeInto(&Writer, FDcPropertyDatum(&Source),
+		[](FDcSerializeContext& Ctx) {
+			DcSetupJsonSerializeHandlers(*Ctx.Serializer, EDcJsonSerializeType::StringSoftLazy);
+		}, DcAutomationUtils::EDefaultSetupType::SetupNothing));
+
+		/*
+		FLogScopedCategoryAndVerbosityOverride  LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
+		FString Str = Writer.Sb.ToString();
+		UE_LOG(LogDataConfigCore, Display, TEXT("SoftLazy: %s"), *Str);
+		*/
+
+		return DcOk();
+
+	}());
+
+	return true;
+
+}
+
+
+DC_TEST("DataConfig.Core.Blurb.MsgPackBlobExt")
+{
+	TArray<uint8> Arr = {1,2,3,4,5};
+	UTEST_OK("Blurb MsgPackBlobExt", [&]{
+
+		FDcMsgPackWriter Writer;
+		DC_TRY(Writer.WriteBlob(FDcBlobViewData::From(Arr)));
+		auto& Buf = Writer.GetMainBuffer();
+
+		FDcMsgPackReader Reader(FDcBlobViewData::From(Buf));
+		FDcBlobViewData Blob;
+		DC_TRY(Reader.ReadBlob(&Blob));
+
+		check(Blob.Num == 5);
+		check(FPlatformMemory::Memcmp(Arr.GetData(), Blob.DataPtr, Blob.Num) == 0);
+
+		return DcOk();
+	}());
+
+	UTEST_OK("Blurb MsgPackBlobExt", [&]{
+
+		FDcMsgPackWriter Writer;
+		DC_TRY(Writer.WriteFixExt2(1, {2, 3}));
+		auto& Buf = Writer.GetMainBuffer();
+
+		FDcMsgPackReader Reader(FDcBlobViewData::From(Buf));
+		uint8 Type;
+		FDcBytes2 Bytes;
+		DC_TRY(Reader.ReadFixExt2(&Type, &Bytes));
+
+		check(Type == 1);
+		check(Bytes.Data[0] == 2);
+		check(Bytes.Data[1] == 3);
+
+		return DcOk();
+	}());
+
+	return true;
+
+}

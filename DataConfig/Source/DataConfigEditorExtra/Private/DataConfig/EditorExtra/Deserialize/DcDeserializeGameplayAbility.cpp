@@ -15,15 +15,15 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
-#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
-#include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h"
+#include "DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Automation/DcAutomation.h"
-#include "DataConfig/EditorExtra/Deserialize/DcDeserializeBPClass.h"
+#include "DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.h"
 #include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
 
 namespace DcEditorExtra
@@ -85,7 +85,7 @@ FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx)
 	
 	UClass* AttributeClass = FindObject<UClass>(ANY_PACKAGE, *Head, true);	
 	if (AttributeClass == nullptr)
-		return DC_FAIL(DcDDeserialize, UObjectByStrNotFound) << TEXT("Class") << Head;
+		return DC_FAIL(DcDSerDe, UObjectByStrNotFound) << TEXT("Class") << Head;
 
 	FProperty* AttributeProperty = DcPropertyUtils::FindEffectivePropertyByName(AttributeClass, *Tail);
 	if (AttributeProperty == nullptr)
@@ -112,7 +112,6 @@ FDcResult DeserializeGameplayAbility(UGameplayAbility* Instance, FDcReader& Read
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &GameplayAbilityDeserializer.GetValue();
-	Ctx.Properties.Push(UGameplayAbility::StaticClass());
 	DC_TRY(Ctx.Prepare());
 	
 	return GameplayAbilityDeserializer->Deserialize(Ctx);
@@ -129,7 +128,6 @@ FDcResult DeserializeGameplayEffect(UGameplayEffect* Instance, FDcReader& Reader
 	Ctx.Reader = &Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &GameplayAbilityDeserializer.GetValue();
-	Ctx.Properties.Push(UGameplayEffect::StaticClass());
 	DC_TRY(Ctx.Prepare());
 	
 	return GameplayAbilityDeserializer->Deserialize(Ctx);
@@ -169,7 +167,7 @@ static FDcResult SelectJSONAndLoadIntoBlueprintCDO(FAssetData Asset, TFunctionRe
 		return DC_FAIL(DcDEditorExtra, LoadFileByPathFail) << Filename;
 
 	FDcJsonReader Reader;
-	Reader.SetNewString(*JsonStr);
+	DC_TRY(Reader.SetNewString(*JsonStr));
 	Reader.DiagFilePath = MoveTemp(Filename);
 
 	UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
@@ -331,7 +329,7 @@ DC_TEST("DataConfig.EditorExtra.GameplayAbility")
 	FDcJsonReader Reader(Str);
 
 	UGameplayAbility* TmpAbility = NewObject<UGameplayAbility>();
-	DcEditorExtra::DeserializeGameplayAbility(TmpAbility, Reader);
+	UTEST_OK("Editor Extra UGameplayAbility Deserialize", DcEditorExtra::DeserializeGameplayAbility(TmpAbility, Reader));
 
 	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", TmpAbility->GetReplicationPolicy() == EGameplayAbilityReplicationPolicy::ReplicateYes);
 	UTEST_TRUE("Editor Extra UGameplayAbility Deserialize", TmpAbility->GetInstancingPolicy() == EGameplayAbilityInstancingPolicy::NonInstanced);
@@ -375,7 +373,7 @@ DC_TEST("DataConfig.EditorExtra.GameplayEffect")
 	FDcJsonReader Reader(Str);
 
 	UGameplayEffect* TmpEffect = NewObject<UGameplayEffect>();
-	DcEditorExtra::DeserializeGameplayEffect(TmpEffect, Reader);
+	UTEST_OK("Editor Extra UGameplayEffect Deserialize", DcEditorExtra::DeserializeGameplayEffect(TmpEffect, Reader));
 
 	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->DurationPolicy == EGameplayEffectDurationType::Infinite);
 	UTEST_TRUE("Editor Extra UGameplayEffect Deserialize", TmpEffect->Modifiers.Num() == 2);

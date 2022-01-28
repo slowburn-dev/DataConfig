@@ -4,18 +4,44 @@
 #include "DataConfig/DcEnv.h"
 #include "UObject/PropertyAccessUtil.h"
 
+namespace DcPropertyTypesDetails
+{
+
+static bool _DefaultProcessPropertyPredicate(FProperty* Property)
+{
+	return DcPropertyUtils::IsEffectiveProperty(Property)
+		&& !Property->HasMetaData(DcPropertyUtils::DC_META_SKIP);
+}
+
+} // namespace DcPropertyTypesDetails
+
 FDcPropertyConfig FDcPropertyConfig::MakeDefault()
 {
 	static FDcPropertyConfig _DEFAULT = [](){
 		FDcPropertyConfig Ret;
 
-		Ret.ProcessPropertyPredicate = FDcProcessPropertyPredicateDelegate::CreateStatic(DcPropertyUtils::IsEffectiveProperty);
+		Ret.ProcessPropertyPredicate = FDcProcessPropertyPredicateDelegate::CreateStatic(DcPropertyTypesDetails::_DefaultProcessPropertyPredicate);
 		Ret.ExpandObjectPredicate = FDcExpandObjectPredicateDelegate::CreateStatic(DcPropertyUtils::IsSubObjectProperty);
 
 		return Ret;
 	}();
 
 	return _DEFAULT;
+}
+
+FDcPropertyConfig FDcPropertyConfig::MakeNoExpandObject()
+{
+	static FDcPropertyConfig _NO_EXPAND = []()
+	{
+		FDcPropertyConfig Ret;
+
+		Ret.ProcessPropertyPredicate = FDcProcessPropertyPredicateDelegate::CreateStatic(DcPropertyTypesDetails::_DefaultProcessPropertyPredicate);
+		Ret.ExpandObjectPredicate = FDcExpandObjectPredicateDelegate::CreateLambda([](FObjectProperty*){ return false; });
+
+		return Ret;
+	}();
+
+	return _NO_EXPAND;
 }
 
 FDcResult FDcPropertyConfig::Prepare()

@@ -11,12 +11,14 @@
 template<typename CharType>
 struct TDcJsonReader : public FDcReader, private FNoncopyable
 {
+	using TSelf = TDcJsonReader;
+
 	using SourceView = TDcSourceView<CharType>;
 	using SourceRef = TDcSourceRef<CharType>;
 	using SourceUtils = TDcCSourceUtils<CharType>;
 	using CString = TCString<CharType>;
 
-	enum class ETokenType
+	enum class ETokenType : uint8
 	{
 		EOF_,
 		Comma,			// ,
@@ -37,14 +39,6 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 		_Count,
 	};
-
-	static EDcDataEntry TokenTypeToDataEntry(ETokenType TokenType);
-
-	constexpr static CharType _TRUE_LITERAL[] = { 't','r','u','e',0 };
-	constexpr static CharType _FALSE_LITERAL[] = { 'f','a','l','s','e',0 };
-	constexpr static CharType _NULL_LITERAL[] = { 'n','u','l','l',0 };
-	constexpr static CharType _EOF_CHAR = CharType('\0');
-	constexpr static uint32 _MAX_KEY_LEN = 2048;
 
 	struct FTokenFlag
 	{
@@ -70,6 +64,8 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	};
 
 	TDcJsonReader();
+	TDcJsonReader(const CharType* Str);
+	TDcJsonReader(const CharType* Buf, int Len);
 
 	void AbortAndUninitialize();
 	FDcResult FinishRead();
@@ -85,7 +81,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FORCEINLINE FDcResult SetNewString(const CharType* InStrPtr) { return SetNewString(InStrPtr, CString::Strlen(InStrPtr)); }
 
 
-	enum class EState
+	enum class EState : uint8
 	{
 		Uninitialized,
 		InProgress,
@@ -105,7 +101,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	int32 Cur = 0;
 	FString DiagFilePath;
 
-	bool Coercion(EDcDataEntry ToEntry) override;
+	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadNil() override;
@@ -153,15 +149,15 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	FDcResult ReadNumberToken();
 
-	enum class EParseState
+	enum class EParseState : uint8
 	{
-		Nil,
+		Root,
 		Object,
 		Array,
 	};
 
 	TArray<EParseState, TInlineAllocator<8>> States;
-	using FKeys = TArray<FName, TInlineAllocator<8>>;
+	using FKeys = TArray<FString, TInlineAllocator<8>>;
 	TArray<FKeys, TInlineAllocator<8>> Keys;
 
 	FORCEINLINE EParseState GetTopState() { return States.Top(); }
@@ -182,52 +178,24 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
-	template<typename TInt>
-	FDcResult ParseInteger(TInt* OutPtr);
-	template<typename TInt>
-	FDcResult ReadSignedInteger(TInt* OutPtr);
-	template<typename TInt>
-	FDcResult ReadUnsignedInteger(TInt* OutPtr);
-	template<typename TFloat>
-	FDcResult ReadFloating(TFloat* OutPtr);
-
 	FDcResult CheckNotObjectKey();
-	FDcResult CheckObjectDuplicatedKey(const FName& KeyName);
+	FDcResult CheckObjectDuplicatedKey(const FString& Key);
 	FDcResult CheckNotAtEnd();
 
 	FString ConvertStringTokenToLiteral(SourceRef Ref);
-};
 
-extern template struct TDcJsonReader<ANSICHAR>;
-extern template struct TDcJsonReader<WIDECHAR>;
+	static FName ClassId();
+	FName GetId() override;
+};
 
 struct FDcJsonReader : public TDcJsonReader<TCHAR>
 {
 	using Super = TDcJsonReader;
 
 	FDcJsonReader() : Super() {}
-	FDcJsonReader(const TCHAR* Str) : Super()
-	{
-		bool bOk = SetNewString(Str).Ok();
-		check(bOk);	// guaranteed not to fail
-	}
-
-	FDcJsonReader(const FString& Str) : Super()
-	{
-		bool bOk = SetNewString(*Str).Ok();
-		check(bOk);	// guaranteed not to fail
-	}
+	FDcJsonReader(const TCHAR* Str) : Super(Str) {}
+	FDcJsonReader(const FString& Str) : Super(*Str) {}
 };
 
-struct FDcAnsiJsonReader : public TDcJsonReader<ANSICHAR>
-{
-	using Super = TDcJsonReader;
-
-	FDcAnsiJsonReader() : Super() {}
-	FDcAnsiJsonReader(const char* Str) : Super()
-	{
-		bool bOk = SetNewString(Str).Ok();
-		check(bOk);	// guaranteed not to fail
-	}
-};
-
+using FDcWideJsonReader = TDcJsonReader<WIDECHAR>;
+using FDcAnsiJsonReader = TDcJsonReader<ANSICHAR>;

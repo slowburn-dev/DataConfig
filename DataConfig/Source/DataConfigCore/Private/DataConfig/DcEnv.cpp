@@ -2,9 +2,8 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
-#include "Containers/BasicArray.h"
 
-TBasicArray<FDcEnv> gDcEnvs;
+TArray<FDcEnv> gDcEnvs;
 
 FDcEnv& DcEnv()
 {
@@ -56,17 +55,20 @@ FDcResult DcFail()
 		<< FDcDiagnosticStringNoEscape(DcDiagnosticUtils::StackWalkToString(0));
 }
 
+
 namespace DcDCommon { extern FDcDiagnosticGroup Details; }
 namespace DcDReadWrite { extern FDcDiagnosticGroup Details; }
 namespace DcDJSON { extern FDcDiagnosticGroup Details; }
-namespace DcDDeserialize { extern FDcDiagnosticGroup Details; }
+namespace DcDSerDe { extern FDcDiagnosticGroup Details; }
+namespace DcDMsgPack { extern FDcDiagnosticGroup Details; }
 
 void DcStartUp(EDcInitializeAction InAction)
 {
 	DcDiagGroups.Emplace(&DcDCommon::Details);
 	DcDiagGroups.Emplace(&DcDReadWrite::Details);
 	DcDiagGroups.Emplace(&DcDJSON::Details);
-	DcDiagGroups.Emplace(&DcDDeserialize::Details);
+	DcDiagGroups.Emplace(&DcDSerDe::Details);
+	DcDiagGroups.Emplace(&DcDMsgPack::Details);
 
 	DcPushEnv();
 	DcEnvDetails::bInitialized = true;

@@ -42,24 +42,24 @@ FDcResult FDcWeakCompositeWriter::WriteEnum(const FDcEnumData& Value)
 	return CompositeDispatch(this, &FDcWriter::WriteEnum, Value);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteStructRoot(const FDcStructStat& Struct)
+FDcResult FDcWeakCompositeWriter::WriteStructRootAccess(FDcStructAccess& Access)
 {
-	return CompositeDispatch(this, &FDcWriter::WriteStructRoot, Struct);
+	return CompositeDispatch(this, &FDcWriter::WriteStructRootAccess, Access);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteStructEnd(const FDcStructStat& Struct)
+FDcResult FDcWeakCompositeWriter::WriteStructEndAccess(FDcStructAccess& Access)
 {
-	return CompositeDispatch(this, &FDcWriter::WriteStructEnd, Struct);
+	return CompositeDispatch(this, &FDcWriter::WriteStructEndAccess, Access);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteClassRoot(const FDcClassStat& Class)
+FDcResult FDcWeakCompositeWriter::WriteClassRootAccess(FDcClassAccess& Access)
 {
-	return CompositeDispatch(this, &FDcWriter::WriteClassRoot, Class);
+	return CompositeDispatch(this, &FDcWriter::WriteClassRootAccess, Access);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteClassEnd(const FDcClassStat& Class)
+FDcResult FDcWeakCompositeWriter::WriteClassEndAccess(FDcClassAccess& Access)
 {
-	return CompositeDispatch(this, &FDcWriter::WriteClassEnd, Class);
+	return CompositeDispatch(this, &FDcWriter::WriteClassEndAccess, Access);
 }
 
 FDcResult FDcWeakCompositeWriter::WriteMapRoot()
@@ -167,12 +167,12 @@ FDcResult FDcWeakCompositeWriter::WriteLazyObjectReference(const FLazyObjectPtr&
 	return CompositeDispatch(this, &FDcWriter::WriteLazyObjectReference, Value);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteSoftObjectReference(const FSoftObjectPath& Value)
+FDcResult FDcWeakCompositeWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteSoftObjectReference, Value);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteSoftClassReference(const FSoftClassPath& Value)
+FDcResult FDcWeakCompositeWriter::WriteSoftClassReference(const FSoftObjectPtr& Value)
 {
 	return CompositeDispatch(this, &FDcWriter::WriteSoftClassReference, Value);
 }
@@ -212,3 +212,6 @@ void FDcWeakCompositeWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 	for (FDcWriter* Writer : Writers)
 		Writer->FormatDiagnostic(Diag);
 }
+
+FName FDcWeakCompositeWriter::ClassId() { return FName(TEXT("DcWeakCompositeWriter")); }
+FName FDcWeakCompositeWriter::GetId() { return ClassId(); }

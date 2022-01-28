@@ -15,6 +15,7 @@ Eventually we implemented all these in DataConfig. We also tried not limit this 
 If you're Unreal Engine C++ developers that:
 
 - Looking for alternative JSON parser.
+- Looking for MsgPack serializer.
 - Looking for a textual configuration format.
 - Thinking of implementing custom textual/binary format.
 - Regularly dealing with `FProperty` related code.
@@ -50,5 +51,20 @@ You should give DataConfig a try and it's highly likely DataConfig might fit int
 
   This also means that DataConfig only focus on reading from and writing into C++ data structures. For example we don't have a DOM or object like API for JSON at all. The only use case DataConfig supports is to deserialize from JSON into native C++ objects.
 
+## Acknolodgement
+
+- References [serde.rs][3] on API and the `SerDe` acronym.
+- References [FullSerializer][8] and [OdinSerializer][9] on API.
+- JSON parser/writer implementation and test cases references [JSON for Modern C++ ][4] and [RapidJson][5].
+- Integrated [nst/JSONTestSuite][6].
+- Integrated [kawanet/msgpack-test-suite][7].
+
 [1]:https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection "Unreal Property System (Reflection)"
 [2]:https://docs.unrealengine.com/en-US/ProductionPipelines/DevelopmentSetup/CodingStandard/index.html "UE4 Coding Standard"
+[3]:https://serde.rs/ "SerDe"
+[4]:https://json.nlohmann.me "JSON for Modern C++"
+[5]:https://rapidjson.org/ "RapidJSON"
+[6]:https://github.com/nst/JSONTestSuite "JSON Parsing Test Suite"
+[7]:https://github.com/kawanet/msgpack-test-suite "a dataset for testing msgpack library"
+[8]:https://github.com/jacobdufault/fullserializer "jacobdufault/fullserializer"
+[9]:https://github.com/TeamSirenix/odin-serializer "TeamSirenix/odin-serializer"

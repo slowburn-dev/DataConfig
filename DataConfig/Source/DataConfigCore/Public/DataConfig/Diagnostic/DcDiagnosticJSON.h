@@ -25,7 +25,6 @@ enum Type : uint16
 	KeyMustBeString,
 	ReadTypeMismatch,
 	ExpectComma,
-	ObjectKeyTooLong,
 	ExpectStateInProgress,
 	ExpectStateUninitializedOrFinished,
 	UnexpectedTrailingToken,
@@ -40,6 +39,11 @@ enum Type : uint16
 	//	End
 	EndUnclosedArray,
 	EndUnclosedObject,
+
+	//	Writer
+	ExpectStringAtObjectKey,
+	UnexpectedArrayEnd,
+	UnexpectedObjectEnd,
 };
 
 } // namespace DcDJSON

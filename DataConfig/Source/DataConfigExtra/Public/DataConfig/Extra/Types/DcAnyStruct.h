@@ -113,7 +113,7 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 	template<class T>
 	FDcAnyStruct(T* StructPtr)
 		: DataPtr((void*)StructPtr)
-		, StructClass(T::StaticStruct())
+		, StructClass(TBaseStructure<T>::Get())
 		, SharedReferenceCount(new AnyStructReferenceController(this))
 	{}
 

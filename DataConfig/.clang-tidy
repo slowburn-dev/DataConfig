@@ -9,7 +9,7 @@
 # [clang-analyzer-core.uninitialized.UndefReturn] disabled for false positive
 # [clang-diagnostic-invalid-offsetof] disabled for `DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_*`
 # [clang-diagnostic-implicit-exception-spec-mismatch] disabled for `GENERATED_BODY`
-Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core.*,bugprone-*,llvm-header-guard,llvm-namespace-comment,readability-qualified-auto,-bugprone-reserved-identifier,-bugprone-branch-clone,-bugprone-macro-parentheses,-misc-unused-parameters,-clang-analyzer-core.CallAndMessage,-clang-analyzer-core.uninitialized.Branch,-clang-analyzer-core.uninitialized.UndefReturn,-clang-diagnostic-invalid-offsetof,-clang-diagnostic-implicit-exception-spec-mismatch'
+Checks: '-*,clang-diagnostic-*,misc-unused-*,clang-analyzer-core.*,bugprone-*,llvm-header-guard,llvm-namespace-comment,readability-qualified-auto,-bugprone-reserved-identifier,-bugprone-branch-clone,-bugprone-macro-parentheses,-misc-unused-parameters,-clang-analyzer-core.CallAndMessage,-clang-analyzer-core.uninitialized.Branch,-clang-analyzer-core.uninitialized.UndefReturn,-clang-diagnostic-invalid-offsetof,-clang-diagnostic-implicit-exception-spec-mismatch,-clang-diagnostic-invalid-pp-token,-bugprone-easily-swappable-parameters,-readability-qualified-auto'
 HeaderFilterRegex: 'Dc\w+\.h'
 ExtraArgs:
   - '-Wunused'

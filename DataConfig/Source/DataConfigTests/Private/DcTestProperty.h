@@ -36,11 +36,15 @@ struct FDcTestStruct1
 	UPROPERTY() uint16 UInt16Field;
 	UPROPERTY() uint32 UInt32Field;
 	UPROPERTY() uint64 UInt64Field;
+
+	void MakeFixture();
 };
 
 
 DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(int, FDcTestDelegate1, int, Value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDcTestDynMulticastCallback1, int, Value);
+
+//	note that sparse callback is bound to a UClass
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FDcTestDynMulticastSparseCallback1, UDcTestDelegateClass1, SparseCallback1, int, Value);
 
 UCLASS()
@@ -109,8 +113,10 @@ struct FDcTestStruct3
 	UPROPERTY() TArray<FDcKeyableStruct> StructArray;
 	UPROPERTY() TSet<FDcKeyableStruct> StructSet;
 	UPROPERTY() TMap<FDcKeyableStruct, FDcKeyableStruct> StructMap;
-};
 
+	void MakeFixtureNoStructMap();
+	void MakeFixtureFull();
+};
 
 UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
 class UDcBaseShape : public UObject

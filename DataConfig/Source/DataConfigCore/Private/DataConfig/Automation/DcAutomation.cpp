@@ -112,7 +112,37 @@ static int32 _Win32DumpStackAndExit(Windows::LPEXCEPTION_POINTERS ExceptionInfo)
 }
 #endif
 
+FDcAutomationConsoleRunner::FArgs FDcAutomationConsoleRunner::FromCommandlineTokens(const TArray<FString>& Tokens)
+{
+	FDcAutomationConsoleRunner::FArgs Args;
+	if (Tokens.Num() == 0)
+	{
+		//	default filter
+		//	ends with `.` to filter out DataConfigBenchmark
+		Args.Filters.Add(TEXT("DataConfig."));	
+	}
 
+	int ParametersSplitIx = -1;
+	//	note that we look for "--", but FCommandLine::Parse eats one '-'
+	bool bHasParametersSplit = Tokens.Find(TEXT("-"), ParametersSplitIx);
+	if (bHasParametersSplit)
+	{
+		for (int Ix = 0; Ix < ParametersSplitIx; Ix++)
+			Args.Filters.Add(Tokens[Ix]);
+
+		for (int Ix = ParametersSplitIx+1; Ix < Tokens.Num(); Ix++)
+			Args.Parameters.Add(Tokens[Ix]);
+	}
+	else
+	{
+		for (const FString& Token : Tokens)
+			Args.Filters.Add(Token);
+	}
+
+	Args.RequestedTestFilter = FDcAutomationBase::FLAGS;
+
+	return Args;
+}
 
 void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 {

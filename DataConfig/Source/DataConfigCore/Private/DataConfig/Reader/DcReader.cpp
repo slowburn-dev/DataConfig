@@ -4,11 +4,7 @@
 
 FDcReader::~FDcReader() {}
 
-bool FDcReader::Coercion(EDcDataEntry ToEntry)
-{
-	return false;
-}
-
+FDcResult FDcReader::Coercion(EDcDataEntry ToEntry, bool* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::PeekRead(EDcDataEntry*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadNil() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadBool(bool*) { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -16,10 +12,10 @@ FDcResult FDcReader::ReadName(FName*) { return DC_FAIL(DcDCommon, NotImplemented
 FDcResult FDcReader::ReadString(FString*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadText(FText*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadEnum(FDcEnumData*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadStructRoot(FDcStructStat* OutStructPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadStructEnd(FDcStructStat* OutStructPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadClassRoot(FDcClassStat*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadClassEnd(FDcClassStat*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadStructRootAccess(FDcStructAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadStructEndAccess(FDcStructAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadClassRootAccess(FDcClassAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadClassEndAccess(FDcClassAccess& Access) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadMapRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadMapEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadArrayRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -30,8 +26,8 @@ FDcResult FDcReader::ReadObjectReference(UObject**) { return DC_FAIL(DcDCommon, 
 FDcResult FDcReader::ReadClassReference(UClass**) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadWeakObjectReference(FWeakObjectPtr*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadLazyObjectReference(FLazyObjectPtr*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadSoftObjectReference(FSoftObjectPath*) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcReader::ReadSoftClassReference(FSoftClassPath*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadSoftObjectReference(FSoftObjectPtr*) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcReader::ReadSoftClassReference(FSoftObjectPtr*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadInterfaceReference(FScriptInterface*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadFieldPath(FFieldPath* OutPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcReader::ReadDelegate(FScriptDelegate*) { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -50,4 +46,8 @@ FDcResult FDcReader::ReadDouble(double*) { return DC_FAIL(DcDCommon, NotImplemen
 FDcResult FDcReader::ReadBlob(FDcBlobViewData*) { return DC_FAIL(DcDCommon, NotImplemented); }
 
 void FDcReader::FormatDiagnostic(FDcDiagnostic& Diag) { /*pass*/ }
+
+FName FDcReader::ClassId() { return FName(TEXT("BaseDcReader")); }
+FName FDcReader::GetId() { return ClassId(); }
+
 

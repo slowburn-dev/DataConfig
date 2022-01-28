@@ -3,8 +3,6 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Misc/DcDataVariant.h"
 #include "DataConfig/Source/DcSourceTypes.h"
-
-#include "Containers/BasicArray.h"
 #include "Templates/IsEnumClass.h"
 #include "UObject/Package.h"
 
@@ -190,7 +188,7 @@ struct DATACONFIGCORE_API FDcDiagnosticGroup
 	FDcDiagnosticDetail* Details;
 };
 
-extern TBasicArray<FDcDiagnosticGroup*> DcDiagGroups;
+extern TArray<FDcDiagnosticGroup*> DcDiagGroups;
 
 DATACONFIGCORE_API void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup);
 

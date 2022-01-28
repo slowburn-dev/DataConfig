@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Containers/BasicArray.h"
 #include "DataConfig/Diagnostic/DcDiagnostic.h"
 
 struct FDcReader;
@@ -36,7 +35,7 @@ DATACONFIGCORE_API FDcEnv& DcParentEnv();
 DATACONFIGCORE_API FDcEnv& DcPushEnv();
 DATACONFIGCORE_API void DcPopEnv();
 
-extern TBasicArray<FDcEnv> gDcEnvs;	
+extern TArray<FDcEnv> gDcEnvs;	
 
 template<typename T, TArray<T*> FDcEnv::*MemberPtr>
 struct TScopedEnvMemberPtr
@@ -67,8 +66,6 @@ struct DATACONFIGCORE_API FDcScopedEnv
 	FORCEINLINE FDcEnv& Parent() { return gDcEnvs[gDcEnvs.Num() - 2]; }
 };
 
-#define DC_DIAG(DiagNamespace, DiagID) (FDcErrorCode {DiagNamespace::Category, DiagNamespace::DiagID})
-
 #define DC_FAIL(DiagNamespace, DiagID) (DcFail(FDcErrorCode{DiagNamespace::Category, DiagNamespace::DiagID}))
 
 FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr)
@@ -82,21 +79,14 @@ FORCEINLINE FDcDiagnostic& DcFail(FDcErrorCode InErr)
 	return DcEnv().Diag(InErr);
 }
 
-FORCEINLINE FDcDiagnostic& DcFail(uint16 InCategory, uint16 InCode)
-{
-#if DO_CHECK
-	UE_DEBUG_BREAK();
-#endif
-
-	return DcEnv().Diag({InCategory, InCode});
-}
 
 DATACONFIGCORE_API FDcResult DcFail();
+
 
 FORCEINLINE FDcResult DcNoEntry() 
 {
 	checkNoEntry();
-	return DcFail(1, 2);	// DcDCommon::Unreachable
+	return DcFail({1, 2});	// DcDCommon::Unreachable
 }
 
 //	global initializer and shutdown

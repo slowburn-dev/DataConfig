@@ -1,19 +1,11 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Json/DcJsonReader.h"
-#include "DataConfig/Writer/DcNoopWriter.h"
-#include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Diagnostic/DcDiagnosticJSON.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Automation/DcAutomation.h"
-#include "DcTestCommon.h"
+#include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "Misc/FileHelper.h"
-
-static FDcResult _NoopPipeVisit(FDcReader* Reader)
-{
-	FDcNoopWriter Writer{};
-	FDcPipeVisitor PipeVisitor(Reader, &Writer);
-	return PipeVisitor.PipeVisit();
-}
+#include "Misc/Paths.h"
 
 DC_TEST("DataConfig.Core.JSON.Reader1")
 {
@@ -43,12 +35,12 @@ DC_TEST("DataConfig.Core.JSON.Reader1")
 	)");
 
 	UTEST_OK("Read simple relaxed JSON TCHAR string", Reader.SetNewString(*Str));
-	UTEST_OK("Read simple relaxed JSON TCHAR string", _NoopPipeVisit(&Reader));
+	UTEST_OK("Read simple relaxed JSON TCHAR string", DcNoopPipeVisit(&Reader));
 	UTEST_EQUAL("Read simple relaxed JSON TCHAR string", Reader.State, FDcJsonReader::EState::FinishedStr);
 
 	//	try reuse
 	UTEST_OK("Read simple relaxed JSON TCHAR string", Reader.SetNewString(*Str));
-	UTEST_OK("Read simple relaxed JSON TCHAR string", _NoopPipeVisit(&Reader));
+	UTEST_OK("Read simple relaxed JSON TCHAR string", DcNoopPipeVisit(&Reader));
 	UTEST_EQUAL("Read simple relaxed JSON TCHAR string", Reader.State, FDcJsonReader::EState::FinishedStr);
 
 
@@ -56,19 +48,19 @@ DC_TEST("DataConfig.Core.JSON.Reader1")
 	FDcAnsiJsonReader Reader2;
 
 	UTEST_OK("Read simple relaxed JSON ANSICHAR string", Reader2.SetNewString(AnsiStr.Get()));
-	UTEST_OK("Read simple relaxed JSON ANSICHAR string", _NoopPipeVisit(&Reader2));
+	UTEST_OK("Read simple relaxed JSON ANSICHAR string", DcNoopPipeVisit(&Reader2));
 	UTEST_EQUAL("Read simple relaxed JSON ANSICHAR string", Reader2.State, FDcAnsiJsonReader::EState::FinishedStr);
 
 	//	try reuse
 	UTEST_OK("Read simple relaxed JSON ANSICHAR string", Reader2.SetNewString(AnsiStr.Get()));
-	UTEST_OK("Read simple relaxed JSON ANSICHAR string", _NoopPipeVisit(&Reader2));
+	UTEST_OK("Read simple relaxed JSON ANSICHAR string", DcNoopPipeVisit(&Reader2));
 	UTEST_EQUAL("Read simple relaxed JSON ANSICHAR string", Reader2.State, FDcAnsiJsonReader::EState::FinishedStr);
 
 	return true;
 };
 
 
-DC_TEST("DataConfig.Core.JSON.ReaderErrors")
+DC_TEST("DataConfig.Core.JSON.Diags")
 {
 	{
 		FString Str = TEXT(R"(
@@ -81,7 +73,7 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 		)");
 		FDcJsonReader Reader(Str);
 
-		UTEST_DIAG("Expect 'DuplicateKey' err", _NoopPipeVisit(&Reader), DcDJSON, DuplicatedKey);
+		UTEST_DIAG("Expect 'DuplicateKey' err", DcNoopPipeVisit(&Reader), DcDJSON, DuplicatedKey);
 	}
 
 	{
@@ -94,7 +86,7 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 		)");
 		FDcJsonReader Reader(Str);
 
-		UTEST_DIAG("Expect 'KeyMustBeString' err", _NoopPipeVisit(&Reader), DcDJSON, KeyMustBeString);
+		UTEST_DIAG("Expect 'KeyMustBeString' err", DcNoopPipeVisit(&Reader), DcDJSON, KeyMustBeString);
 	}
 
 	{
@@ -105,7 +97,7 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 		)");
 		FDcJsonReader Reader(Str);
 
-		UTEST_DIAG("Expect 'ExpectComma' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
+		UTEST_DIAG("Expect 'ExpectComma' err", DcNoopPipeVisit(&Reader), DcDJSON, ExpectComma);
 	}
 
 
@@ -120,7 +112,7 @@ DC_TEST("DataConfig.Core.JSON.ReaderErrors")
 		)");
 		FDcJsonReader Reader(Str);
 
-		UTEST_DIAG("Expect 'DuplicateKey' err", _NoopPipeVisit(&Reader), DcDJSON, ExpectComma);
+		UTEST_DIAG("Expect 'DuplicateKey' err", DcNoopPipeVisit(&Reader), DcDJSON, ExpectComma);
 	}
 
 
@@ -210,6 +202,9 @@ DC_TEST("DataConfig.Core.JSON.TCHARUnicode")
 	return true;
 }
 
+namespace DcTestJsonDetails
+{
+
 struct FDcJsonTestFixure
 {
 	FString Filename;
@@ -242,14 +237,14 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 	{
 		TDcStoreThenReset<bool> ScopedExpectFail(DcEnv().bExpectFail, true);
 
-		FDcResult Ret = _NoopPipeVisit(&Reader);
+		FDcResult Ret = DcNoopPipeVisit(&Reader);
 		Ret.Ok();	//	discard the result
 		
 		DcEnv().Diagnostics.Empty();
 	}
 	else if (Accept == EAccept::Yes)
 	{
-		FDcResult Ret = _NoopPipeVisit(&Reader);
+		FDcResult Ret = DcNoopPipeVisit(&Reader);
 		if (!Ret.Ok())
 		{
 			return DC_FAIL(DcDCommon, CustomMessage)
@@ -260,7 +255,7 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 	{
 		TDcStoreThenReset<bool> ScopedExpectFail(DcEnv().bExpectFail, true);
 
-		FDcResult Ret = _NoopPipeVisit(&Reader);
+		FDcResult Ret = DcNoopPipeVisit(&Reader);
 		if (Ret.Ok())
 		{
 			return DC_FAIL(DcDCommon, CustomMessage)
@@ -280,8 +275,12 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 	return DcOk();
 }
 
+} // namespace DcTestJsonDetails
+
 DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 {
+	using namespace DcTestJsonDetails;
+
 	IFileManager& FileManager = IFileManager::Get();
 	TArray<FDcJsonTestFixure> Fixtures;
 	
@@ -291,7 +290,7 @@ DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
 		{
 			FString JsonStr;
-			check(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
+			verify(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
 			Fixtures.Emplace(FDcJsonTestFixure{VisitFilename, MoveTemp(JsonStr)});
 		}
 		
@@ -311,6 +310,8 @@ DC_TEST("DataConfig.Core.JSON.DcJSONFixtures")
 
 DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
 {
+	using namespace DcTestJsonDetails;
+
 	IFileManager& FileManager = IFileManager::Get();
 	TArray<FDcJsonTestFixure> Fixtures;
 	
@@ -326,7 +327,7 @@ DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
 		if (Filename.EndsWith(TEXT(".json"), ESearchCase::IgnoreCase))
 		{
 			FString JsonStr;
-			check(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
+			verify(FFileHelper::LoadFileToString(JsonStr, VisitFilename));
 			Fixtures.Emplace(FDcJsonTestFixure{VisitFilename, MoveTemp(JsonStr)});
 		}
 		
@@ -342,3 +343,4 @@ DC_TEST("DataConfig.Core.JSON.JSONTestSuiteParsing")
 	
 	return bAllPass;
 }
+

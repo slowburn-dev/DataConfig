@@ -1,18 +1,18 @@
 #pragma once
 
 #include "DataConfig/DcTypes.h"
-#include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
-#include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
+#include "DataConfig/Serialize/DcSerializer.h"
+#include "DataConfig/Serialize/DcSerializerSetup.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
+#include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 
 #include "UObject/PropertyAccessUtil.h"
 
 #if DC_BUILD_DEBUG
-
 struct DATACONFIGCORE_API FDcDebug
 {
 	FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);
@@ -35,12 +35,24 @@ extern FDcDebug gDcDebug;
 namespace DcAutomationUtils
 {
 
-DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum);
+enum class EReadDatumEqualType
+{
+	Default,			//	default
+	ExpandAllObjects	//	expand all objects.
+						//	Note that this might cause infinite loop on cyclic references
+};
+
+DATACONFIGCORE_API FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcPropertyDatum& RhsDatum, EReadDatumEqualType Type = EReadDatumEqualType::Default);
+
+DATACONFIGCORE_API FDcResult DumpNextNumericAsString(FDcReader* Reader, FString* OutStr);
 
 DATACONFIGCORE_API void DumpToLog(FDcPropertyDatum Datum);
 DATACONFIGCORE_API void DumpToLowLevelDebugOutput(FDcPropertyDatum Datum);
 DATACONFIGCORE_API FString DumpFormat(FDcPropertyDatum Datum);
 
+DATACONFIGCORE_API void DumpToLog(FDcReader* Reader);
+DATACONFIGCORE_API void DumpToLowLevelDebugOutput(FDcReader* Reader);
+DATACONFIGCORE_API FString DumpFormat(FDcReader* Reader);
 
 DATACONFIGCORE_API void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue);
 DATACONFIGCORE_API void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue);
@@ -60,8 +72,10 @@ T DebugGetScalarPropertyValue(const FDcPropertyDatum& Datum, const FName& Name)
 	if (!Property)
 		return T{};
 
-	return Property->GetPropertyValue(Property->ContainerPtrToValuePtr<T>(Datum.DataPtr));
+	return Property->GetPropertyValue(Property->template ContainerPtrToValuePtr<T>(Datum.DataPtr));
 }
+
+DATACONFIGCORE_API int DebugGetEnumPropertyIndex(const FDcPropertyDatum& Datum, const FName& Name);
 
 enum class EDefaultSetupType
 {
@@ -69,35 +83,20 @@ enum class EDefaultSetupType
 	SetupNothing,
 };
 
-template<typename TThunk>
-FDcResult DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum, const TThunk& Func, EDefaultSetupType SetupType = EDefaultSetupType::SetupJSONHandlers)
+
+DATACONFIGCORE_API FDcResult DeserializeFrom(FDcReader* Reader, FDcPropertyDatum Datum, TFunctionRef<void(FDcDeserializeContext&)> Func, EDefaultSetupType SetupType = EDefaultSetupType::SetupJSONHandlers);
+FORCEINLINE FDcResult DeserializeFrom(FDcReader* Reader, FDcPropertyDatum Datum)
 {
-	FDcDeserializer Deserializer;
-	if (SetupType == EDefaultSetupType::SetupJSONHandlers)
+	return DeserializeFrom(Reader, Datum, [](FDcDeserializeContext&)
 	{
-		DcSetupJsonDeserializeHandlers(Deserializer);
-	}
-	else if (SetupType == EDefaultSetupType::SetupNothing)
-	{
-		//	pass
-	}
-
-	FDcPropertyWriter Writer(Datum);
-	FDcDeserializeContext Ctx;
-	Ctx.Reader = Reader;
-	Ctx.Writer = &Writer;
-	Ctx.Deserializer = &Deserializer;
-	Ctx.Properties.Push(Datum.Property);
-
-	Func((FDcDeserializer&)Deserializer, (FDcDeserializeContext&)Ctx);
-	DC_TRY(Ctx.Prepare());
-
-	return Deserializer.Deserialize(Ctx);
+		/*pass*/
+	});
 }
 
-FORCEINLINE FDcResult DeserializeJsonInto(FDcReader* Reader, FDcPropertyDatum Datum)
+DATACONFIGCORE_API FDcResult SerializeInto(FDcWriter* Writer, FDcPropertyDatum Datum, TFunctionRef<void(FDcSerializeContext&)> Func, EDefaultSetupType SetupType = EDefaultSetupType::SetupJSONHandlers);
+FORCEINLINE FDcResult SerializeInto(FDcWriter* Writer, FDcPropertyDatum Datum)
 {
-	return DeserializeJsonInto(Reader, Datum, [](FDcDeserializer&, FDcDeserializeContext&)
+	return SerializeInto(Writer, Datum, [](FDcSerializeContext&)
 	{
 		/*pass*/
 	});

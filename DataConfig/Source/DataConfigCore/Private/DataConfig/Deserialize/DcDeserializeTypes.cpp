@@ -1,65 +1,42 @@
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/DcEnv.h"
-#include "DataConfig/Diagnostic/DcDiagnosticDeserialize.h"
+#include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
-
-FDcScopedProperty::FDcScopedProperty(FDcDeserializeContext& InCtx)
-	: Ctx(InCtx)
-{}
-
-FDcResult FDcScopedProperty::PushProperty()
-{
-	DC_TRY(Ctx.Writer->PeekWriteProperty(&Property));
-	Ctx.Properties.Push(Property);
-	return DcOk();
-}
-
-FDcScopedProperty::~FDcScopedProperty()
-{
-	if (Property != nullptr)
-	{
-		check(Property == Ctx.Properties.Top());
-		Ctx.Properties.Pop();
-	}
-}
-
-FDcScopedObject::FDcScopedObject(FDcDeserializeContext& InCtx, UObject* InObject)
-	: Object(InObject)
-	, Ctx(InCtx)
-{
-	check(Object);
-	Ctx.Objects.Push(Object);
-}
-
-FDcScopedObject::~FDcScopedObject()
-{
-	UObject* Popped = Ctx.Objects.Pop();
-	check(Popped == Object);
-}
-
 
 FDcResult FDcDeserializeContext::Prepare()
 {
 	DC_TRY(DcExpect(State == EState::Uninitialized, [&]{ 
-		return DC_FAIL(DcDDeserialize, ContextInvalidState) << (int)State;
+		return DC_FAIL(DcDSerDe, ContextInvalidState) << (int)State;
 	}));
 
 	DC_TRY(DcExpect(Reader != nullptr, []{
-		return DC_FAIL(DcDDeserialize, ContextReaderNotFound);
+		return DC_FAIL(DcDSerDe, ContextReaderNotFound);
 	}));
 
 	DC_TRY(DcExpect(Writer != nullptr, []{
-		return DC_FAIL(DcDDeserialize, ContextWriterNotFound);
+		return DC_FAIL(DcDSerDe, ContextWriterNotFound);
 	}));
 
 	DC_TRY(DcExpect(Deserializer != nullptr, []{
-		return DC_FAIL(DcDDeserialize, ContextDeserializerNotFound);
+		return DC_FAIL(DcDSerDe, ContextDeserializerNotFound);
 	}));
 
-	DC_TRY(DcExpect(Properties.Num() == 1, [&]{
-		return DC_FAIL(DcDDeserialize, ContextExpectOneProperty) << Properties.Num();
-	}));
+	//	for convenience if no top properties are provide, we peek one from property writer.
+	if (Properties.Num() == 0)
+	{
+		FFieldVariant RootProperty;
+		DC_TRY(Writer->PeekWriteProperty(&RootProperty));
+		Properties.Push(RootProperty);
+	}
+	else if (Properties.Num() == 1)
+	{
+		// pass
+	}
+	else
+	{
+		return DC_FAIL(DcDSerDe, ContextExpectOneProperty) << Properties.Num();
+	}
 
 	State = EState::Ready;
 	return DcOk();

@@ -1,0 +1,25 @@
+{
+    "Hello" : "JSON",
+    "Truthy" : true,
+    "Inty" : 123,
+    "Falsy" : false,
+    "Nully" : null,
+    "Arrayy" : [
+        "JSON",
+        true,
+        false,
+        123,
+        null
+    ],
+    "Nest1" : {
+        "Inner1" : "Foo",
+        "Inner2" : "Bar"
+    },
+    "Emtpy1" : [],
+    "Emtpy2" : {},
+    "en" : "I can eat glass and it doesn't hurt me.",
+    "zh-Hant" : "我能吞下玻璃而不傷身體。",
+    "zh-Hans" : "我能吞下玻璃而不伤身体。",
+    "ja" : "私はガラスを食べられます。それは私を傷つけません。",
+    "ko" : "나는 유리를 먹을 수 있어요. 그래도 아프지 않아요"
+}

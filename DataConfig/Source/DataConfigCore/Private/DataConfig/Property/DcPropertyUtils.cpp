@@ -9,37 +9,7 @@
 namespace DcPropertyUtils
 {
 
-bool IsEffectiveProperty(FProperty* Property)
-{
-	check(Property);
-#if DC_BUILD_DEBUG
-	//	this is for handling cases that UE4 added new property and we're not supporting it yet
-	return Property->IsA<FBoolProperty>()
-		|| Property->IsA<FNumericProperty>()
-		|| Property->IsA<FStrProperty>()
-		|| Property->IsA<FNameProperty>()
-		|| Property->IsA<FTextProperty>()
-		|| Property->IsA<FEnumProperty>()
-		|| Property->IsA<FStructProperty>()
-		|| Property->IsA<FClassProperty>()
-		|| Property->IsA<FObjectProperty>()
-		|| Property->IsA<FMapProperty>()
-		|| Property->IsA<FArrayProperty>()
-		|| Property->IsA<FSetProperty>()
-		|| Property->IsA<FWeakObjectProperty>()
-		|| Property->IsA<FLazyObjectProperty>()
-		|| Property->IsA<FSoftObjectProperty>()
-		|| Property->IsA<FSoftClassProperty>()
-		|| Property->IsA<FInterfaceProperty>()
-		|| Property->IsA<FDelegateProperty>()
-		|| Property->IsA<FFieldPathProperty>()
-		|| Property->IsA<FMulticastInlineDelegateProperty>()
-		|| Property->IsA<FMulticastSparseDelegateProperty>()
-		;
-#else
-	return true;
-#endif
-}
+FName DC_META_SKIP = FName(TEXT("DcSkip"));
 
 bool IsScalarProperty(FField* Property)
 {
@@ -158,7 +128,7 @@ FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FPropert
 	if (OutValue == nullptr)
 	{
 		return DC_FAIL(DcDReadWrite, FindPropertyByOffsetFailed)
-			<< Struct->GetFName() << Offset;
+			<< Struct->GetFName() << (uint64)(Offset);
 	}
 	else
 	{
@@ -483,6 +453,63 @@ FDcResult GetEnumProperty(const FFieldVariant& Field, UEnum*& OutEnum, FNumericP
 		: DC_FAIL(DcDReadWrite, PropertyMismatch2)
 			<< TEXT("EnumProperty")  << TEXT("<NumericProperty with Enum>")
 			<< Field.GetFName() << Field.GetClassName();
+}
+
+bool HeuristicIsPointerInvalid(void* Ptr)
+{
+	//	It's too easy to run into uninitialized pointers that leads to crash, especially when dealing with FStructs.
+	//	So instead we decided to do a heuristic pointer memory pattern check when `DC_BUILD_DEBUG=1`
+	//	Worst case of this would be false positive but it's better than a crash, and it's highly likely
+	//	not going to happen
+	SIZE_T PtrPattern = (SIZE_T)Ptr;
+	bool bInvalid;
+#if PLATFORM_64BITS
+	switch (PtrPattern)
+	{
+		case 0xCCCC'CCCC'CCCC'CCCC:
+		case 0xCDCD'CDCD'CDCC'CDCD:
+		case 0xDEAD'BEEF'DEAD'BEAF:
+		case 0xFEEE'FEEE'FEEE'FEEE:
+		case 0xABAB'ABAB'ABAB'ABAB:
+		case 0xFDFD'FDFD'FDFD'FDFD:
+			bInvalid = true;
+			break;
+		default:
+			bInvalid = false;
+			break;
+	}
+#else
+	switch (PtrPattern)
+	{
+		case 0xCCCC'CCCC:
+		case 0xCDCD'CDCD:
+		case 0xDEAD'BEEF:
+		case 0xFEEE'FEEE:
+		case 0xABAB'ABAB:
+		case 0xFDFD'FDFD:
+			bInvalid = true;
+			break;
+		default:
+			bInvalid = false;
+			break;
+	}
+#endif
+	return bInvalid;
+}
+
+FDcResult HeuristicVerifyPointer(void* Ptr)
+{
+#if DC_BUILD_DEBUG
+	if (HeuristicIsPointerInvalid(Ptr))
+	{
+		return DC_FAIL(DcDReadWrite, HeuristicInvalidPointer)
+			<< FString::Printf(TEXT("0x%p"), Ptr);
+	}
+
+	return DcOk();
+#else
+	return DcOk();
+#endif
 }
 
 UStruct* TryGetStruct(const FFieldVariant& FieldVariant)

@@ -33,6 +33,8 @@ DATACONFIGCORE_API void AmendDiagnostic(FDcDiagnostic& Diag, FDcReader* Reader, 
 
 DATACONFIGCORE_API FString StackWalkToString(int32 IgnoreCount);
 
+DATACONFIGCORE_API FString SafeObjectName(UObject* Object);
+
 } // namespace DcDiagnosticUtils
 
 

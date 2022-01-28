@@ -46,7 +46,7 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 			UStruct* Struct = DcPropertyUtils::TryGetStruct(StructField);
 			check(Struct);
 			
-			DC_TRY(Reader->ReadStructRoot(nullptr));
+			DC_TRY(Reader->ReadStructRoot());
 			while (true)
 			{
 				FName CurName(Cur);
@@ -78,10 +78,10 @@ FDcResult TraverseReaderByPath(FDcPropertyReader* Reader, const FString& Path)
 			UStruct* Struct = DcPropertyUtils::TryGetStruct(ClassField);
 			check(Struct);
 			
-			FDcClassStat Stat;
-			DC_TRY(Reader->ReadClassRoot(&Stat));
+			FDcClassAccess Access;
+			DC_TRY(Reader->ReadClassRootAccess(Access));
 
-			if (Stat.Control != FDcClassStat::EControl::ExpandObject)
+			if (Access.Control != FDcClassAccess::EControl::ExpandObject)
 				return DC_FAIL(DcDExtra, ExpectClassExpand);
 
 			while (true)

@@ -14,7 +14,7 @@ DECLARE_DELEGATE_RetVal_OneParam(FName, FDcExtraRenamer, const FName&);
 
 DATACONFIGEXTRA_API FDcResult DeserializeStructRenaming(FDcPropertyDatum From, FDcPropertyDatum To, FDcExtraRenamer Renamer);
 
-}	//	namespace DcExtra
+} // namespace DcExtra
 
 
 USTRUCT()

@@ -18,10 +18,10 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcResult ReadText(FText* OutPtr) override;
 	FDcResult ReadEnum(FDcEnumData* OutPtr) override;
 
-	FDcResult ReadStructRoot(FDcStructStat* OutStructPtr) override;
-	FDcResult ReadStructEnd(FDcStructStat* OutStructPtr) override;
-	FDcResult ReadClassRoot(FDcClassStat* OutClassPtr) override;
-	FDcResult ReadClassEnd(FDcClassStat* OutClassPtr) override;
+	FDcResult ReadStructRootAccess(FDcStructAccess& Access) override;
+	FDcResult ReadStructEndAccess(FDcStructAccess& Access) override;
+	FDcResult ReadClassRootAccess(FDcClassAccess& Access) override;
+	FDcResult ReadClassEndAccess(FDcClassAccess& Access) override;
 	FDcResult ReadMapRoot() override;
 	FDcResult ReadMapEnd() override;
 	FDcResult ReadArrayRoot() override;
@@ -34,8 +34,8 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 
 	FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr) override;
 	FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr) override;
-	FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr) override;
-	FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr) override;
+	FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr) override;
+	FDcResult ReadSoftClassReference(FSoftObjectPtr* OutPtr) override;
 	FDcResult ReadInterfaceReference(FScriptInterface* OutPtr) override;
 
 	FDcResult ReadFieldPath(FFieldPath* OutPtr) override;
@@ -64,8 +64,11 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	TArray<FDcDataVariant> Cached;
 	FDcReader* Reader;
 
-	bool Coercion(EDcDataEntry ToEntry) override;
+	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
+
+	static FName ClassId();
+	FName GetId() override;
 
 };
 

@@ -37,7 +37,7 @@ struct TDcCSourceUtils
 		}
 		else if (Char == CharType('\n'))
 		{
-			return 1;	// so that highlight can points to line end
+			return 0;
 		}
 		else
 		{
@@ -48,12 +48,19 @@ struct TDcCSourceUtils
 
 	static bool IsControl(const CharType& Char)
 	{
-		return (uint32)Char < 0x20 || Char == 0x7f;
+		return (uint32)Char <= 0x1F ||
+			(Char >= 0x7f && Char <= 0xa0);
 	}
 
 	static bool IsDigit(const CharType& Char)
 	{
 		return (unsigned)Char - CharType('0') < 10;
+	}
+
+	static bool IsHexDigit(const CharType& Char)
+	{
+		return IsDigit(Char)
+			|| ((unsigned)Char|32) - CharType('a') < 6;
 	}
 
 	static bool IsOneToNine(const CharType& Char)
@@ -66,13 +73,6 @@ struct TDcCSourceUtils
 		return Char >= 0 && Char <= 0x7f;
 	}
 };
-
-namespace FDcSourceUtils
-{
-	FString FormatDiagnosticLine(const FString& InLine);
-
-
-}	// namespace FDcSourceUtils
 
 
 

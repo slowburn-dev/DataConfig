@@ -1,173 +1,75 @@
 #include "DataConfig/Deserialize/Handlers/Property/DcPropertyPipeDeserializers.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
+#include "DataConfig/Deserialize/DcDeserializeUtils.h"
 #include "DataConfig/Reader/DcReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
-#include "DataConfig/Deserialize/DcDeserializeUtils.h"
+#include "DataConfig/SerDe/DcSerDeCommon.inl"
 
 namespace DcPropertyPipeHandlers {
 
 FDcResult HandlerScalarDeserialize(FDcDeserializeContext& Ctx)
 {
-	EDcDataEntry Next;
-	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));
-	return DcOk();
+	return DcHandlerPipeScalar(Ctx);
 }
-
-template<EDcDataEntry EntryStart,
-	EDcDataEntry EntryEnd,
-	FDcResult (FDcReader::*ReadMethodStart)(),
-	FDcResult (FDcReader::*ReadMethodEnd)(),
-	FDcResult (FDcPropertyWriter::*WriteMethodStart)(),
-	FDcResult (FDcPropertyWriter::*WriteMethodEnd)()>
-FORCEINLINE static FDcResult _HandlerLinearContainerDeserialize(
-	FDcDeserializeContext& Ctx
-)
-{
-	DC_TRY((Ctx.Reader->*ReadMethodStart)());
-	DC_TRY((Ctx.Writer->*WriteMethodStart)());
-
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-		if (CurPeek == EntryEnd)
-			break;
-
-		FDcScopedProperty ScopedValueProperty(Ctx);
-		DC_TRY(ScopedValueProperty.PushProperty());
-		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-	}
-
-	DC_TRY((Ctx.Reader->*ReadMethodEnd)());
-	DC_TRY((Ctx.Writer->*WriteMethodEnd)());
-
-	return DcOk();
-}
-
 
 FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx)
 {
-	return _HandlerLinearContainerDeserialize<
-		EDcDataEntry::ArrayRoot,
+	return DcHandlerPipeLinearContainer<
+		FDcDeserializeContext,
+		FDcReader,
+		FDcPropertyWriter,
 		EDcDataEntry::ArrayEnd,
+		&DcDeserializeUtils::RecursiveDeserialize,
 		&FDcReader::ReadArrayRoot,
 		&FDcReader::ReadArrayEnd,
 		&FDcPropertyWriter::WriteArrayRoot,
-		&FDcPropertyWriter::WriteArrayEnd>(
-		Ctx
-	);
+		&FDcPropertyWriter::WriteArrayEnd
+	>(Ctx);
 }
 
 FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx)
 {
-	return _HandlerLinearContainerDeserialize<
-		EDcDataEntry::SetRoot,
+	return DcHandlerPipeLinearContainer<
+		FDcDeserializeContext,
+		FDcReader,
+		FDcPropertyWriter,
 		EDcDataEntry::SetEnd,
+		&DcDeserializeUtils::RecursiveDeserialize,
 		&FDcReader::ReadSetRoot,
 		&FDcReader::ReadSetEnd,
 		&FDcPropertyWriter::WriteSetRoot,
-		&FDcPropertyWriter::WriteSetEnd>(
-		Ctx
-	);
+		&FDcPropertyWriter::WriteSetEnd
+	>(Ctx);
 }
 
 FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx)
 {
-	DC_TRY(Ctx.Reader->ReadMapRoot());
-	DC_TRY(Ctx.Writer->WriteMapRoot());
-
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-		if (CurPeek == EDcDataEntry::MapEnd)
-			break;
-
-		{
-			FDcScopedProperty ScopedValueProperty(Ctx);
-			DC_TRY(ScopedValueProperty.PushProperty());
-			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-		}
-
-		{
-			FDcScopedProperty ScopedValueProperty(Ctx);
-			DC_TRY(ScopedValueProperty.PushProperty());
-			DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-		}
-	}
-
-	DC_TRY(Ctx.Reader->ReadMapEnd());
-	DC_TRY(Ctx.Writer->WriteMapEnd());
-
-	return DcOk();
+	return DcHandlerPipeMap<
+		FDcDeserializeContext,
+		FDcReader,
+		FDcPropertyWriter,
+		&DcDeserializeUtils::RecursiveDeserialize
+	>(Ctx);
 }
 
 FDcResult HandlerStructDeserialize(FDcDeserializeContext& Ctx)
 {
-	FDcStructStat StructStat;
-	DC_TRY(Ctx.Reader->ReadStructRoot(&StructStat));
-	DC_TRY(Ctx.Writer->WriteStructRoot(StructStat));
-
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-		if (CurPeek == EDcDataEntry::StructEnd)
-			break;
-
-		FName FieldName;
-		DC_TRY(Ctx.Reader->ReadName(&FieldName));
-		DC_TRY(Ctx.Writer->WriteName(FieldName));
-
-		FDcScopedProperty ScopedValueProperty(Ctx);
-		DC_TRY(ScopedValueProperty.PushProperty());
-		DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-	}
-
-	DC_TRY(Ctx.Reader->ReadStructEnd(&StructStat));
-	DC_TRY(Ctx.Writer->WriteStructEnd(StructStat));
-
-	return DcOk();
+	return DcHandlerPipeStruct<
+		FDcDeserializeContext,
+		FDcReader,
+		FDcPropertyWriter,
+		&DcDeserializeUtils::RecursiveDeserialize
+	>(Ctx);
 }
 
 FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx)
 {
-	FDcClassStat ClassStat;
-	DC_TRY(Ctx.Reader->ReadClassRoot(&ClassStat));
-	DC_TRY(Ctx.Writer->WriteClassRoot(ClassStat));
-
-	if (ClassStat.Control == FDcClassStat::EControl::ReferenceOrNil)
-	{
-		EDcDataEntry Next;
-		DC_TRY(Ctx.Reader->PeekRead(&Next));
-		DC_TRY(DcDeserializeUtils::DispatchPipeVisit(Next, Ctx.Reader, Ctx.Writer));
-	}
-	else
-	{
-		EDcDataEntry CurPeek;
-		while (true)
-		{
-			DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-			if (CurPeek == EDcDataEntry::ClassEnd)
-				break;
-
-			FName FieldName;
-			DC_TRY(Ctx.Reader->ReadName(&FieldName));
-			DC_TRY(Ctx.Writer->WriteName(FieldName));
-
-			{
-				FDcScopedProperty ScopedValueProperty(Ctx);
-				DC_TRY(ScopedValueProperty.PushProperty());
-				DC_TRY(Ctx.Deserializer->Deserialize(Ctx));
-			}
-		}
-	}
-
-	DC_TRY(Ctx.Reader->ReadClassEnd(&ClassStat));
-	DC_TRY(Ctx.Writer->WriteClassEnd(ClassStat));
-
-	return DcOk();
+	return DcHandlerPipeClass<
+		FDcDeserializeContext,
+		FDcReader,
+		FDcPropertyWriter,
+		&DcDeserializeUtils::RecursiveDeserialize
+	>(Ctx);
 }
 
 } // namespace DcPropertyPipeHandlers

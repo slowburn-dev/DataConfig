@@ -94,8 +94,8 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	FDcResult SkipWrite() override;
 	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
-	FDcResult WriteStructRoot(const FDcStructStat& Struct);
-	FDcResult WriteStructEnd(const FDcStructStat& Struct);
+	FDcResult WriteStructRootAccess(FDcStructAccess& Access);
+	FDcResult WriteStructEndAccess(FDcStructAccess& Access);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -125,6 +125,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	};
 	EType Type;
 
+	FDcClassAccess::EControl ConfigControl;
+
 	FName ObjectName;
 	FDcPropertyDatum Datum;
 
@@ -137,9 +139,10 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 		Datum.Property = InClass;
 		State = EState::ExpectRoot;
 		Type = EType::Root;
+		ConfigControl = FDcClassAccess::EControl::ExpandObject;
 	}
 
-	FDcWriteStateClass(void* DataPtr, FObjectProperty* InObjProperty)
+	FDcWriteStateClass(void* DataPtr, FObjectProperty* InObjProperty, FDcClassAccess::EControl InConfigControl)
 	{
 		ObjectName = InObjProperty->GetFName();
 		//	note that `Class` can be rewrite to more derived type later
@@ -150,6 +153,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 		Datum.Property = InObjProperty;
 		State = EState::ExpectRoot;
 		Type = EType::PropertyNormalOrInstanced;
+		ConfigControl = InConfigControl;
 	}
 
 	EDcPropertyWriteType GetType() override;
@@ -160,8 +164,8 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
 
 	FDcResult WriteNil();
-	FDcResult WriteClassRoot(const FDcClassStat& Class);
-	FDcResult WriteClassEnd(const FDcClassStat& Class);
+	FDcResult WriteClassRootAccess(FDcClassAccess& Access);
+	FDcResult WriteClassEndAccess(FDcClassAccess& Access);
 	FDcResult WriteObjectReference(const UObject* Value);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
@@ -320,20 +324,6 @@ template<typename TProperty, typename TScalar>
 FORCEINLINE void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)
 {
 	CastFieldChecked<TProperty>(Property)->SetPropertyValue(Ptr, Value);
-}
-
-template<>
-FORCEINLINE void WritePropertyValueConversion<FSoftObjectProperty, FSoftObjectPath>(FField* Property, void* Ptr, const FSoftObjectPath& Value)
-{
-	FSoftObjectPtr SoftPtr(Value);
-	CastFieldChecked<FSoftObjectProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
-}
-
-template<>
-FORCEINLINE void WritePropertyValueConversion<FSoftClassProperty, FSoftClassPath>(FField* Property, void* Ptr, const FSoftClassPath& Value)
-{
-	FSoftObjectPtr SoftPtr(Value);
-	CastFieldChecked<FSoftClassProperty>(Property)->SetPropertyValue(Ptr, SoftPtr);
 }
 
 template<typename TProperty, typename TValue>

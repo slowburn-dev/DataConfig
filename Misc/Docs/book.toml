@@ -10,5 +10,5 @@ additional-css = ["custom.css"]
 site-url = "/dataconfig/"
 
 [output.html.fold]
-enable = true
+enable = false
 level = 0

@@ -15,6 +15,7 @@ struct DATACONFIGCORE_API FDcPropertyConfig
 	FDcExpandObjectPredicateDelegate ExpandObjectPredicate;
 
 	static FDcPropertyConfig MakeDefault();
+	static FDcPropertyConfig MakeNoExpandObject();
 
 	FDcResult Prepare();
 

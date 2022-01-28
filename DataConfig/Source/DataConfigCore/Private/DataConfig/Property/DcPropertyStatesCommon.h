@@ -6,6 +6,7 @@ template<typename TState, typename TStorage, typename... TArgs>
 TState& Emplace(TStorage* Storage, TArgs&&... Args)
 {
 	static_assert(sizeof(TState) <= sizeof(TStorage), "storage too small");
+	static_assert(sizeof(TStorage) % alignof(TState) == 0, "align fail");
 	return *(new (Storage) TState(Forward<TArgs>(Args)...));
 }
 

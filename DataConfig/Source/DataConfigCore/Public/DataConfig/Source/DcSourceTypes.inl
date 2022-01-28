@@ -1,8 +1,8 @@
 
 template<class CharType>
-FString TDcSourceRef<CharType>::ToString() const
+FString TDcSourceRef<CharType>::CharsToString() const
 {
-	//	this constructor already accept both char types
+	//	! note that this would convert non ascii UTF8 code points to `?`
 	return IsValid()
 		? FString(Num, Buffer->Buffer + Begin)
 		: TEXT("<INVALIDREF>");

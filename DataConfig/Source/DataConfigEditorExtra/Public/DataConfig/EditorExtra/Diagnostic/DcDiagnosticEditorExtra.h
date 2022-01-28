@@ -19,8 +19,8 @@ enum Type : uint16
 	//	Gameplay Ability
 	InvalidGameplayAttribute,
 	//	BP Class
-	LoadObjectByPathFail,
 	KismetCompileFail,
+	ExpectBlueprintOrClass,
 	//	IO
 	LoadFileByPathFail,
 };

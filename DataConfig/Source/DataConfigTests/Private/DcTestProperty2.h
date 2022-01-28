@@ -139,7 +139,7 @@ namespace EDcTestEnum_Namespaced
 		Dos		UMETA(DisplayName = "2"),
 		Tres	UMETA(DisplayName = "3"),
 	};
-}
+} // namespace EDcTestEnum_Namespaced
 
 USTRUCT()
 struct FDcTestStructEnum2

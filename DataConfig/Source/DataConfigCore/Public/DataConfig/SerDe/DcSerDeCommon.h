@@ -1,0 +1,53 @@
+#pragma once
+
+#include "CoreMinimal.h"
+
+
+namespace DcSerDeCommon
+{
+
+struct FWeakObjectPtrAccess
+{
+	int32 ObjectIndex;
+	int32 ObjectSerialNumber;
+};
+static_assert(sizeof(FWeakObjectPtrAccess) == sizeof(FWeakObjectPtr), "FWeakObjectPtrAccess stale");
+
+struct FScriptDelegateAccess
+{
+	FWeakObjectPtr Object;
+	FName FunctionName;
+};
+static_assert(sizeof(FScriptDelegateAccess) == sizeof(FScriptDelegate), "FScriptDelegateAccess stale");
+
+struct FMulticastScriptDelegateAccess
+{
+	FMulticastScriptDelegate::FInvocationList InvocationList;
+};
+static_assert(sizeof(FMulticastScriptDelegateAccess) == sizeof(FMulticastScriptDelegate), "FMulticastScriptDelegateAccess stale");
+
+struct FTextAccess
+{
+	TSharedRef<ITextData, ESPMode::ThreadSafe> TextData;
+	uint32 Flags;
+	
+};
+static_assert(sizeof(FTextAccess) == sizeof(FText), "FTextAccess stale");
+
+struct FSharedRefAccess
+{
+	void* Object;
+	SharedPointerInternals::FReferenceControllerBase* SharedReferenceCount;
+};
+static_assert(sizeof(FSharedRefAccess) == sizeof(TSharedRef<FTextAccess>), "FSharedRefAccess stale");
+
+struct FScriptInterfaceAccess
+{
+	UObject*	ObjectPointer;
+	void*		InterfacePointer;
+};
+static_assert(sizeof(FScriptInterfaceAccess) == sizeof(FScriptInterface), "FScriptInterfaceAccess stale");
+
+	
+} // namespace DcSerDeCommon
+

@@ -22,7 +22,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcPropertyReader();
 	FDcPropertyReader(FDcPropertyDatum Datum);
 
-	bool Coercion(EDcDataEntry ToEntry) override;
+	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
 	FDcResult ReadNil() override;
@@ -32,11 +32,11 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult ReadText(FText* OutPtr) override;
 	FDcResult ReadEnum(FDcEnumData* OutPtr) override;
 
-	FDcResult ReadStructRoot(FDcStructStat* OutStructPtr) override;
-	FDcResult ReadStructEnd(FDcStructStat* OutStructPtr) override;
+	FDcResult ReadStructRootAccess(FDcStructAccess& Access) override;
+	FDcResult ReadStructEndAccess(FDcStructAccess& Access) override;
 
-	FDcResult ReadClassRoot(FDcClassStat* OutClassPtr) override;
-	FDcResult ReadClassEnd(FDcClassStat* OutClassPtr) override;
+	FDcResult ReadClassRootAccess(FDcClassAccess& Access) override;
+	FDcResult ReadClassEndAccess(FDcClassAccess& Access) override;
 
 	FDcResult ReadMapRoot() override;
 	FDcResult ReadMapEnd() override;
@@ -52,8 +52,8 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr) override;
 	FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr) override;
-	FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr) override;
-	FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr) override;
+	FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr) override;
+	FDcResult ReadSoftClassReference(FSoftObjectPtr* OutPtr) override;
 	FDcResult ReadInterfaceReference(FScriptInterface* OutPtr) override;
 
 	FDcResult ReadFieldPath(FFieldPath* OutPtr) override;
@@ -79,8 +79,13 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult SkipRead();
 	///	peek next write property
 	FDcResult PeekReadProperty(FFieldVariant* OutProperty);
+	FDcResult PeekReadDataPtr(void** OutDataPtr);
 	///	manual reading
 	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+
+	///	manual writing supporting
+	FDcResult PushTopClassPropertyState(const FDcPropertyDatum& Datum);
+	FDcResult PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
 
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;
@@ -90,6 +95,8 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcDiagnosticHighlight FormatHighlight();
 	void FormatDiagnostic(FDcDiagnostic& Diag) override;
 
+	static FName ClassId();
+	FName GetId() override;
 };
 
 template<> struct TIsPODType<DcPropertyReaderDetails::FReadState> { enum { Value = true }; };

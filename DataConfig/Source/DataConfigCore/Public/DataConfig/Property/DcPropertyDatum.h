@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataConfig/Misc/DcTypeUtils.h"
 #include "UObject/UnrealType.h"
-
 
 struct DATACONFIGCORE_API FDcPropertyDatum
 {
@@ -12,9 +12,19 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 	FDcPropertyDatum();
 	FDcPropertyDatum(FField* InProperty, void* InDataPtr);
 
-	FDcPropertyDatum(UObject* ClassObject);
 	FDcPropertyDatum(UClass* Class, UObject* ClassObject);
 	FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
+
+	explicit  FDcPropertyDatum(UObject* ClassObject);
+
+	template<
+		typename T,
+		typename X = typename TEnableIf<DcTypeUtils::TIsUStruct<T>::Value, void>::Type
+	>
+	explicit FDcPropertyDatum(
+		T* InStructPtr
+	) : FDcPropertyDatum(TBaseStructure<T>::Get(), InStructPtr)
+	{}
 
 	FORCEINLINE bool IsNone() const
 	{
@@ -41,10 +51,20 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 		return ::CastChecked<UScriptStruct>(Property.ToUObject());
 	}
 
+	FORCEINLINE UScriptStruct* CastUScriptStruct() const
+	{
+		return ::Cast<UScriptStruct>(Property.ToUObject());
+	}
+
 	FORCEINLINE UClass* CastUClassChecked() const
 	{
 		check(Property.IsUObject());
 		return ::CastChecked<UClass>(Property.ToUObject());
+	}
+
+	FORCEINLINE UClass* CastUClass() const
+	{
+		return ::Cast<UClass>(Property.ToUObject());
 	}
 
 	FORCEINLINE void Reset()
@@ -60,5 +80,35 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 	static const FDcPropertyDatum NONE;
 };
 
+FORCEINLINE FDcPropertyDatum::FDcPropertyDatum()
+{
+	Property = FFieldVariant();
+	DataPtr = nullptr;
+}
 
+FORCEINLINE FDcPropertyDatum::FDcPropertyDatum(FField* InProperty, void* InDataPtr)
+{
+	Property = InProperty;
+	DataPtr = InDataPtr;
+}
 
+FORCEINLINE FDcPropertyDatum::FDcPropertyDatum(UObject* ClassObject)
+{
+	check(ClassObject);
+	Property = ClassObject->GetClass();
+	DataPtr = ClassObject;
+}
+
+FORCEINLINE FDcPropertyDatum::FDcPropertyDatum(UClass* Class, UObject* ClassObject)
+{
+	check(Class && ClassObject);
+	Property = Class;
+	DataPtr = ClassObject;
+}
+
+FORCEINLINE  FDcPropertyDatum::FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr)
+{
+	check(StructClass);
+	Property = StructClass;
+	DataPtr = StructPtr;
+}

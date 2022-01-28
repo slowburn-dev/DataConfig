@@ -41,10 +41,10 @@ static FDcWriteStateClass& PushClassRootState(FDcPropertyWriter* Writer, UObject
 	return Emplace<FDcWriteStateClass>(GetTopStorage(Writer), InClassObject, InClass);
 }
 
-static FDcWriteStateClass& PushClassPropertyState(FDcPropertyWriter* Writer, void* InDataPtr, FObjectProperty* InObjProperty)
+static FDcWriteStateClass& PushClassPropertyState(FDcPropertyWriter* Writer, void* InDataPtr, FObjectProperty* InObjProperty, FDcClassAccess::EControl InConfigControl)
 {
 	Writer->States.AddDefaulted();
-	return Emplace<FDcWriteStateClass>(GetTopStorage(Writer), InDataPtr, InObjProperty);
+	return Emplace<FDcWriteStateClass>(GetTopStorage(Writer), InDataPtr, InObjProperty, InConfigControl);
 }
 
 static FDcWriteStateStruct& PushStructPropertyState(FDcPropertyWriter* Writer, void* InStructPtr, UScriptStruct* InStructStruct, const FName& InStructName)
@@ -219,7 +219,7 @@ FDcResult FDcPropertyWriter::WriteEnum(const FDcEnumData& Value)
 	return DcOk();
 }
 
-FDcResult FDcPropertyWriter::WriteStructRoot(const FDcStructStat& Struct)
+FDcResult FDcPropertyWriter::WriteStructRootAccess(FDcStructAccess& Access)
 {
 	FScopedStackedWriter StackedWriter(this);
 
@@ -229,7 +229,7 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FDcStructStat& Struct)
 		if (StructState != nullptr
 			&& StructState->State == FDcWriteStateStruct::EState::ExpectRoot)
 		{
-			return StructState->WriteStructRoot(Struct);
+			return StructState->WriteStructRootAccess(Access);
 		}
 	}
 
@@ -244,19 +244,19 @@ FDcResult FDcPropertyWriter::WriteStructRoot(const FDcStructStat& Struct)
 			StructProperty->Struct,
 			StructProperty->GetFName()
 		);
-		DC_TRY(ChildStruct.WriteStructRoot(Struct));
+		DC_TRY(ChildStruct.WriteStructRootAccess(Access));
 	}
 
 	return DcOk();
 }
 
-FDcResult FDcPropertyWriter::WriteStructEnd(const FDcStructStat& Struct)
+FDcResult FDcPropertyWriter::WriteStructEndAccess(FDcStructAccess& Access)
 {
 	FScopedStackedWriter StackedWriter(this);
 
 	if (FDcWriteStateStruct* StructState = TryGetTopState<FDcWriteStateStruct>(this))
 	{
-		DC_TRY(StructState->WriteStructEnd(Struct));
+		DC_TRY(StructState->WriteStructEndAccess(Access));
 		PopState<FDcWriteStateStruct>(this);
 		return DcOk();
 	}
@@ -268,17 +268,45 @@ FDcResult FDcPropertyWriter::WriteStructEnd(const FDcStructStat& Struct)
 	}
 }
 
-void FDcPropertyWriter::PushTopClassPropertyState(const FDcPropertyDatum& Datum)
+FDcResult FDcPropertyWriter::PushTopClassPropertyState(const FDcPropertyDatum& Datum)
 {
-	FObjectProperty* ObjProperty = Datum.CastFieldChecked<FObjectProperty>();
-	PushClassPropertyState(this, Datum.DataPtr, ObjProperty);
+	if (FObjectProperty* ObjProperty = Datum.CastField<FObjectProperty>())
+	{
+		PushClassPropertyState(this, Datum.DataPtr, ObjProperty, Config.ShouldExpandObject(ObjProperty)
+			? FDcClassAccess::EControl::ExpandObject
+			: FDcClassAccess::EControl::ReferenceOrNil);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, PropertyMismatch)
+				<< TEXT("ObjectProperty") << Datum.Property.GetFName() << Datum.Property.GetClassName();
+	}
 }
 
-
-void FDcPropertyWriter::PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName)
+FDcResult FDcPropertyWriter::PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName)
 {
-	UScriptStruct* StructClass = Datum.CastUScriptStructChecked();
-	PushStructPropertyState(this, Datum.DataPtr, StructClass, StructName);
+	if (FStructProperty* StructProperty = Datum.CastField<FStructProperty>())
+	{
+		PushStructPropertyState(
+			this,
+			Datum.DataPtr,
+			StructProperty->Struct,
+			StructProperty->GetFName()
+		);
+		return DcOk();
+	}
+	else if (UScriptStruct* StructClass = Datum.CastUScriptStruct())
+	{
+		PushStructPropertyState(this, Datum.DataPtr, StructClass, StructName);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, PropertyMismatch2)
+				<< TEXT("StructProperty") << TEXT("ScriptStruct")
+				<< Datum.Property.GetFName() << Datum.Property.GetClassName();
+	}
 }
 
 FDcResult FDcPropertyWriter::SetConfig(FDcPropertyConfig InConfig)
@@ -287,7 +315,7 @@ FDcResult FDcPropertyWriter::SetConfig(FDcPropertyConfig InConfig)
 	return Config.Prepare();
 }
 
-FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassStat& Class)
+FDcResult FDcPropertyWriter::WriteClassRootAccess(FDcClassAccess& Access)
 {
 	FScopedStackedWriter StackedWriter(this);
 
@@ -297,7 +325,7 @@ FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassStat& Class)
 		if (ClassState != nullptr
 			&& ClassState->State == FDcWriteStateClass::EState::ExpectRoot)
 		{
-			return ClassState->WriteClassRoot(Class);
+			return ClassState->WriteClassRootAccess(Access);
 		}
 	}
 
@@ -305,20 +333,32 @@ FDcResult FDcPropertyWriter::WriteClassRoot(const FDcClassStat& Class)
 		FDcPropertyDatum Datum;
 		DC_TRY(TopState.WriteDataEntry(FObjectProperty::StaticClass(), Datum));
 
-		PushTopClassPropertyState(Datum);
-		DC_TRY(GetTopState(this).As<FDcWriteStateClass>()->WriteClassRoot(Class));
+		DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Datum.DataPtr));
+
+		FObjectProperty* ObjProperty = Datum.CastFieldChecked<FObjectProperty>();
+
+		FDcClassAccess::EControl ConfigControl = Access.Control;
+		if (ConfigControl == FDcClassAccess::EControl::Default)
+		{
+			ConfigControl = Config.ShouldExpandObject(ObjProperty)
+				? FDcClassAccess::EControl::ExpandObject
+				: FDcClassAccess::EControl::ReferenceOrNil;
+		}
+
+		PushClassPropertyState(this, Datum.DataPtr, ObjProperty, ConfigControl);
+		DC_TRY(GetTopState(this).As<FDcWriteStateClass>()->WriteClassRootAccess(Access));
 	}
 
 	return DcOk();
 }
 
-FDcResult FDcPropertyWriter::WriteClassEnd(const FDcClassStat& Class)
+FDcResult FDcPropertyWriter::WriteClassEndAccess(FDcClassAccess& Access)
 {
 	FScopedStackedWriter StackedWriter(this);
 
 	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
-		DC_TRY(ClassState->WriteClassEnd(Class));
+		DC_TRY(ClassState->WriteClassEndAccess(Access));
 		PopState<FDcWriteStateClass>(this);
 		return DcOk();
 	}
@@ -517,9 +557,33 @@ FDcResult FDcPropertyWriter::WriteMulticastSparseDelegate(const FMulticastScript
 
 FDcResult FDcPropertyWriter::WriteWeakObjectReference(const FWeakObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteLazyObjectReference(const FLazyObjectPtr& Value) { return WriteTopStateScalarProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteSoftObjectReference(const FSoftObjectPath& Value) { return WriteTopStateScalarProperty(this, Value); }
-FDcResult FDcPropertyWriter::WriteSoftClassReference(const FSoftClassPath& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInterfaceReference(const FScriptInterface& Value) { return WriteTopStateScalarProperty(this, Value); }
+
+FDcResult FDcPropertyWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(FSoftObjectProperty::StaticClass(), Datum));
+
+	FSoftObjectProperty* SoftObjectProperty = Datum.CastFieldChecked<FSoftObjectProperty>();
+	SoftObjectProperty->SetPropertyValue(Datum.DataPtr, Value);
+
+	return DcOk();
+}
+
+FDcResult FDcPropertyWriter::WriteSoftClassReference(const FSoftObjectPtr& Value)
+{
+	FScopedStackedWriter StackedWriter(this);
+
+	FDcPropertyDatum Datum;
+	DC_TRY(GetTopState(this).WriteDataEntry(FSoftClassProperty::StaticClass(), Datum));
+
+	FSoftClassProperty* SoftClassProperty = Datum.CastFieldChecked<FSoftClassProperty>();
+	SoftClassProperty->SetPropertyValue(Datum.DataPtr, Value);
+
+	return DcOk();
+}
 
 FDcResult FDcPropertyWriter::WriteInt8(const int8& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteInt16(const int16& Value) { return WriteTopStateScalarProperty(this, Value); }
@@ -533,6 +597,7 @@ FDcResult FDcPropertyWriter::WriteUInt64(const uint64& Value) { return WriteTopS
 
 FDcResult FDcPropertyWriter::WriteFloat(const float& Value) { return WriteTopStateScalarProperty(this, Value); }
 FDcResult FDcPropertyWriter::WriteDouble(const double& Value) { return WriteTopStateScalarProperty(this, Value); }
+
 
 FDcResult FDcPropertyWriter::WriteBlob(const FDcBlobViewData& Value)
 {
@@ -601,7 +666,7 @@ FDcResult FDcPropertyWriter::WriteDataEntry(FFieldClass* ExpectedPropertyClass, 
 
 FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 {
-	FDcDiagnosticHighlight OutHighlight(this, TEXT("PropertyWriter"));
+	FDcDiagnosticHighlight OutHighlight(this, ClassId().ToString());
 	TArray<FString> Segments;
 
 	bool bLastIsContainer = false;
@@ -634,4 +699,7 @@ void FDcPropertyWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	Diag << FormatHighlight();
 }
+
+FName FDcPropertyWriter::ClassId() { return FName(TEXT("DcPropertyWriter")); }
+FName FDcPropertyWriter::GetId() { return ClassId(); }
 

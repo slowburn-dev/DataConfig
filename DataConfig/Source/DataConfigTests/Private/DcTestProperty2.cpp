@@ -1,5 +1,5 @@
 #include "DcTestProperty2.h"
-#include "DcTestCommon.h"
+#include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
@@ -15,8 +15,8 @@ DC_TEST("DataConfig.Core.Property.NestedStruct")
 
 	FDcTestStructNest4 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStructNest4::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStructNest4::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStructNest4 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructNest4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -42,8 +42,8 @@ DC_TEST("DataConfig.Core.Property.Enum")
 
 	FDcTestStructEnum1 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStructEnum1::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStructEnum1::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStructEnum1 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructEnum1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -62,8 +62,8 @@ DC_TEST("DataConfig.Core.Property.Config")
 
 	FDcTestStructSimple Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStructSimple::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStructSimple::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("Property Reader/Writer Config", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum, [](FDcPropertyReader& Reader, FDcPropertyWriter& Writer){
 
@@ -97,8 +97,8 @@ DC_TEST("DataConfig.Core.Property.DefaultValue")
 
 	FDcTestStructDefaultValue2 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStructDefaultValue2::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStructDefaultValue2::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStructDefaultValue2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructDefaultValue2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -115,8 +115,8 @@ DC_TEST("DataConfig.Core.Property.EnumNamespace")
 
 	FDcTestStructEnum2 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStructEnum2::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStructEnum2::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStructEnum2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructEnum2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));

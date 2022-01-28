@@ -2,6 +2,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Reader/DcReader.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "HAL/PlatformStackWalk.h"
@@ -74,5 +75,16 @@ FString StackWalkToString(int32 IgnoreCount)
 	FMemory::SystemFree(StackTrace);
 	return Ret;
 }
+
+FString SafeObjectName(UObject* Object)
+{
+	if (Object == nullptr)
+		return TEXT("<null object>");
+	if (DcPropertyUtils::HeuristicIsPointerInvalid(Object))
+		return TEXT("<invalid object pointer bit pattern>");
+
+	return Object->GetName();
+}
+
 
 } // namespace DcDiagnosticUtils

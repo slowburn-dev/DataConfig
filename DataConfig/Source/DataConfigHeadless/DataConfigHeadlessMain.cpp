@@ -7,6 +7,8 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 
+#include "stdio.h"
+
 ///
 /// Usage:
 ///	DataConfigHeadless [TestFilter1] [TestFilter2] ...
@@ -18,30 +20,7 @@ IMPLEMENT_APPLICATION(DataConfigHeadless, "DataConfigHeadless");
 static int32 TestRunnerBody(TArray<FString>& Tokens)
 {
 	FDcAutomationConsoleRunner Runner;
-
-	FDcAutomationConsoleRunner::FArgs Args;
-	Args.Filters.Add(TEXT("DataConfig"));
-
-	int ParametersSplitIx = -1;
-	//	note that we look for "--", but FCommandLine::Parse eats one '-'
-	bool bHasParametersSplit = Tokens.Find(TEXT("-"), ParametersSplitIx);
-	if (bHasParametersSplit)
-	{
-		for (int Ix = 0; Ix < ParametersSplitIx; Ix++)
-			Args.Filters.Add(Tokens[Ix]);
-
-		for (int Ix = ParametersSplitIx+1; Ix < Tokens.Num(); Ix++)
-			Args.Parameters.Add(Tokens[Ix]);
-	}
-	else
-	{
-		for (FString& Token : Tokens)
-			Args.Filters.Add(Token);
-	}
-
-	Args.RequestedTestFilter = FDcAutomationBase::FLAGS;
-
-	Runner.Prepare(Args);
+	Runner.Prepare(FDcAutomationConsoleRunner::FromCommandlineTokens(Tokens));
 	return Runner.RunTests();
 }
 
@@ -87,6 +66,14 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		TEXT(DATA_CONFIG_CORE_VERSION),
 		DATA_CONFIG_CORE_VERSION_NUMBER
 	);
+
+	if (Switches.Contains(TEXT("WaitInput")))
+	{
+		Tokens.Remove(TEXT("WaitInput"));
+
+		UE_LOG(LogDataConfigCore, Display, TEXT("!!! detected WaitInput, input anything to continue "));
+		getchar();
+	}
 
 	int32 RetCode;
 	{

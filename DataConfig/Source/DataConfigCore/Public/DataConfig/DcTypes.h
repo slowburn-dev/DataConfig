@@ -102,46 +102,50 @@ enum class EDcDataEntry : uint16
 	//	Field
 	FieldPath,
 
-	//	Extension
+	//	Extra
 	Blob,
+
+	//	Extension
+	Extension,
 
 	//	End
 	Ended,
 };
 
-struct DATACONFIGCORE_API FDcStructStat
+struct DATACONFIGCORE_API FDcStructAccess
 {
-	FName Name;
-
-	enum EFlag
+	enum EFlag : uint8
 	{
 		None					= 0,
 		WriteCheckName			= 0x1,
 	};
 
 	EFlag Flag = None;
+
+	FName Name;
+
 };
 
-
-struct DATACONFIGCORE_API FDcClassStat
+struct DATACONFIGCORE_API FDcClassAccess
 {
-	FName Name;
-
-	enum class EControl
+	enum class EControl : uint8
 	{
-		ReferenceOrNil,
-		ExpandObject,
+		Default,		//	default, determined by `Config.ShouldExpandObject()`
+		ReferenceOrNil,	//	reference or nil
+		ExpandObject,	//	expand as sub object
 	};
 
-	EControl Control;
+	EControl Control = EControl::Default;
 
-	enum EFlag
+	enum EFlag : uint8
 	{
 		None					= 0,
 		WriteCheckName			= 0x1,
 	};
 
 	EFlag Flag = None;
+
+	FName Name;
 };
 
 struct DATACONFIGCORE_API FDcEnumData
@@ -186,6 +190,50 @@ struct DATACONFIGCORE_API FDcBlobViewData
 {
 	uint8* DataPtr;
 	int32 Num;
+
+	FORCEINLINE uint8 Get(int32 Ix) const
+	{
+		check(Ix >= 0 && Ix < Num);
+		return DataPtr[Ix];
+	}
+
+	FORCEINLINE uint8* GetPtr(int32 Ix) const
+	{
+		check(Ix >= 0 && Ix < Num);
+		return &DataPtr[Ix];
+	}
+
+	template<
+		template<typename TElement, typename TAllocator> class TArr,
+		typename TAlloc>
+	static FORCEINLINE FDcBlobViewData From(const TArr<uint8, TAlloc>& Arr)
+	{
+		FDcBlobViewData Ret;
+		Ret.DataPtr = (uint8*)Arr.GetData();
+		Ret.Num = Arr.Num();
+		return Ret;
+	}
 };
 
+template<int32 N>
+struct FDcFixedBytes
+{
+	uint8 Data[N];
 
+	template<typename T> FORCEINLINE T& As() { return reinterpret_cast<T&>(Data); }
+
+	template<
+		template<typename TElement, typename TAllocator> class TArr,
+		typename TAlloc>
+	static FORCEINLINE FDcFixedBytes<N> From(const TArr<uint8, TAlloc>& Arr)
+	{
+		FDcFixedBytes<N> Ret;
+		FPlatformMemory::Memcpy(Ret.Data, (uint8*)Arr.GetData(), N);
+		return Ret;
+	}
+};
+
+using FDcBytes2 = FDcFixedBytes<2>;
+using FDcBytes4 = FDcFixedBytes<4>;
+using FDcBytes8 = FDcFixedBytes<8>;
+using FDcBytes16 = FDcFixedBytes<16>;

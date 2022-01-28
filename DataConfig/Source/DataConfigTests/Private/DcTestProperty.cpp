@@ -1,5 +1,5 @@
 #include "DcTestProperty.h"
-#include "DcTestCommon.h"
+#include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyWriter.h"
@@ -7,36 +7,73 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
 
+void FDcTestStruct1::MakeFixture()
+{
+	BoolField = true;
+	NameField = TEXT("AName");
+	StringField = TEXT("AStr");
+	TextField = FText::FromString(TEXT("AText"));
+	EnumField = EDcTestEnum1::Tard;
+
+	FloatField = 17.5f;
+	DoubleField = 19.375;
+
+	Int8Field = -43;
+	Int16Field = -2243;
+	Int32Field = -23415;
+	Int64Field = -1524523;
+
+	UInt8Field = 213;
+	UInt16Field = 2243,
+	UInt32Field = 23415;
+	UInt64Field = 1524523;
+}
+
+void FDcTestStruct3::MakeFixtureNoStructMap()
+{
+	StringArray.Add(TEXT("Foo"));
+	StringArray.Add(TEXT("Bar"));
+	StringArray.Add(TEXT("Baz"));
+
+	StringSet.Add(TEXT("Doo"));
+	StringSet.Add(TEXT("Dar"));
+	StringSet.Add(TEXT("Daz"));
+
+	StringMap.Add(TEXT("One"), TEXT("1"));
+	StringMap.Add(TEXT("Two"), TEXT("2"));
+	StringMap.Add(TEXT("Three"), TEXT("3"));
+
+	StructArray.Add({TEXT("One"), 1});
+	StructArray.Add({TEXT("Two"), 2});
+	StructArray.Add({TEXT("Three"), 3});
+
+	StructSet.Add({TEXT("One"), 1});
+	StructSet.Add({TEXT("Two"), 2});
+	StructSet.Add({TEXT("Three"), 3});
+}
+
+void FDcTestStruct3::MakeFixtureFull()
+{
+	MakeFixtureNoStructMap();
+
+	StructMap.Add({TEXT("One"), 1}, {TEXT("Uno"), 1});
+	StructMap.Add({TEXT("Two"), 2}, {TEXT("Dos"), 2});
+	StructMap.Add({TEXT("Three"), 3}, {TEXT("Tres"), 3});
+}
+
+
 int UDcTestDelegateClass1::ReturnOne(int Int) { return Int; }
 void UDcTestDelegateClass1::ReturnNone(int Int) { /*pass*/ }
 
 DC_TEST("DataConfig.Core.Property.Primitive1")
 {
 	FDcTestStruct1 Source;
-
-	Source.BoolField = true;
-	Source.NameField = TEXT("SomeName");
-	Source.StringField = TEXT("Some String");
-	Source.TextField = FText(NSLOCTEXT("DcAdhocs", "T1", "Some Text"));
-	Source.EnumField = EDcTestEnum1::Bar;
-
-	Source.FloatField = 12.3f;
-	Source.DoubleField = 23.4;
-
-	Source.Int8Field = 123;
-	Source.Int16Field = 234;
-	Source.Int32Field = 34567;
-	Source.Int64Field = 456789;
-
-	Source.UInt8Field = -123;
-	Source.UInt16Field = -234;
-	Source.UInt32Field = -34567;
-	Source.UInt64Field = -456789;
+	Source.MakeFixture();
 
 	FDcTestStruct1 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct1::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStruct1 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -63,8 +100,8 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 
 	FDcTestStruct2 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct2::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct2::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStruct2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -119,8 +156,8 @@ DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
 	FDcPropertyReader Reader(SourceDatum);
 	FDcPropertyWriter Writer(DestDatum);
 
-	UTEST_OK("Try ReadSparseDelegateField", Reader.ReadClassRoot(nullptr));
-	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteClassRoot(FDcClassStat{FName(), FDcClassStat::EControl::ExpandObject}));
+	UTEST_OK("Try ReadSparseDelegateField", Reader.ReadClassRoot());
+	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteClassRoot());
 
 	UTEST_OK("Try ReadSparseDelegateField", Reader.ReadName(nullptr));
 	UTEST_OK("Try WriteSparseDelegateField", Writer.WriteName(TEXT("SparseCallback1")));
@@ -136,35 +173,12 @@ DC_TEST("DataConfig.Core.Property.Primitive_SparseDelegate")
 DC_TEST("DataConfig.Core.Property.Containers")
 {
 	FDcTestStruct3 Source;
-
-	Source.StringArray.Add(TEXT("Foo"));
-	Source.StringArray.Add(TEXT("Bar"));
-	Source.StringArray.Add(TEXT("Baz"));
-
-	Source.StringSet.Add(TEXT("Foo"));
-	Source.StringSet.Add(TEXT("Bar"));
-	Source.StringSet.Add(TEXT("Baz"));
-
-	Source.StringMap.Add(TEXT("1"), TEXT("One"));
-	Source.StringMap.Add(TEXT("2"), TEXT("Two"));
-	Source.StringMap.Add(TEXT("3"), TEXT("Three"));
-
-	Source.StructArray.Add({TEXT("One"), 1});
-	Source.StructArray.Add({TEXT("Two"), 2});
-	Source.StructArray.Add({TEXT("Three"), 3});
-
-	Source.StructSet.Add({TEXT("One"), 1});
-	Source.StructSet.Add({TEXT("Two"), 2});
-	Source.StructSet.Add({TEXT("Three"), 3});
-
-	Source.StructMap.Add({TEXT("One"), 1}, {TEXT("Uno"), 1});
-	Source.StructMap.Add({TEXT("Two"), 2}, {TEXT("Dos"), 2});
-	Source.StructMap.Add({TEXT("Three"), 3}, {TEXT("Tres"), 3});
+	Source.MakeFixtureFull();
 
 	FDcTestStruct3 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct3::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStruct3 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct3 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -196,8 +210,8 @@ DC_TEST("DataConfig.Core.Property.ObjectReference")
 	Dest.InlineObjectField1 = NewObject<UDcShapeBox>();
 	Dest.InlineObjectField2 = nullptr;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct4::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct4::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("FDcTestStruct4 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStruct4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
@@ -220,23 +234,25 @@ DC_TEST("DataConfig.Core.Property.Blob")
 
 	FDcTestStruct_Blob Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct_Blob::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct_Blob::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	FDcPropertyReader Reader(SourceDatum);
 	FDcPropertyWriter Writer(DestDatum);
 
 	{
 		//	manual roundtrip
-		UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadStructRoot(nullptr));
-		UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteStructRoot(FDcStructStat{}));
+		UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadStructRoot());
+		UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteStructRoot());
 
 		{
 			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadName(nullptr));
 			UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteName(TEXT("BlobField1")));
 
 			FDcBlobViewData BlobView;
-			UTEST_TRUE("FDcTestStruct_Blob roundtrip", Reader.Coercion(EDcDataEntry::Blob));
+			bool bCanCoerce;
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.Coercion(EDcDataEntry::Blob, &bCanCoerce));
+			UTEST_TRUE("FDcTestStruct_Blob roundtrip", bCanCoerce);
 			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadBlob(&BlobView));
 
 			bool bWriteOk;
@@ -249,7 +265,9 @@ DC_TEST("DataConfig.Core.Property.Blob")
 			UTEST_OK("FDcTestStruct_Blob roundtrip", Writer.WriteName(TEXT("BlobField2")));
 
 			FDcBlobViewData BlobView;
-			UTEST_TRUE("FDcTestStruct_Blob roundtrip", Reader.Coercion(EDcDataEntry::Blob));
+			bool bCanCoerce;
+			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.Coercion(EDcDataEntry::Blob, &bCanCoerce));
+			UTEST_TRUE("FDcTestStruct_Blob roundtrip", bCanCoerce);
 			UTEST_OK("FDcTestStruct_Blob roundtrip", Reader.ReadBlob(&BlobView));
 
 			bool bWriteOk;
@@ -266,30 +284,12 @@ DC_TEST("DataConfig.Core.Property.Blob")
 DC_TEST("DataConfig.Core.Property.ScalarRoots")
 {
 	FDcTestStruct1 Source;
-
-	Source.BoolField = true;
-	Source.NameField = TEXT("SomeName");
-	Source.StringField = TEXT("Some String");
-	Source.TextField = FText(NSLOCTEXT("DcAdhocs", "T1", "Some Text"));
-	Source.EnumField = EDcTestEnum1::Bar;
-
-	Source.FloatField = 12.3f;
-	Source.DoubleField = 23.4;
-
-	Source.Int8Field = 123;
-	Source.Int16Field = 234;
-	Source.Int32Field = 34567;
-	Source.Int64Field = 456789;
-
-	Source.UInt8Field = -123;
-	Source.UInt16Field = -234;
-	Source.UInt32Field = -34567;
-	Source.UInt64Field = -456789;
+	Source.MakeFixture();
 
 	FDcTestStruct1 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct1::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct1::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("Scalar Root Roundtrip", DcTestPropertyRoundtrip(this,
 		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("BoolField")),
@@ -402,8 +402,8 @@ DC_TEST("DataConfig.Core.Property.ContainerRoots")
 
 	FDcTestStruct3 Dest;
 
-	FDcPropertyDatum SourceDatum(FDcTestStruct3::StaticStruct(), &Source);
-	FDcPropertyDatum DestDatum(FDcTestStruct3::StaticStruct(), &Dest);
+	FDcPropertyDatum SourceDatum(&Source);
+	FDcPropertyDatum DestDatum(&Dest);
 
 	UTEST_OK("Container Root Roundtrip", DcTestPropertyRoundtrip(this,
 		DcAutomationUtils::TryGetMemberDatum(SourceDatum, TEXT("StringArray")),

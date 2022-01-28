@@ -171,16 +171,16 @@ FDcResult FDcWriteStateStruct::PeekWriteProperty(FFieldVariant* OutProperty)
 	}
 }
 
-FDcResult FDcWriteStateStruct::WriteStructRoot(const FDcStructStat& Struct)
+FDcResult FDcWriteStateStruct::WriteStructRootAccess(FDcStructAccess& Access)
 {
 	if (State == EState::ExpectRoot)
 	{
 		State = EState::ExpectKeyOrEnd;
-		if (Struct.Flag & FDcStructStat::WriteCheckName)
+		if (Access.Flag & FDcStructAccess::WriteCheckName)
 		{
-			return DcExpect(Struct.Name == StructClass->GetFName(), [=] {
+			return DcExpect(Access.Name == StructClass->GetFName(), [=] {
 				return DC_FAIL(DcDReadWrite, StructNameMismatch)
-					<< StructClass->GetFName() << Struct.Name
+					<< StructClass->GetFName() << Access.Name
 					<< _GetPropertyWriter()->FormatHighlight();
 			});
 		}
@@ -197,16 +197,16 @@ FDcResult FDcWriteStateStruct::WriteStructRoot(const FDcStructStat& Struct)
 	}
 }
 
-FDcResult FDcWriteStateStruct::WriteStructEnd(const FDcStructStat& Struct)
+FDcResult FDcWriteStateStruct::WriteStructEndAccess(FDcStructAccess& Access)
 {
 	if (State == EState::ExpectKeyOrEnd)
 	{
 		State = EState::Ended;
-		if (Struct.Flag & FDcStructStat::WriteCheckName)
+		if (Access.Flag & FDcStructAccess::WriteCheckName)
 		{
-			return DcExpect(Struct.Name == StructClass->GetFName(), [=] {
+			return DcExpect(Access.Name == StructClass->GetFName(), [=] {
 				return DC_FAIL(DcDReadWrite, StructNameMismatch)
-					<< StructClass->GetFName() << Struct.Name
+					<< StructClass->GetFName() << Access.Name
 					<< _GetPropertyWriter()->FormatHighlight();
 			});
 		}
@@ -338,34 +338,39 @@ FDcResult FDcWriteStateClass::PeekWriteProperty(FFieldVariant* OutProperty)
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
+FDcResult FDcWriteStateClass::WriteClassRootAccess(FDcClassAccess& Access)
 {
 	if (State == EState::ExpectRoot)
 	{
-		if (ClassStat.Flag & FDcClassStat::WriteCheckName)
+		if (Access.Flag & FDcClassAccess::WriteCheckName)
 		{
-			DC_TRY(DcExpect(Class->GetFName() == ClassStat.Name, [=]{
+			DC_TRY(DcExpect(Class->GetFName() == Access.Name, [=]{
 				return DC_FAIL(DcDReadWrite, ClassNameMismatch)
-					<< Class->GetFName() << ClassStat.Name
+					<< Class->GetFName() << Access.Name
 					<< _GetPropertyWriter()->FormatHighlight();
 			}));
 		}
 
-		if (ClassStat.Control == FDcClassStat::EControl::ReferenceOrNil)
+		if (Access.Control == FDcClassAccess::EControl::Default)
+			Access.Control = ConfigControl;
+
+		if (Access.Control == FDcClassAccess::EControl::ReferenceOrNil)
 		{
 			State = EState::ExpectReference;
 		}
-		else if (ClassStat.Control == FDcClassStat::EControl::ExpandObject)
+		else if (Access.Control == FDcClassAccess::EControl::ExpandObject)
 		{
 			if (Type == EType::PropertyNormalOrInstanced)
 			{
 				//	expand a reference into a root
 				Type = EType::Root;
-
+				
 				FObjectProperty* ObjProperty = Datum.CastFieldChecked<FObjectProperty>();
 				ClassObject = ObjProperty->GetObjectPropertyValue(Datum.DataPtr);
 
-				if (!ClassObject)
+				DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(ClassObject));
+
+				if (ClassObject == nullptr)
 				{
 					//	inline object needs to be created by user
 					return DC_FAIL(DcDReadWrite, WriteClassInlineNotCreated)
@@ -395,16 +400,16 @@ FDcResult FDcWriteStateClass::WriteClassRoot(const FDcClassStat& ClassStat)
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteClassEnd(const FDcClassStat& ClassStat)
+FDcResult FDcWriteStateClass::WriteClassEndAccess(FDcClassAccess& Access)
 {
 	if (State == EState::ExpectExpandKeyOrEnd
 		|| State == EState::ExpectEnd)
 	{
-		if (ClassStat.Flag & FDcClassStat::WriteCheckName)
+		if (Access.Flag & FDcClassAccess::WriteCheckName)
 		{
-			DC_TRY(DcExpect(Class->GetFName() == ClassStat.Name, [=] {
+			DC_TRY(DcExpect(Class->GetFName() == Access.Name, [=] {
 				return DC_FAIL(DcDReadWrite, ClassNameMismatch)
-					<< Class->GetFName() << ClassStat.Name
+					<< Class->GetFName() << Access.Name
 					<< _GetPropertyWriter()->FormatHighlight();
 			}));
 		}

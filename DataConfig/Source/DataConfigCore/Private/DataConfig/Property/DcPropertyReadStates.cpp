@@ -31,6 +31,7 @@ FDcResult FDcBaseReadState::ReadName(FName*) { return DC_FAIL(DcDCommon, NotImpl
 FDcResult FDcBaseReadState::ReadDataEntry(FFieldClass*, FDcPropertyDatum&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseReadState::SkipRead() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseReadState::PeekReadProperty(FFieldVariant* OutProperty) { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcBaseReadState::PeekReadDataPtr(void** OutDataPtr) { return DC_FAIL(DcDCommon, NotImplemented); }
 
 void FDcBaseReadState::FormatHighlightSegment(TArray<FString>&, DcPropertyHighlight::EFormatSeg)
 {
@@ -157,18 +158,16 @@ void FDcReadStateClass::FormatHighlightSegment(TArray<FString>& OutSegments, DcP
 	DcPropertyHighlight::FormatClass(OutSegments, SegType, ObjectName, Class, Property);
 }
 
-FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
+FDcResult FDcReadStateClass::ReadClassRootAccess(FDcClassAccess& Access)
 {
 	if (State == EState::ExpectRoot)
 	{
 		if (ClassObject == nullptr)
 		{
 			check(Type == EType::PropertyNormal || Type == EType::PropertyInstanced);
-			if (OutClassPtr)
-			{
-				OutClassPtr->Name = Class->GetFName();
-				OutClassPtr->Control = FDcClassStat::EControl::ReferenceOrNil;
-			}
+
+			Access.Name = Class->GetFName();
+			Access.Control = FDcClassAccess::EControl::ReferenceOrNil;
 
 			State = EState::ExpectNil;
 			return DcOk();
@@ -179,11 +178,8 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
 			{
 				State = EState::ExpectReference;
 
-				if (OutClassPtr)
-				{
-					OutClassPtr->Name = Class->GetFName();
-					OutClassPtr->Control = FDcClassStat::EControl::ReferenceOrNil;
-				}
+				Access.Name = Class->GetFName();
+				Access.Control = FDcClassAccess::EControl::ReferenceOrNil;
 
 				return DcOk();
 			}
@@ -193,11 +189,9 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
 			{
 				check(ClassObject);
 				UClass* Cls = ClassObject->GetClass();
-				if (OutClassPtr)
-				{
-					OutClassPtr->Name = Cls->GetFName();
-					OutClassPtr->Control = FDcClassStat::EControl::ExpandObject;
-				}
+
+				Access.Name = Cls->GetFName();
+				Access.Control = FDcClassAccess::EControl::ExpandObject;
 
 				Property = _GetPropertyReader()->Config.FirstProcessProperty(Cls->PropertyLink);
 				if (Property == nullptr)
@@ -224,19 +218,16 @@ FDcResult FDcReadStateClass::ReadClassRoot(FDcClassStat* OutClassPtr)
 	}
 }
 
-FDcResult FDcReadStateClass::ReadClassEnd(FDcClassStat* OutClassPtr)
+FDcResult FDcReadStateClass::ReadClassEndAccess(FDcClassAccess& Access)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
 
-		if (OutClassPtr)
-		{
-			OutClassPtr->Name = Class->GetFName();
-			OutClassPtr->Control = Type == EType::Root
-				? FDcClassStat::EControl::ExpandObject
-				: FDcClassStat::EControl::ReferenceOrNil;
-		}
+		Access.Name = Class->GetFName();
+		Access.Control = Type == EType::Root
+			? FDcClassAccess::EControl::ExpandObject
+			: FDcClassAccess::EControl::ReferenceOrNil;
 
 		return DcOk();
 	}
@@ -310,6 +301,23 @@ FDcResult FDcReadStateClass::PeekReadProperty(FFieldVariant* OutProperty)
 	else if (State == EState::ExpectValue)
 	{
 		return ReadOutOk(OutProperty, Property);
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
+			<< State << _GetPropertyReader()->FormatHighlight();
+	}
+}
+
+FDcResult FDcReadStateClass::PeekReadDataPtr(void** OutDataPtr)
+{
+	if (State == EState::ExpectRoot)
+	{
+		return ReadOutOk(OutDataPtr, ClassObject);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		return ReadOutOk(OutDataPtr, Property->ContainerPtrToValuePtr<void>(ClassObject));
 	}
 	else
 	{
@@ -417,14 +425,11 @@ void FDcReadStateStruct::FormatHighlightSegment(TArray<FString>& OutSegments, Dc
 	DcPropertyHighlight::FormatStruct(OutSegments, SegType, StructName, StructClass, Property);
 }
 
-FDcResult FDcReadStateStruct::ReadStructRoot(FDcStructStat* OutStructPtr)
+FDcResult FDcReadStateStruct::ReadStructRootAccess(FDcStructAccess& Access)
 {
 	if (State == EState::ExpectRoot)
 	{
-		if (OutStructPtr)
-		{
-			OutStructPtr->Name = StructClass->GetFName();
-		}
+		Access.Name = StructClass->GetFName();
 
 		Property = _GetPropertyReader()->Config.FirstProcessProperty(StructClass->PropertyLink);
 		if (Property == nullptr)
@@ -446,16 +451,13 @@ FDcResult FDcReadStateStruct::ReadStructRoot(FDcStructStat* OutStructPtr)
 	}
 }
 
-FDcResult FDcReadStateStruct::ReadStructEnd(FDcStructStat* OutStructPtr)
+FDcResult FDcReadStateStruct::ReadStructEndAccess(FDcStructAccess& Access)
 {
 	if (State == EState::ExpectEnd)
 	{
 		State = EState::Ended;
 
-		if (OutStructPtr)
-		{
-			OutStructPtr->Name = StructClass->GetFName();
-		}
+		Access.Name = StructClass->GetFName();
 
 		return DcOk();
 	}
@@ -504,6 +506,24 @@ FDcResult FDcReadStateStruct::PeekReadProperty(FFieldVariant* OutProperty)
 			<< State << _GetPropertyReader()->FormatHighlight();
 	}
 }
+
+FDcResult FDcReadStateStruct::PeekReadDataPtr(void** OutDataPtr)
+{
+	if (State == EState::ExpectRoot)
+	{
+		return ReadOutOk(OutDataPtr, StructPtr);
+	}
+	else if (State == EState::ExpectValue)
+	{
+		return ReadOutOk(OutDataPtr, Property->ContainerPtrToValuePtr<void>(StructPtr));
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
+			<< State << _GetPropertyReader()->FormatHighlight();
+	}
+}
+
 
 EDcPropertyReadType FDcReadStateMap::GetType()
 {
@@ -687,6 +707,25 @@ FDcResult FDcReadStateMap::PeekReadProperty(FFieldVariant* OutProperty)
 	}
 }
 
+FDcResult FDcReadStateMap::PeekReadDataPtr(void** OutDataPtr)
+{
+	FScriptMapHelper MapHelper(MapProperty, MapPtr);
+	if (State == EState::ExpectKey)
+	{
+		return ReadOutOk(OutDataPtr, MapHelper.GetKeyPtr(Index));
+	}
+	else if (State == EState::ExpectValue)
+	{
+		return ReadOutOk(OutDataPtr, MapHelper.GetValuePtr(Index));
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect2)
+			<< EState::ExpectKey << EState::ExpectValue << State
+			<< _GetPropertyReader()->FormatHighlight();
+	}
+}
+
 EDcPropertyReadType FDcReadStateArray::GetType()
 {
 	return EDcPropertyReadType::ArrayProperty;
@@ -837,6 +876,18 @@ FDcResult FDcReadStateArray::PeekReadProperty(FFieldVariant* OutProperty)
 	return ReadOutOk(OutProperty, ArrayProperty->Inner);
 }
 
+FDcResult FDcReadStateArray::PeekReadDataPtr(void** OutDataPtr)
+{
+	if (State != EState::ExpectItem)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+		<< EState::ExpectItem << State
+		<< _GetPropertyReader()->FormatHighlight();
+
+	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayPtr);
+	return ReadOutOk(OutDataPtr, ArrayHelper.GetRawPtr(Index));
+}
+
+
 EDcPropertyReadType FDcReadStateSet::GetType()
 {
 	return FDcReadStateSet::ID;
@@ -942,6 +993,17 @@ FDcResult FDcReadStateSet::PeekReadProperty(FFieldVariant* OutProperty)
 	return ReadOutOk(OutProperty, SetProperty->ElementProp);
 }
 
+FDcResult FDcReadStateSet::PeekReadDataPtr(void** OutDataPtr)
+{
+	if (State != EState::ExpectItem)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+		<< EState::ExpectItem << State
+		<< _GetPropertyReader()->FormatHighlight();
+
+	FScriptSetHelper SetHelper(SetProperty, SetPtr);
+	return ReadOutOk(OutDataPtr, SetHelper.GetElementPtr(Index));
+}
+
 FDcResult FDcReadStateSet::ReadSetRoot()
 {
 	if (State == EState::ExpectRoot)
@@ -1029,6 +1091,16 @@ FDcResult FDcReadStateScalar::PeekReadProperty(FFieldVariant* OutProperty)
 			<< _GetPropertyReader()->FormatHighlight();
 
 	return ReadOutOk(OutProperty, ScalarField);
+}
+
+FDcResult FDcReadStateScalar::PeekReadDataPtr(void** OutDataPtr)
+{
+	if (State != EState::ExpectRead)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< EState::ExpectRead << State
+			<< _GetPropertyReader()->FormatHighlight();
+
+	return ReadOutOk(OutDataPtr, ScalarPtr);
 }
 
 void FDcReadStateScalar::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)

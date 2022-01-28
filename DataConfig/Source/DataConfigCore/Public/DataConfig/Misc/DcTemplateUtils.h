@@ -44,4 +44,9 @@ struct TDcStoreThenReset
 	T RestoreValue;
 };
 
+template <typename T>
+constexpr bool DcIsPowerOf2(T Value)
+{
+	return (Value & (Value-1)) == 0;
+}
 

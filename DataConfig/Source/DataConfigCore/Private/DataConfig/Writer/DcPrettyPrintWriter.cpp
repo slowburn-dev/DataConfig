@@ -3,8 +3,13 @@
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "Misc/OutputDevice.h"
+#include "Misc/Fnv.h"
 
 static const FString _PER_INDENT = FString(TEXT("    "));
+
+FDcPrettyPrintWriter::FDcPrettyPrintWriter()
+	: Output((FOutputDevice&)*GWarn)
+{}
 
 FDcPrettyPrintWriter::FDcPrettyPrintWriter(FOutputDevice& InOutput)
 	: Output(InOutput)
@@ -60,31 +65,31 @@ FDcResult FDcPrettyPrintWriter::WriteEnum(const FDcEnumData& Value)
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteStructRoot(const FDcStructStat& Struct)
+FDcResult FDcPrettyPrintWriter::WriteStructRootAccess(FDcStructAccess& Access)
 {
-	Output.Logf(TEXT("%s<StructRoot> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
+	Output.Logf(TEXT("%s<StructRoot> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Access.Name));
 	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteStructEnd(const FDcStructStat& Struct)
+FDcResult FDcPrettyPrintWriter::WriteStructEndAccess(FDcStructAccess& Access)
 {
 	SetIndentLevel(IndentLevel - 1);
-	Output.Logf(TEXT("%s<StructEnd> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Struct.Name));
+	Output.Logf(TEXT("%s<StructEnd> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Access.Name));
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteClassRoot(const FDcClassStat& Class)
+FDcResult FDcPrettyPrintWriter::WriteClassRootAccess(FDcClassAccess& Access)
 {
-	Output.Logf(TEXT("%s<ClassRoot> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
+	Output.Logf(TEXT("%s<ClassRoot> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Access.Name));
 	SetIndentLevel(IndentLevel + 1);
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteClassEnd(const FDcClassStat& Class)
+FDcResult FDcPrettyPrintWriter::WriteClassEndAccess(FDcClassAccess& Access)
 {
 	SetIndentLevel(IndentLevel - 1);
-	Output.Logf(TEXT("%s<ClassEnd> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Class.Name));
+	Output.Logf(TEXT("%s<ClassEnd> '%s'"), *Indent, *DcPropertyUtils::SafeNameToString(Access.Name));
 	return DcOk();
 }
 
@@ -169,7 +174,7 @@ FDcResult FDcPrettyPrintWriter::WriteLazyObjectReference(const FLazyObjectPtr& V
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPath& Value)
+FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPtr& Value)
 {
 	Output.Logf(TEXT("%s<SoftObjectReference> '%s'"), *Indent,
 		*Value.ToString()
@@ -177,7 +182,7 @@ FDcResult FDcPrettyPrintWriter::WriteSoftObjectReference(const FSoftObjectPath& 
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftClassPath& Value)
+FDcResult FDcPrettyPrintWriter::WriteSoftClassReference(const FSoftObjectPtr& Value)
 {
 	Output.Logf(TEXT("%s<SoftClassReference> '%s'"), *Indent,
 		*Value.ToString()
@@ -279,7 +284,7 @@ FDcResult FDcPrettyPrintWriter::WriteDouble(const double& Value)
 
 FDcResult FDcPrettyPrintWriter::WriteBlob(const FDcBlobViewData& Value)
 {
-	Output.Logf(TEXT("%s<Blob>: Address: '0x%llu', Size: '%d'"), *Indent, (UPTRINT)Value.DataPtr, Value.Num);
+	Output.Logf(TEXT("%s<Blob>: Size: '%d', Hash: '%llu'"), *Indent, Value.Num, FFnv::MemFnv64(Value.DataPtr, Value.Num));
 	return DcOk();
 }
 
@@ -309,4 +314,7 @@ void FDcPrettyPrintWriter::SetIndentLevel(int InLevel)
 
 	IndentLevel = InLevel;
 }
+
+FName FDcPrettyPrintWriter::ClassId() { return FName(TEXT("DcPrettyPrintWriter")); }
+FName FDcPrettyPrintWriter::GetId() { return ClassId(); }
 

@@ -10,12 +10,13 @@ public class DataConfigExtra : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
+			"DataConfigCore",
 			"Core",
 			"CoreUObject",
 			"PropertyPath",
 			"Json",
 			"JsonUtilities",
-			"DataConfigCore",
+            "Projects",
 			});
 
 	}

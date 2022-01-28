@@ -2,29 +2,44 @@
 
 - [Intro](README.md)
 
-- [Examples](Examples.md)
+- [Examples](Examples/README.md)
+  - [Custom](Examples/Custom.md)
+  - [Debug Dump](Examples/DebugDump.md)
 
 - [Integration](Integration.md)
 
 - [Design](Design.md)
 
 - [Programming](Programming/README.md)
-
-  - [Core Types](Programming/CoreTypes.md)
+  - [Data Model](Programming/DataModel.md)
   - [Error Handling](Programming/ErrorHandling.md)
   - [Env](Programming/Env.md)
-  - [Built-in Reader and Writers](Programming/BuiltinReaderWriters.md)
-  - [Deserializer](Programming/Deserializer.md)
+  - [Reader Writer](Programming/ReaderWriter.md)
+  - [Serializer Deserializer](Programming/SerializerDeserializer.md)
 
-- [Deserialize](Deserialize/README.md)
+- [Formats](Formats/README.md)
 
-  - [Deserialize JSON](Deserialize/DeserializeJSON.md)
-  - [Pipe Deserialize](Deserialize/PipeDeserialize.md)
+  - [JSON](Formats/JSON.md)
+  - [MsgPack](Formats/MsgPack.md)
+  - [Pipe Property](Formats/PipeProperty.md)
 
 - [Extra](Extra/README.md)
 
-  - [DataConfigExtra](Extra/DataConfigExtra.md)
-  - [DataConfigEditorExtra](Extra/DataConfigEditorExtra.md)
+  - [FColor](Extra/FColor.md)
+  - [Base64 Blob](Extra/Base64.md)
+  - [WriterAPI](Extra/WriterAPI.md)
+  - [JsonConverter](Extra/JsonConverter.md)
+  - [AnyStruct](Extra/AnyStruct.md)
+  - [Field Renamer](Extra/FieldRenamer.md)
+  - [Property Path](Extra/PropertyPath.md)
+  - [Module Setup](Extra/ModuleSetup.md)
+  - [Blueprint](Extra/Blueprint.md)
+  - [Gameplay Tag](Extra/GameplayTag.md)
+  - [Gameplay Ability](Extra/GameplayAbility.md)
+
+- [Advanced](Advanced/README.md)
+  - [Benchmark](Advanced/Benchmark.md)
+  - [Writing Handlers](Advanced/WritingHandlers.md)
 
 - [Changes](Changes.md)
 

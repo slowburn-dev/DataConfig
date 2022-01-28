@@ -17,6 +17,9 @@ public class DataConfigHeadlessTarget : TargetRules
 		MinGameModuleSourceFilesForUnityBuild = 2;
 		bUseMallocProfiler = false;
 
+		//	! need this for logging
+        bUseLoggingInShipping = true;
+
         bCompileICU = false;
 		bBuildWithEditorOnlyData = true;
 

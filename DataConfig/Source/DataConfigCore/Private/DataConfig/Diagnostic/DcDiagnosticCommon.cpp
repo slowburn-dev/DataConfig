@@ -18,7 +18,7 @@ static FDcDiagnosticDetail _CommonDetails[] = {
 };
 
 FDcDiagnosticGroup Details = {
-	DcDCommon::Category,
+	Category,
 	DcDimOf(_CommonDetails),
 	_CommonDetails
 };

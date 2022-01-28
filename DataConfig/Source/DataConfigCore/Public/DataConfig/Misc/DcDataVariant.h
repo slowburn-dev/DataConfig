@@ -9,11 +9,19 @@
 template<typename T>
 struct TDcIsDataVariantCompatible
 {
-	enum { Value = DcTypeUtils::TDcDataEntryType<T>::Value != EDcDataEntry::Ended };
+	enum { Value = 
+		DcTypeUtils::TIsDataEntryType<T>::Value
+		|| TIsEnum<T>::Value
+	};
+};
+
+template<> struct TDcIsDataVariantCompatible<EDcDataEntry>
+{
+	enum { Value = true };
 };
 
 static_assert(TDcIsDataVariantCompatible<int>::Value, "yes");
-static_assert(!TDcIsDataVariantCompatible<EDcDataEntry>::Value, "no");
+static_assert(!TDcIsDataVariantCompatible<FDcStructAccess>::Value, "no");
 
 struct FDcDataVariant
 {
@@ -21,15 +29,18 @@ struct FDcDataVariant
 		: DataType(EDcDataEntry::Nil)
 	{}
 
-	//	placement news will correctly use these constructors
 	FDcDataVariant(const FDcDataVariant&) = default;
 	FDcDataVariant& operator=(const FDcDataVariant&) = default;
 	FDcDataVariant(FDcDataVariant&&) = default;
 	FDcDataVariant& operator=(FDcDataVariant&&) = default;
 	~FDcDataVariant() = default;
 
-	template<typename T>
-	FDcDataVariant(T&& InValue) // NOLINT(bugprone-forwarding-reference-overload)
+	template<
+		typename T,
+		typename TActual = typename TRemoveConst<typename TRemoveReference<T>::Type>::Type,
+		typename X = typename TEnableIf<TDcIsDataVariantCompatible<TActual>::Value, void>::Type
+	>
+	FDcDataVariant(T&& InValue)
 	{
 		Initialize(Forward<T>(InValue));
 	}

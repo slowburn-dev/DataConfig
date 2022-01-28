@@ -53,7 +53,7 @@ GetDatumPropertyByPath(const FDcPropertyDatum& RootDatum, const FString& Path)
 	if (!Property)
 		return nullptr;
 
-	if (Property->Struct != T::StaticStruct())
+	if (Property->Struct != TBaseStructure<T>::Get())
 		return nullptr;
 
 	return (T*)(ResultDatum.DataPtr);

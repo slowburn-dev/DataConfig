@@ -6,16 +6,22 @@ namespace DcTypeUtils {
 
 FORCEINLINE bool IsNumericDataEntry(const EDcDataEntry& Entry)
 {
-	return Entry == EDcDataEntry::Int8
-		|| Entry == EDcDataEntry::Int16
-		|| Entry == EDcDataEntry::Int32
-		|| Entry == EDcDataEntry::Int64
-		|| Entry == EDcDataEntry::UInt8
-		|| Entry == EDcDataEntry::UInt16
-		|| Entry == EDcDataEntry::UInt32
-		|| Entry == EDcDataEntry::UInt64
-		|| Entry == EDcDataEntry::Float
-		|| Entry == EDcDataEntry::Double;
+	switch (Entry)
+	{
+	case EDcDataEntry::Int8:
+	case EDcDataEntry::Int16:
+	case EDcDataEntry::Int32:
+	case EDcDataEntry::Int64:
+	case EDcDataEntry::UInt8:
+	case EDcDataEntry::UInt16:
+	case EDcDataEntry::UInt32:
+	case EDcDataEntry::UInt64:
+	case EDcDataEntry::Float:
+	case EDcDataEntry::Double:
+		return true;
+	default:
+		return false;
+	}
 }
 
 template <typename TLhs, typename TRhs>
@@ -54,6 +60,12 @@ template<> struct TDcDataEntryType<uint32> { static constexpr EDcDataEntry Value
 template<> struct TDcDataEntryType<uint64> { static constexpr EDcDataEntry Value = EDcDataEntry::UInt64; };
 
 template<typename T>
+struct TIsDataEntryType
+{
+	enum { Value = TDcDataEntryType<T>::Value != EDcDataEntry::Ended };
+};
+
+template<typename T>
 struct TIsUClass
 {
 	template <typename C> static uint16 Test(decltype(C::StaticClass));
@@ -71,6 +83,5 @@ struct TIsUStruct
 	enum { Value = sizeof(Test<T>(0)) - 1};
 };
 
-
-}	// namespace FDcTypeUtils
+} // namespace DcTypeUtils
 

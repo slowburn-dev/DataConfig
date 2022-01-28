@@ -5,10 +5,124 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Source/DcHighlightFormatter.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
-#include "Misc/Parse.h"
+
+namespace DcJsonReaderDetails
+{
 
 template<typename CharType>
-EDcDataEntry TDcJsonReader<CharType>::TokenTypeToDataEntry(ETokenType TokenType)
+struct TNumericDispatch
+{
+	using CString = TCString<CharType>;
+
+	static FORCEINLINE void ParseIntDispatch(int8& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(int16& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(int32& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(int64& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi64(Ptr, OutEnd, 10); }
+
+	static FORCEINLINE void ParseIntDispatch(uint8& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(uint16& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(uint32& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+	static FORCEINLINE void ParseIntDispatch(uint64& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
+
+	static FORCEINLINE void ParseFloatDispatch(float& OutValue, const CharType* Ptr) { OutValue = CString::Atof(Ptr); }
+	static FORCEINLINE void ParseFloatDispatch(double& OutValue, const CharType* Ptr) { OutValue = CString::Atod(Ptr); }
+
+};
+
+template<typename CharType>
+struct TJsonReaderClassIdSelector;
+template<> struct TJsonReaderClassIdSelector<ANSICHAR> { static constexpr const TCHAR* Id = TEXT("AnsiCharDcJsonReader"); };
+template<> struct TJsonReaderClassIdSelector<WIDECHAR> { static constexpr const TCHAR* Id = TEXT("WideCharDcJsonReader"); };
+
+} // namespace DcJsonReaderDetails
+
+
+template<typename CharType>
+struct FDcJsonReaderDetails
+{
+
+using TSelf = TDcJsonReader<CharType>;
+using ETokenType = typename TSelf::ETokenType;
+
+static FDcResult ParseQuotedString(TSelf* Self, const FString& InStr, FString& OutStr)
+{
+	OutStr.Reserve(InStr.Len() + 1);
+
+	int _StrIx = 0;
+	auto _GetCh = [&InStr, &_StrIx]()
+	{
+		return _StrIx < InStr.Len()
+			? InStr[_StrIx++]
+			: '\0';
+	};
+
+	auto _Fail = [Self, _StrIx]()
+	{
+		return DC_FAIL(DcDJSON, InvalidStringEscaping)
+			<< Self->FormatHighlight(Self->Token.Ref.Begin, _StrIx);
+	};
+
+	bool bHasUnicodeEscapes = false;
+	while (true)
+	{
+		TCHAR Ch = _GetCh();
+		if (Ch == '\0')
+			break;
+
+		switch (Ch)
+		{
+			case '\\':
+			{
+				switch (_GetCh())
+				{
+					case '\"': OutStr.AppendChar('"'); break;
+					case '\\': OutStr.AppendChar('\\'); break;
+					case '/': OutStr.AppendChar('/'); break;
+					case 'b': OutStr.AppendChar('\b'); break;
+					case 'f': OutStr.AppendChar('\f'); break;
+					case 'n': OutStr.AppendChar('\n'); break;
+					case 'r': OutStr.AppendChar('\r'); break;
+					case 't': OutStr.AppendChar('\t'); break;
+
+					case 'u':
+					{
+						bHasUnicodeEscapes = true;
+						int CodePoint = 0;
+						for (int Ix = 0; Ix < 4; Ix++)
+						{
+							TCHAR Hex = _GetCh();
+							if (Hex == '\0'
+								|| !TSelf::SourceUtils::IsHexDigit(Hex))
+								return _Fail();
+
+							CodePoint += FParse::HexDigit(Hex) << ((3 - Ix) * 4);
+						}
+
+						OutStr.AppendChar(TCHAR(CodePoint));
+						break;
+					}
+
+					default:
+						return _Fail();
+				}
+				break;
+			}
+
+			default:
+			{
+				OutStr.AppendChar(Ch);
+				break;
+			}
+		}
+	}
+
+	if (bHasUnicodeEscapes)
+		StringConv::InlineCombineSurrogates(OutStr);
+	
+	return DcOk();
+}
+
+static FORCEINLINE EDcDataEntry TokenTypeToDataEntry(ETokenType TokenType)
 {
 	static EDcDataEntry _Mapping[(int)ETokenType::_Count] = {
 		EDcDataEntry::Ended,
@@ -32,10 +146,148 @@ EDcDataEntry TDcJsonReader<CharType>::TokenTypeToDataEntry(ETokenType TokenType)
 	return _Mapping[(int)TokenType];
 }
 
+static bool CheckCoercionRule(TSelf* Self, EDcDataEntry ToEntry)
+{
+	if (Self->Token.Type == ETokenType::Number)
+	{
+		return DcTypeUtils::IsNumericDataEntry(ToEntry)
+			|| ToEntry == EDcDataEntry::String;
+	}
+	else if (Self->Token.Type == ETokenType::String)
+	{
+		return ToEntry == EDcDataEntry::Name
+			|| ToEntry == EDcDataEntry::Text;
+	}
+
+	return false;
+}
+
+template<typename TInt>
+static FDcResult ParseInteger(TSelf* Self, TInt* OutPtr)
+{
+	int IntOffset = Self->Token.Flag.bNumberHasDecimal
+		? Self->Token.Flag.NumberDecimalOffset
+		: Self->Token.Ref.Num;
+	const CharType* BeginPtr = Self->Token.Ref.GetBeginPtr();
+	CharType* EndPtr = nullptr;
+
+	TInt Value;
+	DcJsonReaderDetails::TNumericDispatch<CharType>::ParseIntDispatch(Value, &EndPtr, BeginPtr);
+	if (EndPtr - BeginPtr != IntOffset)
+		return DC_FAIL(DcDJSON, ParseIntegerFailed) << Self->FormatHighlight(Self->Token.Ref);
+
+	ReadOut(OutPtr, Value);
+	DC_TRY(Self->EndTopRead());
+	return DcOk();
+}
+
+template<typename TInt>
+static FDcResult ReadSignedInteger(TSelf* Self, TInt* OutPtr)
+{
+
+	DC_TRY(Self->CheckConsumeToken(DcTypeUtils::TDcDataEntryType<TInt>::Value));
+	if (Self->Token.Type == ETokenType::Number)
+	{
+		DC_TRY(Self->CheckNotObjectKey());
+		return ParseInteger<TInt>(Self, OutPtr);
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< DcTypeUtils::TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Self->Token.Type)
+			<< Self->FormatHighlight(Self->Token.Ref);
+	}
+}
+
+template<typename TInt>
+static FDcResult ReadUnsignedInteger(TSelf* Self, TInt* OutPtr)
+{
+	DC_TRY(Self->CheckConsumeToken(DcTypeUtils::TDcDataEntryType<TInt>::Value));
+	if (Self->Token.Type == ETokenType::Number)
+	{
+		DC_TRY(Self->CheckNotObjectKey());
+
+		if (Self->Token.Flag.bNumberIsNegative)
+			return DC_FAIL(DcDJSON, ReadUnsignedWithNegativeNumber)
+				<< Self->FormatHighlight(Self->Token.Ref);
+
+		return ParseInteger<TInt>(Self, OutPtr);
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< DcTypeUtils::TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Self->Token.Type)
+			<< Self->FormatHighlight(Self->Token.Ref);
+	}
+}
+
+template<typename TFloat>
+static FDcResult ReadFloating(TSelf* Self, TFloat* OutPtr)
+{
+	DC_TRY(Self->CheckConsumeToken(DcTypeUtils::TDcDataEntryType<TFloat>::Value));
+	if (Self->Token.Type == ETokenType::Number)
+	{
+		DC_TRY(Self->CheckNotObjectKey());
+
+		TFloat Value;
+		DcJsonReaderDetails::TNumericDispatch<CharType>::ParseFloatDispatch(Value, Self->Token.Ref.GetBeginPtr());
+
+		ReadOut(OutPtr, Value);
+		DC_TRY(Self->EndTopRead());
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDJSON, ReadTypeMismatch)
+			<< DcTypeUtils::TDcDataEntryType<TFloat>::Value << TokenTypeToDataEntry(Self->Token.Type)
+			<< Self->FormatHighlight(Self->Token.Ref);
+	}
+}
+
+static void Reset(TSelf* Self, const CharType* InStrPtr, int32 Num)
+{
+	Self->Buf = typename TSelf::SourceView(InStrPtr, Num);
+
+	Self->Token.Type = ETokenType::EOF_;
+	Self->Token.Ref.Reset();
+	Self->Token.Ref.Buffer = &Self->Buf;
+
+	Self->CachedNext.Reset();
+	Self->DiagFilePath.Empty();
+
+	Self->State = TSelf::EState::InProgress;
+	Self->bTopObjectAtValue = false;
+	Self->bNeedConsumeToken = true;
+
+	Self->Cur = 0;
+	Self->Loc.Line = 1;
+	Self->Loc.Column = 0;
+
+	//	these are cleared by proper reads or `Abort()` should clear these on error
+	check(Self->Keys.Num() == 0);
+	check(Self->States.Num() == 1);
+}
+
+}; // struct FDcJsonReaderDetails
+
 template<typename CharType>
 TDcJsonReader<CharType>::TDcJsonReader()
 {
-	States.Add(EParseState::Nil);
+	States.Add(EParseState::Root);
+}
+
+template <typename CharType>
+TDcJsonReader<CharType>::TDcJsonReader(const CharType* Str)
+	: TDcJsonReader()	
+{
+	FDcJsonReaderDetails<CharType>::Reset(this, Str, CString::Strlen(Str));
+}
+
+template <typename CharType>
+TDcJsonReader<CharType>::TDcJsonReader(const CharType* Buf, int Len)
+	: TDcJsonReader()	
+{
+	FDcJsonReaderDetails<CharType>::Reset(this, Buf, Len);
 }
 
 template<typename CharType>
@@ -45,7 +297,7 @@ void TDcJsonReader<CharType>::AbortAndUninitialize()
 	States.Empty();
 	Keys.Empty();
 
-	States.Add(EParseState::Nil);
+	States.Add(EParseState::Root);
 }
 
 template<typename CharType>
@@ -77,49 +329,22 @@ FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 
 
 	if (State != EState::Uninitialized
 		&& State != EState::FinishedStr)
-	{
 		return DC_FAIL(DcDJSON, ExpectStateUninitializedOrFinished) << State;
-	}
 
-	Buf = SourceView(InStrPtr, Num);
-
-	Token.Type = ETokenType::EOF_;
-	Token.Ref.Reset();
-	Token.Ref.Buffer = &Buf;
-
-	CachedNext.Reset();
-	DiagFilePath.Empty();
-
-	State = EState::InProgress;
-	bTopObjectAtValue = false;
-	bNeedConsumeToken = true;
-
-	Cur = 0;
-	Loc.Line = 1;
-	Loc.Column = 0;
-
-	//	these are cleared by proper reads or `Abort()` should clear these on error
-	check(Keys.Num() == 0);
-	check(States.Num() == 1);
-
+	FDcJsonReaderDetails<CharType>::Reset(this, InStrPtr, Num);
 	return DcOk();
 }
 
-template<typename CharType>
-bool TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry)
+template <typename CharType>
+FDcResult TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry, bool* OutPtr)
 {
-	if (Token.Type == ETokenType::Number)
+	if(bNeedConsumeToken)
 	{
-		return DcTypeUtils::IsNumericDataEntry(ToEntry)
-			|| ToEntry == EDcDataEntry::String;
-	}
-	else if (Token.Type == ETokenType::String)
-	{
-		return ToEntry == EDcDataEntry::Name
-			|| ToEntry == EDcDataEntry::Text;
+		DC_TRY(ConsumeEffectiveToken());
+		bNeedConsumeToken = false;
 	}
 
-	return false;
+	return ReadOutOk(OutPtr, FDcJsonReaderDetails<CharType>::CheckCoercionRule(this, ToEntry));
 }
 
 template<typename CharType>
@@ -152,7 +377,7 @@ FDcResult TDcJsonReader<CharType>::ReadNil()
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::Nil << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::Nil << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -178,7 +403,7 @@ FDcResult TDcJsonReader<CharType>::ReadBool(bool* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::Bool << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::Bool << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -194,13 +419,13 @@ FDcResult TDcJsonReader<CharType>::CheckNotObjectKey()
 }
 
 template<typename CharType>
-FDcResult TDcJsonReader<CharType>::CheckObjectDuplicatedKey(const FName& KeyName)
+FDcResult TDcJsonReader<CharType>::CheckObjectDuplicatedKey(const FString& Key)
 {
 	check(Keys.Num() && IsAtObjectKey());
-	if (Keys.Top().Contains(KeyName))
-		return DC_FAIL(DcDJSON, DuplicatedKey) << FormatHighlight(Token.Ref);
+	if (Keys.Top().Contains(Key))
+		return DC_FAIL(DcDJSON, DuplicatedKey) << Key << FormatHighlight(Token.Ref);
 	else
-		Keys.Top().Add(KeyName);
+		Keys.Top().Add(Key);
 
 	return DcOk();
 }
@@ -223,24 +448,22 @@ FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 		FString ParsedStr;
 		DC_TRY(ParseStringToken(ParsedStr));
 
-		FName ParsedName;
 		if (IsAtObjectKey())
-		{
-			if (ParsedStr.Len() > _MAX_KEY_LEN)
-				return DC_FAIL(DcDJSON, ObjectKeyTooLong) << FormatHighlight(Token.Ref);
+			DC_TRY(CheckObjectDuplicatedKey(ParsedStr));
 
-			ParsedName = *ParsedStr;
-			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
-		}
+		if (ParsedStr.Len() >= NAME_SIZE)
+			return DC_FAIL(DcDReadWrite, FNameOverSize);
 
-		ReadOut(OutPtr, ParsedName);
+		if (OutPtr)
+			*OutPtr = FName(ParsedStr);
+
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::Name << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::Name << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -255,13 +478,7 @@ FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 		DC_TRY(ParseStringToken(ParsedStr));
 
 		if (IsAtObjectKey())
-		{
-			if (ParsedStr.Len() > _MAX_KEY_LEN)
-				return DC_FAIL(DcDJSON, ObjectKeyTooLong) << FormatHighlight(Token.Ref);
-
-			FName ParsedName(*ParsedStr);
-			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
-		}
+			DC_TRY(CheckObjectDuplicatedKey(ParsedStr));
 
 		ReadOut(OutPtr, MoveTemp(ParsedStr));
 		DC_TRY(EndTopRead());
@@ -269,14 +486,14 @@ FDcResult TDcJsonReader<CharType>::ReadString(FString* OutPtr)
 	}
 	else if (Token.Type == ETokenType::Number)
 	{
-		ReadOut(OutPtr, Token.Ref.ToString());
+		ReadOut(OutPtr, Token.Ref.CharsToString());
 		DC_TRY(EndTopRead());
 		return DcOk();
 	}
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::String << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::String << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -291,13 +508,7 @@ FDcResult TDcJsonReader<CharType>::ReadText(FText* OutPtr)
 		DC_TRY(ParseStringToken(ParsedStr));
 
 		if (IsAtObjectKey())
-		{
-			if (ParsedStr.Len() > _MAX_KEY_LEN)
-				return DC_FAIL(DcDJSON, ObjectKeyTooLong) << FormatHighlight(Token.Ref);
-
-			FName ParsedName(*ParsedStr);
-			DC_TRY(CheckObjectDuplicatedKey(ParsedName));
-		}
+			DC_TRY(CheckObjectDuplicatedKey(ParsedStr));
 
 		ReadOut(OutPtr, FText::FromString(MoveTemp(ParsedStr)));
 		DC_TRY(EndTopRead());
@@ -306,7 +517,7 @@ FDcResult TDcJsonReader<CharType>::ReadText(FText* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::Text << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::Text << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -321,7 +532,7 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 	while (true)
 	{
 		CharType Char = PeekChar();
-		if (Char == _EOF_CHAR
+		if (Char == CharType('\0')
 			|| SourceUtils::IsLineBreak(Char))
 		{
 			return DC_FAIL(DcDJSON, UnclosedStringLiteral) << FormatHighlight(Token.Ref.Begin, 1);
@@ -344,7 +555,15 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 		}
 		else if (SourceUtils::IsControl(Char))
 		{
-			return DC_FAIL(DcDJSON, InvalidControlCharInString) << FormatHighlight(Cur, 1);
+			//	explicitly reject error prone ones
+			if (Char == CharType('\t'))
+				return DC_FAIL(DcDJSON, InvalidControlCharInString) << FormatHighlight(Cur, 1);
+
+			//	then silently load most control chars for now
+			if (TIsSame<CharType, ANSICHAR>::Value)
+				Token.Flag.bStringHasNonAscii = true;
+
+			Advance();
 		}
 		else
 		{
@@ -373,33 +592,34 @@ FString TDcJsonReader<CharType>::ConvertStringTokenToLiteral(SourceRef Ref)
 	}
 	else
 	{
-		return Ref.ToString();
+		return Ref.CharsToString();
 	}
 }
+
+template <typename CharType>
+FName TDcJsonReader<CharType>::ClassId() { return FName(DcJsonReaderDetails::TJsonReaderClassIdSelector<CharType>::Id); }
+
+template <typename CharType>
+FName TDcJsonReader<CharType>::GetId() { return ClassId(); }
 
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ParseStringToken(FString &OutStr)
 {
 	check(Token.Type == ETokenType::String);
 
+	SourceRef UnquotedRef = Token.Ref;
+	UnquotedRef.Begin += 1;
+	UnquotedRef.Num -= 2;
+
 	if (!Token.Flag.bStringHasEscapeChar)
 	{
-		SourceRef UnquotedRef = Token.Ref;
-		UnquotedRef.Begin += 1;
-		UnquotedRef.Num -= 2;
 		OutStr = ConvertStringTokenToLiteral(UnquotedRef);
 		return DcOk();
 	}
 	else
 	{
-		// FParse::QuotedString needs string to be quoted
-		FString RawStr = ConvertStringTokenToLiteral(Token.Ref);
-		int32 CharsRead = 0;
-		bool bOk = FParse::QuotedString(RawStr.GetCharArray().GetData(), OutStr, &CharsRead);
-		if (!bOk)
-			return DC_FAIL(DcDJSON, InvalidStringEscaping) << FormatHighlight(Token.Ref.Begin, CharsRead);
-		else
-			return DcOk();
+		FString UnquotedStr = ConvertStringTokenToLiteral(UnquotedRef);
+		return FDcJsonReaderDetails<CharType>::ParseQuotedString(this, UnquotedStr, OutStr);
 	}
 }
 
@@ -675,7 +895,7 @@ FDcResult TDcJsonReader<CharType>::ReadTokenAsDataEntry(EDcDataEntry* OutPtr)
 	case ETokenType::Number:
 	case ETokenType::EOF_:
 		{
-			ReadOut(OutPtr, TokenTypeToDataEntry(Token.Type));
+			ReadOut(OutPtr, FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type));
 			return DcOk();
 		}
 	default:
@@ -691,8 +911,9 @@ FDcResult TDcJsonReader<CharType>::CheckConsumeToken(EDcDataEntry Expect)
 		EDcDataEntry Actual;
 		DC_TRY(ConsumeEffectiveToken());
 		DC_TRY(ReadTokenAsDataEntry(&Actual));
-		if (Actual != Expect)
-			return DC_FAIL(DcDReadWrite, DataTypeMismatch)
+		if (Actual != Expect
+			&& !FDcJsonReaderDetails<CharType>::CheckCoercionRule(this, Expect))
+			return DC_FAIL(DcDReadWrite, DataTypeMismatchNoCoercion)
 				<< Expect << Actual
 				<< FormatHighlight(Token.Ref);
 	}
@@ -763,7 +984,7 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 			return DC_FAIL(DcDJSON, ExpectComma) << FormatHighlight(Token.Ref);
 		}
 	}
-	else if (TopState == EParseState::Nil)
+	else if (TopState == EParseState::Root)
 	{
 		return DcOk();
 	}
@@ -788,7 +1009,7 @@ FDcResult TDcJsonReader<CharType>::ReadMapRoot()
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::MapRoot << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::MapRoot << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -811,7 +1032,7 @@ FDcResult TDcJsonReader<CharType>::ReadMapEnd()
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::MapEnd << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::MapEnd << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -829,7 +1050,7 @@ FDcResult TDcJsonReader<CharType>::ReadArrayRoot()
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::ArrayRoot << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::ArrayRoot << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
@@ -850,128 +1071,23 @@ FDcResult TDcJsonReader<CharType>::ReadArrayEnd()
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::ArrayEnd << TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::ArrayEnd << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }
 
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt8(int8* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadSignedInteger(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt16(int16* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadSignedInteger(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt32(int32* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadSignedInteger(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt64(int64* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadSignedInteger(this, OutPtr); }
 
-template<typename CharType>
-struct TDcJsonReader_NumericDispatch
-{
-	using CString = TCString<CharType>;
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt8(uint8* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadUnsignedInteger(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt16(uint16* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadUnsignedInteger(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt32(uint32* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadUnsignedInteger(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt64(uint64* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadUnsignedInteger(this, OutPtr); }
 
-	static FORCEINLINE void ParseIntDispatch(int8& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
-	static FORCEINLINE void ParseIntDispatch(int16& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
-	static FORCEINLINE void ParseIntDispatch(int32& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi(Ptr, OutEnd, 10); }
-	static FORCEINLINE void ParseIntDispatch(int64& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoi64(Ptr, OutEnd, 10); }
-
-	static FORCEINLINE void ParseIntDispatch(uint8& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
-	static FORCEINLINE void ParseIntDispatch(uint16& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
-	static FORCEINLINE void ParseIntDispatch(uint32& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
-	static FORCEINLINE void ParseIntDispatch(uint64& OutValue, CharType** OutEnd, const CharType* Ptr) { OutValue = CString::Strtoui64(Ptr, OutEnd, 10); }
-
-	static FORCEINLINE void ParseFloatDispatch(float& OutValue, const CharType* Ptr) { OutValue = CString::Atof(Ptr); }
-	static FORCEINLINE void ParseFloatDispatch(double& OutValue, const CharType* Ptr) { OutValue = CString::Atod(Ptr); }
-
-};
-
-template<typename CharType>
-template<typename TInt>
-FDcResult TDcJsonReader<CharType>::ParseInteger(TInt* OutPtr)
-{
-	int IntOffset = Token.Flag.bNumberHasDecimal ? Token.Flag.NumberDecimalOffset : Token.Ref.Num;
-	const CharType* BeginPtr = Token.Ref.GetBeginPtr();
-	CharType* EndPtr = nullptr;
-
-	TInt Value;
-	TDcJsonReader_NumericDispatch<CharType>::ParseIntDispatch(Value, &EndPtr, BeginPtr);
-	if (EndPtr - BeginPtr != IntOffset)
-		return DC_FAIL(DcDJSON, ParseIntegerFailed) << FormatHighlight(Token.Ref);
-
-	ReadOut(OutPtr, Value);
-	DC_TRY(EndTopRead());
-	return DcOk();
-}
-
-template<typename CharType>
-template<typename TInt>
-FDcResult TDcJsonReader<CharType>::ReadSignedInteger(TInt* OutPtr)
-{
-	DC_TRY(CheckConsumeToken(DcTypeUtils::TDcDataEntryType<TInt>::Value));
-	if (Token.Type == ETokenType::Number)
-	{
-		DC_TRY(CheckNotObjectKey());
-		return ParseInteger<TInt>(OutPtr);
-	}
-	else
-	{
-		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< DcTypeUtils::TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
-			<< FormatHighlight(Token.Ref);
-	}
-}
-
-template<typename CharType>
-template<typename TInt>
-FDcResult TDcJsonReader<CharType>::ReadUnsignedInteger(TInt* OutPtr)
-{
-	DC_TRY(CheckConsumeToken(DcTypeUtils::TDcDataEntryType<TInt>::Value));
-	if (Token.Type == ETokenType::Number)
-	{
-		DC_TRY(CheckNotObjectKey());
-
-		if (Token.Flag.bNumberIsNegative)
-			return DC_FAIL(DcDJSON, ReadUnsignedWithNegativeNumber)
-				<< FormatHighlight(Token.Ref);
-
-		return ParseInteger<TInt>(OutPtr);
-	}
-	else
-	{
-		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< DcTypeUtils::TDcDataEntryType<TInt>::Value << TokenTypeToDataEntry(Token.Type)
-			<< FormatHighlight(Token.Ref);
-	}
-}
-
-
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt8(int8* OutPtr) { return ReadSignedInteger<int8>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt16(int16* OutPtr) { return ReadSignedInteger<int16>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt32(int32* OutPtr) { return ReadSignedInteger<int32>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadInt64(int64* OutPtr) { return ReadSignedInteger<int64>(OutPtr); }
-
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt8(uint8* OutPtr) { return ReadUnsignedInteger<uint8>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt16(uint16* OutPtr) { return ReadUnsignedInteger<uint16>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt32(uint32* OutPtr) { return ReadUnsignedInteger<uint32>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadUInt64(uint64* OutPtr) { return ReadUnsignedInteger<uint64>(OutPtr); }
-
-template<typename CharType>
-template<typename TFloat>
-FDcResult TDcJsonReader<CharType>::ReadFloating(TFloat* OutPtr)
-{
-	DC_TRY(CheckConsumeToken(DcTypeUtils::TDcDataEntryType<TFloat>::Value));
-	if (Token.Type == ETokenType::Number)
-	{
-		DC_TRY(CheckNotObjectKey());
-
-		TFloat Value;
-		TDcJsonReader_NumericDispatch<CharType>::ParseFloatDispatch(Value, Token.Ref.GetBeginPtr());
-
-		ReadOut(OutPtr, Value);
-		DC_TRY(EndTopRead());
-		return DcOk();
-	}
-	else
-	{
-		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< DcTypeUtils::TDcDataEntryType<TFloat>::Value << TokenTypeToDataEntry(Token.Type)
-			<< FormatHighlight(Token.Ref);
-	}
-}
-
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadFloat(float* OutPtr) { return ReadFloating<float>(OutPtr); }
-template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadDouble(double* OutPtr) { return ReadFloating<double>(OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadFloat(float* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadFloating(this, OutPtr); }
+template<typename CharType> FDcResult TDcJsonReader<CharType>::ReadDouble(double* OutPtr) { return FDcJsonReaderDetails<CharType>::ReadFloating(this, OutPtr); }
 
 template<typename CharType>
 FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
@@ -997,7 +1113,7 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 		else
 		{
 			Token.Type = ETokenType::EOF_;
-			Token.Ref.Reset();
+			//	keep the token for diagnostic highlight
 			State = EState::FinishedStr;
 			return DcOk();
 		}
@@ -1012,84 +1128,84 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 	};
 
 	CharType Char = PeekChar();
-	if (SourceUtils::IsWhitespace(Char))
+	switch (Char)
 	{
-		ReadWhiteSpace();
-		return DcOk();
-	}
-	else if (Char == CharType('/'))
-	{
-		CharType NextChar = PeekChar(1);
-		if (NextChar == CharType('/'))
+		case CharType('/'):
 		{
-			ReadLineComment();
-			return DcOk();
+			CharType NextChar = PeekChar(1);
+			if (NextChar == CharType('/'))
+			{
+				ReadLineComment();
+				return DcOk();
+			}
+			else if (NextChar == CharType('*'))
+			{
+				return ReadBlockComment();
+			}
+			else
+			{
+				return DC_FAIL(DcDJSON, UnexpectedChar) << Char << FormatHighlight(Cur, 1);
+			}
+			break;
 		}
-		else if (NextChar == CharType('*'))
-		{
-			return ReadBlockComment();
-		}
-		else
-		{
-			return DC_FAIL(DcDJSON, UnexpectedChar) << Char << FormatHighlight(Cur, 1);
-		}
+		case CharType('{'):
+			return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
+		case CharType('}'):
+			return _ConsumeSingleCharToken(ETokenType::CurlyClose);
+		case CharType('['):
+			return _ConsumeSingleCharToken(ETokenType::SquareOpen);
+		case CharType(']'):
+			return _ConsumeSingleCharToken(ETokenType::SquareClose);
+		case CharType(':'):
+			return _ConsumeSingleCharToken(ETokenType::Colon);
+		case CharType(','):
+			return _ConsumeSingleCharToken(ETokenType::Comma);
+		case CharType('t'):
+			{
+				const static CharType _TRUE[] = { 't','r','u','e',0 };
+
+				DC_TRY(ReadWordExpect(_TRUE));
+				Token.Type = ETokenType::True;
+				return DcOk();
+			}
+		case CharType('f'):
+			{
+				const static CharType _FALSE[] = { 'f','a','l','s','e',0 };
+
+				DC_TRY(ReadWordExpect(_FALSE));
+				Token.Type = ETokenType::False;
+				return DcOk();
+			}
+		case CharType('n'):
+			{
+				const static CharType _NULL[] = { 'n','u','l','l',0 };
+
+				DC_TRY(ReadWordExpect(_NULL));
+				Token.Type = ETokenType::Null;
+				return DcOk();
+			}
+		case CharType('"'):
+				return ReadStringToken();
+		default:
+			{
+				if (SourceUtils::IsWhitespace(Char))
+				{
+					ReadWhiteSpace();
+					return DcOk();
+				}
+				else if (Char == CharType('-')
+					|| SourceUtils::IsDigit(Char))
+				{
+					return ReadNumberToken();
+				}
+				else
+				{
+					return DC_FAIL(DcDJSON, UnexpectedChar)
+						<< Char << FormatHighlight(Cur, 1);
+				}
+			}
 	}
-	else if (Char == CharType('{'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::CurlyOpen);
-	}
-	else if (Char == CharType('}'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::CurlyClose);
-	}
-	else if (Char == CharType('['))
-	{
-		return _ConsumeSingleCharToken(ETokenType::SquareOpen);
-	}
-	else if (Char == CharType(']'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::SquareClose);
-	}
-	else if (Char == CharType(':'))
-	{
-		return _ConsumeSingleCharToken(ETokenType::Colon);
-	}
-	else if (Char == CharType(','))
-	{
-		return _ConsumeSingleCharToken(ETokenType::Comma);
-	}
-	else if (Char == CharType('t'))
-	{
-		DC_TRY(ReadWordExpect(_TRUE_LITERAL));
-		Token.Type = ETokenType::True;
-		return DcOk();
-	}
-	else if (Char == CharType('f'))
-	{
-		DC_TRY(ReadWordExpect(_FALSE_LITERAL));
-		Token.Type = ETokenType::False;
-		return DcOk();
-	}
-	else if (Char == CharType('n'))
-	{
-		DC_TRY(ReadWordExpect(_NULL_LITERAL));
-		Token.Type = ETokenType::Null;
-		return DcOk();
-	}
-	else if (Char == CharType('"'))
-	{
-		return ReadStringToken();
-	}
-	else if (Char == CharType('-')
-		|| SourceUtils::IsDigit(Char))
-	{
-		return ReadNumberToken();
-	}
-	else
-	{
-		return DC_FAIL(DcDJSON, UnexpectedChar)
-			<< Char << FormatHighlight(Cur, 1);
-	}
+
 }
 
 template<typename CharType>
@@ -1145,7 +1261,7 @@ template<typename CharType>
 CharType TDcJsonReader<CharType>::PeekChar(int N)
 {
 	if (IsAtEnd(N))
-		return _EOF_CHAR;
+		return CharType('\0');
 	else
 		return Buf.Buffer[Cur + N];
 }
@@ -1163,7 +1279,7 @@ FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 		if (CharType(Word[Ix]) != PeekChar(Ix))
 		{
 			return DC_FAIL(DcDJSON, ExpectWordButNotFound)
-				<< Word << WordRef.ToString()
+				<< Word << WordRef.CharsToString()
 				<< FormatHighlight(WordRef);
 		}
 	}
@@ -1176,13 +1292,13 @@ FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
 template<typename CharType>
 FDcDiagnosticHighlight TDcJsonReader<CharType>::FormatHighlight(SourceRef SpanRef)
 {
-	FDcDiagnosticHighlight OutHighlight(this, TEXT("JsonReader"));
+	FDcDiagnosticHighlight OutHighlight(this, ClassId().ToString());
 	OutHighlight.FileContext.Emplace();
 	OutHighlight.FileContext->Loc = Loc;
 	OutHighlight.FileContext->FilePath = DiagFilePath.IsEmpty() ? TEXT("<in-memory>") : DiagFilePath;
 
 	THightlightFormatter<CharType> Highlighter;
-	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc);
+	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, Loc.Line);
 
 	if (OutHighlight.Formatted.IsEmpty())
 		OutHighlight.Formatted = TEXT("<contents empty>");

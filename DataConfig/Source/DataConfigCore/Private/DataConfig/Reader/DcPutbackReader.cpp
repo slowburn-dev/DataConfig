@@ -4,6 +4,10 @@
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
+
+namespace DcPutbackReaderDetails
+{
+
 template<typename TData>
 FDcResult PopAndCheckCachedValue(FDcPutbackReader* Self, FDcDataVariant& OutValue)
 {
@@ -79,13 +83,13 @@ FORCEINLINE FDcResult CachedReadDataTypeOnly(FDcPutbackReader* Self, EDcDataEntr
 	}
 }
 
+} // namespace DcPutbackReaderDetails
 
 FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 {
 	if (Cached.Num() > 0)
 	{
-		*OutPtr = Cached.Last().DataType;
-		return DcOk();
+		return ReadOutOk(OutPtr, Cached.Last().DataType);
 	}
 	else
 	{
@@ -95,200 +99,200 @@ FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 
 FDcResult FDcPutbackReader::ReadNil()
 {
-	return CachedRead<nullptr_t>(this, &FDcReader::ReadNil);
+	return DcPutbackReaderDetails::CachedRead<nullptr_t>(this, &FDcReader::ReadNil);
 }
 
 FDcResult FDcPutbackReader::ReadBool(bool* OutPtr)
 {
-	return CachedRead<bool>(this, &FDcReader::ReadBool, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<bool>(this, &FDcReader::ReadBool, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadName(FName* OutPtr)
 {
-	return CachedRead<FName>(this, &FDcReader::ReadName, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<FName>(this, &FDcReader::ReadName, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadString(FString* OutPtr)
 {
-	return CachedRead<FString>(this, &FDcReader::ReadString, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<FString>(this, &FDcReader::ReadString, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadText(FText* OutPtr)
 {
-	return CachedRead<FText>(this, &FDcReader::ReadText, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<FText>(this, &FDcReader::ReadText, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadEnum(FDcEnumData* OutPtr)
 {
-	return CachedRead<FDcEnumData>(this, &FDcReader::ReadEnum, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<FDcEnumData>(this, &FDcReader::ReadEnum, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadStructRoot(FDcStructStat* OutStructPtr)
+FDcResult FDcPutbackReader::ReadStructRootAccess(FDcStructAccess& Access)
 {
-	return CanNotCachedRead(this, EDcDataEntry::StructRoot, &FDcReader::ReadStructRoot, OutStructPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::StructRoot, &FDcReader::ReadStructRootAccess, Access);
 }
 
-FDcResult FDcPutbackReader::ReadStructEnd(FDcStructStat* OutStructPtr)
+FDcResult FDcPutbackReader::ReadStructEndAccess(FDcStructAccess& Access)
 {
-	return CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEnd, OutStructPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEndAccess, Access);
 }
 
-FDcResult FDcPutbackReader::ReadClassRoot(FDcClassStat* OutClassPtr)
+FDcResult FDcPutbackReader::ReadClassRootAccess(FDcClassAccess& Access)
 {
-	return CanNotCachedRead(this, EDcDataEntry::ClassRoot, &FDcReader::ReadClassRoot, OutClassPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::ClassRoot, &FDcReader::ReadClassRootAccess, Access);
 }
 
-FDcResult FDcPutbackReader::ReadClassEnd(FDcClassStat* OutClassPtr)
+FDcResult FDcPutbackReader::ReadClassEndAccess(FDcClassAccess& Access)
 {
-	return CanNotCachedRead(this, EDcDataEntry::ClassEnd, &FDcReader::ReadClassEnd, OutClassPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::ClassEnd, &FDcReader::ReadClassEndAccess, Access);
 }
 
 FDcResult FDcPutbackReader::ReadMapRoot()
 {
-	return CachedReadDataTypeOnly(this, EDcDataEntry::MapRoot, &FDcReader::ReadMapRoot);
+	return DcPutbackReaderDetails::CachedReadDataTypeOnly(this, EDcDataEntry::MapRoot, &FDcReader::ReadMapRoot);
 }
 
 FDcResult FDcPutbackReader::ReadMapEnd()
 {
-	return CachedReadDataTypeOnly(this, EDcDataEntry::MapEnd, &FDcReader::ReadMapEnd);
+	return DcPutbackReaderDetails::CachedReadDataTypeOnly(this, EDcDataEntry::MapEnd, &FDcReader::ReadMapEnd);
 }
 
 FDcResult FDcPutbackReader::ReadArrayRoot()
 {
-	return CachedReadDataTypeOnly(this, EDcDataEntry::ArrayRoot, &FDcReader::ReadArrayRoot);
+	return DcPutbackReaderDetails::CachedReadDataTypeOnly(this, EDcDataEntry::ArrayRoot, &FDcReader::ReadArrayRoot);
 }
 
 FDcResult FDcPutbackReader::ReadArrayEnd()
 {
-	return CachedReadDataTypeOnly(this, EDcDataEntry::ArrayEnd, &FDcReader::ReadArrayEnd);
+	return DcPutbackReaderDetails::CachedReadDataTypeOnly(this, EDcDataEntry::ArrayEnd, &FDcReader::ReadArrayEnd);
 }
 
 FDcResult FDcPutbackReader::ReadObjectReference(UObject** OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::ObjectReference, &FDcReader::ReadObjectReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::ObjectReference, &FDcReader::ReadObjectReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadClassReference(UClass** OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::ClassReference, &FDcReader::ReadClassReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::ClassReference, &FDcReader::ReadClassReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadWeakObjectReference(FWeakObjectPtr* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::WeakObjectReference, &FDcReader::ReadWeakObjectReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::WeakObjectReference, &FDcReader::ReadWeakObjectReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadLazyObjectReference(FLazyObjectPtr* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::LazyObjectReference, &FDcReader::ReadLazyObjectReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::LazyObjectReference, &FDcReader::ReadLazyObjectReference, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadSoftObjectReference(FSoftObjectPath* OutPtr)
+FDcResult FDcPutbackReader::ReadSoftObjectReference(FSoftObjectPtr* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::SoftObjectReference, &FDcReader::ReadSoftObjectReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::SoftObjectReference, &FDcReader::ReadSoftObjectReference, OutPtr);
 }
 
-FDcResult FDcPutbackReader::ReadSoftClassReference(FSoftClassPath* OutPtr)
+FDcResult FDcPutbackReader::ReadSoftClassReference(FSoftObjectPtr* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::SoftClassReference, &FDcReader::ReadSoftClassReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::SoftClassReference, &FDcReader::ReadSoftClassReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadInterfaceReference(FScriptInterface* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::InterfaceReference, &FDcReader::ReadInterfaceReference, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::InterfaceReference, &FDcReader::ReadInterfaceReference, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadFieldPath(FFieldPath* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::FieldPath, &FDcReader::ReadFieldPath, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::FieldPath, &FDcReader::ReadFieldPath, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadDelegate(FScriptDelegate* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::Delegate, &FDcReader::ReadDelegate, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::Delegate, &FDcReader::ReadDelegate, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadMulticastInlineDelegate(FMulticastScriptDelegate* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::MulticastInlineDelegate, &FDcReader::ReadMulticastInlineDelegate, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::MulticastInlineDelegate, &FDcReader::ReadMulticastInlineDelegate, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadMulticastSparseDelegate(FMulticastScriptDelegate* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::MulticastSparseDelegate, &FDcReader::ReadMulticastSparseDelegate, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::MulticastSparseDelegate, &FDcReader::ReadMulticastSparseDelegate, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadSetRoot()
 {
-	return CanNotCachedRead(this, EDcDataEntry::SetRoot, &FDcReader::ReadSetRoot);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::SetRoot, &FDcReader::ReadSetRoot);
 }
 
 FDcResult FDcPutbackReader::ReadSetEnd()
 {
-	return CanNotCachedRead(this, EDcDataEntry::SetEnd, &FDcReader::ReadSetEnd);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::SetEnd, &FDcReader::ReadSetEnd);
 }
 
 FDcResult FDcPutbackReader::ReadInt8(int8* OutPtr)
 {
-	return CachedRead<int8>(this, &FDcReader::ReadInt8, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<int8>(this, &FDcReader::ReadInt8, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadInt16(int16* OutPtr)
 {
-	return CachedRead<int16>(this, &FDcReader::ReadInt16, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<int16>(this, &FDcReader::ReadInt16, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadInt32(int32* OutPtr)
 {
-	return CachedRead<int32>(this, &FDcReader::ReadInt32, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<int32>(this, &FDcReader::ReadInt32, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadInt64(int64* OutPtr)
 {
-	return CachedRead<int64>(this, &FDcReader::ReadInt64, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<int64>(this, &FDcReader::ReadInt64, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadUInt8(uint8* OutPtr)
 {
-	return CachedRead<uint8>(this, &FDcReader::ReadUInt8, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<uint8>(this, &FDcReader::ReadUInt8, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadUInt16(uint16* OutPtr)
 {
-	return CachedRead<uint16>(this, &FDcReader::ReadUInt16, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<uint16>(this, &FDcReader::ReadUInt16, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadUInt32(uint32* OutPtr)
 {
-	return CachedRead<uint32>(this, &FDcReader::ReadUInt32, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<uint32>(this, &FDcReader::ReadUInt32, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadUInt64(uint64* OutPtr)
 {
-	return CachedRead<uint64>(this, &FDcReader::ReadUInt64, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<uint64>(this, &FDcReader::ReadUInt64, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadFloat(float* OutPtr)
 {
-	return CachedRead<float>(this, &FDcReader::ReadFloat, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<float>(this, &FDcReader::ReadFloat, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadDouble(double* OutPtr)
 {
-	return CachedRead<double>(this, &FDcReader::ReadDouble, OutPtr);
+	return DcPutbackReaderDetails::CachedRead<double>(this, &FDcReader::ReadDouble, OutPtr);
 }
 
 FDcResult FDcPutbackReader::ReadBlob(FDcBlobViewData* OutPtr)
 {
-	return CanNotCachedRead(this, EDcDataEntry::Blob, &FDcReader::ReadBlob, OutPtr);
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::Blob, &FDcReader::ReadBlob, OutPtr);
 }
 
-bool FDcPutbackReader::Coercion(EDcDataEntry ToEntry)
+FDcResult FDcPutbackReader::Coercion(EDcDataEntry ToEntry, bool* OutPtr)
 {
 	if (Cached.Num())
-		return false;
+		return ReadOutOk(OutPtr, false);
 
-	return Reader->Coercion(ToEntry);
+	return Reader->Coercion(ToEntry, OutPtr);
 }
 
 void FDcPutbackReader::FormatDiagnostic(FDcDiagnostic& Diag)
@@ -297,8 +301,11 @@ void FDcPutbackReader::FormatDiagnostic(FDcDiagnostic& Diag)
 
 	if (Cached.Num())
 	{
-		FDcDiagnosticHighlight Highlight(this, "PutbackReader");
+		FDcDiagnosticHighlight Highlight(this, ClassId().ToString());
 		Highlight.Formatted = FString::Printf(TEXT("(Putback: %d)"), Cached.Num());
 		Diag << MoveTemp(Highlight);
 	}
 }
+
+FName FDcPutbackReader::ClassId() { return FName(TEXT("DcPutbackReader")); }
+FName FDcPutbackReader::GetId() { return ClassId(); }

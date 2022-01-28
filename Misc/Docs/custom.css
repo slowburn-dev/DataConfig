@@ -10,3 +10,9 @@ h4, h5 { margin-top: 1em; }
     max-width: 64px;
     min-width: 48px;
 }
+
+p img {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}

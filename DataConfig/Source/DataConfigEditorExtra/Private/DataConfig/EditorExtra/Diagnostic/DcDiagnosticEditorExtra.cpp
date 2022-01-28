@@ -8,8 +8,8 @@ static FDcDiagnosticDetail _Details[] = {
 	{ InvalidGameplayTagString, TEXT("Invalid Gameplay Tag String, Actual: '{0}'"), },
 	{ InvalidGameplayTagStringFixErr, TEXT("Invalid Gameplay Tag String, Actual: '{0}', Fixed: '{1}', Error: '{2}'"), },
 	{ InvalidGameplayAttribute, TEXT("Invalid GameplayAttribute String, Actual: '{0}"), },
-	{ LoadObjectByPathFail, TEXT("'LoadObject()' by path failed, Expected Type: '{0}, Path: '{1}'"), },
 	{ KismetCompileFail, TEXT("Kismet compile blueprint fail:  Blueprint '{0}'"), },
+	{ ExpectBlueprintOrClass, TEXT("Expecting Blueprint or UClass, found: {0}"), },
 	{ LoadFileByPathFail, TEXT("Load file failed, Path: '{0}'"), },
 };
 

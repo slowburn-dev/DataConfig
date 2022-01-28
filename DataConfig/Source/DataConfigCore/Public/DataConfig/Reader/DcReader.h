@@ -11,7 +11,7 @@ struct DATACONFIGCORE_API FDcReader
 {
 	virtual ~FDcReader();
 
-	virtual bool Coercion(EDcDataEntry ToEntry);
+	virtual FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr);
 
 	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
 
@@ -23,11 +23,20 @@ struct DATACONFIGCORE_API FDcReader
 	virtual FDcResult ReadText(FText* OutPtr);
 	virtual FDcResult ReadEnum(FDcEnumData* OutPtr);
 
-	virtual FDcResult ReadStructRoot(FDcStructStat* OutStructPtr);
-	virtual FDcResult ReadStructEnd(FDcStructStat* OutStructPtr);
+	template<typename TEnum>
+	FDcResult ReadEnumField(TEnum* OutPtr);
 
-	virtual FDcResult ReadClassRoot(FDcClassStat* OutClassPtr);
-	virtual FDcResult ReadClassEnd(FDcClassStat* OutClassPtr);
+	virtual FDcResult ReadStructRootAccess(FDcStructAccess& Access);
+	virtual FDcResult ReadStructEndAccess(FDcStructAccess& Access);
+
+	virtual FDcResult ReadClassRootAccess(FDcClassAccess& Access);
+	virtual FDcResult ReadClassEndAccess(FDcClassAccess& Access);
+
+	FDcResult ReadStructRoot();
+	FDcResult ReadStructEnd();
+
+	FDcResult ReadClassRoot();
+	FDcResult ReadClassEnd();
 
 	virtual FDcResult ReadMapRoot();
 	virtual FDcResult ReadMapEnd();
@@ -43,8 +52,8 @@ struct DATACONFIGCORE_API FDcReader
 
 	virtual FDcResult ReadWeakObjectReference(FWeakObjectPtr* OutPtr);
 	virtual FDcResult ReadLazyObjectReference(FLazyObjectPtr* OutPtr);
-	virtual FDcResult ReadSoftObjectReference(FSoftObjectPath* OutPtr);
-	virtual FDcResult ReadSoftClassReference(FSoftClassPath* OutPtr);
+	virtual FDcResult ReadSoftObjectReference(FSoftObjectPtr* OutPtr);
+	virtual FDcResult ReadSoftClassReference(FSoftObjectPtr* OutPtr);
 	virtual FDcResult ReadInterfaceReference(FScriptInterface* OutPtr);
 
 	template<typename TObject>
@@ -98,102 +107,13 @@ struct DATACONFIGCORE_API FDcReader
 	FDcResult ReadTObjectPtr(TObjectPtr<TObject>* OutPtr);
 #endif
 
+	static FName ClassId(); 
+	virtual FName GetId();
+
+	template<typename T>
+	T* CastById();
 };
 
-template<typename TObject>
-FDcResult FDcReader::ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr)
-{
-	static_assert(sizeof(FWeakObjectPtr) == sizeof(TWeakObjectPtr<TObject>), "TWeakkObjectPtr should have same memory layout as FWeakObjectPtr");
 
-	FWeakObjectPtr* WeakOutPtr = (FWeakObjectPtr*)OutPtr;
-	return ReadWeakObjectReference(WeakOutPtr);
-}
-
-template<typename TObject>
-FDcResult FDcReader::ReadLazyObjectField(TLazyObjectPtr<TObject>* OutPtr)
-{
-	FLazyObjectPtr LazyPtr;
-	DC_TRY(ReadLazyObjectReference(&LazyPtr));
-
-	ReadOut(OutPtr, LazyPtr.GetUniqueID());
-	return DcOk();
-}
-
-template<typename TObject>
-FDcResult FDcReader::ReadSoftObjectField(TSoftObjectPtr<TObject>* OutPtr)
-{
-	FSoftObjectPath SoftPath;
-	DC_TRY(ReadSoftObjectReference(&SoftPath));
-
-	ReadOut(OutPtr, SoftPath);
-	return DcOk();
-}
-
-template<typename TClass>
-FDcResult FDcReader::ReadSoftClassField(TSoftClassPtr<TClass>* OutPtr)
-{
-	FSoftClassPath SoftPath;
-	DC_TRY(ReadSoftClassReference(&SoftPath));
-
-	ReadOut(OutPtr, SoftPath);
-	return DcOk();
-}
-
-template<typename TInterface>
-FDcResult FDcReader::ReadInterfaceField(TScriptInterface<TInterface>* OutPtr)
-{
-	FScriptInterface ScriptInterface;
-	DC_TRY(ReadInterfaceReference(OutPtr));
-
-	ReadOut(OutPtr, (const TScriptInterface<TInterface>&)ScriptInterface);
-	return DcOk();
-}
-
-template<typename TProperty>
-FDcResult FDcReader::ReadPropertyField(TFieldPath<TProperty>* OutPtr)
-{
-	static_assert(sizeof(FFieldPath) == sizeof(TFieldPath<TProperty>), "FFieldPath and TFieldPath should have identical layout");
-	FFieldPath* FieldPathPtr = (FFieldPath*)OutPtr;
-	return ReadFieldPath(FieldPathPtr);
-}
-
-namespace DcPropertyUtils
-{
-DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size_t Offset, FProperty*& OutValue);
-}
-
-template<typename MulticastDelegate, typename OwningClass, typename DelegateInfoClass>
-FDcResult FDcReader::ReadSparseDelegateField(TSparseDynamicDelegate<MulticastDelegate, OwningClass, DelegateInfoClass>* OutPtr)
-{
-	FMulticastScriptDelegate MulticastDelegate;
-	DC_TRY(ReadMulticastSparseDelegate(&MulticastDelegate));
-
-	if (OutPtr)
-	{
-		FProperty* Property;
-		DC_TRY(DcPropertyUtils::FindEffectivePropertyByOffset(
-			OwningClass::StaticClass(), 
-			DelegateInfoClass::template GetDelegateOffset<OwningClass>(),
-			Property
-		));
-
-		FMulticastSparseDelegateProperty* SparseProperty = CastFieldChecked<FMulticastSparseDelegateProperty>(Property);
-		SparseProperty->SetMulticastDelegate(OutPtr, MulticastDelegate);
-	}
-
-	return DcOk();
-}
-
-#if ENGINE_MAJOR_VERSION == 5
-template <typename TObject>
-FDcResult FDcReader::ReadTObjectPtr(TObjectPtr<TObject>* OutPtr)
-{
-	UObject* Obj;
-	DC_TRY(ReadObjectReference(&Obj));
-
-	TObject* TObj = ::CastChecked<TObject>(Obj);
-	ReadOut(OutPtr, TObj);
-	return DcOk();
-}
-#endif
+#include "DataConfig/Reader/DcReader.inl"
 

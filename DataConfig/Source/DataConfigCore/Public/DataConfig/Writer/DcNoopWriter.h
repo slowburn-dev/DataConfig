@@ -5,9 +5,6 @@
 
 struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 {
-	FDcNoopWriter();
-	~FDcNoopWriter();
-
 	FDcResult PeekWrite(EDcDataEntry, bool* bOutOk) override;
 
 	FDcResult WriteNil() override;
@@ -17,10 +14,10 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteText(const FText& Value) override;
 	FDcResult WriteEnum(const FDcEnumData& Value) override;
 
-	FDcResult WriteStructRoot(const FDcStructStat& Struct) override;
-	FDcResult WriteStructEnd(const FDcStructStat& Struct) override;
-	FDcResult WriteClassRoot(const FDcClassStat&) override;
-	FDcResult WriteClassEnd(const FDcClassStat&) override;
+	FDcResult WriteStructRootAccess(FDcStructAccess& Access) override;
+	FDcResult WriteStructEndAccess(FDcStructAccess& Access) override;
+	FDcResult WriteClassRootAccess(FDcClassAccess& Access) override;
+	FDcResult WriteClassEndAccess(FDcClassAccess& Access) override;
 	FDcResult WriteMapRoot() override;
 	FDcResult WriteMapEnd() override;
 	FDcResult WriteArrayRoot() override;
@@ -33,8 +30,8 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 
 	FDcResult WriteWeakObjectReference(const FWeakObjectPtr& Value) override;
 	FDcResult WriteLazyObjectReference(const FLazyObjectPtr& Value) override;
-	FDcResult WriteSoftObjectReference(const FSoftObjectPath& Value) override;
-	FDcResult WriteSoftClassReference(const FSoftClassPath& Value) override;
+	FDcResult WriteSoftObjectReference(const FSoftObjectPtr& Value) override;
+	FDcResult WriteSoftClassReference(const FSoftObjectPtr& Value) override;
 	FDcResult WriteInterfaceReference(const FScriptInterface& Value) override;
 
 	FDcResult WriteFieldPath(const FFieldPath& Value) override;
@@ -56,6 +53,8 @@ struct DATACONFIGCORE_API FDcNoopWriter : public FDcWriter
 	FDcResult WriteDouble(const double&) override;
 	FDcResult WriteBlob(const FDcBlobViewData& Value) override;
 
+	static FName ClassId(); 
+	FName GetId() override;
 };
 
 

@@ -4,9 +4,9 @@ __Serialization framework for Unreal Engine Property System that just works!__
 
 Unreal Engine features a powerful [Property System][1] which implements C++ runtime reflection. **DataConfig** is a serialization framework build on top of it. Notably features:
 
-- Support every type can be marked as `UPROPERTY()`, including delegates and `UObject` references.
+- Out of the box JSON/MsgPack read write.
+- Full support for UPROPERTY()/UCLASS()/USTRUCT()/UENUM().
 - Pull/Push styled API for verbatim data access and lossless type infomation.
-- Out of the box JSON deserialization that supports custom conversion logic.
 - Designed as a collection of tools that can be easily extended to support other formats.
 
 ## Documentation
@@ -57,8 +57,8 @@ Deserializer.AddPredicatedHandler(
     FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
 );
 
-//  prepare context for this run
-FDcPropertyDatum Datum(FDcTestExampleStruct::StaticStruct(), &Dest);
+//  prepare deserialize context
+FDcPropertyDatum Datum(&Dest);
 FDcJsonReader Reader(Str);
 FDcPropertyWriter Writer(Datum);
 
@@ -66,7 +66,6 @@ FDcDeserializeContext Ctx;
 Ctx.Reader = &Reader;
 Ctx.Writer = &Writer;
 Ctx.Deserializer = &Deserializer;
-Ctx.Properties.Push(Datum.Property);
 DC_TRY(Ctx.Prepare());
 
 //  kick off deserialization
@@ -103,7 +102,6 @@ Say if we accidentally mistyped the `EnumField` value:
    6 |            "#FF0000FF", "#00FF00FF", "#0000FFFF"
 - [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
 ```
-
 ## License
 
 DataConfig is released under MIT License.
