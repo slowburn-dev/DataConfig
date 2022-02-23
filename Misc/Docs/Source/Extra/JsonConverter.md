@@ -78,7 +78,7 @@ The serializing function `DcExtra::UStructToJsonObjectString()` needs some custo
 
 * It serialize field names as `camelCase`.
 * It uses platform dependent line endings, that is `\r\n` on Windows.
-* It have sutble new line breaking rules on nested array and object, and on spacing around `:` token.
+* It have subtle new line breaking rules on nested array and object, and on spacing around `:` token.
 
 The good news is that one can customize these behaviors with DataConfig to match it:
 

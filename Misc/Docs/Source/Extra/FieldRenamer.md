@@ -1,6 +1,6 @@
 # Field Renamer
 
-DataConfig can also be used to author one-off utility. In this example we implemented `DcExtra::DeserializeStructRenaming()` that copies data among structral identical data structures, while renaming field names by a user function.
+DataConfig can also be used to author one-off utility. In this example we implemented `DcExtra::DeserializeStructRenaming()` that copies data between structural identical data structures, while renaming field names by a user function.
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp
@@ -53,4 +53,4 @@ FString Str = TEXT(R"(
 
 This takes advantage of the `DcPropertyPipeHandlers` that simply do verbatim data piping. 
 
-The gist is that consider DataConfig an option when dealing with batch data processing within Unreal Engine. We are trying to provide tools to support these use cases.
+The gist is that you should consider DataConfig an option when working with batch data processing within Unreal Engine. We are trying to provide tools to support these use cases.

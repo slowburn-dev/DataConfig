@@ -1,6 +1,6 @@
 # Debug Dump
 
-`DcAutomationUtils::DumpToLog()` can dump a `FDcPropertyDatum` to a string representation, in which `FDcPropertyDatum` is simply a `FProperty` + `void*` pair that can represent anything in the property system:
+`DcAutomationUtils::DumpToLog()` can dump a `FDcPropertyDatum` to a string representation, in which `FDcPropertyDatum` is simply a `(FProperty`, `void*`) fat pointer tuple that can represent anything in the property system:
 
 ```c++
 // DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp

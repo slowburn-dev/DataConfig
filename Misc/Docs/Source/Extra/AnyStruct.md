@@ -1,6 +1,6 @@
 # AnyStruct
 
-This is an intermediate example that tooks advantage of the flexibility provided by the property system. `FDcAnyStruct` is a struct that stores a heap allocated `USTRUCT` of any type while maintaining value sematic on itself. If you're familar with the concept of variant type, just think of it as a variant type that supports all `USTRUCT`:
+This is an intermediate example that takes advantage of the flexibility provided by the property system. `FDcAnyStruct` is a struct that stores a heap allocated `USTRUCT` of any type while maintaining value semantic on itself. If you're familiar with the concept of variant type, just think of it as a variant type that supports all `USTRUCT`:
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeAnyStruct.cpp
@@ -55,4 +55,4 @@ FString Str = TEXT(R"(
 )");
 ```
 
-Note how custom `FColor <-> "#RRGGBBAA"` conversion recursively works within `FDcAnyStruct`. This should be a good starting point for you to implement your own nested variant types and containers. For more details refers to the implementation of `HandlerDcAnyStruct[Serialize/Deserialize]`. 
+Note how the custom `FColor <-> "#RRGGBBAA"` conversion recursively works within `FDcAnyStruct`. This should be a good starting point for you to implement your own nested variant types and containers. For more details refer to the implementation of `HandlerDcAnyStruct[Serialize/Deserialize]`. 

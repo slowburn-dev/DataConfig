@@ -95,7 +95,7 @@ static FDcResult RoundtripJsonMsgpackJson(FAutomationTestBase* Self, FString Str
 
 		DC_TRY(PipeVisitor.PipeVisit());
 		//	amend trailing line end
-		Writer.Sb.Append('\n');
+		Writer.Sb << TCHAR('\n');
 		RoundtripJson = Writer.Sb.ToString();
 	}
 

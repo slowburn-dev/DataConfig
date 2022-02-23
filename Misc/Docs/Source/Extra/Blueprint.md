@@ -65,9 +65,9 @@ FString Str = TEXT(R"(
 )");
 ```
 
-You can also reference on how to handle Blueprint enum within this example. It need some special care to convert between int value and the descriptive text set within the editor.
+You can also reference on how to handle Blueprint enum in this example. It need some special care to convert between int value and the descriptive text set within the editor.
 
-##Blueprint Struct Instance
+## Blueprint Struct Instance
 
 Finally we're combined `FColor`, `FDcAnyStruct` and Blueprint struct into one single example:
 

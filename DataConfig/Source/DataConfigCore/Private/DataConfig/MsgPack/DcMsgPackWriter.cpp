@@ -528,7 +528,7 @@ void FDcMsgPackWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 		));
 
 		if (!bLastLevel)
-			Sb.Append(TCHAR('\n'));
+			Sb << TCHAR('\n');
 	}
 
 	Highlight.Formatted = Sb.ToString();

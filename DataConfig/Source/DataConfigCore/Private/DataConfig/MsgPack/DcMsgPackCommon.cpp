@@ -81,7 +81,7 @@ FString FormatMsgPackHighlight(FDcBlobViewData Blob, int End, const TCHAR* Heade
 
 	TStringBuilder<1024> Sb;
 	Sb.Append(Header);
-	Sb.Append(TCHAR('\n'));
+	Sb << TCHAR('\n');
 	Sb.Append(*Output);
 	Sb.Append(Tail);
 	if (!Result.Ok())

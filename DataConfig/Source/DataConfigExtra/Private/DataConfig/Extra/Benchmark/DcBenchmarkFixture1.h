@@ -3,14 +3,23 @@
 #include "CoreMinimal.h"
 #include "DcBenchmarkFixture1.generated.h"
 
+USTRUCT()
+struct FDcVector2D
+{
+	GENERATED_BODY()
+
+	UPROPERTY() float X;
+	UPROPERTY() float Y;
+};
+
 ///	Structs for deserialize `canada.json`
 USTRUCT()
 struct FDcCanadaCoords
 {
 	GENERATED_BODY()
 
-	//	TArray<TArray<FVector2D>> isn't supported, need a wrapper struct
-	UPROPERTY() TArray<FVector2D> data;
+	//	TArray<TArray<FDcVector2D>> isn't supported, need a wrapper struct
+	UPROPERTY() TArray<FDcVector2D> data;
 };
 
 USTRUCT()

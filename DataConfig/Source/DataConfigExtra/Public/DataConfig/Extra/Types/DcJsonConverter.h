@@ -72,3 +72,14 @@ struct FDcTestJsonConverter1
 	UPROPERTY() bool BoolField;
 };
 
+USTRUCT()
+struct FMovie
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FString Name;
+	UPROPERTY() FString ReleaseDate;
+	UPROPERTY() TArray<FString> Genres;
+};
+
+

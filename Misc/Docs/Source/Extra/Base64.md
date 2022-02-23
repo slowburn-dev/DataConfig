@@ -22,7 +22,7 @@ FString Str = TEXT(R"(
 )");
 ```
 
-Note that we're tagging the `BlobField` with `(meta = (DcExtraBase64))` to explicity show that we' want this member to be converted into Base64.
+Note that we're tagging the `BlobField` with `(meta = (DcExtraBase64))` to explicitly show that we' want this member to be converted into Base64.
 
 UE support [arbitrary meta data in the `meta = ()` segment][1]. But beware that the meta data is only available when `WITH_EDITORDATA` flag is defined. In predicate we check for this `DcExtraBase64` like this:
 

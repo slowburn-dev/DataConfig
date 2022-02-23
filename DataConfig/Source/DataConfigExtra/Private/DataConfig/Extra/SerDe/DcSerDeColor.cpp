@@ -226,7 +226,7 @@ DC_TEST("DataConfig.Extra.SerDe.Color")
 				FDcSerializeDelegate::CreateStatic(HandlerColorSerialize)
 			);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
+		Writer.Sb << TCHAR('\n');
 
 		UTEST_EQUAL("Extra FColor SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str))
 	}

@@ -25,6 +25,7 @@
 #include "Engine/UserDefinedStruct.h"
 #include "Engine/UserDefinedEnum.h"
 #include "Misc/ScopeExit.h"
+#include "Misc/EngineVersionComparison.h"
 #include "UserDefinedStructure/UserDefinedStructEditorData.h"
 
 namespace DcEditorExtra {
@@ -48,6 +49,26 @@ static FDcResult _TryUnwrapClassObject(UObject* InObj, UClass*& OutClass)
 			<< InObj->GetClass()->GetFName();
 	}
 }
+
+static FString _GetAssetPathName(UObject* Value)
+{
+#if UE_VERSION_OLDER_THAN(4, 26, 0)
+	return Value->GetOutermost()->GetPathName();
+#else
+	return Value->GetPackage()->GetPathName();
+#endif
+}
+
+static bool _IsAsset(UObject* Value)
+{
+#if UE_VERSION_OLDER_THAN(4, 27, 0)
+	return Value->IsA<UBlueprintGeneratedClass>()
+		|| Value->IsAsset();
+#else
+	return Value->IsAsset();
+#endif
+}
+
 
 static FDcResult TryReadClassReferenceWithBlueprint(FDcDeserializeContext& Ctx, FObjectPropertyBase* ObjectProperty, UObject*& OutObject)
 {
@@ -249,8 +270,8 @@ static FDcResult TryWriteObjectReferenceWithBP(FDcSerializeContext& Ctx, FObject
 	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
 	if (Value == nullptr)
 		DC_TRY(Ctx.Writer->WriteNil());
-	else if (Value->IsAsset())
-		DC_TRY(Ctx.Writer->WriteString(Value->GetPackage()->GetPathName()));
+	else if (_IsAsset(Value))
+		DC_TRY(Ctx.Writer->WriteString(_GetAssetPathName(Value)));
 	else
 		DC_TRY(Ctx.Writer->WriteString(DcSerDeUtils::FormatObjectName(Value)));
 
@@ -387,7 +408,7 @@ FDcResult HandlerBPDcAnyStructSerialize(FDcSerializeContext& Ctx)
 	return DcExtra::DcHandlerSerializeAnyStruct(Ctx, [](UScriptStruct* Struct)
 	{
 		if (Struct->IsAsset())
-			return Struct->GetPackage()->GetPathName();
+			return _GetAssetPathName(Struct);
 		else
 			return DcSerDeUtils::FormatObjectName(Struct);
 	});
@@ -596,6 +617,12 @@ DC_TEST("DataConfig.EditorExtra.BPClassInstance")
 		DcSerDeUtils::TryLoadObject(nullptr, TEXT("/DataConfig/DcFixture/DcTestBlueprintClassAlpha"), Blueprint)
 	);
 
+
+#if UE_VERSION_OLDER_THAN(4, 26, 0)
+	UObject* Obj = StaticConstructObject_Internal(
+		Blueprint->GeneratedClass
+	);
+#else
 	FStaticConstructObjectParameters Params(Blueprint->GeneratedClass);
 	Params.Outer = GetTransientPackage();
 	Params.Name = NAME_None;
@@ -605,6 +632,8 @@ DC_TEST("DataConfig.EditorExtra.BPClassInstance")
 	Params.InstanceGraph = nullptr;
 	Params.ExternalPackage = nullptr;
 	UObject* Obj = StaticConstructObject_Internal(Params);
+#endif
+
 	FDcPropertyDatum DestDatum(Obj);
 
 	{

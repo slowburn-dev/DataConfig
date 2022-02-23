@@ -1,8 +1,30 @@
-# Custom Deserialization
+# Custom Serialization And Deserialization
 
 DataConfig support custom serialization and deserialization logic by implementing `FDcSerializeDelegate/FDcDeserializeDelegate`.
 
-In this example We'd like to deserialize `FColor` from `#RRGGBBAA`. First you'll need to implement a  `FDcDeserializePredicate` delegate to pick out `FColor`:
+In this example, we'd like to convert `FColor` into `#RRGGBBAA` and vice versa: 
+
+```c++
+// DataConfig/Source/DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcSerDeColor.h
+USTRUCT()
+struct FDcExtraTestStructWithColor1
+{
+    GENERATED_BODY()
+
+    UPROPERTY() FColor ColorField1;
+    UPROPERTY() FColor ColorField2;
+};
+
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+FString Str = TEXT(R"(
+    {
+        "ColorField1" : "#0000FFFF",
+        "ColorField2" : "#FF0000FF",
+    }
+)");
+```
+
+First you'll need to implement a `FDcDeserializePredicate` delegate to pick out `FColor` properties:
 
 ```c++
 //  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
@@ -15,31 +37,26 @@ EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 Then we'll need to implement a `FDcDeserializeDelegate` to deserialize a `FColor`. Here we'll do it by writing through `R/G/B/A` fields by name with the `FDcWriter` API.
 
 ```c++
-//  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
-template<>
-FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(const FColor& Color, FDcDeserializeContext& Ctx)
+// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx)
 {
-    DC_TRY(Ctx.Writer->WriteStructRoot(FDcStructStat{ TEXT("Color"), FDcStructStat::WriteCheckName }));
+    FDcPropertyDatum Datum;
+    DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
-    DC_TRY(Ctx.Writer->WriteName(TEXT("B")));
-    DC_TRY(Ctx.Writer->WriteUInt8(Color.B));
+    FString ColorStr;
+    DC_TRY(Ctx.Reader->ReadString(&ColorStr));
+    FColor Color = FColor::FromHex(ColorStr);
 
-    DC_TRY(Ctx.Writer->WriteName(TEXT("G")));
-    DC_TRY(Ctx.Writer->WriteUInt8(Color.G));
-
-    DC_TRY(Ctx.Writer->WriteName(TEXT("R")));
-    DC_TRY(Ctx.Writer->WriteUInt8(Color.R));
-
-    DC_TRY(Ctx.Writer->WriteName(TEXT("A")));
-    DC_TRY(Ctx.Writer->WriteUInt8(Color.A));
-
-    DC_TRY(Ctx.Writer->WriteStructEnd(FDcStructStat{ TEXT("Color"), FDcStructStat::WriteCheckName }));
+    FColor* ColorPtr = (FColor*)Datum.DataPtr;
+    *ColorPtr = Color;
 
     return DcOk();
 }
 ```
 
-On deserialization we'll need to register these pair of delegates to the `FDcDeserializer`.
+Note how we retrieve the hex string, then parse it with `FColor::FromHex`.
+
+Upon deserializing we'll need to register these pair of delegates to the `FDcDeserializer`.
 
 ```c++
 // DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
@@ -51,6 +68,6 @@ Deserializer.AddPredicatedHandler(
 );
 ```
 
-And then it's done. It would work recursively on `FColor` everywhere, like in `UCLASS/USTRUCT` members, in `TArray/TSet` and in `TMap` as key or values.
+And then it's done! It would work recursively on `FColor` everywhere, like in `UCLASS/USTRUCT` members, in `TArray/TSet` and in `TMap` as key or values.
 
-Note that DataConfig completely seperate serialization and deserialization logic. To serialize `FColor` into `#RRGGBBAA` string one needs to implement similar set of methods.
+Note that DataConfig completely separate serialization and deserialization logic. To serialize `FColor` into `#RRGGBBAA` string one needs to implement a similar set of methods.

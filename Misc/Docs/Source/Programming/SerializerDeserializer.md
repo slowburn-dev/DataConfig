@@ -1,6 +1,6 @@
 # Serializer/Deserializer
 
-Serializer/Deserializer are built on top of the data model to convert external format between Unreal Engine property system.
+Serializer/Deserializer are built on top of the data model to convert between external format and Unreal Engine property system.
 
 ## Context
 
@@ -20,7 +20,7 @@ struct DATACONFIGCORE_API FDcDeserializeContext
 
 Note how it takes an `FDcReader` and a `FPropertyWriter` - we're deserializing arbitrary format into the property system.
 
-The mirrored one is `FDcSerializeContext` for serializer.
+The mirrored version for serializer is `FDcSerializeContext`.
 
 ```c++
 // DataConfig/Source/DataConfigCore/Public/DataConfig/Serialize/DcSerializeTypes.h
@@ -36,11 +36,11 @@ struct DATACONFIGCORE_API FDcSerializeContext
 
 Note how it takes an `FDcWriter` and a `FDcPropertyReader` - we're serializing data from the property system to arbitrary format.
 
-Since serializer and deserializer have extremely similar APIs, we're showing examples with deserializer below from here. 
+Since serializer and deserializer have extremely similar APIs, we're showing examples using deserializer below from here. 
 
 ## Handlers
 
-Say that we're deserializing a JSON object into a `USTRUCT` instance. The `FDcJsonReader` implements `ReadMapRoot()/ReadMapEnd()` but doesn't have `ReadStructRoot()/ReadStructEnd()`. To do the conversion we basically want to map `ReadMap()` and calls into `WriteStruct()` calls. This is where **handlers** come into play:
+Say that we're deserializing a JSON object into a `USTRUCT` instance. The `FDcJsonReader` implements `ReadMapRoot()/ReadMapEnd()` but doesn't have `ReadStructRoot()/ReadStructEnd()`. To make the conversion we basically want to map `ReadMap()` and calls into `WriteStruct()` calls. This is where **handlers** come into play:
 
 ```c++
 // DataConfig/Source/DataConfigCore/Public/DataConfig/SerDe/DcDeserializeCommon.inl

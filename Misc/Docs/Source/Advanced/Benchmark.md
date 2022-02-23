@@ -20,12 +20,12 @@ Some insights on the results:
 
 - Benchmark in `Shipping` build configuration, otherwise it doesn't make much sense.
 
-- Recall that [runtime performance isn't our top priority](../Design.md#manifesto). We choose a classic inheritance based API for `FDcReader/FDcWriter` 
+- Recall that [runtime performance isn't our top priority](../Design.md#manifesto). We opted for a classic inheritance based API for `FDcReader/FDcWriter` 
   which means that each read/write step result in a virtual dispatch. This by design would result in mediocre performance metrics.
-  The bandwidth should be within the range of `10~100(MB/s)` on common PC setup, no matter how simple the format is.
+  The bandwidth should be in the range of `10~100(MB/s)` on common PC setup, no matter how simple the format is.
 
 - MsgPack and JSON has similar bandwidth numbers in the benchmark. However MsgPack has far more tight layout when dealing with 
-  numeric data. Note in the `Canada` fixture MsgPack only takes aroudn 10ms, as this fixture is mostly float number coordinates.
+  numeric data. Note in the `Canada` fixture MsgPack only takes around 10ms, as this fixture is mostly float number coordinates.
 
 
 [1]:https://json.nlohmann.me "JSON for Modern C++"

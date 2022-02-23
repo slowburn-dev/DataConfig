@@ -330,7 +330,7 @@ DC_TEST("DataConfig.Core.Blurb.JSONWriter")
 			DC_TRY(Writer.WriteBool(true));
 
 		DC_TRY(Writer.WriteMapEnd());
-		Writer.Sb.Append(TCHAR('\n'));
+		Writer.Sb << TCHAR('\n');
 
 		FString Str = TEXT(R"(
 			{

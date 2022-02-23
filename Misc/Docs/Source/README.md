@@ -6,7 +6,7 @@ __Serialization framework for Unreal Engine Property System that just works!__
 
 - Out of the box JSON/MsgPack read write.
 - Full support for `UPROPERTY()/UCLASS()/USTRUCT()/UENUM()`.
-- Pull/Push styled API for verbatim data access and lossless type infomation.
+- Pull/Push style API for verbatim data access and lossless type information.
 - Designed as a collection of tools that can be easily extended to support other formats.
 
 ## Getting Started

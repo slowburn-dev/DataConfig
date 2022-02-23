@@ -125,7 +125,7 @@ DC_TEST("DataConfig.Extra.SerDe.Base64")
 				FDcSerializeDelegate::CreateStatic(HandleBase64BlobSerialize)
 			);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
+		Writer.Sb << TCHAR('\n');
 		UTEST_EQUAL("Extra Base64 Blob SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str))
 	}
 

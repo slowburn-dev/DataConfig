@@ -182,6 +182,50 @@ bool UStructToJsonObjectString(FDcPropertyDatum Datum, FDcWriter* Writer)
 
 } // namespace DcExtra
 
+DC_TEST("DataConfig.Extra.JsonConverterBlurb")
+{
+	//	https://slowburn.dev/blog/dataconfig-1-2/
+	{
+		// Deserialize JSON in UE Property System
+		FString Str = TEXT(R"(
+		{
+		  "Name": "Bad Boys",
+		  "ReleaseDate": "1995-4-7T00:00:00",
+		  "Genres": [
+		    "Action",
+		    "Comedy"
+		  ]
+		}
+		)");
+
+		FMovie m;
+		bool Ok = FJsonObjectConverter::JsonObjectStringToUStruct(Str, &m, 0, 0);
+
+		FString name = m.Name;
+		// Bad Boys
+	}
+
+	{
+		FString Str = TEXT(R"(
+		{
+		  "Name": "Bad Boys",
+		  "ReleaseDate": "1995-4-7T00:00:00",
+		  "Genres": [
+		    "Action",
+		    "Comedy"
+		  ]
+		}
+		)");
+
+		FMovie m;
+		bool Ok = DcExtra::JsonObjectStringToUStruct(Str, &m);
+
+		FString name = m.Name;
+		// Bad Boys
+	}
+
+	return true;
+}
 
 DC_TEST("DataConfig.Extra.JsonConverter")
 {
@@ -224,7 +268,7 @@ DC_TEST("DataConfig.Extra.JsonConverter")
 		bool LhsOk = DcExtra::JsonObjectStringToUStruct(Str, &Lhs);
 
 		FDcTestJsonConverter1 Rhs;
-		bool RhsOk = FJsonObjectConverter::JsonObjectStringToUStruct(Str, &Rhs);
+		bool RhsOk = FJsonObjectConverter::JsonObjectStringToUStruct(Str, &Rhs, 0, 0);
 		
 		UTEST_TRUE("JsonObjectStringToUStruct", LhsOk);
 		UTEST_TRUE("JsonObjectStringToUStruct", RhsOk);
@@ -240,7 +284,7 @@ DC_TEST("DataConfig.Extra.JsonConverter")
 		bool LhsOk = DcExtra::UStructToJsonObjectString(Data, Lhs);
 
 		FString Rhs;
-		bool RhsOk = FJsonObjectConverter::UStructToJsonObjectString(Data, Rhs);
+		bool RhsOk = FJsonObjectConverter::UStructToJsonObjectString(Data, Rhs, 0, 0);
 
 		UTEST_TRUE("UStructToJsonObjectString", LhsOk);
 		UTEST_TRUE("UStructToJsonObjectString", RhsOk);

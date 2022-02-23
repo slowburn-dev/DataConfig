@@ -213,7 +213,7 @@ DC_TEST("DataConfig.Core.Deserialize.SubClass")
 		{
 			"StructSubClassField1" : null,
 			"StructSubClassField2" : "ScriptStruct",
-			"StructSubClassField3" : "DynamicClass",
+			"StructSubClassField3" : "Function",
 		}
 
 	)");
@@ -226,7 +226,7 @@ DC_TEST("DataConfig.Core.Deserialize.SubClass")
 
 	Expect.StructSubClassField1 = nullptr;
 	Expect.StructSubClassField2 = UScriptStruct::StaticClass();
-	Expect.StructSubClassField3 = UDynamicClass::StaticClass();
+	Expect.StructSubClassField3 = UFunction::StaticClass();
 
 	FDcPropertyDatum ExpectDatum(&Expect);
 

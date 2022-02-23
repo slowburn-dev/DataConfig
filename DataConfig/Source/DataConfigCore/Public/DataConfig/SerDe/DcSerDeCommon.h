@@ -37,7 +37,7 @@ static_assert(sizeof(FTextAccess) == sizeof(FText), "FTextAccess stale");
 struct FSharedRefAccess
 {
 	void* Object;
-	SharedPointerInternals::FReferenceControllerBase* SharedReferenceCount;
+	void* SharedReferenceCount;
 };
 static_assert(sizeof(FSharedRefAccess) == sizeof(TSharedRef<FTextAccess>), "FSharedRefAccess stale");
 

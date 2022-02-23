@@ -1,6 +1,6 @@
 # FColor Serialization/Deserialization
 
-This has been shown multiple times in previous chapters. It's also a benchmark use case for our custom deserialization logic:
+This example has been shown in [previous chapter][1]. It's also a benchmark use case for our custom deserialization logic:
 
 ```c++
 // DataConfig/Source/DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcSerDeColor.h
@@ -54,3 +54,5 @@ FDcResult HandlerColorSerialize(FDcSerializeContext& Ctx)
 ```
 
 Note how `FDcPropertyReader::ReadDataEntry` and `FDcPropertyWriter::WriteDataEntry` retrieves the next property as a `FDcPropertyDatum`, which allows us to directly manipulate a `FColor` pointer.
+
+[1]: ../Examples/Custom.md "Custom"

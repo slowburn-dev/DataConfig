@@ -1,6 +1,6 @@
 # Error Handling
 
-Proper error handling is crucial to implement robust serialization as it needs to deal with unknown user input. DataConfig also provide diagnostic to help users quickly pin down common errors like typo or missing colons in JSON. Here's an example:
+Proper error handling is crucial to implement robust serialization as it needs to deal with unknown user input. DataConfig also provide diagnostic to help users quickly pin down common errors such as typos or missing colons in JSON. Here's an example:
 
 ```
 # DataConfig Error: Enum name not found in enum type: EDcTestExampleEnum, Actual: 'Far'
@@ -14,11 +14,11 @@ Proper error handling is crucial to implement robust serialization as it needs t
 - [PropertyWriter] Writing property: (FDcTestExampleStruct)$root.(EEDcTestExampleEnum)EnumField
 ```
 
-Internally DataConfig is applying a consistent error handling strategy across all API. User code are expected to follow along.
+Internally DataConfig applies a consistent error handling strategy across all API. User code is expected to follow along.
 
 ## Returning `FDcResult`
 
-The gist is that if a method can fail, return a `FDcResult`, which is a simple struct:
+The gist is that **if a method can fail, it should return a `FDcResult`**. It's a simple struct:
 
 ```c++
 // DataConfig/DataConfig/Source/DataConfigCore/Public/DataConfig/DcTypes.h
@@ -52,7 +52,7 @@ struct DATACONFIGCORE_API FDcReader
 };
 ```
 
-Then use `DC_TRY` to call these kinds of functions. The macro itself does early return when result is not ok:
+Then use `DC_TRY` to call these kinds of functions. The macro itself does early return when result is not `Ok`:
 
 ```c++
 // DataConfig/DataConfig/Source/DataConfigCore/Public/DataConfig/DcTypes.h
@@ -88,6 +88,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(cons
     return DcOk();
 }
 ```
+
 This pattern is similar to [Outcome](https://ned14.github.io/outcome/) and [std::expected](https://wg21.link/p0323) except we give up using the return value. Return values should be passed through reference or pointers in function arguments.
 
 ## Diagnostics
@@ -145,7 +146,7 @@ Note that we can pipe argument into the diagnostic. The diagnostic reported by i
 
 ## Conclusion
 
-DataConfig uses `FDcResult`, `DC_TRY`, `DC_FAIL` for error handling. It's lightweight and relatively easy to grasp. There's still some limitations in this regard:
+DataConfig uses `FDcResult`, `DC_TRY`, `DC_FAIL` for error handling. It's lightweight and relatively easy to grasp. There's still some limitations though:
 
 - `FDcResult` occupied the return position making passing value to parent a bit cumbersome.
 - For now we always stop as the first error. There's no plan to support error recovery.

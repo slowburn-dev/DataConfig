@@ -158,14 +158,30 @@ FDcResult HandlerTransientTextDeserialize(FDcDeserializeContext& Ctx)
 	FText Text;
 	FTextAccess& TextAccess = (FTextAccess&)Text;
 
-	//	add a reference count here as we're writing it into a new slot 
-	SharedPointerInternals::FReferenceControllerBase* SharedController = (SharedPointerInternals::FReferenceControllerBase*)SharedRefPtr;
-	SharedController->SharedReferenceCount++;
+#if ENGINE_MAJOR_VERSION == 5
+	{
+		using RefControllerType = SharedPointerInternals::TReferenceControllerBase<ESPMode::ThreadSafe>;
+		RefControllerType* SharedController = (RefControllerType*)SharedRefPtr;
+		SharedController->SharedReferenceCount++;
 
-	TextAccess.TextData = UE4SharedPointer_Private::MakeSharedRef<ITextData, ESPMode::ThreadSafe>(
-		(ITextData*)ObjectPtr,
-		SharedController
-	);
+		TextAccess.TextData = UE::Core::Private::MakeSharedRef<ITextData, ESPMode::ThreadSafe>(
+			(ITextData*)ObjectPtr,
+			SharedController
+		);
+	}
+#else
+	{
+		SharedPointerInternals::FReferenceControllerBase* SharedController = (SharedPointerInternals::FReferenceControllerBase*)SharedRefPtr;
+		//	add a reference count here as we're writing it into a new slot
+		SharedController->SharedReferenceCount++;
+
+		TextAccess.TextData = UE4SharedPointer_Private::MakeSharedRef<ITextData, ESPMode::ThreadSafe>(
+			(ITextData*)ObjectPtr,
+			SharedController
+		);
+	}
+#endif
+
 	TextAccess.Flags = Flags;
 	DC_TRY(Ctx.Writer->WriteText(Text));
 

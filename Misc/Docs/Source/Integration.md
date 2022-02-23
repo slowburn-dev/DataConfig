@@ -1,11 +1,12 @@
 # Integration
 
-This page shows integration instructions for DataConfig. At the moment it supports these the engine versions below:
+At the moment it supports these the engine versions below:
 
 - UE 4.25
 - UE 4.26
 - UE 4.27
-- UE 5 (tested on commit `e0fb0cfce32d` on `ue5-main` branch)
+- UE 5 Preview 1
+- UE 5 main branch (tested on commit `a321c3431499` on `ue5-main` branch)
 
 ## Integrate `DataConfig` Plugin
 

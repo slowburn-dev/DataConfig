@@ -24,7 +24,7 @@ static FDcResult RoundtripJsonLiteral(FAutomationTestBase* Self, const FString& 
 	DC_TRY(PipeVisitor.PipeVisit());
 
 	//	amend trailing line end
-	Writer.Sb.Append('\n');
+	Writer.Sb << TCHAR('\n');
 
 	FString Result = Writer.Sb.ToString();
 

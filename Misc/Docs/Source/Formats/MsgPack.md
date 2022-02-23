@@ -2,17 +2,18 @@
 
 [MsgPack][1] is an popular binary serialization format. It can be considered as a binary superset of JSON. Unreal Engine already supports [`Cbor`][2] module which is a format which is very similar to MsgPack.
 
-We choose to implement MsgPack as we're more familar with it and also providing an alternative.
+We choose to implement MsgPack as we're more familiar with it and also providing an alternative.
 
 ## MsgPack Reader/Writer
 
-For the most part MsgPack reader/writer works just like their [JSON counter part](./Json.md). There're just a few additional data types that belongs to this:
+For the most part MsgPack reader/writer works just like their [JSON counterpart](./Json.md). There're just a few additional data types that belongs to this:
 
 ### Binary
 
 MsgPack directly supports `bin format family` which directly maps to `EDcDataEntry::Blob`:
 
 ```c++
+// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
 DC_TRY(Writer.WriteBlob({Bytes, 0}));
 TArray<uint8> Arr = {1,2,3,4,5};
 
@@ -33,6 +34,7 @@ check(FPlatformMemory::Memcmp(Arr.GetData(), Blob.DataPtr, Blob.Num) == 0);
 MsgPack also supports `ext format family` which is basically fixed size binary data with a header:
 
 ```c++
+// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
 FDcMsgPackWriter Writer;
 DC_TRY(Writer.WriteFixExt2(1, {2, 3}));
 auto& Buf = Writer.GetMainBuffer();
@@ -64,13 +66,13 @@ enum class EDcMsgPackSerializeType
 ### Persistent handlers 
 
 The `Default` and `StringSoftLazy` options would setup a set of handlers that behaves
-like their JSON counter parts. 
+like their JSON counterparts. 
 
 We have a "Property -> Json -> MsgPack -> Json -> Property" roundtrip test setup in `DataConfig.Core.RoundTrip.Property_Json_MsgPack_Json_Property` test.
 
 ### In Memory handlers
 
-This is a special set of handlers that only makes sense with binary formats. For example pointers are serialized as memory addresses.
+This is a special set of handlers that only makes sense for binary formats. For example pointers are serialized as memory addresses.
 
 | EDcDataEntry        | Serialized                |
 | ------------------- | ------------------------- |
@@ -86,7 +88,7 @@ This is a special set of handlers that only makes sense with binary formats. For
 | FieldPath | `void*` |
 | Enum | `uint64` |
 
-With these handlers all data types can be serialized. Note that serializing stuff as memory address isn't always what you wanted. These are provided as soft of a reference on how to access various data.
+With these handlers all data types can be serialized. Note that serializing stuff as memory address isn't always what you want. These are provided as soft of a reference on how to access various data.
 
 [1]:https://msgpack.org/index.html "MsgPack"
 [2]:https://docs.unrealengine.com/4.27/en-US/API/Runtime/Cbor "Cbor"

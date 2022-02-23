@@ -64,7 +64,7 @@ FDcResult HandlerCanadaCoordsSerialize(FDcSerializeContext& Ctx)
 
 FDcResult HandlerVector2DDeserialize(FDcDeserializeContext& Ctx)
 {
-	FVector2D Vec;
+	FDcVector2D Vec;
 	DC_TRY(Ctx.Reader->ReadArrayRoot());
 	DC_TRY(Ctx.Reader->ReadFloat(&Vec.X));
 	DC_TRY(Ctx.Reader->ReadFloat(&Vec.Y));
@@ -73,7 +73,7 @@ FDcResult HandlerVector2DDeserialize(FDcDeserializeContext& Ctx)
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 
-	FVector2D* Vec2DPtr = (FVector2D*)Datum.DataPtr;
+	FDcVector2D* Vec2DPtr = (FDcVector2D*)Datum.DataPtr;
 	*Vec2DPtr = Vec;
 
 	return DcOk();
@@ -84,7 +84,7 @@ FDcResult HandlerVector2DSerialize(FDcSerializeContext& Ctx)
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Reader->ReadDataEntry(FStructProperty::StaticClass(), Datum));
 
-	FVector2D* Vec2DPtr = (FVector2D*)Datum.DataPtr;
+	FDcVector2D* Vec2DPtr = (FDcVector2D*)Datum.DataPtr;
 
 	DC_TRY(Ctx.Writer->WriteArrayRoot());
 	DC_TRY(Ctx.Writer->WriteFloat(Vec2DPtr->X));
@@ -112,7 +112,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 				FDcDeserializeDelegate::CreateStatic(HandlerCanadaCoordsDeserialize)
 			);
 			Ctx.Deserializer->AddPredicatedHandler(
-				FDcDeserializePredicate::CreateStatic(DcDeserializeUtils::PredicateIsUStruct<FVector2D>),
+				FDcDeserializePredicate::CreateStatic(DcDeserializeUtils::PredicateIsUStruct<FDcVector2D>),
 				FDcDeserializeDelegate::CreateStatic(HandlerVector2DDeserialize)
 			);
 		});
@@ -172,7 +172,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 				);
 
 				Ctx.Serializer->AddPredicatedHandler(
-					FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsUStruct<FVector2D>),
+					FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsUStruct<FDcVector2D>),
 					FDcSerializeDelegate::CreateStatic(HandlerVector2DSerialize)
 				);
 			});
@@ -199,7 +199,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 					FDcDeserializeDelegate::CreateStatic(HandlerCanadaCoordsDeserialize)
 				);
 				Ctx.Deserializer->AddPredicatedHandler(
-					FDcDeserializePredicate::CreateStatic(DcDeserializeUtils::PredicateIsUStruct<FVector2D>),
+					FDcDeserializePredicate::CreateStatic(DcDeserializeUtils::PredicateIsUStruct<FDcVector2D>),
 					FDcDeserializeDelegate::CreateStatic(HandlerVector2DDeserialize)
 				);
 			}, DcAutomationUtils::EDefaultSetupType::SetupNothing);
@@ -227,7 +227,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 				);
 
 				Ctx.Serializer->AddPredicatedHandler(
-					FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsUStruct<FVector2D>),
+					FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsUStruct<FDcVector2D>),
 					FDcSerializeDelegate::CreateStatic(HandlerVector2DSerialize)
 				);
 			}, DcAutomationUtils::EDefaultSetupType::SetupNothing);
@@ -298,7 +298,7 @@ FDcResult HandlerIsCorpusRootSerialize(FDcSerializeContext& Ctx)
 		{
 			//	write as ndjson
 			JsonWriter->CancelWriteComma();
-			JsonWriter->Sb.Append(TEXT('\n'));
+			JsonWriter->Sb << TCHAR('\n');
 		}
 	}
 

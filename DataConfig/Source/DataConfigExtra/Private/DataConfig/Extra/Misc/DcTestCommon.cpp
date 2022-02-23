@@ -99,7 +99,7 @@ FString DcReindentStringLiteral(FString Str, FString* Prefix)
 			Line.RightChopInline(MinIndent);
 			if (Prefix) Sb.Append(*Prefix);
 			Sb.Append(Line);
-			Sb.Append('\n');
+			Sb << TCHAR('\n');
 		}
 	}
 

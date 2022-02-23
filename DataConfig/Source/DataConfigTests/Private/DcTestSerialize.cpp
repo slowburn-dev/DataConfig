@@ -41,7 +41,7 @@ DC_TEST("DataConfig.Core.Serialize.Primitive1")
 	)"));
 
 	UTEST_OK("Serialize FDcTestStruct1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStruct1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;
@@ -70,7 +70,7 @@ DC_TEST("DataConfig.Core.Serialize.EnumFlags")
 		FDcJsonWriter Writer;
 
 		UTEST_OK("Serialize FDcTestStructEnumFlag1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-		Writer.Sb.Append(TCHAR('\n'));
+		Writer.Sb << TCHAR('\n');
 		UTEST_EQUAL("Serialize FDcTestStructEnumFlag1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	}
@@ -149,7 +149,7 @@ DC_TEST("DataConfig.Core.Serialize.Containers")
 	)"));
 
 	UTEST_OK("Serialize FDcTestStruct1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStruct1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 
@@ -184,7 +184,7 @@ DC_TEST("DataConfig.Core.Serialize.InlineSubObject")
 	)"));
 
 	UTEST_OK("Serialize FDcTestStructShapeContainer1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStructShapeContainer1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;
@@ -212,7 +212,7 @@ DC_TEST("DataConfig.Core.Serialize.ObjectRef")
 	)"));
 
 	UTEST_OK("Serialize FDcTestStructObjectRef1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStructObjectRef1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;
@@ -242,7 +242,7 @@ DC_TEST("DataConfig.Core.Serialize.ObjRefs")
 	)"));
 
 	UTEST_OK("Serialize FDcTestStructRefs1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStructRefs1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;
@@ -254,7 +254,7 @@ DC_TEST("DataConfig.Core.Serialize.SubClass")
 
 	Value.StructSubClassField1 = nullptr;
 	Value.StructSubClassField2 = UScriptStruct::StaticClass();
-	Value.StructSubClassField3 = UDynamicClass::StaticClass();
+	Value.StructSubClassField3 = UFunction::StaticClass();
 
 	FDcPropertyDatum Datum(&Value);
 	FDcJsonWriter Writer;
@@ -264,13 +264,13 @@ DC_TEST("DataConfig.Core.Serialize.SubClass")
 		{
 			"StructSubClassField1" : null,
 			"StructSubClassField2" : "ScriptStruct",
-			"StructSubClassField3" : "DynamicClass"
+			"StructSubClassField3" : "Function"
 		}
 
 	)"));
 
 	UTEST_OK("Serialize FDcTestStructSubClass1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStructSubClass1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;
@@ -298,7 +298,7 @@ DC_TEST("DataConfig.Core.Serialize.ClassRefs")
 	)"));
 
 	UTEST_OK("Serialize FDcTestStructRefs2 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcTestStructRefs2 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;

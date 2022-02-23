@@ -94,12 +94,12 @@ Most enumerators directly maps to a `FProperty` type:
 - `EDcDataEntry::String` - `FStrProperty`
 - `EDcDataEntry::ArrayRoot/ArrayEnd`- `FArrayProperty`
 
-It should've covered all possible `FProperty` types. Addition to that there're a few that has 
+It should've covered all possible `FProperty` types. There're some additions that has no direct `FProperty` mapping:
 
 * `EDcDataEntry::Nil` -  It's maps `null` in JSON, and it's also used to explicitly represent null object reference.
 * `EDcDataEntry::Ended` - It's a phony type that is returned when there's no more data or reader/writer is in a invalid state.
 * `EDcDataEntry::Blob` - It's an extension to allow direct memory read/write from given fields. 
-* `EDcDataEntry::Extension` - It's an extension that allows additional data formats. MsgPack reader/writer uses this to support its `extension` data types..
+* `EDcDataEntry::Extension` - It's an extension that allows additional data formats. MsgPack reader/writer uses this to support its `extension` data types.
 
 ## `FDcReader`
 
@@ -163,7 +163,10 @@ There's also `FDcWriter::PeekRead()` to query whether it's possible to write giv
 
 ## Sum Up
 
-DataConfig provide `FDcReader` and `FDcWriter` to access the property system. It can be considered as a friendly alternative to the property system API. It's also how we support JSON and MsgPack with an uniform API, which would be described in later chapters.
+DataConfig provide `FDcReader` and `FDcWriter` to access the property system. It can be considered as a friendly alternative to the property system API. This is also how we support [JSON][1] and [MsgPack][2] in an uniform API.
+
+[1]: ../Formats/JSON.md "JSON"
+[2]: ../Formats/MsgPack.md "MsgPack"
 
 
 

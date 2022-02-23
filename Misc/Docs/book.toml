@@ -8,6 +8,7 @@ language = "en"
 theme = "Theme"
 additional-css = ["custom.css"]
 site-url = "/dataconfig/"
+git-repository-url = "https://github.com/slowburn-dev/DataConfig"
 
 [output.html.fold]
 enable = false

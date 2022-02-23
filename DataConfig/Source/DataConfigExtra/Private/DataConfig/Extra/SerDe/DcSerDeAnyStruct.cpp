@@ -263,7 +263,7 @@ DC_TEST("DataConfig.Extra.SerDe.AnyStruct")
 				FDcSerializeDelegate::CreateStatic(HandlerColorSerialize)
 			);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
+		Writer.Sb << TCHAR('\n');
 		UTEST_EQUAL("Extra FAnyStruct SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
 	}
 

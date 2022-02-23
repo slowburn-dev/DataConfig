@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.2.1 - 2022-2-23
+
+- Support for [UE5 Preview 1](https://www.unrealengine.com/en-US/blog/unreal-engine-5-is-now-available-in-preview).
+- **FIX** Compile fixes for examples on UE 4.25.
+- **FIX** UE 4.25/4.26 editor extra BP serde automation test fixes.
+- **FIX** `FDcAnsiJsonWriter` writes non ascii char to `?` when string contains escaping characters.
+    - `FDcJsonWriter` was unaffected. This only happens to the ansi char writer and only when input has escapes like `\t`.
+
 ## 1.2.0 - 2022-1-26
+
+Checkout blog post ["Introducing DataConfig 1.2"](/blog/dataconfig-1-2/).
 
 * **New** Serializer. Previously we only have deserializers. 
   * Serializer API mirrors deserializers.
@@ -12,7 +22,7 @@ All notable changes to this project will be documented in this file.
 * **New** MsgPack reader and writer.
   * Full spec implemented, minus the "Timestamp extension type".
   * Integrate and passes [kawanet/msgpack-test-suite](https://github.com/kawanet/msgpack-test-suite).
-* **New** Json writer.
+* **New** JSON writer.
   * With `WIDECHAR/ANSICHAR` specialization as JSON Reader.
   * Accept config to output pretty or condensed output.
 * **New** Builtin metas.
@@ -57,8 +67,8 @@ All notable changes to this project will be documented in this file.
 
 ## 1.1.1 - 2021-10-6
 
-- Support for UE 4.27
-- Support for UE 5
+- Support for UE 4.27.
+- Support for UE 5.
 
 ## 1.1.0 - 2021-4-24
 

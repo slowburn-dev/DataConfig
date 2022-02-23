@@ -1,8 +1,8 @@
 # Extra Module Setups
 
-[Unreal Engine Modules][1] is how the engine handles its C++ code physical design. You'll need to be pretty familar with the system to scale up your C++ project.
+[Unreal Engine Modules][1] is how the engine handles its C++ code physical design. You'll need to be pretty familiar with the system to scale up your C++ project.
 
-We've split extra samples in two modules. First one is `DataConfigExtra` which does **not** depend on `Engine/UnrealEd` module. It can be built along program target. `DataConfigExtra` is basically a set of C++ source files bundled and there's no special setup for it. The key setup is to set `ModuleRules.bRequiresImplementModule` to be `false`:
+We split extra samples in two modules. The first is `DataConfigExtra` which does **not** depend on `Engine/UnrealEd` module. It can be built along program target. `DataConfigExtra` is basically a set of C++ source files bundled and there's no special setup for it. The key setup is to set `ModuleRules.bRequiresImplementModule` to be `false`:
 
 ```c#
 // DataConfig/Source/DataConfigExtra/DataConfigExtra.Build.cs
@@ -24,9 +24,9 @@ public class DataConfigExtra : ModuleRules
 }
 ```
 
-The other module is `DcEditorExtraModule` which is a more conventional editor only module. It's also the recommended setup for integrating DataConfig as a editor only dependency into your project. We also put samples that depends on `Engine` and other gameplay system in here.
+The other module is `DcEditorExtraModule`, a more conventional editor only module. It's also the recommended setup for integrating DataConfig as an editor only dependency into your project. We also put samples that depends on `Engine` and other gameplay system in here.
 
-Most of intergration code is in `IModuleInterface::StartUpModule/ShutdownModule()`. 
+Most of integration code is in `IModuleInterface::StartUpModule/ShutdownModule()`. 
 
 ```c++
 // DataConfig/Source/DataConfigEditorExtra/Private/DcEditorExtraModule.cpp
@@ -49,12 +49,12 @@ void FDcEditorExtraModule::ShutdownModule()
 
 ```
 
-Here's a check list for integrating.
+Here's a checklist for integration:
 
 - Register additional diagnostics early. 
 - Call `DcStartUp()/DcShutDonw()` pair.
 - Register custom diagnostic consumer.
 
-`FDcMessageLogDiagnosticConsumer` is an example of redirecting diagnostics into UE Message Log window with its own category.
+`FDcMessageLogDiagnosticConsumer` is an example of redirecting diagnostics to the UE Message Log window with its own category.
 
 [1]: https://docs.unrealengine.com/4.27/en-US/ProgrammingAndScripting/ProgrammingWithCPP/Modules/ "								Unreal Engine Modules 						"

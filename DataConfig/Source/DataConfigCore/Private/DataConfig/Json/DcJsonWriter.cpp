@@ -54,12 +54,12 @@ FORCEINLINE bool IsValidWriterKey(EDcDataEntry Entry)
 	}
 }
 
-static FORCEINLINE void WriteSbDispatch(TDcJsonWriter<WIDECHAR>::StringBuilder& Sb, const FString& Value)
+static FORCEINLINE void WriteSbStringDispatch(TDcJsonWriter<WIDECHAR>::StringBuilder& Sb, const FString& Value)
 {
 	Sb << Value;
 }
 
-static FORCEINLINE void WriteSbDispatch(TDcJsonWriter<ANSICHAR>::StringBuilder& Sb, const FString& Value)
+static FORCEINLINE void WriteSbStringDispatch(TDcJsonWriter<ANSICHAR>::StringBuilder& Sb, const FString& Value)
 {
 	Sb << FTCHARToUTF8(*Value).Get();
 }
@@ -214,50 +214,51 @@ static void WriteEscapedString(TSelf* Self, const FString& Str)
 	if (!bNeedEscape)
 	{
 		Self->Sb << CharType('"');
-		DcJsonWriterDetails::WriteSbDispatch(Self->Sb, Str);
+		DcJsonWriterDetails::WriteSbStringDispatch(Self->Sb, Str);
 		Self->Sb << CharType('"');
 		return;
 	}
 
-	//	proper escaping
-	Self->Sb << CharType('"');
+	FString Escaped(TEXT(""), Str.Len() + 16);
+	Escaped.AppendChar(TCHAR('"'));
 	for (int Ix = 0; Ix < Str.Len(); Ix++)
 	{
 		TCHAR Ch = Str[Ix];
 
-		const static CharType _SLASH_ESCAPED[] = { '\\', '\\', 0 };
-		const static CharType _N_ESCAPED[] = { '\\', 'n', 0 };
-		const static CharType _T_ESCAPED[] = { '\\', 't', 0 };
-		const static CharType _B_ESCAPED[] = { '\\', 'b', 0 };
-		const static CharType _F_ESCAPED[] = { '\\', 'f', 0 };
-		const static CharType _R_ESCAPED[] = { '\\', 'r', 0 };
-		const static CharType _DQUOTE_ESCAPED[] = { '\\', '"', 0 };
+		const static TCHAR _SLASH_ESCAPED[] = { '\\', '\\', 0 };
+		const static TCHAR _N_ESCAPED[] = { '\\', 'n', 0 };
+		const static TCHAR _T_ESCAPED[] = { '\\', 't', 0 };
+		const static TCHAR _B_ESCAPED[] = { '\\', 'b', 0 };
+		const static TCHAR _F_ESCAPED[] = { '\\', 'f', 0 };
+		const static TCHAR _R_ESCAPED[] = { '\\', 'r', 0 };
+		const static TCHAR _DQUOTE_ESCAPED[] = { '\\', '"', 0 };
 
 		switch (Ch)
 		{
-			case TCHAR('\\'): Self->Sb << _SLASH_ESCAPED; break;
-			case TCHAR('\n'): Self->Sb << _N_ESCAPED; break;
-			case TCHAR('\t'): Self->Sb << _T_ESCAPED; break;
-			case TCHAR('\b'): Self->Sb << _B_ESCAPED; break;
-			case TCHAR('\f'): Self->Sb << _F_ESCAPED; break;
-			case TCHAR('\r'): Self->Sb << _R_ESCAPED; break;
-			case TCHAR('\"'): Self->Sb << _DQUOTE_ESCAPED; break;
+			case TCHAR('\\'): Escaped.Append(_SLASH_ESCAPED); break;
+			case TCHAR('\n'): Escaped.Append(_N_ESCAPED); break;
+			case TCHAR('\t'): Escaped.Append(_T_ESCAPED); break;
+			case TCHAR('\b'): Escaped.Append(_B_ESCAPED); break;
+			case TCHAR('\f'): Escaped.Append(_F_ESCAPED); break;
+			case TCHAR('\r'): Escaped.Append(_R_ESCAPED); break;
+			case TCHAR('\"'): Escaped.Append(_DQUOTE_ESCAPED); break;
 			default:
 			{
 				if (StringSourceUtils::IsControl(Ch))
 				{
-					const static CharType _CONTROL_ESCAPE_FMT[] = { '\\', 'u', '%', '0', '4', 'x', 0 };
-					Self->Sb.Appendf(_CONTROL_ESCAPE_FMT, Ch);
+					const static TCHAR _CONTROL_ESCAPE_FMT[] = { '\\', 'u', '%', '0', '4', 'x', 0 };
+					Escaped.Appendf(_CONTROL_ESCAPE_FMT, Ch);
 				}
 				else
 				{
-					Self->Sb.Append(Ch);
+					Escaped.AppendChar(Ch);
 				}
 				break;
 			}
 		}
 	}
-	Self->Sb << CharType('"');
+	Escaped.AppendChar(TCHAR('"'));
+	DcJsonWriterDetails::WriteSbStringDispatch(Self->Sb, Escaped);
 }
 
 
@@ -532,7 +533,7 @@ FDcResult TDcJsonWriter<CharType>::WriteRawStringValue(const FString& Value)
 	DC_TRY(Details::CheckAtValuePosition(this));
 
 	Details::BeginWriteValuePosition(this);
-	DcJsonWriterDetails::WriteSbDispatch(Sb, Value);
+	DcJsonWriterDetails::WriteSbStringDispatch(Sb, Value);
 	Details::EndWriteValuePosition(this);
 	return DcOk();
 }

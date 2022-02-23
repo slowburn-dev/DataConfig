@@ -1,6 +1,6 @@
 # JSON
 
-[JSON][1] is likly the most popular data interchange format. Unreal Engine already support it with the [`JsonUtilities`][2] and some related modules. We provide an alternative implementation along with DataConfig.
+[JSON][1] is likely the most popular data interchange format. Unreal Engine already supports it with [`JsonUtilities`][2] and some related modules. We provide an alternative implementation along with DataConfig.
 
 ## JSON Reader
 
@@ -43,17 +43,17 @@ check(GotNumber == 1.875);
 check(GotBool == true);
 ```
 
-In the example above we deserialized a `JSON` object from string. The first and the last call is `ReadMapRoot` and `ReadMapEnd`, which is also used to read Unreal's `TMap` properties. The difference is that UE's `TMap` is strictly typed but JSON object values can have arbitrary type. This means that if you use `FDcPipeVisitor` to pipe a `FDcJsonReader` into a `FDcPropertyWriter` it won't work.
+In the example above we deserialized a `JSON` object from string. The first and last calls are `ReadMapRoot` and `ReadMapEnd`, which are also used to read Unreal's `TMap` properties. The difference is that UE's `TMap` is strictly typed while JSON object values can have arbitrary type. This means that if you use `FDcPipeVisitor` to pipe a `FDcJsonReader` into a `FDcPropertyWriter` it won't work.
 
 Remember that DataConfig data model is designed to support conversion between subsets within the data model. As long as you can use `FDcReader/FDcWriter` API to describe the format you want to serialize you're good to go. Mapping and conversion between these different shapes of reader/writers are handled by [deserializers](../Programming/SerializerDeserializer.md).
 
 Some additional caveats:
 
 - Similar to stock `TJsonReader`, we provide `TDcJsonReader` with 2 specializations:
-    - Usually you just juse `FDcJsonReader` that reads from `FString, TCHAR*`.  
+    - Usually you just use `FDcJsonReader` that reads from `FString, TCHAR*`.  
     - Under the hood there're `FDcAnsiJsonReader` that reads ANSICHAR string
       and `FDcWideJsonReader` that reads WIDECHAR string.
-- We're supporting a relaxed superset of JSON:
+- We support a relaxed superset of JSON:
     - Allow C Style comments, i.e `/* block */` and `// line` .
     - Allow trailing comma, i.e `[1,2,3,],` .
     - Allow non object root. You can put a list as the root, or even string, numbers.
@@ -96,15 +96,15 @@ return DcOk();
 ```
 
 - Similar to stock `TJsonWriter`, we provide `TDcJsonWriter` with 2 specializations:
-    - Usually you just juse `FDcJsonWriter` that writes `FString, TCHAR*`.  
+    - Usually you just use `FDcJsonWriter` that writes `FString, TCHAR*`.  
     - Under the hood there're `FDcAnsiJsonWriter` that writes ANSICHAR string
       and `FDcWideJsonWriter` that writes WIDECHAR string.
-- It takes a `Config` object that specifiy formatting settings like indentation size and new lines.
-    - `FDcPrettyJsonWriter` is a type alias that formats idented JSON.
+- It takes a `Config` object that specify formatting settings like indentation size and new lines.
+    - `FDcPrettyJsonWriter` is a type alias that formats indented JSON.
     - `FDcCondensedJsonWriter` is a type alias that format single line, condensed output. 
 - `FDcJsonWriter` owns the output string buffer, in `FDcJsonWriter::Sb`.
-    - By writing to a single writer and append new line after each serialization, we can output [NDJSON][3]. 
-    - Our JSON reader is also flexible enough to directly load NDJSON. See [corpus benchmark](../TODO). 
+    - By writing to a single writer and appending a new line after each serialization, we can output [NDJSON][3]. 
+    - Our JSON reader is also flexible enough to directly load NDJSON. See [corpus benchmark](../Advanced/Benchmark.md). 
 
 
 ## JSON Serialize/Deserialize
@@ -221,7 +221,7 @@ Expect.EnumFlagField2 = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestE
 
 ### Sub Objects
 
-By default We treat `UOBJECT` marked with `DefaultToInstanced, EditInlineNew` and `UPROPERTY` marked with `Instanced` as sub object. In this case we'll actually instantiate new object during deserialization, using `Ctx.TopObject()` as parent:
+By default we treat `UOBJECT` marked with `DefaultToInstanced, EditInlineNew` and `UPROPERTY` marked with `Instanced` as sub object. In this case we'll actually instantiate new object during deserialization, using `Ctx.TopObject()` as parent:
 
 ```c++
 // DataConfig/Source/DataConfigTests/Public/DcTestProperty.h
@@ -300,7 +300,7 @@ Expect.ShapeField2 = Shape2;
 Expect.ShapeField3 = nullptr;
 ```
 
-Note that the sub object criteria can be easily overridden with a new deserialize predicate or alternative `FDcPropertyConfig` when constructing the reader.
+Note that criteria for sub object selection can be easily overridden with a new deserialize predicate or alternative `FDcPropertyConfig` when constructing the reader.
 
 ### Object and Class Reference
 
@@ -347,11 +347,11 @@ Expect.ObjField3 = DataAsset;
 Expect.ObjField4 = nullptr;
 ```
 
-In the example above, `ObjField1` is using the reference string that can be retrieved in editor context menu:
+In the example above, `ObjField1` uses the reference string that can be retrieved in editor context menu:
 
 ![Deserialize-CopyReference](Images/Deserialize-CopyReference.png)
 
-For `ObjField2/ObjField3` it's using a relative path to the `uasset` but without file name suffix.
+For `ObjField2/ObjField3`  relative path to the `uasset` is used, but without file name suffix.
 
 We also support class reference fields of `TSubclassOf<>`s:
 
@@ -420,7 +420,7 @@ DC_TRY(DcAutomationUtils::SerializeInto(&Writer, FDcPropertyDatum(&Source),
 
 Here're some closing notes:
 
-- For meta fields like `$type` we require it to be the first member, meaning object fields are order dependent. This means that the JSON we're supporting is a super set of standard JSON spec (again).
+- For meta fields like `$type` it must be the first member, meaning object fields are order dependent. This means that the JSON we're supporting is a super set of standard JSON spec (again).
 
 - Bundled serializers and deserializers are designed to be roundtrip-able. For example in test `DataConfig.Core.RoundTrip.JsonRoundtrip1_Default`:
   
@@ -428,9 +428,9 @@ Here're some closing notes:
   2. Then deserialize JSON above into instance `Dest`.
   3. Deep-compare `Source` and `Dest`. If they're equal them we say it's a roundtrip.
 
-  Note that we carefully picked float and doubles in the test case, as it's tricky to support floating point roundtrip. We might consider support this with alternative float parse and format routines.
+  Note that we carefully picked float and doubles in the test case, as it's tricky to support floating point roundtrip. We might consider supporting this with alternative float parse and format routines.
   
-- There're many data types that can not be deserialized from JSON, for example `Delegate/WeakObjectReference`. Remember that you always have the option to override or selectively enable the handlers to support additional property that makes sense in your context. See `DcSetupJsonDeserializeHandlers()` body how handlers are registered. You can skip this method and select the ones you want and provide additional handlers.
+- There're many data types that can not be deserialized from JSON, for example `Delegate/WeakObjectReference`. Remember that you always have the option to override or selectively enable handlers to support additional properties that make sense in your context. See `DcSetupJsonDeserializeHandlers()` body on how handlers are registered. You can skip this method and select the ones you want and provide additional handlers.
 
 - The JSON handlers are designed to *NOT* read anything during the deserialization. This is crucial since `USTRUCT` can contain uninitialized fields. For example:
 
