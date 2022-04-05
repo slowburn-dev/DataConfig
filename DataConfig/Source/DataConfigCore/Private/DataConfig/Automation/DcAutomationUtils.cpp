@@ -701,8 +701,34 @@ int DebugGetEnumPropertyIndex(const FDcPropertyDatum& Datum, const FName& Name)
 	return Enum->GetIndexByValue(Value);
 }
 
+double DebugGetRealPropertyValue(const FDcPropertyDatum& Datum, const FName& Name)
+{
+	union {
+		uint64 _U64Nan;
+		double _DoubleNan;
+	} _NaNUnino;
+	_NaNUnino._U64Nan = 0x7ff8000000000000ull;
+	const double NaNRet = _NaNUnino._DoubleNan;
+	check(FMath::IsNaN(NaNRet));
+
+	UStruct* Struct = DcPropertyUtils::TryGetStruct(Datum);
+	if (!Struct)
+		return NaNRet;
+
+	FProperty* Property = PropertyAccessUtil::FindPropertyByName(Name, Struct);
+	if (!Property)
+		return NaNRet; 
+
+	if (FFloatProperty* FloatProperty = CastField<FFloatProperty>(Property))
+		return FloatProperty->GetPropertyValue(Property->ContainerPtrToValuePtr<void*>(Datum.DataPtr));
+	else if (FDoubleProperty* DoubleProperty = CastField<FDoubleProperty>(Property))
+		return DoubleProperty->GetPropertyValue(Property->ContainerPtrToValuePtr<void*>(Datum.DataPtr));
+	else
+		return NaNRet;
+}
+
 FDcResult DeserializeFrom(FDcReader* Reader, FDcPropertyDatum Datum,
-	TFunctionRef<void(FDcDeserializeContext&)> Func, EDefaultSetupType SetupType)
+                          TFunctionRef<void(FDcDeserializeContext&)> Func, EDefaultSetupType SetupType)
 {
 	FDcDeserializer Deserializer;
 	if (SetupType == EDefaultSetupType::SetupJSONHandlers)

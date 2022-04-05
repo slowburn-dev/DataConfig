@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.2.2 - 2022-4-5
+
+- Support for [UE 5.0.0](https://docs.unrealengine.com/5.0/en-US/unreal-engine-5-0-release-notes/)
+- Add `DebugGetRealPropertyValue` for double BP fields. 
+
 ## 1.2.1 - 2022-2-23
 
 - Support for [UE5 Preview 1](https://www.unrealengine.com/en-US/blog/unreal-engine-5-is-now-available-in-preview).

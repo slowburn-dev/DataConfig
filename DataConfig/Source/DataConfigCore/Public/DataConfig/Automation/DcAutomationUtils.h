@@ -76,6 +76,7 @@ T DebugGetScalarPropertyValue(const FDcPropertyDatum& Datum, const FName& Name)
 }
 
 DATACONFIGCORE_API int DebugGetEnumPropertyIndex(const FDcPropertyDatum& Datum, const FName& Name);
+DATACONFIGCORE_API double DebugGetRealPropertyValue(const FDcPropertyDatum& Datum, const FName& Name);
 
 enum class EDefaultSetupType
 {
