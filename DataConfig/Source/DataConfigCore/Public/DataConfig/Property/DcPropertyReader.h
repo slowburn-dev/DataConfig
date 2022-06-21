@@ -11,7 +11,7 @@ namespace DcPropertyReaderDetails
 {
 	struct FReadState
 	{
-		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
+		using ImplStorageType = TAlignedBytes<96, MIN_ALIGNMENT>;
 		ImplStorageType ImplStorage;
 	};
 } // namespace DcPropertyReaderDetails
@@ -21,6 +21,13 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 {
 	FDcPropertyReader();
 	FDcPropertyReader(FDcPropertyDatum Datum);
+
+	enum EArrayReader { Array };
+	enum ESetReader { Set };
+
+	FDcPropertyReader(EArrayReader, FProperty* InInnerProperty, void* InArray, EArrayPropertyFlags InArrayFlags = EArrayPropertyFlags::None);
+	FDcPropertyReader(ESetReader, FProperty* InElementProperty, void* InSet);
+	FDcPropertyReader(FProperty* InKeyProperty, FProperty* InValueProperty, void* InMap, EMapPropertyFlags InMapFlags = EMapPropertyFlags::None);
 
 	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
@@ -86,6 +93,9 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	///	manual writing supporting
 	FDcResult PushTopClassPropertyState(const FDcPropertyDatum& Datum);
 	FDcResult PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
+
+	/// scalar array support
+	bool IsReadingScalarArrayItem();
 
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;

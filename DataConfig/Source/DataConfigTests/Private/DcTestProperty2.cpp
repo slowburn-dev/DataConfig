@@ -18,7 +18,7 @@ DC_TEST("DataConfig.Core.Property.NestedStruct")
 	FDcPropertyDatum SourceDatum(&Source);
 	FDcPropertyDatum DestDatum(&Dest);
 
-	UTEST_OK("FDcTestStructNest4 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStructNest4 roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructNest4 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
@@ -45,7 +45,7 @@ DC_TEST("DataConfig.Core.Property.Enum")
 	FDcPropertyDatum SourceDatum(&Source);
 	FDcPropertyDatum DestDatum(&Dest);
 
-	UTEST_OK("FDcTestStructEnum1 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStructEnum1 roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructEnum1 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	UTEST_TRUE("FDcTestStructEnum1 roundtrip equal", Dest.EnumFlagField == (EDcTestEnum_Flag::Alpha | EDcTestEnum_Flag::Gamma));
@@ -62,20 +62,17 @@ DC_TEST("DataConfig.Core.Property.Config")
 
 	FDcTestStructSimple Dest;
 
-	FDcPropertyDatum SourceDatum(&Source);
-	FDcPropertyDatum DestDatum(&Dest);
+	FDcPropertyReader Reader{FDcPropertyDatum(&Source)};
+	FDcPropertyWriter Writer{FDcPropertyDatum(&Dest)};
 
-	UTEST_OK("Property Reader/Writer Config", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum, [](FDcPropertyReader& Reader, FDcPropertyWriter& Writer){
+	FDcPropertyConfig IgnoreStrConfig = FDcPropertyConfig::MakeDefault();
+	IgnoreStrConfig.ProcessPropertyPredicate.BindLambda([](FProperty* Property){
+		return !Property->IsA<FStrProperty>();
+	});
 
-		FDcPropertyConfig IgnoreStrConfig = FDcPropertyConfig::MakeDefault();
-		IgnoreStrConfig.ProcessPropertyPredicate.BindLambda([](FProperty* Property){
-			return !Property->IsA<FStrProperty>();
-		});
-
-		DC_TRY(Reader.SetConfig(IgnoreStrConfig));
-		DC_TRY(Writer.SetConfig(IgnoreStrConfig));
-		return DcOk();
-	}));
+	UTEST_OK("Property Reader/Writer Config", Reader.SetConfig(IgnoreStrConfig));
+	UTEST_OK("Property Reader/Writer Config", Writer.SetConfig(IgnoreStrConfig));
+	UTEST_OK("Property Reader/Writer Config", DcPropertyPipeVisit(Reader, Writer));
 
 	UTEST_TRUE("Property Reader/Writer Config", Dest.NameField == TEXT("Named"));
 	UTEST_TRUE("Property Reader/Writer Config", Dest.StrField.IsEmpty());
@@ -100,7 +97,7 @@ DC_TEST("DataConfig.Core.Property.DefaultValue")
 	FDcPropertyDatum SourceDatum(&Source);
 	FDcPropertyDatum DestDatum(&Dest);
 
-	UTEST_OK("FDcTestStructDefaultValue2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStructDefaultValue2 roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructDefaultValue2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;
@@ -118,7 +115,7 @@ DC_TEST("DataConfig.Core.Property.EnumNamespace")
 	FDcPropertyDatum SourceDatum(&Source);
 	FDcPropertyDatum DestDatum(&Dest);
 
-	UTEST_OK("FDcTestStructEnum2 roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FDcTestStructEnum2 roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 	UTEST_OK("FDcTestStructEnum2 roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	return true;

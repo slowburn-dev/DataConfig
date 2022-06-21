@@ -13,7 +13,7 @@ And that's it. The obvious missing thing is a DOM like object that you can rando
 The enum covers all possible types:
 
 ```c++
-// DataConfig/DataConfig/Source/DataConfigCore/Public/DataConfig/DcTypes.h
+// DataConfigCore/Public/DataConfig/DcTypes.h
 UENUM()
 enum class EDcDataEntry : uint16
 {
@@ -108,7 +108,7 @@ It should've covered all possible `FProperty` types. There're some additions tha
 Here we set up a simple struct trying out the reader methods:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.h
+// DataConfigTests/Private/DcTestBlurb.h
 USTRUCT()
 struct FDcTestExampleSimple
 {
@@ -118,7 +118,7 @@ struct FDcTestExampleSimple
 	UPROPERTY() int IntField;
 };
 
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcTestExampleSimple SimpleStruct;
 SimpleStruct.StrField = TEXT("Foo Str");
 SimpleStruct.IntField = 253;
@@ -127,7 +127,7 @@ SimpleStruct.IntField = 253;
 Since we know exactly how the `FDcTestExampleSimple` looks like we can manually arrange the read calls:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcPropertyReader Reader{FDcPropertyDatum(&SimpleStruct)};
 
 DC_TRY(Reader.ReadStructRoot(&Struct));   // `FDcTestExampleSimple` Struct Root

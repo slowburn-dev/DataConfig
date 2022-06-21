@@ -139,12 +139,14 @@ FDcResult FDcPrettyPrintWriter::WriteSetEnd()
 FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 {
 	check(Value);	// note that this is guaranteed to be non-null 
+	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
 	Output.Logf(TEXT("%s<ObjectReference> '%d' '%s'"), *Indent, Value->GetUniqueID(), *GetNameSafe(Value));
 	return DcOk();
 }
 
 FDcResult FDcPrettyPrintWriter::WriteClassReference(const UClass* Value)
 {
+	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
 	Output.Logf(TEXT("%s<ClassReference> '%s'"), *Indent,  *GetNameSafe(Value));
 	return DcOk();
 }

@@ -6,13 +6,13 @@
 #include "MessageLogModule.h"
 #include "Textures/SlateIcon.h"
 #include "ToolMenuSection.h"
-#include "DataConfig/DcEnv.h"
 #include "Misc/FileHelper.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "KismetCompiler.h"
 
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
@@ -203,34 +203,6 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 		UObject* Outer = nullptr;
 		ResolveName( Outer, ParentClassPath, false, false );
 		UClass* NativeParentClass = FindObject<UClass>( ANY_PACKAGE, *ParentClassPath );
-
-		Extender->AddMenuExtension("GetAssetActions", EExtensionHook::After, TSharedPtr<FUICommandList>(),
-			FMenuExtensionDelegate::CreateLambda([Asset](FMenuBuilder& MenuBuilder)
-			{
-				MenuBuilder.AddMenuEntry(
-					NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_DumpToLog", "Dump To Log"), 
-					NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_DumpToLogTooltip", "Dump Blueprint CDO content to log"),
-					FSlateIcon(),
-					FUIAction(
-						FExecuteAction::CreateLambda([Asset]{
-
-							UBlueprint* Blueprint = CastChecked<UBlueprint>(Asset.GetAsset());
-							DcAutomationUtils::DumpToLog(FDcPropertyDatum(Blueprint->GeneratedClass->ClassDefaultObject));
-#if ENGINE_MAJOR_VERSION == 5
-							FGlobalTabmanager::Get()->TryInvokeTab(FName("OutputLog"));
-#else
-	#if ENGINE_MINOR_VERSION >= 26
-							FGlobalTabmanager::Get()->TryInvokeTab(FName("OutputLog"));
-	#else
-							FGlobalTabmanager::Get()->InvokeTab(FName("OutputLog"));
-	#endif
-#endif
-
-							}),
-							FCanExecuteAction()
-						)
-					);
-		}));
 		
 		if (NativeParentClass->IsChildOf(UGameplayAbility::StaticClass()))
 		{
@@ -238,8 +210,8 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 				FMenuExtensionDelegate::CreateLambda([Asset](FMenuBuilder& MenuBuilder)
 				{
 					MenuBuilder.AddMenuEntry(
-						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
-						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadAbilityFromJson", "DataConfig Load Ability From JSON"), 
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadAbilityFromJsonTooltip", "DataConfig load ability default values from a JSON file"),
 						FSlateIcon(),
 						FUIAction(
 							FExecuteAction::CreateLambda([Asset]{
@@ -271,8 +243,8 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 				FMenuExtensionDelegate::CreateLambda([Asset](FMenuBuilder& MenuBuilder)
 				{
 					MenuBuilder.AddMenuEntry(
-						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJson", "Load From JSON"), 
-						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadFromJsonTooltip", "Load default values from a JSON file"),
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadEffectFromJson", "DataConfig Load Effect From JSON"), 
+						NSLOCTEXT("DataConfigEditorExtra", "DcEditorExtra_LoadEffectFromJsonTooltip", "DataConfig load effect default values from a JSON file"),
 						FSlateIcon(),
 						FUIAction(
 							FExecuteAction::CreateLambda([Asset]{

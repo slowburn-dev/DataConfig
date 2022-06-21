@@ -7,26 +7,6 @@
 
 namespace DcPropertyPipeHandlers {
 
-FDcResult HandlerScalarSerialize(FDcSerializeContext& Ctx)
-{
-	return DcHandlerPipeScalar(Ctx);
-}
-
-FDcResult HandlerArraySerialize(FDcSerializeContext& Ctx)
-{
-	return DcHandlerPipeLinearContainer<
-		FDcSerializeContext,
-		FDcPropertyReader,
-		FDcWriter,
-		EDcDataEntry::ArrayEnd,
-		&DcSerializeUtils::RecursiveSerialize,
-		&FDcPropertyReader::ReadArrayRoot,
-		&FDcPropertyReader::ReadArrayEnd,
-		&FDcWriter::WriteArrayRoot,
-		&FDcWriter::WriteArrayEnd
-	>(Ctx);
-}
-
 FDcResult HandlerSetSerialize(FDcSerializeContext& Ctx)
 {
 	return DcHandlerPipeLinearContainer<

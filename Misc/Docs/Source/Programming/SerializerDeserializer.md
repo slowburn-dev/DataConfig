@@ -7,7 +7,7 @@ Serializer/Deserializer are built on top of the data model to convert between ex
 A company class to the deserializer is `FDcDeserializeContext`:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Deserialize/DcDeserializeTypes.h
+// DataConfigCore/Public/DataConfig/Deserialize/DcDeserializeTypes.h
 struct DATACONFIGCORE_API FDcDeserializeContext
 {
     //...
@@ -23,7 +23,7 @@ Note how it takes an `FDcReader` and a `FPropertyWriter` - we're deserializing a
 The mirrored version for serializer is `FDcSerializeContext`.
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Serialize/DcSerializeTypes.h
+// DataConfigCore/Public/DataConfig/Serialize/DcSerializeTypes.h
 struct DATACONFIGCORE_API FDcSerializeContext
 {
     //...
@@ -43,7 +43,7 @@ Since serializer and deserializer have extremely similar APIs, we're showing exa
 Say that we're deserializing a JSON object into a `USTRUCT` instance. The `FDcJsonReader` implements `ReadMapRoot()/ReadMapEnd()` but doesn't have `ReadStructRoot()/ReadStructEnd()`. To make the conversion we basically want to map `ReadMap()` and calls into `WriteStruct()` calls. This is where **handlers** come into play:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/SerDe/DcDeserializeCommon.inl
+// DataConfigCore/Public/DataConfig/SerDe/DcDeserializeCommon.inl
 FDcResult DcHandlerDeserializeMapToStruct(FDcDeserializeContext& Ctx)
 {
     FDcStructAccess Access;
@@ -70,7 +70,7 @@ FDcResult DcHandlerDeserializeMapToStruct(FDcDeserializeContext& Ctx)
     return DcOk();
 }
 
-// DataConfig/Source/DataConfigCore/Private/DataConfig/Deserialize/Handlers/Json/DcJsonCommonDeserializers.cpp
+// DataConfigCore/Private/DataConfig/Deserialize/Handlers/Json/DcJsonCommonDeserializers.cpp
 FDcResult HandlerStructRootDeserialize(FDcDeserializeContext& Ctx)
 {
     return DcHandlerDeserializeMapToStruct(Ctx);
@@ -89,7 +89,7 @@ Note how deserialize handler above doesn't specify when it should be invoked.
 These info are described in `FDcDeserializer`:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Deserialize/DcDeserializer.h
+// DataConfigCore/Public/DataConfig/Deserialize/DcDeserializer.h
 struct DATACONFIGCORE_API FDcDeserializer : public FNoncopyable
 {
     //...
@@ -109,7 +109,7 @@ runs.
 We use "direct handlers" to cover common cases:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Private/DataConfig/Deserialize/DcDeserializerSetup.cpp
+// DataConfigCore/Private/DataConfig/Deserialize/DcDeserializerSetup.cpp
 Deserializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));
 Deserializer.AddDirectHandler(FSetProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerSetDeserialize));
 Deserializer.AddDirectHandler(FMapProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerMapDeserialize));
@@ -121,7 +121,7 @@ Then we have "predicated handler" that get tested very early. This is how we all
 setup for very specific class:
 
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
 EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
     UScriptStruct* Struct = DcPropertyUtils::TryGetStructClass(Ctx.TopProperty());

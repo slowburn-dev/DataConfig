@@ -51,6 +51,79 @@ static const uint8 _MAP32 = 0xdf;
 static const uint8 _MINNEGATIVEFIXINT = 0xe0; // 224
 static const uint8 _MAXNEGATIVEFIXINT = 0xff; // 255
 
+FORCEINLINE EDcDataEntry TypeByteToDataEntry(uint8 TypeByte)
+{
+	using namespace  DcMsgPackCommon;
+
+	switch (TypeByte)
+	{
+		case _NIL:
+			return EDcDataEntry::Nil;
+		case _TRUE:
+		case _FALSE: 
+			return EDcDataEntry::Bool;
+		case _BIN8:
+		case _BIN16:
+		case _BIN32:
+			return EDcDataEntry::Blob;
+		case _FLOAT32:
+			return EDcDataEntry::Float;
+		case _FLOAT64:
+			return EDcDataEntry::Double;
+		case _INT8:
+			return EDcDataEntry::Int8;
+		case _INT16:
+			return EDcDataEntry::Int16;
+		case _INT32:
+			return EDcDataEntry::Int32;
+		case _INT64:
+			return EDcDataEntry::Int64;
+		case _UINT8:
+			return EDcDataEntry::UInt8;
+		case _UINT16:
+			return EDcDataEntry::UInt16;
+		case _UINT32:
+			return EDcDataEntry::UInt32;
+		case _UINT64:
+			return EDcDataEntry::UInt64;
+		case _STR8:
+		case _STR16:
+		case _STR32:
+			return EDcDataEntry::String;
+		case _ARRAY16:
+		case _ARRAY32:
+			return EDcDataEntry::ArrayRoot;
+		case _MAP16:
+		case _MAP32:
+			return EDcDataEntry::MapRoot;
+		case _FIXEXT1:
+		case _FIXEXT2:
+		case _FIXEXT4:
+		case _FIXEXT8:
+		case _FIXEXT16:
+		case _EXT8:
+		case _EXT16:
+		case _EXT32:
+			return EDcDataEntry::Extension;
+		default:
+			//	pass
+			break;
+	}
+
+	if (TypeByte >= _MINFIXINT && TypeByte <= _MAXFIXINT)
+		return EDcDataEntry::Int8;
+	else if (TypeByte >= _MINNEGATIVEFIXINT && TypeByte <= _MAXNEGATIVEFIXINT)
+		return EDcDataEntry::Int8;
+	else if (TypeByte >= _MINFIXARRAY && TypeByte <= _MAXFIXARRAY)
+		return EDcDataEntry::ArrayRoot;
+	else if (TypeByte >= _MINFIXMAP && TypeByte <= _MAXFIXMAP)
+		return EDcDataEntry::MapRoot;
+	else if (TypeByte >= _MINFIXSTR && TypeByte <= _MAXFIXSTR)
+		return EDcDataEntry::String;
+
+	return EDcDataEntry::Ended;
+}
+
 static FORCEINLINE void SwapChar(uint8* Ptr, int FromIx, int ToIx)
 {
 	uint8 Tmp = Ptr[FromIx];
@@ -79,13 +152,6 @@ template<> FORCEINLINE void ReverseBytes<8>(uint8* Ptr)
 	SwapChar(Ptr, 2, 5);
 	SwapChar(Ptr, 3, 4);
 }
-
-static_assert(DcIsPowerOf2(DcMsgPackUtils::FTypeByteQueue::_SIZE), "FTypeByteQueue::_SIZE needs to power of 2");
-
-void RecordTypeByteOffset(DcMsgPackUtils::FTypeByteQueue& Self, int Offset);
-int GetOldestOffset(DcMsgPackUtils::FTypeByteQueue& Self);
-FString FormatMsgPackHighlight(FDcBlobViewData Blob, int End, const TCHAR* Header, const TCHAR* Tail);
-
 
 } // namespace DcMsgPackCommon
 

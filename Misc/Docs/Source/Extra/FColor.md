@@ -2,8 +2,12 @@
 
 This example has been shown in [previous chapter][1]. It's also a benchmark use case for our custom deserialization logic:
 
+* [DcSerDeColor.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeColor.h)
+* [DcSerDeColor.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp)
+
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcSerDeColor.h
+// DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeColor.h
 USTRUCT()
 struct FDcExtraTestStructWithColor1
 {
@@ -13,7 +17,7 @@ struct FDcExtraTestStructWithColor1
     UPROPERTY() FColor ColorField2;
 };
 
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+// DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 FString Str = TEXT(R"(
     {
         "ColorField1" : "#0000FFFF",
@@ -25,7 +29,7 @@ FString Str = TEXT(R"(
 `FColor` is converted into a `#RRGGBBAA` hex string. The corresponding handlers looks pretty mirrored.
 
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+// DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx)
 {
 	FDcPropertyDatum Datum;

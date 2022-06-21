@@ -103,6 +103,8 @@ FORCEINLINE FDcResult SerializeInto(FDcWriter* Writer, FDcPropertyDatum Datum)
 	});
 }
 
+DATACONFIGCORE_API FString DcReindentStringLiteral(FString Str, FString* Prefix = nullptr);
+
 }	// namespace DcAutomationUtils
 
 

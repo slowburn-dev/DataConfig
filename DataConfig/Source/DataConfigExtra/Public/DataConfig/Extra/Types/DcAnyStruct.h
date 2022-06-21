@@ -120,7 +120,7 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 	template<class T>
 	T* GetChecked() const
 	{
-		check(T::StaticStruct() == StructClass);
+		check(TBaseStructure<T>::Get() == StructClass);
 		return (T*)(DataPtr);
 	}
 
@@ -128,8 +128,8 @@ struct DATACONFIGEXTRA_API FDcAnyStruct
 	UScriptStruct* StructClass = nullptr;
 	FSharedReferencer SharedReferenceCount;
 
-	///	Dump contained class to output. Intended to be called in debugger immediate.
-	FORCENOINLINE void DebugDump();
+	///	Dump data to output. Intended to be called in debugger immediate.
+	void DebugDump();
 };
 
 

@@ -17,10 +17,6 @@ EDcDeserializePredicateResult PredicateIsUStruct(FDcDeserializeContext& Ctx)
 		? EDcDeserializePredicateResult::Process
 		: EDcDeserializePredicateResult::Pass;
 }
-
-DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx);
-
-DATACONFIGCORE_API EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx);
 	
 } // namespace DcDeserializeUtils
 

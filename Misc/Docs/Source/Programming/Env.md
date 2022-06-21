@@ -3,7 +3,7 @@
 DataConfig put most global state into a stack of `FDcEnv`:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/DcEnv.h
+// DataConfigCore/Public/DataConfig/DcEnv.h
 struct DATACONFIGCORE_API FDcEnv
 {
     TArray<FDcDiagnostic> Diagnostics;
@@ -31,7 +31,7 @@ struct DATACONFIGCORE_API FDcEnv
 DataConfig needs explicit initializatioon before use. This is done through manually `DcStartUp()`. There's also a paired `DcShutdown()` that should be called when DataConfig isn't used anymore. Here's an example:
 
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Private/DcEditorExtraModule.cpp
+// DataConfigEditorExtra/Private/DcEditorExtraModule.cpp
 void FDcEditorExtraModule::StartupModule()
 {
     UE_LOG(LogDataConfigCore, Log, TEXT("DcEditorExtraModule module starting up"));

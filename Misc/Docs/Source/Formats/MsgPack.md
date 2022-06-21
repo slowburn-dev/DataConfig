@@ -13,7 +13,7 @@ For the most part MsgPack reader/writer works just like their [JSON counterpart]
 MsgPack directly supports `bin format family` which directly maps to `EDcDataEntry::Blob`:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 DC_TRY(Writer.WriteBlob({Bytes, 0}));
 TArray<uint8> Arr = {1,2,3,4,5};
 
@@ -34,7 +34,7 @@ check(FPlatformMemory::Memcmp(Arr.GetData(), Blob.DataPtr, Blob.Num) == 0);
 MsgPack also supports `ext format family` which is basically fixed size binary data with a header:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcMsgPackWriter Writer;
 DC_TRY(Writer.WriteFixExt2(1, {2, 3}));
 auto& Buf = Writer.GetMainBuffer();
@@ -54,7 +54,7 @@ check(Bytes.Data[1] == 3);
 MsgPack handlers also support multiple setup types:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Serialize/DcSerializerSetup.h
+// DataConfigCore/Public/DataConfig/Serialize/DcSerializerSetup.h
 enum class EDcMsgPackSerializeType
 {
     Default,

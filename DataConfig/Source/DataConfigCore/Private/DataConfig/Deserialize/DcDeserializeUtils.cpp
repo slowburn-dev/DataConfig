@@ -22,28 +22,6 @@ FDcResult RecursiveDeserialize(FDcDeserializeContext& Ctx)
 	return DcOk();
 }
 
-EDcDeserializePredicateResult PredicateIsEnumProperty(FDcDeserializeContext& Ctx)
-{
-	UEnum* Enum;
-	FNumericProperty* UnderlyingProperty;
-	bool bFoundEnum = DcPropertyUtils::TryGetEnumPropertyOut(Ctx.TopProperty(), Enum, UnderlyingProperty);
-	
-	return bFoundEnum
-		? EDcDeserializePredicateResult::Process
-		: EDcDeserializePredicateResult::Pass;
-}
-
-EDcDeserializePredicateResult PredicateIsSubObjectProperty(FDcDeserializeContext& Ctx)
-{
-	if (Ctx.TopProperty().IsUObject())
-		return EDcDeserializePredicateResult::Pass;
-
-	FObjectProperty* ObjectProperty = CastField<FObjectProperty>(Ctx.TopProperty().ToFieldUnsafe());
-	return ObjectProperty && DcPropertyUtils::IsSubObjectProperty(ObjectProperty)
-		? EDcDeserializePredicateResult::Process
-		: EDcDeserializePredicateResult::Pass;
-}
-
 } // namespace DcDeserializeUtils
 
 

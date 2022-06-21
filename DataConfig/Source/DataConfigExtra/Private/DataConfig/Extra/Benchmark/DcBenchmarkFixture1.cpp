@@ -5,12 +5,12 @@
 #include "DataConfig/Extra/Misc/DcBench.h"
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
-#include "DataConfig/Deserialize/Handlers/Json/DcJsonCommonDeserializers.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Json/DcJsonWriter.h"
 #include "DataConfig/Serialize/DcSerializeUtils.h"
 #include "DataConfig/MsgPack/DcMsgPackReader.h"
 #include "DataConfig/MsgPack/DcMsgPackWriter.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 #include "DataConfig/SerDe/DcSerDeUtils.inl"
 #include "Misc/FileHelper.h"
 
@@ -350,13 +350,10 @@ FDcResult HandlerNullableDeserialize(FDcDeserializeContext& Ctx)
 
 		return DcOk();
 	}
-	else if (Next == EDcDataEntry::String)
+	else if (Next == EDcDataEntry::String
+		|| DcTypeUtils::IsNumericDataEntry(Next))
 	{
-		return DcJsonHandlers::HandlerStringDeserialize(Ctx);
-	}
-	else if (DcTypeUtils::IsNumericDataEntry(Next))
-	{
-		return DcJsonHandlers::HandlerNumericDeserialize(Ctx);
+		return DcSerDeUtils::DispatchPipeVisit(Actual, Ctx.Reader, Ctx.Writer);
 	}
 	else
 	{

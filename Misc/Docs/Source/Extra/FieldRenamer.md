@@ -2,8 +2,11 @@
 
 DataConfig can also be used to author one-off utility. In this example we implemented `DcExtra::DeserializeStructRenaming()` that copies data between structural identical data structures, while renaming field names by a user function.
 
+* [DcDeserializeRenameStructFieldNames.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.h)
+* [DcDeserializeRenameStructFieldNames.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp
 //  struct equivelent to this:
 FString Str = TEXT(R"(
     {

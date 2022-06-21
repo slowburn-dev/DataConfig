@@ -82,4 +82,14 @@ struct FMovie
 	UPROPERTY() TArray<FString> Genres;
 };
 
+USTRUCT()
+struct FDcTestJsonConverterArrayDim1
+{
+	GENERATED_BODY()
+	
+	UPROPERTY() FString StrArr[2];
+	UPROPERTY() int IntArr[3];
+	UPROPERTY() FMovie MovieArr[2];
+};
+
 

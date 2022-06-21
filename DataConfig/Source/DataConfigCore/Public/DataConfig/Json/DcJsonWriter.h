@@ -1,39 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Misc/StringBuilder.h"
 #include "DataConfig/Source/DcSourceUtils.h"
 #include "DataConfig/Writer/DcWriter.h"
-
-#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION <= 25
-
-namespace DcJsonWriterDetails
-{
-template <typename CharType> struct TSBTypeSelector;
-template <> struct TSBTypeSelector<ANSICHAR> { using Type = TAnsiStringBuilder<1024>; };
-template <> struct TSBTypeSelector<WIDECHAR> { using Type = TStringBuilder<1024>; };
-} // namespace DcJsonWriterDetails
-
-#endif
 
 template<typename CharType>
 struct TDcJsonWriter : public FDcWriter, private FNoncopyable
 {
 	using TSelf = TDcJsonWriter;
-
-#if ENGINE_MAJOR_VERSION == 5
-	using StringBuilder = TStringBuilderWithBuffer<CharType, 1024>;
-#else
-	#if ENGINE_MINOR_VERSION >= 26
-	using StringBuilder = TStringBuilderWithBuffer<CharType, 1024>;
-	#else
-	using StringBuilder = typename DcJsonWriterDetails::TSBTypeSelector<CharType>::Type;
-	#endif
-#endif
-
 	using SourceUtils = TDcCSourceUtils<CharType>;
+	using StringBuilder = typename SourceUtils::StringBuilder;
 	using CString = TCString<CharType>;
-
 
 	struct ConfigType
 	{

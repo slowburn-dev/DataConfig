@@ -17,6 +17,7 @@ public class DataConfigExtra : ModuleRules
 			"Json",
 			"JsonUtilities",
             "Projects",
+            "SQLiteCore",
 			});
 
 	}

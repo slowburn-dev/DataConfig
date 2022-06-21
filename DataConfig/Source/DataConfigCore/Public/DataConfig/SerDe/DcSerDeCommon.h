@@ -48,6 +48,21 @@ struct FScriptInterfaceAccess
 };
 static_assert(sizeof(FScriptInterfaceAccess) == sizeof(FScriptInterface), "FScriptInterfaceAccess stale");
 
-	
+struct FScriptArrayHelperAccess
+{
+	FProperty* InnerProperty;
+	union
+	{
+		FScriptArray* HeapArray;
+		FFreezableScriptArray* FreezableArray;
+	};
+	int32 ElementSize;
+#if ENGINE_MAJOR_VERSION == 5
+	uint32 ElementAlignment;
+#endif
+	EArrayPropertyFlags ArrayFlags;
+};
+static_assert(sizeof(FScriptArrayHelper) == sizeof(FScriptArrayHelperAccess), "FScriptArrayHelperAccess stale");
+
 } // namespace DcSerDeCommon
 

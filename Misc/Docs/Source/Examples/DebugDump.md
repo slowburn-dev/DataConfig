@@ -2,8 +2,10 @@
 
 `DcAutomationUtils::DumpToLog()` can dump a `FDcPropertyDatum` to a string representation, in which `FDcPropertyDatum` is simply a `(FProperty`, `void*`) fat pointer tuple that can represent anything in the property system:
 
+* [DcTestBlurb.cpp]({{SrcRoot}}DataConfigTests/Private/DcTestBlurb.cpp#L97)
+
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FVector Vec(1.0f, 2.0f, 3.0f);
 FDcPropertyDatum VecDatum(TBaseStructure<FVector>::Get(), &Vec);
 
@@ -29,7 +31,7 @@ Output would be:
 Additionally we wrapped this into `gDcDebug` that can be invoked in MSVC immediate window. Calling it during debug would dump into MSVC **Output** window:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Automation/DcAutomationUtils.h
+// DataConfigCore/Public/DataConfig/Automation/DcAutomationUtils.h
 struct DATACONFIGCORE_API FDcDebug
 {
     FORCENOINLINE void DumpStruct(char* StructNameChars, void* Ptr);

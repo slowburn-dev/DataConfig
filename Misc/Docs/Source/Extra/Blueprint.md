@@ -8,8 +8,12 @@ The whole blueprint stuff depends on `Engine` module. This is also why we put re
 
 Blueprint class are stored within `UBlueprint` typed assets. Note that we automatically unwrap the container in handlers.
 
+* [DcSerDeBlueprint.h]({{SrcRoot}}DataConfigEditorExtra/Public/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.h)
+* [DcSerDeBlueprint.cpp]({{SrcRoot}}DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp)
+
+
 ```c++
-//DataConfig/Source/DataConfigEditorExtra/Public/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.h
+//DataConfigEditorExtra/Public/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.h
 USTRUCT()
 struct DATACONFIGEDITOREXTRA_API FDcEditorExtraTestStructWithBPClass
 {
@@ -30,7 +34,7 @@ struct DATACONFIGEDITOREXTRA_API FDcEditorExtraTestStructWithBPInstance
     UPROPERTY() UDcTestBPClassBase* InstanceField3;
 };
 
-//DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp
+//DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp
 FString Str = TEXT(R"(
     {
         "ClassField1" : null,
@@ -55,7 +59,7 @@ In this example we roundtrip a Blueprint class instance from JSON:
 ![Blueprint Class](Images/DataConfigEditorExtra-BlueprintClass.png)
 
 ```c++
-//DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp
+//DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp
 FString Str = TEXT(R"(
     {
         "StrField" : "Foo",
@@ -74,7 +78,7 @@ Finally we're combined `FColor`, `FDcAnyStruct` and Blueprint struct into one si
 ![DataConfigEditorExtra-BlueprintStruct](Images/DataConfigEditorExtra-BlueprintStruct.png)
 
 ```c++
-//DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp
+//DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.cpp
 FString Str = TEXT(R"(
     {
         "AnyStructField1" : {

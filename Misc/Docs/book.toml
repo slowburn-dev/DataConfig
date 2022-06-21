@@ -13,3 +13,12 @@ git-repository-url = "https://github.com/slowburn-dev/DataConfig"
 [output.html.fold]
 enable = false
 level = 0
+
+# https://gitlab.com/tglman/mdbook-variables
+[preprocessor.variables.variables]
+SrcRoot = "https://github.com/slowburn-dev/DataConfig/tree/release/DataConfig/Source/"
+RepoRoot = "https://github.com/slowburn-dev/DataConfig/tree/release/"
+
+# renamed fields 
+[output.html.redirect]
+"/Formats/PipeProperty.html" = "/Formats/Property.html"

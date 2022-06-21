@@ -6,13 +6,6 @@
 
 
 USTRUCT()
-struct FDcTestDummy3
-{
-	GENERATED_BODY();
-	//	stub class to keep generated header
-};
-
-USTRUCT()
 struct FDcTestMeta1
 {
 	GENERATED_BODY()

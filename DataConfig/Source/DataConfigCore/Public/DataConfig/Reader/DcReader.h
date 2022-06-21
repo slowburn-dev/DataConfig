@@ -112,6 +112,9 @@ struct DATACONFIGCORE_API FDcReader
 
 	template<typename T>
 	T* CastById();
+
+	template<typename T>
+	T* CastByIdChecked();
 };
 
 

@@ -15,7 +15,7 @@ struct DATACONFIGCORE_API FDcPropertyDatum
 	FDcPropertyDatum(UClass* Class, UObject* ClassObject);
 	FDcPropertyDatum(UScriptStruct* StructClass, void* StructPtr);
 
-	explicit  FDcPropertyDatum(UObject* ClassObject);
+	explicit FDcPropertyDatum(UObject* ClassObject);
 
 	template<
 		typename T,

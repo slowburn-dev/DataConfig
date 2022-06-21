@@ -21,7 +21,7 @@ Internally DataConfig applies a consistent error handling strategy across all AP
 The gist is that **if a method can fail, it should return a `FDcResult`**. It's a simple struct:
 
 ```c++
-// DataConfig/DataConfig/Source/DataConfigCore/Public/DataConfig/DcTypes.h
+// DataConfigCore/Public/DataConfig/DcTypes.h
 struct DATACONFIGCORE_API DC_NODISCARD FDcResult
 {
     enum class EStatus : uint8
@@ -39,7 +39,7 @@ struct DATACONFIGCORE_API DC_NODISCARD FDcResult
 };
 
 //  See FDcReader's methods as example
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Reader/DcReader.h
+// DataConfigCore/Public/DataConfig/Reader/DcReader.h
 struct DATACONFIGCORE_API FDcReader
 {
     //...
@@ -55,7 +55,7 @@ struct DATACONFIGCORE_API FDcReader
 Then use `DC_TRY` to call these kinds of functions. The macro itself does early return when result is not `Ok`:
 
 ```c++
-// DataConfig/DataConfig/Source/DataConfigCore/Public/DataConfig/DcTypes.h
+// DataConfigCore/Public/DataConfig/DcTypes.h
 #define DC_TRY(expr)                        \
     do {                                    \
         ::FDcResult Ret = (expr);           \
@@ -65,7 +65,7 @@ Then use `DC_TRY` to call these kinds of functions. The macro itself does early 
     } while (0)
 
 //  Example of calling methods returning `FDcResult`
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriterAPI>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -101,7 +101,7 @@ When implementing a method that returns `FDcResult` you have 2 options:
 Examples:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcResult Succeed() {
     // succeed
     return DcOk();
@@ -116,7 +116,7 @@ FDcResult Fail() {
 In the examples above `DcDCommon` and `Unexpected1` are called __error category__ and __error id__ respectively. `DcDCommon` is a built-in error category:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Public/DataConfig/Diagnostic/DcDiagnosticCommon.h
+// DataConfigCore/Public/DataConfig/Diagnostic/DcDiagnosticCommon.h
 namespace DcDCommon
 {
 static const uint16 Category = 0x1;
@@ -129,7 +129,7 @@ enum Type : uint16
 
 } // namespace DcDCommon
 
-// DataConfig/Source/DataConfigCore/Private/DataConfig/Diagnostic/DcDiagnosticCommon.cpp
+// DataConfigCore/Private/DataConfig/Diagnostic/DcDiagnosticCommon.cpp
 namespace DcDCommon
 {
 static FDcDiagnosticDetail _CommonDetails[] = {

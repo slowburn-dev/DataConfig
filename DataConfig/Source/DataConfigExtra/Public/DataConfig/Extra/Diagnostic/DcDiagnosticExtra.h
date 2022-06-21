@@ -15,6 +15,15 @@ enum Type : uint16
 	Unknown = 0,
 	InvalidBase64String,
 	ExpectClassExpand,
+
+	//	Sqlite
+	SqliteLastError,
+	SqliteBusy,
+
+	//	InlineStruct
+	InlineStructTooBig,
+	InlineStructNotSet,
+
 };
 
 extern DATACONFIGEXTRA_API FDcDiagnosticGroup Details;

@@ -1,5 +1,6 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Source/DcHighlightFormatter.h"
@@ -35,14 +36,14 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 
 	UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 		this,
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		these are my
 		twisted
 		words.
 
 		)")),
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		1 |these are my
 		2 |twisted
@@ -56,14 +57,14 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 
 	UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 		this,
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		these are my
 		twisted
 		words.
 
 		)")),
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		1 |these are my
 		2 |twisted
@@ -77,13 +78,13 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 
 	UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 		this,
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		line1
 		line2
 
 		)")),
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		1 |line1
 		2 |line2
@@ -96,13 +97,13 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 
 	UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 		this,
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		line1
 		line2
 
 		)")),
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		1 |line1
 		  |     ^
@@ -117,7 +118,7 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 	UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 		this,
 		FString::ChrN(1024, TCHAR('X')),
-		DcReindentStringLiteral(TEXT(R"(
+		DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		1 |...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		  |                                                                                                                                              ^
@@ -143,7 +144,7 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 		UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 			this,
 			Source,
-			DcReindentStringLiteral(TEXT(R"(
+			DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		   1 |1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD...
 		   2 |1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD...
@@ -158,7 +159,7 @@ DC_TEST("DataConfig.Core.Diagnostic.Highlight")
 		UTEST_OK("Diagnostic Highlight Format", CheckDiagnosticHighlight(
 			this,
 			Source,
-			DcReindentStringLiteral(TEXT(R"(
+			DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		   1 |...234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD1234567890ABCD
 			 |                                                                                                                                             ^

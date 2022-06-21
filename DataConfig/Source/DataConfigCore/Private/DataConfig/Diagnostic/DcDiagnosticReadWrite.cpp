@@ -22,6 +22,7 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ EnumNameMismatch, TEXT("Enum name mismatch, Expect '{0}', Actual '{1}'") },
 	{ EnumNameNotFound, TEXT("Enum name not found. Enum '{0}', Actual '{1}'") },
 	{ EnumSignMismatch, TEXT("Enum sign mismatch. Expect unsigned: '{0}', Actual unsigned: '{1}'") },
+	{ EnumMissingEnum, TEXT("Enum field missing enum, Property '{0}, '{1}") },
 	{ EnumValueInvalid, TEXT("Enum value isn't valid for this enum. Enum '{0}', Actual '{1}'") },
 	{ WriteBlobOverrun, TEXT("Writing blob overrun, Expected len '{0}', Actual len '{1}'") },
 	{ FindPropertyByOffsetFailed, TEXT("Failed to find property by offset, Class: '{0}', Offset: '{1}'") },
@@ -29,8 +30,10 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ DataTypeUnequalLhsRhs, TEXT("Data entry value unequal, Type: '{0}', Lhs: '{1}', Rhs: '{2}'") },
 	{ ExpectFieldButFoundUObject, TEXT("Expect FFieldVariant to be FField but found UObject. Property '{0}' '{1}'") },
 	{ FNameOverSize, TEXT("String is too long to be converted to FName, which is capped at 1024") },
+	{ HeuristicInvalidPointer, TEXT("Pointer memory pattern is likekly invalid: '{0}'") },
 	{ ReaderCastExpect, TEXT("Reader cast failed. Expected '{0}, Actual '{1}'") },
 	{ WriterCastExpect, TEXT("Writer cast failed. Expected '{0}, Actual '{1}'") },
+	{ PeekNoContainerProperty, TEXT("Property Reader/Writer has no container property, Actual: '{0}'"), },
 
 	//	putback reader
 	{ CantUsePutbackValue, TEXT("Cannot use putback value in '{0}'") },

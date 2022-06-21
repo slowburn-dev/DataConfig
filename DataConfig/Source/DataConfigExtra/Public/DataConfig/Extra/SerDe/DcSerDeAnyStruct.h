@@ -11,12 +11,12 @@ namespace DcExtra
 
 DATACONFIGEXTRA_API FDcResult DcHandlerDeserializeAnyStruct(
 	FDcDeserializeContext& Ctx, 
-	TFunctionRef<FDcResult(FDcDeserializeContext&, const FString&, UScriptStruct*&)> Func
+	TFunctionRef<FDcResult(FDcDeserializeContext&, const FString&, UScriptStruct*&)> FuncLocateStruct
 );
 
 DATACONFIGEXTRA_API FDcResult DcHandlerSerializeAnyStruct(
 	FDcSerializeContext& Ctx,
-	TFunctionRef<FString(UScriptStruct* InStruct)> Func
+	TFunctionRef<FString(UScriptStruct* InStruct)> FuncWriteStructType
 );
 
 DATACONFIGEXTRA_API EDcDeserializePredicateResult PredicateIsDcAnyStruct(FDcDeserializeContext& Ctx);
@@ -28,39 +28,6 @@ DATACONFIGEXTRA_API EDcSerializePredicateResult PredicateIsDcAnyStruct(FDcSerial
 DATACONFIGEXTRA_API FDcResult HandlerDcAnyStructSerialize(FDcSerializeContext& Ctx);
 
 } // namespace DcExtra
-
-USTRUCT()
-struct FDcExtraTestSimpleStruct1
-{
-	GENERATED_BODY()
-
-	UPROPERTY() FName NameField;
-	UPROPERTY(meta = (DcSkip)) int IntFieldWithDefault = 253;
-};
-
-USTRUCT()
-struct FDcExtraTestSimpleStruct2
-{
-	GENERATED_BODY()
-
-	UPROPERTY() FString StrField;
-};
-
-
-DECLARE_DELEGATE(FDcExtraTestSingularAction);
-
-USTRUCT()
-struct FDcExtraTestDestructDelegateContainer
-{
-	GENERATED_BODY()
-
-	FDcExtraTestSingularAction DestructAction;
-
-	~FDcExtraTestDestructDelegateContainer()
-	{
-		DestructAction.ExecuteIfBound();
-	}
-};
 
 USTRUCT()
 struct FDcExtraTestWithAnyStruct1

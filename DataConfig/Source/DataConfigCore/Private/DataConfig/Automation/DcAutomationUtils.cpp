@@ -7,6 +7,7 @@
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/DcCorePrivate.h"
+#include "DataConfig/Source/DcSourceUtils.h"
 
 namespace DcAutomationUtils
 {
@@ -690,8 +691,8 @@ int DebugGetEnumPropertyIndex(const FDcPropertyDatum& Datum, const FName& Name)
 	FFieldVariant EnumProperty = PropertyAccessUtil::FindPropertyByName(Name, Struct);
 	UEnum* Enum = nullptr;
 	FNumericProperty* UnderlyingProperty = nullptr;
-	FDcResult Result = DcPropertyUtils::GetEnumProperty(EnumProperty, Enum, UnderlyingProperty);
-	if (!Result.Ok()
+	bool bIsEnum = DcPropertyUtils::IsEnumAndTryUnwrapEnum(EnumProperty, Enum, UnderlyingProperty);
+	if (!bIsEnum	
 		|| Enum == nullptr
 		|| UnderlyingProperty == nullptr)
 		return INDEX_NONE;
@@ -745,6 +746,7 @@ FDcResult DeserializeFrom(FDcReader* Reader, FDcPropertyDatum Datum,
 	Ctx.Reader = Reader;
 	Ctx.Writer = &Writer;
 	Ctx.Deserializer = &Deserializer;
+	Ctx.Properties.Add(Datum.Property);
 	Func(Ctx);
 	DC_TRY(Ctx.Prepare());
 
@@ -753,7 +755,6 @@ FDcResult DeserializeFrom(FDcReader* Reader, FDcPropertyDatum Datum,
 
 FDcResult SerializeInto(FDcWriter* Writer, FDcPropertyDatum Datum,
 	TFunctionRef<void(FDcSerializeContext&)> Func, EDefaultSetupType SetupType)
-{
 {
 	FDcSerializer Serializer;
 	if (SetupType == EDefaultSetupType::SetupJSONHandlers)
@@ -770,14 +771,89 @@ FDcResult SerializeInto(FDcWriter* Writer, FDcPropertyDatum Datum,
 	Ctx.Reader = &Reader;
 	Ctx.Writer = Writer;
 	Ctx.Serializer = &Serializer;
+	Ctx.Properties.Add(Datum.Property);
 	Func(Ctx);
 	DC_TRY(Ctx.Prepare());
 
 	return Serializer.Serialize(Ctx);
 }
 
-}
+//	Trim and reindent a string literal to the first non empty indent level
+FString DcReindentStringLiteral(FString Str, FString* Prefix)
+{
+	TArray<FString> Lines;
+	Str.ParseIntoArrayLines(Lines);
 
+	int MinIndent = TNumericLimits<int>::Max();
+
+	auto _IsWhitespaceLine = [](const FString& Str)
+	{
+		for (TCHAR Ch : Str)
+		{
+			if (!FChar::IsWhitespace(Ch))
+				return false;
+		}
+
+		return true;
+	};
+
+	int LineCount = Lines.Num();
+	int FirstNonEmptyIx = 0;
+	int LastNonEmptyIx = LineCount;
+	{
+		for (int Ix = 0; Ix < LineCount; Ix++)
+		{
+			if (!_IsWhitespaceLine(Lines[Ix]))
+			{
+				FirstNonEmptyIx = Ix;
+				break;
+			}
+		}
+
+		for (int Ix = 0; Ix < LineCount; Ix++)
+		{
+			if (!_IsWhitespaceLine(Lines[LineCount- Ix - 1]))
+			{
+				LastNonEmptyIx = LineCount-Ix;
+				break;
+			}
+		}
+	}
+
+	TDcCSourceUtils<TCHAR>::StringBuilder Sb;
+	{
+		for (int Ix = FirstNonEmptyIx; Ix < LastNonEmptyIx; Ix++)
+		{
+			FString& Line = Lines[Ix];
+
+			Line.ConvertTabsToSpacesInline(4);
+			Line.TrimEndInline();
+			int Spaces = 0;
+			for (TCHAR Char : Line)
+			{
+				if (Char == ' ')
+					Spaces++;
+				else
+					break;
+			}
+
+			if (Spaces < MinIndent)
+				MinIndent = Spaces;
+		}
+
+		for (int Ix = FirstNonEmptyIx; Ix < LastNonEmptyIx; Ix++)
+		{
+			FString& Line = Lines[Ix];
+
+			Line.RightChopInline(MinIndent);
+			if (Prefix) Sb.Append(*Prefix);
+			Sb.Append(Line);
+			Sb << TCHAR('\n');
+		}
+	}
+
+	return Sb.ToString();
+}
 
 }	// namespace DcAutomationUtils
 

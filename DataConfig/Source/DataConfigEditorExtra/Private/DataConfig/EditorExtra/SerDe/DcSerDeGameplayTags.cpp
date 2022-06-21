@@ -227,8 +227,8 @@ DC_TEST("DataConfig.EditorExtra.GameplayTags")
 				FDcSerializeDelegate::CreateStatic(HandlerGameplayTagSerialize)
 			);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
-		UTEST_EQUAL("Editor Extra FGameplayTag SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		Writer.Sb << TCHAR('\n');
+		UTEST_EQUAL("Editor Extra FGameplayTag SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	FString StrBad = TEXT(R"(
@@ -299,8 +299,8 @@ DC_TEST("DataConfig.EditorExtra.GameplayTagContainer")
 				FDcSerializeDelegate::CreateStatic(HandlerGameplayTagContainerSerialize)
 			);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
-		UTEST_EQUAL("Editor Extra FGameplayTagContainer SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		Writer.Sb << TCHAR('\n');
+		UTEST_EQUAL("Editor Extra FGameplayTagContainer SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	return true;

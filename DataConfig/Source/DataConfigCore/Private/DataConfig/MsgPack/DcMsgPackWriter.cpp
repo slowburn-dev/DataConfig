@@ -58,7 +58,7 @@ static FORCEINLINE_DEBUGGABLE void EndWriteValuePosition(FDcMsgPackWriter* Self)
 static FORCEINLINE_DEBUGGABLE void WriteTypeByte(FDcMsgPackWriter::FWriteState& State, uint8 TypeByte)
 {
 	State.Buffer.Add(TypeByte);
-	DcMsgPackCommon::RecordTypeByteOffset(State.LastTypeBytes, State.Buffer.Num() - 1);
+	State.LastTypeByte = TypeByte;
 }
 
 template<int N>
@@ -511,27 +511,13 @@ void FDcMsgPackWriter::FormatDiagnostic(FDcDiagnostic& Diag)
 {
 	FDcDiagnosticHighlight Highlight(this, ClassId().ToString());
 
-	TStringBuilder<2048> Sb;
-	for (int Ix = 0; Ix < States.Num(); Ix++)
-	{
-		FWriteState& CurState = States[Ix];
-		int Offset = DcMsgPackCommon::GetOldestOffset(CurState.LastTypeBytes);
-		int End = CurState.Buffer.Num() - Offset;
-		bool bLastLevel = Ix == States.Num() - 1;
+	UEnum* DataEntryEnum = StaticEnum<EDcDataEntry>();
+	check(DataEntryEnum);
 
-		BufferType& Buffer = CurState.Buffer;
-		Sb.Append(DcMsgPackCommon::FormatMsgPackHighlight(
-			FDcBlobViewData{ Buffer.GetData() + Offset, Buffer.Num() - Offset },
-			End,
-			*FString::Printf(TEXT("### Last writes (%d)"), Ix),
-			bLastLevel ? TEXT("^^^") : TEXT("...")
-		));
+	Highlight.Formatted = FString::Printf(TEXT("Last write: %s"), 
+		*DataEntryEnum->GetNameStringByIndex((int32)DcMsgPackCommon::TypeByteToDataEntry(States.Top().LastTypeByte))
+		);
 
-		if (!bLastLevel)
-			Sb << TCHAR('\n');
-	}
-
-	Highlight.Formatted = Sb.ToString();
 	Diag << MoveTemp(Highlight);
 }
 

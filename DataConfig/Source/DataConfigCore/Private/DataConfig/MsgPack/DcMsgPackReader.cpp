@@ -9,79 +9,6 @@
 namespace DcMsgPackReaderDetails
 {
 
-FORCEINLINE EDcDataEntry TypeByteToDataEntry(uint8 TypeByte)
-{
-	using namespace  DcMsgPackCommon;
-
-	switch (TypeByte)
-	{
-		case _NIL:
-			return EDcDataEntry::Nil;
-		case _TRUE:
-		case _FALSE: 
-			return EDcDataEntry::Bool;
-		case _BIN8:
-		case _BIN16:
-		case _BIN32:
-			return EDcDataEntry::Blob;
-		case _FLOAT32:
-			return EDcDataEntry::Float;
-		case _FLOAT64:
-			return EDcDataEntry::Double;
-		case _INT8:
-			return EDcDataEntry::Int8;
-		case _INT16:
-			return EDcDataEntry::Int16;
-		case _INT32:
-			return EDcDataEntry::Int32;
-		case _INT64:
-			return EDcDataEntry::Int64;
-		case _UINT8:
-			return EDcDataEntry::UInt8;
-		case _UINT16:
-			return EDcDataEntry::UInt16;
-		case _UINT32:
-			return EDcDataEntry::UInt32;
-		case _UINT64:
-			return EDcDataEntry::UInt64;
-		case _STR8:
-		case _STR16:
-		case _STR32:
-			return EDcDataEntry::String;
-		case _ARRAY16:
-		case _ARRAY32:
-			return EDcDataEntry::ArrayRoot;
-		case _MAP16:
-		case _MAP32:
-			return EDcDataEntry::MapRoot;
-		case _FIXEXT1:
-		case _FIXEXT2:
-		case _FIXEXT4:
-		case _FIXEXT8:
-		case _FIXEXT16:
-		case _EXT8:
-		case _EXT16:
-		case _EXT32:
-			return EDcDataEntry::Extension;
-		default:
-			//	pass
-			break;
-	}
-
-	if (TypeByte >= _MINFIXINT && TypeByte <= _MAXFIXINT)
-		return EDcDataEntry::Int8;
-	else if (TypeByte >= _MINNEGATIVEFIXINT && TypeByte <= _MAXNEGATIVEFIXINT)
-		return EDcDataEntry::Int8;
-	else if (TypeByte >= _MINFIXARRAY && TypeByte <= _MAXFIXARRAY)
-		return EDcDataEntry::ArrayRoot;
-	else if (TypeByte >= _MINFIXMAP && TypeByte <= _MAXFIXMAP)
-		return EDcDataEntry::MapRoot;
-	else if (TypeByte >= _MINFIXSTR && TypeByte <= _MAXFIXSTR)
-		return EDcDataEntry::String;
-
-	return EDcDataEntry::Ended;
-}
-
 FORCEINLINE_DEBUGGABLE FDcResult CheckNoEOF(FDcMsgPackReader* Self, int32 LookAhead = 1)
 {
 	if (Self->State.Index + (LookAhead - 1) >= Self->View.Num)
@@ -121,8 +48,9 @@ FORCEINLINE FDcResult ReadN(FDcMsgPackReader* Self, FDcFixedBytes<N>* OutBytes)
 
 FORCEINLINE_DEBUGGABLE FDcResult ReadTypeByte(FDcMsgPackReader* Self, uint8* OutPtr)
 {
-	DcMsgPackCommon::RecordTypeByteOffset(Self->State.LastTypeBytes, Self->State.Index);
-	return Read1(Self, OutPtr);
+	DC_TRY(Read1(Self, OutPtr));
+	Self->State.LastTypeByte = *OutPtr;
+	return DcOk();
 }
 
 FORCEINLINE FDcResult ReadTypeByteCheck(FDcMsgPackReader* Self, uint8 Expect)
@@ -140,7 +68,7 @@ FORCEINLINE FDcResult ReadDataType(FDcMsgPackReader* Self, EDcDataEntry* OutPtr)
 {
 	uint8 TypeByte;
 	DC_TRY(ReadTypeByte(Self, &TypeByte));
-	return ReadOutOk(OutPtr, TypeByteToDataEntry(TypeByte));
+	return ReadOutOk(OutPtr, DcMsgPackCommon::TypeByteToDataEntry(TypeByte));
 }
 
 FORCEINLINE FDcResult ReadDataTypeCheck(FDcMsgPackReader* Self, EDcDataEntry Expect)
@@ -273,7 +201,7 @@ FDcResult FDcMsgPackReader::PeekRead(EDcDataEntry* OutPtr)
 			return ReadOutOk(OutPtr, EDcDataEntry::Ended);
 
 		uint8 TypeByte = View.Get(State.Index);
-		EDcDataEntry Entry = TypeByteToDataEntry(TypeByte);
+		EDcDataEntry Entry = DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 
 		if (Entry == EDcDataEntry::Ended)
 		{
@@ -327,7 +255,7 @@ FDcResult FDcMsgPackReader::ReadBool(bool* OutPtr)
 		ReadOut(OutPtr, false);
 	else
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::Bool << DcMsgPackReaderDetails::TypeByteToDataEntry(TypeByte);
+			<< EDcDataEntry::Bool << DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 
 	return DcMsgPackReaderDetails::EndTopRead(this);
 }
@@ -368,7 +296,7 @@ FDcResult FDcMsgPackReader::ReadString(FString* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::String << DcMsgPackReaderDetails::TypeByteToDataEntry(TypeByte);
+			<< EDcDataEntry::String << DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 	}
 
 	DC_TRY(DcMsgPackReaderDetails::CheckNoEOF(this, Size));
@@ -440,7 +368,7 @@ FDcResult FDcMsgPackReader::ReadBlob(FDcBlobViewData* OutPtr)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::Blob << DcMsgPackReaderDetails::TypeByteToDataEntry(TypeByte);
+			<< EDcDataEntry::Blob << DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 	}
 
 	DC_TRY(DcMsgPackReaderDetails::CheckNoEOF(this, Size));
@@ -484,7 +412,7 @@ FDcResult FDcMsgPackReader::ReadMapRoot()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::MapRoot << DcMsgPackReaderDetails::TypeByteToDataEntry(TypeByte);
+			<< EDcDataEntry::MapRoot << DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 	}
 
 	States.Add({EReadState::Map, false, Size});
@@ -534,7 +462,7 @@ FDcResult FDcMsgPackReader::ReadArrayRoot()
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::ArrayRoot << DcMsgPackReaderDetails::TypeByteToDataEntry(TypeByte);
+			<< EDcDataEntry::ArrayRoot << DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 	}
 
 	States.Add({EReadState::Array, false, Size});
@@ -682,7 +610,7 @@ FDcResult FDcMsgPackReader::ReadExt(uint8* OutType, FDcBlobViewData* OutBlob)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
-			<< EDcDataEntry::Extension << DcMsgPackReaderDetails::TypeByteToDataEntry(TypeByte);
+			<< EDcDataEntry::Extension << DcMsgPackCommon::TypeByteToDataEntry(TypeByte);
 	}
 
 	uint8 Type;
@@ -704,16 +632,14 @@ FName FDcMsgPackReader::GetId() { return ClassId(); }
 
 void FDcMsgPackReader::FormatDiagnostic(FDcDiagnostic& Diag)
 {
-	int Offset = DcMsgPackCommon::GetOldestOffset(State.LastTypeBytes);
-	int End = this->State.Index - Offset;
-
 	FDcDiagnosticHighlight Highlight(this, ClassId().ToString());
-	Highlight.Formatted = DcMsgPackCommon::FormatMsgPackHighlight(
-		FDcBlobViewData{ View.DataPtr + Offset, View.Num - Offset },
-		End,
-		TEXT("### Last reads"),
-		TEXT("^^^")
-	);
+
+	UEnum* DataEntryEnum = StaticEnum<EDcDataEntry>();
+	check(DataEntryEnum);
+
+	Highlight.Formatted = FString::Printf(TEXT("Last read: %s"), 
+		*DataEntryEnum->GetNameStringByIndex((int32)DcMsgPackCommon::TypeByteToDataEntry(State.LastTypeByte))
+		);
 
 	Diag << MoveTemp(Highlight);
 }

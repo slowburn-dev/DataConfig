@@ -31,10 +31,9 @@ struct DATACONFIGCORE_API FDcMsgPackReader : public FDcReader, private FNoncopya
 	struct FState
 	{
 		uint8 bNeedReadNext : 1;
+		uint8 LastTypeByte;
 
 		int Index;
-		DcMsgPackUtils::FTypeByteQueue LastTypeBytes;
-
 		FORCEINLINE void Reset() { *this = FState{}; }
 	};
 	FState State = {};

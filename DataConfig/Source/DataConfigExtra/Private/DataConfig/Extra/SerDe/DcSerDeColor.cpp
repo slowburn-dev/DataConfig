@@ -228,7 +228,7 @@ DC_TEST("DataConfig.Extra.SerDe.Color")
 		}));
 		Writer.Sb << TCHAR('\n');
 
-		UTEST_EQUAL("Extra FColor SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str))
+		UTEST_EQUAL("Extra FColor SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str))
 	}
 
 	return true;

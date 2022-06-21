@@ -17,6 +17,7 @@
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Json/DcJsonReader.h"
 
+#include "DataConfig/Extra/Types/DcExtraTestFixtures.h"
 #include "DataConfig/Extra/SerDe/DcSerDeColor.h"
 #include "DataConfig/Json/DcJsonWriter.h"
 #include "DataConfig/Serialize/DcSerializeUtils.h"
@@ -27,7 +28,7 @@ namespace DcExtra
 
 FDcResult DcHandlerDeserializeAnyStruct(
 	FDcDeserializeContext& Ctx,
-	TFunctionRef<FDcResult(FDcDeserializeContext&, const FString&, UScriptStruct*&)> Func
+	TFunctionRef<FDcResult(FDcDeserializeContext&, const FString&, UScriptStruct*&)> FuncLocateStruct
 ) {
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
@@ -53,7 +54,7 @@ FDcResult DcHandlerDeserializeAnyStruct(
 
 		DC_TRY(Ctx.Reader->ReadString(&Str));
 		UScriptStruct* LoadStruct = nullptr;
-		DC_TRY(Func(Ctx, Str, LoadStruct));
+		DC_TRY(FuncLocateStruct(Ctx, Str, LoadStruct));
 		check(LoadStruct);
 
 		void* DataPtr = (uint8*)FMemory::Malloc(LoadStruct->GetStructureSize());
@@ -80,7 +81,7 @@ FDcResult DcHandlerDeserializeAnyStruct(
 
 }
 
-FDcResult DcHandlerSerializeAnyStruct(FDcSerializeContext& Ctx, TFunctionRef<FString(UScriptStruct* InStruct)> Func)
+FDcResult DcHandlerSerializeAnyStruct(FDcSerializeContext& Ctx, TFunctionRef<FString(UScriptStruct* InStruct)> FuncWriteStructType)
 {
 	FDcPropertyDatum Datum;
 	DC_TRY(Ctx.Reader->ReadDataEntry(FStructProperty::StaticClass(), Datum));
@@ -91,7 +92,7 @@ FDcResult DcHandlerSerializeAnyStruct(FDcSerializeContext& Ctx, TFunctionRef<FSt
 	{
 		DC_TRY(Ctx.Writer->WriteMapRoot());
 		DC_TRY(Ctx.Writer->WriteString(TEXT("$type")));
-		DC_TRY(Ctx.Writer->WriteString(Func(AnyStructPtr->StructClass)));
+		DC_TRY(Ctx.Writer->WriteString(FuncWriteStructType(AnyStructPtr->StructClass)));
 
 		DC_TRY(Ctx.Reader->PushTopStructPropertyState(
 			{AnyStructPtr->StructClass, AnyStructPtr->DataPtr},
@@ -264,7 +265,7 @@ DC_TEST("DataConfig.Extra.SerDe.AnyStruct")
 			);
 		}));
 		Writer.Sb << TCHAR('\n');
-		UTEST_EQUAL("Extra FAnyStruct SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		UTEST_EQUAL("Extra FAnyStruct SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	return true;

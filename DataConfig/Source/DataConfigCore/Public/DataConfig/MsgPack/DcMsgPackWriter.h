@@ -19,10 +19,10 @@ struct DATACONFIGCORE_API FDcMsgPackWriter : public FDcWriter, private FNoncopya
 	struct FWriteState
 	{
 		EWriteState Type;
-		uint32 Size;
 		bool bMapAtValue;
+		uint8 LastTypeByte;
 
-		DcMsgPackUtils::FTypeByteQueue LastTypeBytes;
+		uint32 Size;
 		BufferType Buffer;
 	};
 

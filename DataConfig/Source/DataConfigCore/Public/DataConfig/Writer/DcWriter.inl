@@ -32,7 +32,7 @@ FORCEINLINE FDcResult FDcWriter::WriteClassEnd()
 	return WriteClassEndAccess(Access);
 }
 
-template <typename T>
+template<typename T>
 T* FDcWriter::CastById()
 {
 	static_assert(TIsDerivedFrom<T, FDcWriter>::Value, "casting non writer");
@@ -41,6 +41,13 @@ T* FDcWriter::CastById()
 	return nullptr;
 }
 
+template<typename T>
+T* FDcWriter::CastByIdChecked()
+{
+	static_assert(TIsDerivedFrom<T, FDcWriter>::Value, "casting non writer");
+	check(T::ClassId() == GetId());
+	return (T*)(this);
+}
 
 template<typename TObject>
 FDcResult FDcWriter::WriteWeakObjectField(const TWeakObjectPtr<TObject>& Value)

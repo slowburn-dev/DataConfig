@@ -7,26 +7,21 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Misc/DcPipeVisitor.h"
 #include "DataConfig/Writer/DcNoopWriter.h"
-
 #include "DataConfig/Writer/DcPrettyPrintWriter.h"
 
 class FAutomationTestBase;
 
-template<typename TThunk>
-FDcResult DcTestPropertyRoundtrip(FAutomationTestBase* Fixture, FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum, const TThunk& Func)
+FORCEINLINE FDcResult DcPropertyPipeVisit(FDcPropertyReader& Reader, FDcPropertyWriter& Writer)
 {
-	FDcPropertyReader Reader(FromDatum);
-	FDcPropertyWriter Writer(ToDatum);
-	DC_TRY(Func(Reader, Writer));
 	FDcPipeVisitor RoundtripVisit(&Reader, &Writer);
 	return RoundtripVisit.PipeVisit();
 }
 
-FORCEINLINE FDcResult DcTestPropertyRoundtrip(FAutomationTestBase* Fixture, FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
+FORCEINLINE FDcResult DcPropertyPipeVisit(FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
 {
-	return DcTestPropertyRoundtrip(Fixture, FromDatum, ToDatum, [](FDcPropertyReader&, FDcPropertyWriter&){
-		return DcOk();
-	});
+	FDcPropertyReader Reader(FromDatum);
+	FDcPropertyWriter Writer(ToDatum);
+	return DcPropertyPipeVisit(Reader, Writer);
 }
 
 FORCEINLINE FDcResult DcNoopPipeVisit(FDcReader* Reader)
@@ -47,8 +42,7 @@ FORCEINLINE FDcResult DcDumpPipeVisit(FDcReader* Reader)
 
 DATACONFIGEXTRA_API FString DcGetFixturePath(const FString& Str);
 
-DATACONFIGEXTRA_API FString DcReindentStringLiteral(FString Str, FString* Prefix = nullptr);
-
+DATACONFIGEXTRA_API FDcResult DcPropertyPipeVisitAndTestEqual(FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum);
 
 
 

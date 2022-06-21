@@ -30,6 +30,9 @@ public:
 	//	Struct Flags
 	UPROPERTY() FDcTestStructEnumFlag1 StructEnumFlag;
 
+	//	Scalar Array
+	UPROPERTY() FDcTestStructArrayDim1 StructArrayDims;
+
 	//	Containers
  	UPROPERTY() FDcTestStruct3 StructContainers;
 

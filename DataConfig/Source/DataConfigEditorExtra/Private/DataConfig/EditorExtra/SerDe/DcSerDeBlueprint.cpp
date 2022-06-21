@@ -8,8 +8,6 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
-#include "DataConfig/Deserialize/Handlers/Json/DcJsonCommonDeserializers.h"
-#include "DataConfig/Deserialize/Handlers/Json/DcJsonObjectDeserializers.h"
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Extra/SerDe/DcSerDeAnyStruct.h"
@@ -18,7 +16,10 @@
 #include "DataConfig/Json/DcJsonWriter.h"
 #include "DataConfig/SerDe/DcDeserializeCommon.inl"
 #include "DataConfig/SerDe/DcSerializeCommon.inl"
-#include "DataConfig/Serialize/Handlers/Json/DcJsonCommonSerializers.h"
+#include "DataConfig/Serialize/DcSerializeUtils.h"
+#include "DataConfig/Deserialize/Handlers/Common/DcCommonDeserializers.h"
+#include "DataConfig/Serialize/Handlers/Common/DcCommonSerializers.h"	
+#include "DataConfig/Deserialize/Handlers/Common/DcObjectDeserializers.h"
 
 #include "Engine/Engine.h"
 #include "Engine/Blueprint.h"
@@ -186,9 +187,25 @@ FDcResult HandlerBPClassReferenceDeserialize(FDcDeserializeContext& Ctx)
 
 FDcResult HandlerBPEnumDeserialize(FDcDeserializeContext& Ctx)
 {
+	FFieldVariant& TopProperty = Ctx.TopProperty();
 	UEnum* Enum;
 	FNumericProperty* UnderlyingProperty;
-	DC_TRY(DcPropertyUtils::GetEnumProperty(Ctx.TopProperty(), Enum, UnderlyingProperty));
+	bool bIsEnum = DcPropertyUtils::IsEnumAndTryUnwrapEnum(Ctx.TopProperty(), Enum, UnderlyingProperty);
+
+	if (!bIsEnum)
+		return DC_FAIL(DcDReadWrite, PropertyMismatch2)
+			<< TEXT("EnumProperty")  << TEXT("<NumericProperty with Enum>")
+			<< TopProperty.GetFName() << TopProperty.GetClassName();
+
+	if (Enum == nullptr)
+	{
+		//	fallback to read numeric
+		FDcEnumData EnumData;
+		DC_TRY(Ctx.Reader->ReadUInt64(&EnumData.Unsigned64));
+		DC_TRY(Ctx.Writer->WriteEnum(EnumData));
+
+		return DcOk();
+	}
 
 	UUserDefinedEnum* BPEnum = Cast<UUserDefinedEnum>(Enum);
 	auto _FindBPEnumBranch = [BPEnum](const FString Str) -> FName
@@ -290,11 +307,24 @@ FDcResult HandlerBPObjectReferenceSerialize(FDcSerializeContext& Ctx)
 
 FDcResult HandlerBPEnumSerialize(FDcSerializeContext& Ctx)
 {
+	FFieldVariant& TopProperty = Ctx.TopProperty();
 	UEnum* Enum;
 	FNumericProperty* UnderlyingProperty;
+	bool bIsEnum = DcPropertyUtils::IsEnumAndTryUnwrapEnum(TopProperty, Enum, UnderlyingProperty);
+	if (!bIsEnum)
+		return DC_FAIL(DcDReadWrite, PropertyMismatch2)
+			<< TEXT("EnumProperty")  << TEXT("<NumericProperty with Enum>")
+			<< TopProperty.GetFName() << TopProperty.GetClassName();
 
-	DC_TRY(DcPropertyUtils::GetEnumProperty(Ctx.TopProperty(), Enum, UnderlyingProperty));
-	UUserDefinedEnum* BPEnum = Cast<UUserDefinedEnum>(Enum);
+	FDcEnumData Value;
+	DC_TRY(Ctx.Reader->ReadEnum(&Value));
+
+	if (Enum == nullptr)
+	{
+		//	fallback to write numeric
+		return Ctx.Writer->WriteUInt64(Value.Unsigned64);
+	}
+
 
 	bool bIsBitFlags;
 #if WITH_METADATA
@@ -304,9 +334,7 @@ FDcResult HandlerBPEnumSerialize(FDcSerializeContext& Ctx)
 	bIsBitFlags = ((UField*)Enum)->HasMetaData(TEXT("Bitflags"));
 #endif
 
-	FDcEnumData Value;
-	DC_TRY(Ctx.Reader->ReadEnum(&Value));
-
+	UUserDefinedEnum* BPEnum = Cast<UUserDefinedEnum>(Enum);
 	if (!bIsBitFlags)
 	{
 		int ValueIndex = Enum->GetIndexByValue(Value.Signed64);
@@ -479,11 +507,11 @@ FString UDcTestBPClassBase::GetClassID_Implementation()
 
 static void _SetupTestBPJsonDeserializeHandlers(FDcDeserializer& Deserializer)
 {
-	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize));
-	Deserializer.AddDirectHandler(FStructProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize));
+	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
+	Deserializer.AddDirectHandler(FStructProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
 
 	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPClassReferenceDeserialize));
-	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerObjectReferenceDeserialize));
+	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerObjectReferenceDeserialize));
 }
 
 ///	Note that these test depends on '.uasset` that comes with the plugin
@@ -556,8 +584,8 @@ DC_TEST("DataConfig.EditorExtra.BPClassReference")
 		[](FDcSerializeContext& Ctx) {
 			Ctx.Serializer->FieldClassSerializerMap[FClassProperty::StaticClass()] = FDcSerializeDelegate::CreateStatic(DcEditorExtra::HandlerBPClassReferenceSerialize);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
-		UTEST_EQUAL("Editor Extra FDcEditorExtraTestStructWithBPClass SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		Writer.Sb << TCHAR('\n');
+		UTEST_EQUAL("Editor Extra FDcEditorExtraTestStructWithBPClass SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	return true;
@@ -592,8 +620,8 @@ DC_TEST("DataConfig.EditorExtra.BPObjectInstance")
 		[](FDcSerializeContext& Ctx) {
 			Ctx.Serializer->FieldClassSerializerMap[FObjectProperty::StaticClass()] = FDcSerializeDelegate::CreateStatic(DcEditorExtra::HandlerBPObjectReferenceSerialize);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
-		UTEST_EQUAL("Editor Extra FDcEditorExtraTestStructWithBPClass SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		Writer.Sb << TCHAR('\n');
+		UTEST_EQUAL("Editor Extra FDcEditorExtraTestStructWithBPClass SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	return true;
@@ -641,10 +669,10 @@ DC_TEST("DataConfig.EditorExtra.BPClassInstance")
 		[](FDcDeserializeContext& Ctx) {
 			Ctx.Deserializer->AddDirectHandler(
 				UBlueprintGeneratedClass::StaticClass(),
-				FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerClassRootDeserialize)
+				FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToClassDeserialize)
 			);
 			Ctx.Deserializer->PredicatedDeserializers.Insert(MakeTuple(
-				FDcDeserializePredicate::CreateStatic(DcDeserializeUtils::PredicateIsEnumProperty),
+				FDcDeserializePredicate::CreateStatic(DcCommonHandlers::PredicateIsEnumProperty),
 				FDcDeserializeDelegate::CreateStatic(DcEditorExtra::HandlerBPEnumDeserialize)), 0);
 		}, DcAutomationUtils::EDefaultSetupType::SetupJSONHandlers));
 
@@ -680,14 +708,14 @@ DC_TEST("DataConfig.EditorExtra.BPClassInstance")
 
 			Ctx.Serializer->AddDirectHandler(
 				UBlueprintGeneratedClass::StaticClass(),
-				FDcSerializeDelegate::CreateStatic(DcJsonHandlers::HandlerClassRootSerialize)
+				FDcSerializeDelegate::CreateStatic(DcCommonHandlers::HandlerClassToMapSerialize)
 			);
 			Ctx.Serializer->PredicatedSerializers.Insert(MakeTuple(
-				FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsEnumProperty),
+				FDcSerializePredicate::CreateStatic(DcCommonHandlers::PredicateIsEnumProperty),
 				FDcSerializeDelegate::CreateStatic(DcEditorExtra::HandlerBPEnumSerialize)), 0);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
-		UTEST_EQUAL("Extra BPClassInstance SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		Writer.Sb << TCHAR('\n');
+		UTEST_EQUAL("Extra BPClassInstance SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	return true;
@@ -727,7 +755,7 @@ DC_TEST("DataConfig.EditorExtra.BPStructInstance")
 				);
 				Ctx.Deserializer->AddDirectHandler(
 					UUserDefinedStruct::StaticClass(),
-					FDcDeserializeDelegate::CreateStatic(DcJsonHandlers::HandlerStructRootDeserialize)
+					FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize)
 				);
 			}));
 
@@ -763,8 +791,8 @@ DC_TEST("DataConfig.EditorExtra.BPStructInstance")
 				FDcSerializeDelegate::CreateStatic(DcEditorExtra::HandlerBPStructSerialize)
 			);
 		}));
-		Writer.Sb.Append(TCHAR('\n'));
-		UTEST_EQUAL("Extra BPStruct FAnyStruct SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str));
+		Writer.Sb << TCHAR('\n');
+		UTEST_EQUAL("Extra BPStruct FAnyStruct SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str));
 	}
 
 	return true;

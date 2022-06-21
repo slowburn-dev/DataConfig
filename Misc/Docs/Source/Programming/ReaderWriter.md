@@ -39,7 +39,7 @@ Then there's `FDcPrettyPrintWriter` that dumps everything that got write to it a
 Combining these two we get a way to dump arbitrary `FDcReader` into a string!. This is how built-in debug dump features are implemented:
 
 ```c++
-// DataConfig/Source/DataConfigCore/Private/DataConfig/Automation/DcAutomationUtils.cpp
+// DataConfigCore/Private/DataConfig/Automation/DcAutomationUtils.cpp
 void DumpToOutputDevice(...)
 {
     //...

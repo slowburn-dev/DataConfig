@@ -7,6 +7,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Automation/DcAutomation.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticUtils.h"
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "Misc/FileHelper.h"
@@ -16,7 +17,7 @@ namespace DcTestJsonDetails
 
 static FDcResult RoundtripJsonLiteral(FAutomationTestBase* Self, const FString& Str, FDcJsonWriter&& Writer)
 {
-	FString NormalizedStr = DcReindentStringLiteral(Str);
+	FString NormalizedStr = DcAutomationUtils::DcReindentStringLiteral(Str);
 
 	FDcJsonReader Reader(Str);
 	FDcPipeVisitor PipeVisitor(&Reader, &Writer);

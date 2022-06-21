@@ -1,3 +1,4 @@
+#include "DcTestProperty2.h"
 #include "DcTestSerDe.h"
 #include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Json/DcJsonReader.h"
@@ -6,6 +7,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
+#include "DataConfig/Extra/SerDe/DcSerDeColor.h"
 
 DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 {
@@ -362,6 +364,237 @@ DC_TEST("DataConfig.Core.Deserialize.SkipMetas")
 
 	UTEST_OK("Deserialize SkipMetas", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum));
 	UTEST_OK("Deserialize SkipMetas", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+	return true;
+}
+
+
+DC_TEST("DataConfig.Core.Deserialize.NonStructClassRoots")
+{
+	FString ExpectStr = TEXT("These are my twisted words");
+
+	uint64 ExpectU64Arr[2] = {TNumericLimits<uint64>::Min(), TNumericLimits<uint64>::Max()};
+
+	TArray<FDcTestStructSimple> ExpectArr = {
+		{TEXT("Foo"), TEXT("Bar")},
+		{TEXT("Doo"), TEXT("Dar")},
+		{TEXT("Goo"), TEXT("Gar")},
+	};
+
+	TSet<EDcTestEnum1> ExpectSet = {
+		EDcTestEnum1::Foo,
+		EDcTestEnum1::Bar,
+		EDcTestEnum1::Tard,
+	};
+
+	TMap<FString, int> ExpectMap = {
+		{TEXT("One"), 1},
+		{TEXT("Two"), 2},
+		{TEXT("Three"), 3},
+	};
+
+	using namespace DcPropertyUtils;
+
+	auto StrProp = FDcPropertyBuilder::Str().LinkOnScope();		
+	auto U64ArrProp = FDcPropertyBuilder::UInt64().ArrayDim(2).LinkOnScope();
+
+	auto ArrProp = FDcPropertyBuilder::Array(
+			FDcPropertyBuilder::Struct(FDcTestStructSimple::StaticStruct())
+		).LinkOnScope();
+
+	auto SetProp = FDcPropertyBuilder::Set(
+			FDcPropertyBuilder::Enum(
+				StaticEnum<EDcTestEnum1>(),
+				FDcPropertyBuilder::Int64()
+				)
+			).LinkOnScope();
+
+	auto MapProp = FDcPropertyBuilder::Map(
+			FDcPropertyBuilder::Str(),
+			FDcPropertyBuilder::Int()
+		).LinkOnScope();
+
+
+	FString DestStr;
+	uint64 DestU64Arr[2];
+	TArray<FDcTestStructSimple> DestArr;
+	TSet<EDcTestEnum1> DestSet;
+	TMap<FString, int> DestMap;
+
+	auto _CheckDeserializeEqual = [](FDcAutomationBase* Self, FString SrcStr, FDcPropertyDatum Dest, FDcPropertyDatum Expect) -> bool
+	{
+		FDcJsonReader Reader(SrcStr);
+		if (!Self->TestOk("Deserialize NonStructClassRoots", DcAutomationUtils::DeserializeFrom(&Reader, Dest)))
+			return false;
+
+		if (!Self->TestOk("Deserialize NonStructClassRoots", DcAutomationUtils::TestReadDatumEqual(Dest, Expect)))
+			return false;
+
+		return true;
+	};
+
+	UTEST_TRUE("Deserialize NonStructClassRoots",  _CheckDeserializeEqual(
+		this,
+		TEXT(R"(
+			"These are my twisted words"
+		)"),
+		FDcPropertyDatum(StrProp.Get(), &DestStr),
+		FDcPropertyDatum(StrProp.Get(), &ExpectStr)
+		));
+
+	UTEST_TRUE("Deserialize NonStructClassRoots",  _CheckDeserializeEqual(
+		this,
+		TEXT(R"(
+			[
+				0,
+				18446744073709551615
+			]
+		)"),
+		FDcPropertyDatum(U64ArrProp.Get(), &DestU64Arr),
+		FDcPropertyDatum(U64ArrProp.Get(), &ExpectU64Arr)
+		));
+
+	UTEST_TRUE("Deserialize NonStructClassRoots",  _CheckDeserializeEqual(
+		this,
+		TEXT(R"(
+			[
+				{
+					"NameField" : "Foo",
+					"StrField" : "Bar"
+				},
+				{
+					"NameField" : "Doo",
+					"StrField" : "Dar"
+				},
+				{
+					"NameField" : "Goo",
+					"StrField" : "Gar"
+				}
+			]		
+		)"),
+		FDcPropertyDatum(ArrProp.Get(), &DestArr),
+		FDcPropertyDatum(ArrProp.Get(), &ExpectArr)
+		));
+
+	UTEST_TRUE("Deserialize NonStructClassRoots",  _CheckDeserializeEqual(
+		this,
+		TEXT(R"(
+			[
+				"Foo",
+				"Bar",
+				"Tard"
+			]		
+		)"),
+		FDcPropertyDatum(SetProp.Get(), &DestSet),
+		FDcPropertyDatum(SetProp.Get(), &ExpectSet)
+		));
+
+
+	UTEST_TRUE("Deserialize NonStructClassRoots",  _CheckDeserializeEqual(
+		this,
+		TEXT(R"(
+			{
+				"One" : 1,
+				"Two" : 2,
+				"Three" : 3
+			}
+		)"),
+		FDcPropertyDatum(MapProp.Get(), &DestMap),
+		FDcPropertyDatum(MapProp.Get(), &ExpectMap)
+		));
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.Deserialize.NonStringKeyMaps")
+{
+	FString Str = TEXT(R"(
+
+		{
+			"ColorKeyMap" : {
+				"#FF0000FF" : "Red",
+				"#00FF00FF" : "Green",
+				"#0000FFFF" : "Blue"
+			},
+			"EnumFlagsMap" : [
+				{
+					"$key" : [],
+					"$value" : "None"
+				},
+				{
+					"$key" : [
+						"One",
+						"Three"
+					],
+					"$value" : "One | Three"
+				},
+				{
+					"$key" : [
+						"Five"
+					],
+					"$value" : "Five"
+				}
+			]
+		}
+
+	)");
+	FDcJsonReader Reader(Str);
+
+	FDcTestStructMaps Dest;
+	FDcPropertyDatum DestDatum(&Dest);
+
+	FDcTestStructMaps Expect;
+	Expect.MakeFixture();
+
+	FDcPropertyDatum ExpectDatum(&Expect);
+
+	UTEST_OK("Deserialize NonStringKeyMaps", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum, [](FDcDeserializeContext& Ctx){
+		Ctx.Deserializer->AddPredicatedHandler(
+			FDcDeserializePredicate::CreateStatic(DcExtra::PredicateIsColorStruct),
+			FDcDeserializeDelegate::CreateStatic(DcExtra::HandlerColorDeserialize)
+		);
+	}));
+	UTEST_OK("Deserialize NonStringKeyMaps", DcAutomationUtils::TestReadDatumEqual(DestDatum, ExpectDatum));
+
+	return true;
+}
+
+
+DC_TEST("DataConfig.Core.Deserialize.EnumPropertyWithoutEnum")
+{
+	using namespace DcPropertyUtils;
+
+	{
+		//	this happens with BP enum field with stale enum reference
+		uint8 Ch;
+		auto EnumProp = FDcPropertyBuilder::Enum(nullptr, FDcPropertyBuilder::Byte(TEXT("UnderlyingByte"))).LinkOnScope();
+
+		FDcJsonReader Reader(TEXT("3"));
+		UTEST_OK("Deserialize EnumPropertyWithoutEnum", DcAutomationUtils::DeserializeFrom(&Reader, FDcPropertyDatum(EnumProp.Get(), &Ch)));
+		UTEST_EQUAL("Deserialize EnumPropertyWithoutEnum", Ch, 3);
+	}
+
+	{
+		uint8 Ch;
+		auto ByteProp = FDcPropertyBuilder::Byte(nullptr).LinkOnScope();
+
+		FDcJsonReader Reader(TEXT("5"));
+		UTEST_OK("Deserialize EnumPropertyWithoutEnum", DcAutomationUtils::DeserializeFrom(&Reader, FDcPropertyDatum(ByteProp.Get(), &Ch)));
+		UTEST_EQUAL("Deserialize EnumPropertyWithoutEnum", Ch, 5);
+	}
+
+	{
+		uint8 Ch;
+		auto ByteProp = FDcPropertyBuilder::Byte(StaticEnum<EDcTestEnum_UInt8>()).LinkOnScope();
+
+		FDcJsonReader Reader(TEXT("\"Max\""));
+		UTEST_OK("Deserialize EnumPropertyWithoutEnum", DcAutomationUtils::DeserializeFrom(&Reader, FDcPropertyDatum(ByteProp.Get(), &Ch)));
+		UTEST_EQUAL("Deserialize EnumPropertyWithoutEnum", Ch, (uint8)EDcTestEnum_UInt8::Max);
+
+		FDcJsonReader Reader2(TEXT("\"Foo\""));
+		UTEST_DIAG("Deserialize EnumPropertyWithoutEnum", DcAutomationUtils::DeserializeFrom(&Reader2, FDcPropertyDatum(ByteProp.Get(), &Ch)),
+			DcDReadWrite, EnumNameNotFound);
+	}
 
 	return true;
 }

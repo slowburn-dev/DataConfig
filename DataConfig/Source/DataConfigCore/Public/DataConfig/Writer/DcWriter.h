@@ -107,6 +107,9 @@ struct DATACONFIGCORE_API FDcWriter
 
 	template<typename T>
 	T* CastById();
+
+	template<typename T>
+	T* CastByIdChecked();
 };
 
 

@@ -454,8 +454,7 @@ FDcResult TDcJsonReader<CharType>::ReadName(FName* OutPtr)
 		if (ParsedStr.Len() >= NAME_SIZE)
 			return DC_FAIL(DcDReadWrite, FNameOverSize);
 
-		if (OutPtr)
-			*OutPtr = FName(ParsedStr);
+		ReadOut(OutPtr, FName(ParsedStr));
 
 		DC_TRY(EndTopRead());
 		return DcOk();

@@ -21,7 +21,7 @@
 
   - [JSON](Formats/JSON.md)
   - [MsgPack](Formats/MsgPack.md)
-  - [Pipe Property](Formats/PipeProperty.md)
+  - [Property](Formats/Property.md)
 
 - [Extra](Extra/README.md)
 
@@ -30,9 +30,12 @@
   - [WriterAPI](Extra/WriterAPI.md)
   - [JsonConverter](Extra/JsonConverter.md)
   - [AnyStruct](Extra/AnyStruct.md)
+  - [InlineStruct](Extra/InlineStruct.md)
   - [Field Renamer](Extra/FieldRenamer.md)
   - [Property Path](Extra/PropertyPath.md)
+  - [SQLite](Extra/SQLite.md)
   - [Module Setup](Extra/ModuleSetup.md)
+  - [Dump Asset To Log](Extra/DumpAssetToLog.md)
   - [Blueprint](Extra/Blueprint.md)
   - [Gameplay Tag](Extra/GameplayTag.md)
   - [Gameplay Ability](Extra/GameplayAbility.md)
@@ -40,6 +43,7 @@
 - [Advanced](Advanced/README.md)
   - [Benchmark](Advanced/Benchmark.md)
   - [Writing Handlers](Advanced/WritingHandlers.md)
+  - [Non Class/Struct Root](Advanced/NonClassStructRoot.md)
 
 - [Changes](Changes.md)
 

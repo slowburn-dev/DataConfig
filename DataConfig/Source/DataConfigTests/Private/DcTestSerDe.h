@@ -102,6 +102,40 @@ struct FDcTestStructRefs2
 	void MakeFixture();
 };
 
+USTRUCT()
+struct FDcTestStructArrayDimInner1
+{
+	GENERATED_BODY()
 
+	UPROPERTY() FName InnerNameArr[2];
+	UPROPERTY() int InnerIntArr[2];
+};
+
+USTRUCT()
+struct FDcTestStructArrayDim1
+{
+	GENERATED_BODY();
+
+	UPROPERTY() FName NameArr[2];
+	UPROPERTY() FString StringArr[2];
+	UPROPERTY() float FloatArr[2];
+	UPROPERTY() int8 Int8Arr[2];
+	UPROPERTY() EDcTestEnumFlag EnumFlagArr[2];
+	UPROPERTY() FDcTestStructArrayDimInner1 StructArr[2];
+
+	void MakeFixture();	
+};
+
+
+USTRUCT()
+struct FDcTestStructMaps
+{
+	GENERATED_BODY()
+
+	UPROPERTY() TMap<FColor, FString> ColorKeyMap;
+	UPROPERTY() TMap<EDcTestEnumFlag, FString> EnumFlagsMap;
+
+	void MakeFixture();
+};
 
 

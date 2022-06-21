@@ -2,8 +2,12 @@
 
 This is an intermediate example that takes advantage of the flexibility provided by the property system. `FDcAnyStruct` is a struct that stores a heap allocated `USTRUCT` of any type while maintaining value semantic on itself. If you're familiar with the concept of variant type, just think of it as a variant type that supports all `USTRUCT`:
 
+* [DcAnyStruct.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/Types/DcAnyStruct.h)
+* [DcAnyStruct.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Types/DcAnyStruct.cpp)
+
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeAnyStruct.cpp
+// DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeAnyStruct.cpp
 //  instantiate from heap allocated structs
 FDcAnyStruct Any1 = new FDcExtraTestSimpleStruct1();
 Any1.GetChecked<FDcExtraTestSimpleStruct1>()->NameField = TEXT("Foo");
@@ -26,8 +30,11 @@ check(Any1.StructClass == Any2.StructClass);
 
 We then implemented conversion logic between `FDcAnyStruct` and JSON:
 
+* [DcSerDeAnyStruct.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeAnyStruct.h)
+* [DcSerDeAnyStruct.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeAnyStruct.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeAnyStruct.h
+// DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeAnyStruct.h
 USTRUCT()
 struct FDcExtraTestWithAnyStruct1
 {
@@ -38,7 +45,7 @@ struct FDcExtraTestWithAnyStruct1
     UPROPERTY() FDcAnyStruct AnyStructField3;
 };
 
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeAnyStruct.cpp
+// DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeAnyStruct.cpp
 FString Str = TEXT(R"(
     {
         "AnyStructField1" : {

@@ -1,16 +1,17 @@
 #pragma once
 
 #include "DataConfig/DcTypes.h"
+#include "DataConfig/DcEnv.h"
 #include "DataConfig/Writer/DcWriter.h"
 #include "DataConfig/Property/DcPropertyReader.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Serialize/DcSerializeTypes.h"
-#include "DataConfig/Serialize/DcSerializeUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/SerDe/DcSerDeUtils.h"
+#include "DataConfig/Serialize/DcSerializeUtils.h"
 
-FORCEINLINE_DEBUGGABLE FDcResult TryWriteObjectReference(FDcSerializeContext& Ctx, FObjectPropertyBase* ObjectProperty, UObject* Value)
+FORCEINLINE_DEBUGGABLE FDcResult TryWriteObjectReference(FDcSerializeContext& Ctx, FObjectPropertyBase*, UObject* Value)
 {
 	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
 	if (Value == nullptr)
@@ -21,28 +22,10 @@ FORCEINLINE_DEBUGGABLE FDcResult TryWriteObjectReference(FDcSerializeContext& Ct
 	return DcOk();
 }
 
-FORCEINLINE_DEBUGGABLE FDcResult DcSerializeSoftObjectToString(FDcSerializeContext& Ctx)
+FORCEINLINE_DEBUGGABLE FDcResult TryWriteTypeStr(FDcSerializeContext& Ctx, FObjectPropertyBase* ObjectProperty, UObject* Value)
 {
-	FSoftObjectPtr Value;
-	DC_TRY(Ctx.Reader->ReadSoftObjectReference(&Value));
-	DC_TRY(Ctx.Writer->WriteString(Value.ToString()));
-	return DcOk();
-}
-
-FORCEINLINE_DEBUGGABLE FDcResult DcSerializeLazyObjectToString(FDcSerializeContext& Ctx)
-{
-	FLazyObjectPtr Value;
-	DC_TRY(Ctx.Reader->ReadLazyObjectReference(&Value));
-	DC_TRY(Ctx.Writer->WriteString(Value.GetUniqueID().ToString()));
-	return DcOk();
-}
-
-FORCEINLINE_DEBUGGABLE FDcResult DcSerializeSoftClassToString(FDcSerializeContext& Ctx)
-{
-	FSoftObjectPtr Value;
-	DC_TRY(Ctx.Reader->ReadSoftClassReference(&Value));
-	DC_TRY(Ctx.Writer->WriteString(Value.ToString()));
-	return DcOk();
+	check(Value != nullptr);
+	return Ctx.Writer->WriteName(Value->GetClass()->GetFName());
 }
 
 using FDcObjectWriterSignature = FDcResult(*)(FDcSerializeContext&, FObjectPropertyBase*, UObject*);
@@ -95,7 +78,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcSerializeSoftObjectReference(FDcSerializeCont
 
 	FSoftObjectPtr Value;
 	DC_TRY(Ctx.Reader->ReadSoftObjectReference(&Value));
-	DC_TRY(FuncObjectWriter(Ctx, SoftObjectProperty, Value.Get()));
+	DC_TRY(FuncObjectWriter(Ctx, SoftObjectProperty, Value.LoadSynchronous()));
 
 	return DcOk();
 }
@@ -155,11 +138,14 @@ FORCEINLINE_DEBUGGABLE FDcResult DcSerializeSoftClassReference(FDcSerializeConte
 
 	FSoftObjectPtr Value;
 	DC_TRY(Ctx.Reader->ReadSoftClassReference(&Value));
-	DC_TRY(FuncObjectWriter(Ctx, SoftClassProperty, Value.Get()));
+	DC_TRY(FuncObjectWriter(Ctx, SoftClassProperty, Value.LoadSynchronous()));
 
 	return DcOk();
 }
 
+using FDcTypeWriterSignature = FDcResult(*)(FDcSerializeContext&, FObjectPropertyBase*, UObject*);
+
+template<FDcTypeWriterSignature FuncTypeWriter>
 FORCEINLINE_DEBUGGABLE FDcResult DcSerializeInstancedSubObject(FDcSerializeContext& Ctx)
 {
 	FObjectProperty* ObjectProperty = DcPropertyUtils::CastFieldVariant<FObjectProperty>(Ctx.TopProperty());
@@ -201,7 +187,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcSerializeInstancedSubObject(FDcSerializeConte
 		check(SubObjectPtr->IsValidLowLevel());
 		DC_TRY(Ctx.Writer->WriteMapRoot());
 		DC_TRY(Ctx.Writer->WriteString(TEXT("$type")));
-		DC_TRY(Ctx.Writer->WriteName(SubObjectPtr->GetClass()->GetFName()));
+		DC_TRY(FuncTypeWriter(Ctx, ObjectProperty, SubObjectPtr));
 
 		while (true)
 		{
@@ -231,141 +217,5 @@ FORCEINLINE_DEBUGGABLE FDcResult DcSerializeInstancedSubObject(FDcSerializeConte
 
 	DC_TRY(Ctx.Reader->ReadClassEndAccess(Access));
 
-	return DcOk();
-}
-
-FORCEINLINE_DEBUGGABLE FDcResult DcSerializeEnum(FDcSerializeContext& Ctx)
-{
-	UEnum* Enum;
-	FNumericProperty* UnderlyingProperty;
-
-	DC_TRY(DcPropertyUtils::GetEnumProperty(Ctx.TopProperty(), Enum, UnderlyingProperty));
-
-	bool bIsBitFlags;
-#if WITH_METADATA
-	bIsBitFlags = Enum->HasMetaData(TEXT("Bitflags"));
-#else
-	//	Program target is missing `UEnum::HasMetaData`
-	bIsBitFlags = ((UField*)Enum)->HasMetaData(TEXT("Bitflags"));
-#endif
-
-	FDcEnumData Value;
-	DC_TRY(Ctx.Reader->ReadEnum(&Value));
-
-	if (!bIsBitFlags)
-	{
-		int ValueIndex = Enum->GetIndexByValue(Value.Signed64);
-		if (ValueIndex == INDEX_NONE)
-			return DC_FAIL(DcDReadWrite, EnumValueInvalid)
-				<< Enum->GetName() << Value.Signed64;
-
-		DC_TRY(Ctx.Writer->WriteString(Enum->GetNameStringByValue(Value.Signed64)));
-	}
-	else
-	{
-		DC_TRY(Ctx.Writer->WriteArrayRoot());
-
-		int Len = Enum->NumEnums();
-		uint64 Data = Value.Unsigned64;
-		for (int Ix = 0; Ix < Len; Ix++)
-		{
-			int64 Cur = Enum->GetValueByIndex(Ix);
-			int CurPopCount = FPlatformMath::CountBits(Cur);
-			if (CurPopCount == 0)
-				continue;
-
-			if (FPlatformMath::CountBits(Data & Cur) == CurPopCount)
-			{
-				DC_TRY(Ctx.Writer->WriteString(Enum->GetNameStringByIndex(Ix)));
-				Data ^= Cur;
-			}
-		}
-
-		if (Data != 0)
-			return DC_FAIL(DcDSerDe, EnumBitFlagsNotFullyMasked)
-				<< Enum->GetName();
-
-		DC_TRY(Ctx.Writer->WriteArrayEnd());
-	}
-
-	return DcOk();
-}
-
-FORCEINLINE_DEBUGGABLE static FDcResult DcHandlerSerializeStructToMap(FDcSerializeContext& Ctx)
-{
-	DC_TRY(Ctx.Reader->ReadStructRoot());
-	DC_TRY(Ctx.Writer->WriteMapRoot());
-
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-
-		if (CurPeek == EDcDataEntry::StructEnd)
-		{
-			break;
-		}
-		else if (CurPeek == EDcDataEntry::Name)
-		{
-			FName Value;
-			DC_TRY(Ctx.Reader->ReadName(&Value));
-			DC_TRY(Ctx.Writer->WriteName(Value));
-		}
-		else
-		{
-			return DC_FAIL(DcDSerDe, DataEntryMismatch)
-				<< EDcDataEntry::Name << CurPeek;
-		}
-
-		DC_TRY(DcSerializeUtils::RecursiveSerialize(Ctx));
-	}
-
-	DC_TRY(Ctx.Reader->ReadStructEnd());
-	DC_TRY(Ctx.Writer->WriteMapEnd());
-
-	return DcOk();
-}
-
-FORCEINLINE_DEBUGGABLE static FDcResult DcHandlerSerializeClassToMap(FDcSerializeContext& Ctx)
-{
-	FDcClassAccess Access{FDcClassAccess::EControl::ExpandObject};
-	DC_TRY(Ctx.Reader->ReadClassRootAccess(Access));
-	DC_TRY(Ctx.Writer->WriteMapRoot());
-
-
-	EDcDataEntry CurPeek;
-	while (true)
-	{
-		DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-		if (CurPeek == EDcDataEntry::ClassEnd)
-		{
-			break;
-		}
-		else if (CurPeek == EDcDataEntry::Name)
-		{
-			FName Value;
-			DC_TRY(Ctx.Reader->ReadName(&Value));
-			DC_TRY(Ctx.Writer->WriteName(Value));
-		}
-		else
-		{
-			return DC_FAIL(DcDSerDe, DataEntryMismatch)
-				<< EDcDataEntry::Name << CurPeek;
-		}
-
-		DC_TRY(DcSerializeUtils::RecursiveSerialize(Ctx));
-	}
-
-	DC_TRY(Ctx.Reader->ReadClassEndAccess(Access));
-	DC_TRY(Ctx.Writer->WriteMapEnd());
-
-	return DcOk();
-}
-
-FORCEINLINE_DEBUGGABLE static FDcResult DcSerializeFieldPathToString(FDcSerializeContext& Ctx)
-{
-	FFieldPath Value;
-	DC_TRY(Ctx.Reader->ReadFieldPath(&Value));
-	DC_TRY(Ctx.Writer->WriteString(Value.ToString()));
 	return DcOk();
 }

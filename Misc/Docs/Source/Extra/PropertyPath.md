@@ -4,8 +4,11 @@ This example demonstrates that `FReader/FWriter` can be used standalone, without
 
 UE built-in module [`PropertyPath`][1] allow accessing nested object properties by a path like `Foo.Bar.Baz`:
 
+* [DcPropertyPathAccess.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/Types/DcPropertyPathAccess.h)
+* [DcPropertyPathAccess.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
 FString Str;
 UTEST_TRUE("...", PropertyPathHelpers::GetPropertyValue(Outer, TEXT("StructRoot.Middle.InnerMost.StrField"), Str));
 UTEST_TRUE("...", Str == TEXT("Foo"));
@@ -17,7 +20,7 @@ UTEST_TRUE("...", Outer->StructRoot.Middle.InnerMost.StrField == TEXT("Bar"));
 We implemented a pair of methods `DcExtra::GetDatumPropertyByPath/SetDatumPropertyByPath` with `FDcPropertyReader`:
 
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Types/DcPropertyPathAccess.cpp
 UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Middle.InnerMost.StrField"), TEXT("Foo")));
 UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.0.StrField"), TEXT("Bar0")));
 UTEST_TRUE("...", CheckStrPtr(GetDatumPropertyByPath<FString>(FDcPropertyDatum(Outer), "StructRoot.Arr.1.StrField"), TEXT("Bar1")));

@@ -9,7 +9,7 @@
 namespace DcPropertyUtils
 {
 
-FName DC_META_SKIP = FName(TEXT("DcSkip"));
+const FName DC_META_SKIP = FName(TEXT("DcSkip"));
 
 bool IsScalarProperty(FField* Property)
 {
@@ -21,6 +21,19 @@ bool IsScalarProperty(FField* Property)
 		|| Property->IsA<FSetProperty>();
 
 	return !bIsCompound;
+}
+
+bool IsScalarArray(FField* Property)
+{
+	return CastFieldChecked<FProperty>(Property)->ArrayDim > 1;
+}
+
+bool IsScalarArray(FFieldVariant Property)
+{
+	if (Property.IsUObject())
+		return false;
+	else
+		return IsScalarArray(Property.ToFieldUnsafe());
 }
 
 void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
@@ -47,6 +60,12 @@ void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
 	Visitor(FStructProperty::StaticClass());
 	Visitor(FClassProperty::StaticClass());
 	Visitor(FObjectProperty::StaticClass());
+
+#if ENGINE_MAJOR_VERSION == 5
+	Visitor(FClassPtrProperty::StaticClass());
+	Visitor(FObjectPtrProperty::StaticClass());
+#endif //ENGINE_MAJOR_VERSION == 5
+
 	Visitor(FMapProperty::StaticClass());
 	Visitor(FArrayProperty::StaticClass());
 	Visitor(FSetProperty::StaticClass());
@@ -198,6 +217,28 @@ EDcDataEntry PropertyToDataEntry(FField* Property)
 	return EDcDataEntry::Ended;
 }
 
+FString FormatArrayTypeName(FProperty* InnerProperty)
+{
+	return FString::Printf(TEXT("TArray<%s>"),
+		*GetFormatPropertyTypeName(InnerProperty)
+	);
+}
+
+FString FormatSetTypeName(FProperty* InnerProperty)
+{
+	return FString::Printf(TEXT("TSet<%s>"),
+		*GetFormatPropertyTypeName(InnerProperty)
+	);
+}
+
+FString FormatMapTypeName(FProperty* KeyProperty, FProperty* ValueProperty)
+{
+	return FString::Printf(TEXT("TMap<%s, %s>"),
+		*GetFormatPropertyTypeName(KeyProperty),
+		*GetFormatPropertyTypeName(ValueProperty)
+	);
+}
+
 EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field)
 {
 	check(Field.IsValid());
@@ -252,7 +293,10 @@ FString GetFormatPropertyTypeName(FField* Property)
 
 	if (FEnumProperty* EnumProperty = CastField<FEnumProperty>(Property))
 	{
-		return FString::Printf(TEXT("E%s"), *EnumProperty->GetEnum()->GetName());
+		UEnum* Enum = EnumProperty->GetEnum();
+		return Enum
+			? FString::Printf(TEXT("E%s"), *(EnumProperty->GetEnum()->GetName()))
+			: TEXT("<Null Enum>");
 	}
 
 	if (FStructProperty* StructField = CastField<FStructProperty>(Property))
@@ -267,23 +311,17 @@ FString GetFormatPropertyTypeName(FField* Property)
 
 	if (FMapProperty* MapProperty = CastField<FMapProperty>(Property))
 	{
-		return FString::Printf(TEXT("TMap<%s, %s>"),
-			*GetFormatPropertyTypeName(MapProperty->KeyProp),
-			*GetFormatPropertyTypeName(MapProperty->ValueProp)
-		);
+		return FormatMapTypeName(MapProperty->KeyProp, MapProperty->ValueProp);
 	}
+
 	if (FArrayProperty* ArrayProperty = CastField<FArrayProperty>(Property))
 	{
-		return FString::Printf(TEXT("TArray<%s>"),
-			*GetFormatPropertyTypeName(ArrayProperty->Inner)
-		);
+		return FormatArrayTypeName(ArrayProperty->Inner);
 	}
 
 	if (FSetProperty* SetProperty = CastField<FSetProperty>(Property))
 	{
-		return FString::Printf(TEXT("TSet<%s>"),
-			*GetFormatPropertyTypeName(SetProperty->ElementProp)
-			);
+		return FormatSetTypeName(SetProperty->ElementProp);
 	}
 
 	if (FWeakObjectProperty* WeakProperty = CastField<FWeakObjectProperty>(Property))
@@ -369,9 +407,8 @@ FString GetFormatPropertyTypeName(const FFieldVariant& Field)
 bool IsSubObjectProperty(FObjectProperty* ObjectProperty)
 {
 	//	check `UPROPERTY(Instanced)`
-	return ObjectProperty->HasAnyPropertyFlags(CPF_InstancedReference)
-	//	check UCLASS(DefaultToInstanced, EditInlineNew)
-		|| ObjectProperty->PropertyClass->HasAnyClassFlags(CLASS_EditInlineNew | CLASS_DefaultToInstanced);
+	//	note that `UCLASS(DefaultToInstanced)` would auto mark this
+	return ObjectProperty->HasAnyPropertyFlags(CPF_InstancedReference);
 }
 
 bool IsUnsignedProperty(FNumericProperty* NumericProperty)
@@ -418,13 +455,13 @@ UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant)
 	}
 }
 
-bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
+bool IsEnumAndTryUnwrapEnum(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
 {
 	if (FEnumProperty* EnumProperty = CastFieldVariant<FEnumProperty>(Field))
 	{
 		OutNumeric = EnumProperty->GetUnderlyingProperty();
 		OutEnum = EnumProperty->GetEnum();
-		return true;
+		return OutNumeric != nullptr;
 	}
 	else if (FNumericProperty* NumericProperty = CastFieldVariant<FNumericProperty>(Field))
 	{
@@ -432,30 +469,14 @@ bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumeric
 		{
 			OutNumeric = NumericProperty;
 			OutEnum = OutNumeric->GetIntPropertyEnum();
-			check(OutEnum);
 			return true;
 		}
-		else
-		{
-			return false;
-		}
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
 
-FDcResult GetEnumProperty(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric)
-{
-	return TryGetEnumPropertyOut(Field, OutEnum, OutNumeric)
-		? DcOk()
-		: DC_FAIL(DcDReadWrite, PropertyMismatch2)
-			<< TEXT("EnumProperty")  << TEXT("<NumericProperty with Enum>")
-			<< Field.GetFName() << Field.GetClassName();
-}
-
-bool HeuristicIsPointerInvalid(void* Ptr)
+bool HeuristicIsPointerInvalid(const void* Ptr)
 {
 	//	It's too easy to run into uninitialized pointers that leads to crash, especially when dealing with FStructs.
 	//	So instead we decided to do a heuristic pointer memory pattern check when `DC_BUILD_DEBUG=1`
@@ -497,7 +518,7 @@ bool HeuristicIsPointerInvalid(void* Ptr)
 	return bInvalid;
 }
 
-FDcResult HeuristicVerifyPointer(void* Ptr)
+FDcResult HeuristicVerifyPointer(const void* Ptr)
 {
 #if DC_BUILD_DEBUG
 	if (HeuristicIsPointerInvalid(Ptr))
@@ -540,4 +561,166 @@ UStruct* TryGetStruct(const FDcPropertyDatum& Datum)
 {
 	return TryGetStruct(Datum.Property);
 }
+
+const FName DC_TRANSIENT_PROPERTY = FName(TEXT("DcPropertyBuilderTransientProperty"));
+
+FDcPropertyBuilder FDcPropertyBuilder::Make(
+	FFieldClass* PropertyClass, 
+	const FName InName,
+	FFieldVariant InOuter
+)
+{
+	FDcPropertyBuilder Ret;
+	Ret.Property = CastFieldChecked<FProperty>(PropertyClass->Construct(InOuter, InName, RF_NoFlags));
+	Ret.Property->ArrayDim = 1;
+	return Ret;
+}
+
+FDcPropertyBuilder& FDcPropertyBuilder::ArrayDim(int InArrayDim)
+{
+	Property->ArrayDim = InArrayDim;
+	return *this;
+}
+
+void FDcPropertyBuilder::Link()
+{
+	FArchive Ar;
+	Property->LinkWithoutChangingOffset(Ar);
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Object(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FObjectProperty>(InName, InOuter);
+	Ret.As<FObjectProperty>()->SetPropertyClass(InClass);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Class(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FClassProperty>(InName, InOuter);
+	Ret.As<FClassProperty>()->SetPropertyClass(UClass::StaticClass());
+	Ret.As<FClassProperty>()->SetMetaClass(InClass);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Struct(UScriptStruct* InStruct, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FStructProperty>(InName, InOuter);
+	Ret.As<FStructProperty>()->Struct = InStruct;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::SoftObject(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FSoftObjectProperty>(InName, InOuter);
+	Ret.As<FSoftObjectProperty>()->SetPropertyClass(InClass);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::SoftClass(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FSoftClassProperty>(InName, InOuter);
+	Ret.As<FSoftClassProperty>()->SetPropertyClass(UClass::StaticClass());
+	Ret.As<FSoftClassProperty>()->SetMetaClass(InClass);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::LazyObject(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FLazyObjectProperty>(InName, InOuter);
+	Ret.As<FLazyObjectProperty>()->SetPropertyClass(InClass);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Delegate(UFunction* InFunction, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FDelegateProperty>(InName, InOuter);
+	Ret.As<FDelegateProperty>()->SignatureFunction = InFunction;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::MulticastInlineDelegate(UDelegateFunction* InFunction, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FMulticastInlineDelegateProperty>(InName, InOuter);
+	Ret.As<FMulticastInlineDelegateProperty>()->SignatureFunction = InFunction;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::MulticastSparseDelegate(USparseDelegateFunction* InFunction, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FMulticastSparseDelegateProperty>(InName, InOuter);
+	Ret.As<FMulticastSparseDelegateProperty>()->SignatureFunction = InFunction;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Enum(UEnum* InEnum, FProperty* InUnderlying, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FEnumProperty>(InName, InOuter);
+	FEnumProperty* EnumProp = Ret.As<FEnumProperty>();
+
+	EnumProp->SetEnum(InEnum);
+	InUnderlying->Owner = EnumProp;
+	EnumProp->AddCppProperty(InUnderlying);
+
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Enum(UEnum* InEnum, const FName InName, FFieldVariant InOuter)
+{
+	return Enum(InEnum, new FByteProperty(InEnum, TEXT("UnderlyingType"), RF_NoFlags), InName, InOuter);
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Byte(UEnum* InEnum, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FByteProperty>(InName, InOuter);
+	Ret.As<FByteProperty>()->Enum = InEnum;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Bool(uint32 InSize, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FBoolProperty>(InName, InOuter);
+	Ret.As<FBoolProperty>()->SetBoolSize(InSize, true);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Array(FProperty* InInner, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FArrayProperty>(InName, InOuter);
+	Ret.As<FArrayProperty>()->Inner = InInner;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Set(FProperty* InInner, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FSetProperty>(InName, InOuter);
+	Ret.As<FSetProperty>()->ElementProp = InInner;
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::Map(FProperty* InKey, FProperty* InValue, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FMapProperty>(InName, InOuter);
+	Ret.As<FMapProperty>()->KeyProp = InKey;
+	Ret.As<FMapProperty>()->ValueProp = InValue;
+	return Ret;
+}
+
+#if ENGINE_MAJOR_VERSION == 5
+FDcPropertyBuilder FDcPropertyBuilder::ObjectPtr(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FObjectPtrProperty>(InName, InOuter);
+	Ret.As<FObjectPtrProperty>()->SetPropertyClass(InClass);
+	return Ret;
+}
+
+FDcPropertyBuilder FDcPropertyBuilder::ClassPtr(UClass* InClass, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FClassPtrProperty>(InName, InOuter);
+	Ret.As<FClassPtrProperty>()->SetPropertyClass(UClass::StaticClass());
+	Ret.As<FClassPtrProperty>()->SetMetaClass(InClass);
+	return Ret;
+}
+#endif // ENGINE_MAJOR_VERSION == 5
+
 }	// namespace DcPropertyUtils

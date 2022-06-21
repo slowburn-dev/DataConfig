@@ -3,6 +3,7 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyStatesCommon.h"
 #include "DataConfig/Property/DcPropertyDatum.h"
+#include "DataConfig/Property/DcPropertyUtils.h"
 #include "UObject/UnrealType.h"
 
 enum class EDcPropertyWriteType
@@ -17,18 +18,19 @@ enum class EDcPropertyWriteType
 };
 
 enum class EDcDataEntry : uint16;
+struct FDcPropertyWriter;
 
 struct FDcBaseWriteState
 {
 	virtual EDcPropertyWriteType GetType() = 0;
 
-	virtual FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk);
-	virtual FDcResult WriteName(const FName& Value);
-	virtual FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
-	virtual FDcResult SkipWrite();
-	virtual FDcResult PeekWriteProperty(FFieldVariant* OutProperty);
+	virtual FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk);
+	virtual FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value);
+	virtual FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FDcResult SkipWrite(FDcPropertyWriter* Parent);
+	virtual FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty);
 
-	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
+	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) = 0;
 
 	template<typename T>
 	T* As();
@@ -55,7 +57,7 @@ struct FDcWriteStateNil : public FDcBaseWriteState
 	FDcWriteStateNil() = default;
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -88,14 +90,14 @@ struct FDcWriteStateStruct : public FDcBaseWriteState
 	}
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
-	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
 
-	FDcResult WriteStructRootAccess(FDcStructAccess& Access);
-	FDcResult WriteStructEndAccess(FDcStructAccess& Access);
+	FDcResult WriteStructRootAccess(FDcPropertyWriter* Parent, FDcStructAccess& Access);
+	FDcResult WriteStructEndAccess(FDcPropertyWriter* Parent, FDcStructAccess& Access);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -157,16 +159,16 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	}
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
-	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
 
-	FDcResult WriteNil();
-	FDcResult WriteClassRootAccess(FDcClassAccess& Access);
-	FDcResult WriteClassEndAccess(FDcClassAccess& Access);
-	FDcResult WriteObjectReference(const UObject* Value);
+	FDcResult WriteNil(FDcPropertyWriter* Parent);
+	FDcResult WriteClassRootAccess(FDcPropertyWriter* Parent, FDcClassAccess& Access);
+	FDcResult WriteClassEndAccess(FDcPropertyWriter* Parent, FDcClassAccess& Access);
+	FDcResult WriteObjectReference(FDcPropertyWriter* Parent, const UObject* Value);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -175,10 +177,6 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::MapProperty;
 
-	void* MapPtr;
-	FMapProperty* MapProperty;
-	int32 Index;
-
 	enum class EState : uint8
 	{
 		ExpectRoot,
@@ -186,28 +184,37 @@ struct FDcWriteStateMap : public FDcBaseWriteState
 		ExpectValue,
 		Ended
 	};
-	EState State;
+	EState State = EState::ExpectRoot;
+	bool bNeedsRehash = false;
+	int32 Index = 0;
 
-	bool bNeedsRehash;
+	FName MapName;
+	FScriptMapHelper MapHelper;
+	FMapProperty* MapProperty;
 
 	FDcWriteStateMap(void* InMapPtr, FMapProperty* InMapProperty)
+		: MapHelper(InMapProperty, InMapPtr)
 	{
-		MapPtr = InMapPtr;
+		MapName = InMapProperty->GetFName();	
 		MapProperty = InMapProperty;
-		Index = 0;
-		State = EState::ExpectRoot;
-		bNeedsRehash = false;
+	}
+
+	FDcWriteStateMap(FProperty* InKeyProperty, FProperty* InValueProperty, void* InMapPtr, EMapPropertyFlags InMapFlags)
+		: MapHelper(FScriptMapHelper::CreateHelperFormInnerProperties(InKeyProperty, InValueProperty, InMapPtr, InMapFlags))
+	{
+		MapName = DC_TRANSIENT_MAP;
+		MapProperty = nullptr;
 	}
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
-	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
 
-	FDcResult WriteMapRoot();
-	FDcResult WriteMapEnd();
+	FDcResult WriteMapRoot(FDcPropertyWriter* Parent);
+	FDcResult WriteMapEnd(FDcPropertyWriter* Parent);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -216,35 +223,42 @@ struct FDcWriteStateArray : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ArrayProperty;
 
-	void* ArrayPtr;
-	FArrayProperty* ArrayProperty;
-	int32 Index;
-
 	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectItemOrEnd,
 		Ended,
 	};
-	EState State;
+	EState State = EState::ExpectRoot;
+	int32 Index = 0;
+
+	FName ArrayName;
+	FScriptArrayHelper ArrayHelper;
+	FArrayProperty* ArrayProperty;
 
 	FDcWriteStateArray(void* InArrayPtr, FArrayProperty* InArrayProperty)
+		: ArrayHelper(InArrayProperty, InArrayPtr)
 	{
-		ArrayPtr = InArrayPtr;
+		ArrayName = InArrayProperty->GetFName();
 		ArrayProperty = InArrayProperty;
-		State = EState::ExpectRoot;
-		Index = 0;
+	}
+
+	FDcWriteStateArray(FProperty* InInnerProperty, void* InArray, EArrayPropertyFlags InArrayFlags)
+		: ArrayHelper(FScriptArrayHelper::CreateHelperFormInnerProperty(InInnerProperty, InArray, InArrayFlags))
+	{
+		ArrayName = DC_TRANSIENT_ARRAY;
+		ArrayProperty = nullptr;
 	}
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
-	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
 
-	FDcResult WriteArrayRoot();
-	FDcResult WriteArrayEnd();
+	FDcResult WriteArrayRoot(FDcPropertyWriter* Parent);
+	FDcResult WriteArrayEnd(FDcPropertyWriter* Parent);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -253,38 +267,43 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 {
 	static const EDcPropertyWriteType ID = EDcPropertyWriteType::SetProperty;
 
-	void *SetPtr;
-	FSetProperty* SetProperty;
-	int32 Index;
-
 	enum class EState : uint8
 	{
 		ExpectRoot,
 		ExpectItemOrEnd,
 		Ended,
 	};
-	EState State;
+	EState State = EState::ExpectRoot;
+	bool bNeedsRehash = false;
+	int32 Index = 0;
 
-	bool bNeedsRehash;
+	FName SetName;
+	FScriptSetHelper SetHelper;
+	FSetProperty* SetProperty;
 
 	FDcWriteStateSet(void* InSetPtr, FSetProperty* InSetProperty)
+		: SetHelper(InSetProperty, InSetPtr)
 	{
-		SetPtr = InSetPtr;
+		SetName = InSetProperty->GetFName();
 		SetProperty = InSetProperty;
-		State = EState::ExpectRoot;
-		Index = 0;
-		bNeedsRehash = false;
+	}
+
+	FDcWriteStateSet(FProperty* InInnerProperty, void* InSet)
+		: SetHelper(FScriptSetHelper::CreateHelperFormElementProperty(InInnerProperty, InSet))
+	{
+		SetName = DC_TRANSIENT_SET;
+		SetProperty = nullptr;
 	}
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
-	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
 
-	FDcResult WriteSetRoot();
-	FDcResult WriteSetEnd();
+	FDcResult WriteSetRoot(FDcPropertyWriter* Parent);
+	FDcResult WriteSetEnd(FDcPropertyWriter* Parent);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -292,29 +311,57 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 
 struct FDcWriteStateScalar : public FDcBaseWriteState
 {
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::ScalarProperty;
+
 	enum class EState : uint16
 	{
-		ExpectWrite,
+		//	ArrayDim == 1
+		ExpectScalar,
+
+		//	ArrayDim > 1
+		ExpectArrayRoot,
+		ExpectArrayItem,
+		ExpectArrayEnd,
+
 		Ended,
 	};
 	EState State;
+	int32 Index;
 
-	FField* ScalarField;
+	FProperty* ScalarField;
 	void* ScalarPtr;
 
-	FDcWriteStateScalar(void* InPtr, FField* InField)
+	enum EArrayScalar { Array };
+
+	FDcWriteStateScalar(void* InPtr, FProperty* InField)
 	{
-		State = EState::ExpectWrite;
 		ScalarField = InField;
 		ScalarPtr = InPtr;
+		Index = 0;
+
+		State = ScalarField->ArrayDim > 1
+			? EState::ExpectArrayRoot
+			: EState::ExpectScalar;
+	}
+
+	FDcWriteStateScalar(EArrayScalar, void* InPtr, FProperty* InField)
+	{
+		check(DcPropertyUtils::IsScalarArray(InField));
+		ScalarField = InField;
+		ScalarPtr = InPtr;
+		State = EState::ExpectArrayRoot;
+		Index = 0;
 	}
 
 	EDcPropertyWriteType GetType() override;
-	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
-	FDcResult WriteName(const FName& Value) override;
-	FDcResult WriteDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult SkipWrite() override;
-	FDcResult PeekWriteProperty(FFieldVariant* OutProperty) override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
+
+	FDcResult WriteArrayRoot(FDcPropertyWriter* Parent);
+	FDcResult WriteArrayEnd(FDcPropertyWriter* Parent);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
@@ -327,10 +374,10 @@ FORCEINLINE void WritePropertyValueConversion(FField* Property, void* Ptr, const
 }
 
 template<typename TProperty, typename TValue>
-FDcResult WriteValue(FDcBaseWriteState& State, const TValue& Value)
+FDcResult WriteValue(FDcPropertyWriter* Parent, FDcBaseWriteState& State, const TValue& Value)
 {
 	FDcPropertyDatum Datum;
-	DC_TRY(State.WriteDataEntry(TProperty::StaticClass(), Datum));
+	DC_TRY(State.WriteDataEntry(Parent, TProperty::StaticClass(), Datum));
 
 	check(!Datum.Property.IsUObject());
 	WritePropertyValueConversion<TProperty, TValue>(Datum.Property.ToFieldUnsafe(), Datum.DataPtr, Value);

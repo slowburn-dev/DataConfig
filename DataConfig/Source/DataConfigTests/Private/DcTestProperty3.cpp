@@ -25,7 +25,7 @@ DC_TEST("DataConfig.Core.Property.TObjectPtr")
 	FDcPropertyDatum SourceDatum(TBaseStructure<FTestUninitializedScriptStructMembersTest>::Get(), &Source);
 	FDcPropertyDatum DestDatum(TBaseStructure<FTestUninitializedScriptStructMembersTest>::Get(), &Dest);
 
-	UTEST_OK("FTestUninitializedScriptStructMembersTest roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FTestUninitializedScriptStructMembersTest roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 	UTEST_OK("FTestUninitializedScriptStructMembersTest roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	//	compile checks
@@ -55,7 +55,7 @@ DC_TEST("DataConfig.Core.Property.FLargeWorldCoordinates")
 	FDcPropertyDatum SourceDatum(TBaseStructure<FVector>::Get(), &Source);
 	FDcPropertyDatum DestDatum(TBaseStructure<FVector>::Get(), &Dest);
 
-	UTEST_OK("FVector roundtrip", DcTestPropertyRoundtrip(this, SourceDatum, DestDatum));
+	UTEST_OK("FVector roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 	UTEST_OK("FVector roundtrip equal", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
 	UTEST_TRUE("FVector X", Dest.X == 1.5f);
@@ -65,7 +65,7 @@ DC_TEST("DataConfig.Core.Property.FLargeWorldCoordinates")
 	return true;
 }
 
-#endif
+#endif //ENGINE_MAJOR_VERSION == 5
 
 DC_TEST("DataConfig.Core.Property.DcMetaSkip")
 {

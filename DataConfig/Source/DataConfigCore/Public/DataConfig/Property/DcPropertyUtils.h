@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Runtime/Launch/Resources/Version.h"
 #include "DataConfig/DcTypes.h"
 #include "UObject/UnrealType.h"
 #include "Templates/Function.h"
+#include "UObject/TextProperty.h"
 
 enum class EDcDataEntry : uint16;
 struct FDcPropertyDatum;
@@ -10,7 +12,7 @@ struct FDcPropertyDatum;
 namespace DcPropertyUtils
 {
 
-extern FName DC_META_SKIP;
+DATACONFIGCORE_API extern const FName DC_META_SKIP;
 
 FORCEINLINE bool IsEffectiveProperty(FProperty* Property)
 {
@@ -29,6 +31,8 @@ FORCEINLINE bool IsEffectiveProperty(FProperty* Property)
 }
 
 DATACONFIGCORE_API bool IsScalarProperty(FField* Property);
+DATACONFIGCORE_API bool IsScalarArray(FField* Property);
+DATACONFIGCORE_API bool IsScalarArray(FFieldVariant Property);
 DATACONFIGCORE_API void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor);
 
 DATACONFIGCORE_API FProperty* NextEffectiveProperty(FProperty* Property);
@@ -41,10 +45,15 @@ DATACONFIGCORE_API FDcResult FindEffectivePropertyByOffset(UStruct* Struct, size
 DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(const FFieldVariant& Field);
 DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(FField* Property);
 
+DATACONFIGCORE_API FString FormatArrayTypeName(FProperty* InnerProperty);
+DATACONFIGCORE_API FString FormatSetTypeName(FProperty* InnerProperty);
+DATACONFIGCORE_API FString FormatMapTypeName(FProperty* KeyProperty, FProperty* ValueProperty);
+
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(FField* Property);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(UScriptStruct* Struct);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(UClass* Class);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field);
+
 
 DATACONFIGCORE_API bool IsSubObjectProperty(FObjectProperty* ObjectProperty);
 DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);
@@ -55,11 +64,10 @@ DATACONFIGCORE_API UScriptStruct* TryGetStructClass(FFieldVariant& FieldVariant)
 DATACONFIGCORE_API UStruct* TryGetStruct(const FFieldVariant& FieldVariant);
 DATACONFIGCORE_API UStruct* TryGetStruct(const FDcPropertyDatum& Datum);
 
-DATACONFIGCORE_API bool TryGetEnumPropertyOut(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
-DATACONFIGCORE_API FDcResult GetEnumProperty(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
+DC_NODISCARD DATACONFIGCORE_API bool IsEnumAndTryUnwrapEnum(const FFieldVariant& Field, UEnum*& OutEnum, FNumericProperty*& OutNumeric);
 
-DATACONFIGCORE_API bool HeuristicIsPointerInvalid(void* Ptr);
-DATACONFIGCORE_API FDcResult HeuristicVerifyPointer(void* Ptr);
+DATACONFIGCORE_API bool HeuristicIsPointerInvalid(const void* Ptr);
+DATACONFIGCORE_API FDcResult HeuristicVerifyPointer(const void* Ptr);
 
 FORCEINLINE FString SafeNameToString(const FName& Value)
 {
@@ -111,6 +119,8 @@ struct TIsInPropertyMap
 	enum { Value = sizeof(Test<T>(0)) - 1 };
 };
 
+
+
 template<typename T>
 FORCEINLINE T* CastFieldVariant(const FFieldVariant& FieldVariant)
 {
@@ -129,5 +139,89 @@ FORCEINLINE UScriptStruct* CastFieldVariant<UScriptStruct>(const FFieldVariant& 
 {
 	return ::Cast<UScriptStruct>(FieldVariant.ToUObject());
 }
+
+DATACONFIGCORE_API extern const FName DC_TRANSIENT_PROPERTY;
+
+struct DATACONFIGCORE_API FDcPropertyBuilder
+{
+	FProperty* Property;
+
+	template<typename TProperty>
+	FORCEINLINE TProperty* As() { return CastFieldChecked<TProperty>(Property); }
+
+	FORCEINLINE operator FProperty*() { return Property; }
+
+	static FDcPropertyBuilder Make( FFieldClass* PropertyClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr );
+
+	template<typename TProperty>
+	static FDcPropertyBuilder Make( const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make(TProperty::StaticClass(), InName, InOuter); }
+
+	FORCEINLINE static FDcPropertyBuilder Int8(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FInt8Property>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder Int16(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FInt16Property>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder Int(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FIntProperty>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder Int64(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FInt64Property>(InName, InOuter); }
+
+	FORCEINLINE static FDcPropertyBuilder Byte(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FByteProperty>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder UInt16(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FUInt16Property>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder UInt32(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FUInt32Property>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder UInt64(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FUInt64Property>(InName, InOuter); }
+
+	FORCEINLINE static FDcPropertyBuilder Float(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FFloatProperty>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder Double(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FDoubleProperty>(InName, InOuter); }
+
+	FORCEINLINE static FDcPropertyBuilder Name(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FNameProperty>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder Str(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FStrProperty>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder Text(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FTextProperty>(InName, InOuter); }
+	FORCEINLINE static FDcPropertyBuilder FieldPath(const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr) { return Make<FFieldPathProperty>(InName, InOuter); }
+
+	static FDcPropertyBuilder Object(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Class(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Struct(UScriptStruct* InStruct, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder SoftObject(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder SoftClass(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder LazyObject(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Delegate(UFunction* InFunction, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder MulticastInlineDelegate(UDelegateFunction* InFunction, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder MulticastSparseDelegate(USparseDelegateFunction* InFunction, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+
+	static FDcPropertyBuilder Enum(UEnum* InEnum, FProperty* InUnderlying, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Enum(UEnum* InEnum, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Byte(UEnum* InEnum, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Bool(uint32 InSize = sizeof(bool), const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+
+	static FDcPropertyBuilder Array(FProperty* InInner, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Set(FProperty* InInner, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder Map(FProperty* InKey, FProperty* InValue, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+
+#if ENGINE_MAJOR_VERSION == 5
+	static FDcPropertyBuilder ObjectPtr(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+	static FDcPropertyBuilder ClassPtr(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+#endif // ENGINE_MAJOR_VERSION == 5
+
+	FDcPropertyBuilder& ArrayDim(int InArrayDim);
+
+	void Link();
+
+	FORCEINLINE TUniquePtr<FProperty> LinkOnScope()
+	{
+		Link();
+		return TUniquePtr<FProperty>(Property);
+	}
+
+	template<typename TProperty>
+	TProperty* LinkAndCast()
+	{
+		Link();
+		return CastFieldChecked<TProperty>(Property);
+	}
+
+	template<typename TProperty>
+	TUniquePtr<TProperty> LinkAndCastOnScope()
+	{
+		Link();
+		return TUniquePtr<TProperty>(CastFieldChecked<TProperty>(Property));
+	}
+};
+
 }	// namespace DcPropertyUtils
 

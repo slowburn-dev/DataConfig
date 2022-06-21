@@ -24,7 +24,7 @@ DC_TEST("DataConfig.EditorExtra.Serialize.ObjectReference2")
 	FDcPropertyDatum Datum(&Value);
 	FDcJsonWriter Writer;
 
-	FString ExpectStr = DcReindentStringLiteral(TEXT(R"(
+	FString ExpectStr = DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		{
 			"ObjField1" : "DcEditorExtraNativeDataAsset'/DataConfig/DcFixture/DcTestNativeDataAssetAlpha.DcTestNativeDataAssetAlpha'",
@@ -36,7 +36,7 @@ DC_TEST("DataConfig.EditorExtra.Serialize.ObjectReference2")
 	)"));
 
 	UTEST_OK("Serialize FDcEditorExtraTestObjectRefs1 into Json", DcAutomationUtils::SerializeInto(&Writer, Datum));
-	Writer.Sb.Append(TCHAR('\n'));
+	Writer.Sb << TCHAR('\n');
 	UTEST_EQUAL("Serialize FDcEditorExtraTestObjectRefs1 into Json", Writer.Sb.ToString(), ExpectStr);
 
 	return true;

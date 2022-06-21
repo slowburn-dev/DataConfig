@@ -15,7 +15,7 @@ void FDcAnyStruct::AnyStructReferenceController::DestroyObject()
 	FMemory::Free(DataPtr);
 }
 
-FORCENOINLINE void FDcAnyStruct::DebugDump()
+void FDcAnyStruct::DebugDump()
 {
 	FString Dumped = DcAutomationUtils::DumpFormat(FDcPropertyDatum(StructClass, DataPtr));
 	FPlatformMisc::LowLevelOutputDebugString(*Dumped);

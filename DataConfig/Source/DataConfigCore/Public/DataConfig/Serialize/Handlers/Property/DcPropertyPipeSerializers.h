@@ -6,8 +6,6 @@
 
 namespace DcPropertyPipeHandlers {
 
-DATACONFIGCORE_API FDcResult HandlerScalarSerialize(FDcSerializeContext& Ctx);
-DATACONFIGCORE_API FDcResult HandlerArraySerialize(FDcSerializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerSetSerialize(FDcSerializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerMapSerialize(FDcSerializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerStructSerialize(FDcSerializeContext& Ctx);

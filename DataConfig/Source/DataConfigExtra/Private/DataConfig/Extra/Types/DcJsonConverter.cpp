@@ -11,6 +11,7 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/Serialize/DcSerializeUtils.h"
+#include "DataConfig/Extra/Misc/DcTestCommon.h"
 
 #include "JsonObjectConverter.h"
 
@@ -203,6 +204,8 @@ DC_TEST("DataConfig.Extra.JsonConverterBlurb")
 
 		FString name = m.Name;
 		// Bad Boys
+
+		(void)Ok;
 	}
 
 	{
@@ -222,6 +225,8 @@ DC_TEST("DataConfig.Extra.JsonConverterBlurb")
 
 		FString name = m.Name;
 		// Bad Boys
+
+		(void)Ok;
 	}
 
 	return true;
@@ -290,6 +295,42 @@ DC_TEST("DataConfig.Extra.JsonConverter")
 		UTEST_TRUE("UStructToJsonObjectString", RhsOk);
 
 		UTEST_EQUAL("JsonConverter", Lhs, Rhs);
+	}
+
+	return true;
+}
+
+DC_TEST("DataConfig.Extra.JsonConverter.ArrayDim")
+{
+	FString Str = DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
+		{
+			"strArr" : ["foo", "bar"],
+			"intArr" : [1, 2, 3],
+			"movieArr" : [
+				{
+					"name" : "Foo"
+				},
+				{
+					"name" : "Bar"
+				}
+			]
+		}
+	)"));
+
+	{
+		FDcTestJsonConverterArrayDim1 Lhs;
+		bool LhsOk = DcExtra::JsonObjectStringToUStruct(Str, &Lhs);
+
+		FDcTestJsonConverterArrayDim1 Rhs;
+		bool RhsOk = FJsonObjectConverter::JsonObjectStringToUStruct(Str, &Rhs, 0, 0);
+
+		UTEST_TRUE("JsonObjectStringToUStruct ArrayDim", LhsOk);
+		UTEST_TRUE("JsonObjectStringToUStruct ArrayDim", RhsOk);
+
+		UTEST_OK("JsonConverter", DcAutomationUtils::TestReadDatumEqual(
+			FDcPropertyDatum(&Lhs),
+			FDcPropertyDatum(&Rhs)
+		));
 	}
 
 	return true;

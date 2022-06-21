@@ -25,8 +25,7 @@ public:
 	virtual void ShutdownModule() override;
 
 	TArray<TOptional<TSharedRef<FAssetTypeActions_Base>>> AssetActions;
-
-	FDelegateHandle ContentExplorerExtenderHandler;
+	TArray<FDelegateHandle> ContentExplorerExtenderHandlers;
 };
 
 UCLASS()

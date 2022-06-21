@@ -2,6 +2,9 @@
 
 We'll conclude with a concrete user story: populating `GameplayAbility` and `GameplayEffect` blueprint from JSON file.
 
+* [DcDeserializeGameplayAbility.h]({{SrcRoot}}DataConfigEditorExtra/Public/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.h)
+* [DcDeserializeGameplayAbility.cpp]({{SrcRoot}}DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.cpp)
+
 [Gameplay Ability System][1] is a built-in plugin for building data driven abilities. Users are expected to derived and modify `GameplayAbility` and `GameplayEffect` blueprint for custom logic. 
 
 Given a JSON like this:

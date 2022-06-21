@@ -4,8 +4,10 @@
 
 We split extra samples in two modules. The first is `DataConfigExtra` which does **not** depend on `Engine/UnrealEd` module. It can be built along program target. `DataConfigExtra` is basically a set of C++ source files bundled and there's no special setup for it. The key setup is to set `ModuleRules.bRequiresImplementModule` to be `false`:
 
+* [DataConfigExtra.Build.cs]({{SrcRoot}}DataConfigExtra/DataConfigExtra.Build.cs)
+
 ```c#
-// DataConfig/Source/DataConfigExtra/DataConfigExtra.Build.cs
+// DataConfigExtra/DataConfigExtra.Build.cs
 public class DataConfigExtra : ModuleRules
 {
 	public DataConfigExtra(ReadOnlyTargetRules Target) : base(Target)
@@ -28,8 +30,10 @@ The other module is `DcEditorExtraModule`, a more conventional editor only modul
 
 Most of integration code is in `IModuleInterface::StartUpModule/ShutdownModule()`. 
 
+* [DcEditorExtraModule.cpp]({{SrcRoot}}DataConfigEditorExtra/Private/DcEditorExtraModule.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Private/DcEditorExtraModule.cpp
+// DataConfigEditorExtra/Private/DcEditorExtraModule.cpp
 void FDcEditorExtraModule::StartupModule()
 {
     // ...

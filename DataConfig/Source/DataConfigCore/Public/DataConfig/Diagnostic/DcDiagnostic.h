@@ -95,7 +95,7 @@ FORCEINLINE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, WIDECHAR Char)
 
 FORCEINLINE_DEBUGGABLE FDcDiagnostic& operator<<(FDcDiagnostic& Diag, EDcDataEntry Entry)
 {
-	UEnum* DataEntryEnum = ::FindObject<UEnum>(ANY_PACKAGE, TEXT("EDcDataEntry"), true);
+	UEnum* DataEntryEnum = StaticEnum<EDcDataEntry>();
 	check(DataEntryEnum);
 	Diag.Args.Emplace(DataEntryEnum->GetNameByIndex((int32)Entry));
 	return Diag;

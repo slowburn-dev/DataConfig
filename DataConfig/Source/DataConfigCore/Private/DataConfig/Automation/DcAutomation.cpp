@@ -25,6 +25,12 @@ struct FDcAutomationFeedbackContext : public FFeedbackContextAnsi
 	}
 };
 
+FString FDcAutomationBase::CheckUniqueName(const FString& InName)
+{
+	check(!FAutomationTestFramework::Get().ContainsTest(InName));
+	return InName;
+}
+
 uint32 FDcAutomationBase::GetTestFlags() const
 {
 	return FLAGS;
@@ -157,7 +163,7 @@ void FDcAutomationConsoleRunner::Prepare(const FArgs& Args)
 	TArray<FAutomationTestInfo> TestInfos;
 	Framework.GetValidTestNames(TestInfos);
 
-	TestInfos.RemoveAll([&Args](FAutomationTestInfo& TestInfo) {
+	TestInfos.RemoveAllSwap([&Args](FAutomationTestInfo& TestInfo) {
 		for (const FString& Filter : Args.Filters)
 			if (!TestInfo.GetDisplayName().Contains(Filter, ESearchCase::IgnoreCase))
 				return true;

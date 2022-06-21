@@ -4,8 +4,12 @@ Previously we're deserializing `FColor` by writing into its member fields separa
 
 Since we know that `FColor` is POD type we can construct one by filling in correct bit pattern. In this case `FDcPropertyWriter` allow struct property to be coerced from a blob:
 
+* [DcSerDeColor.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeColor.h)
+* [DcSerDeColor.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp)
+
+
 ```c++
-//  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
+//  DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteBlob>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -19,7 +23,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteBlob>(cons
 Alternatively we can get `FProperty` and data pointer in place and setting the value through Unreal's `FProperty` API:
 
 ```c++
-//  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
+//  DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteDataEntry>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -34,7 +38,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WriteDataEntry>
 Note that we already know that `Datum.DataPtr` points to a allocated `FColor` instance. Thus we can simply cast it into a `FColor*` and directly manipulate the pointer.
 
 ```c++
-//  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
+//  DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 template<>
 FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WritePointer>(const FColor& Color, FDcDeserializeContext& Ctx)
 {
@@ -50,7 +54,7 @@ FDcResult TemplatedWriteColorDispatch<EDcColorDeserializeMethod::WritePointer>(c
 Note that these techniques also applies on serialization:
 
 ```c++
-//  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
+//  DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 FDcResult HandlerColorSerialize(FDcSerializeContext& Ctx)
 {
     FDcPropertyDatum Datum;

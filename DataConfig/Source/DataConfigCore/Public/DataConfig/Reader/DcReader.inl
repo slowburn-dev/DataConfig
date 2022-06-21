@@ -42,6 +42,14 @@ T* FDcReader::CastById()
 	return nullptr;
 }
 
+template <typename T>
+T* FDcReader::CastByIdChecked()
+{
+	static_assert(TIsDerivedFrom<T, FDcReader>::Value, "casting non reader");
+	check(T::ClassId() == GetId());
+	return (T*)(this);
+}
+
 template<typename TObject>
 FDcResult FDcReader::ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr)
 {

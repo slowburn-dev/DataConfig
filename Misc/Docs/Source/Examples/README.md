@@ -4,10 +4,12 @@ Here're some short and quick examples showcasing DataConfig API usage and featur
 
 ## JSON Deserialization
 
+* [DcTestBlurb.cpp]({{SrcRoot}}DataConfigTests/Private/DcTestBlurb.cpp#L20)
+
 Given the struct`FDcTestExampleStruct`:
 
 ```c++
-// DataConfig/DataConfig/Source/DataConfigTests/Private/DcTestBlurb.h
+// DataConfigTests/Private/DcTestBlurb.h
 UENUM()
 enum class EDcTestExampleEnum
 {
@@ -27,7 +29,7 @@ struct FDcTestExampleStruct
 We can deserialize an instance from JSON with the snippet below:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FString Str = TEXT(R"(
     {
         "StrField" : "Lorem ipsum dolor sit amet",

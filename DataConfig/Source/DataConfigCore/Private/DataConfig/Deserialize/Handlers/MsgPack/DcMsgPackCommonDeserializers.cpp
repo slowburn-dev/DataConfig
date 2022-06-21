@@ -11,41 +11,6 @@
 
 namespace DcMsgPackHandlers {
 
-FDcResult HandlerScalarDeserialize(FDcDeserializeContext& Ctx)
-{
-	return DcHandlerPipeScalar(Ctx);
-}
-
-FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx)
-{
-	return DcHandlerPipeLinearContainer<
-		FDcDeserializeContext,
-		FDcReader,
-		FDcPropertyWriter,
-		EDcDataEntry::ArrayEnd,
-		&DcDeserializeUtils::RecursiveDeserialize,
-		&FDcReader::ReadArrayRoot,
-		&FDcReader::ReadArrayEnd,
-		&FDcPropertyWriter::WriteArrayRoot,
-		&FDcPropertyWriter::WriteArrayEnd
-	>(Ctx);
-}
-
-FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx)
-{
-	return DcHandlerPipeLinearContainer<
-		FDcDeserializeContext,
-		FDcReader,
-		FDcPropertyWriter,
-		EDcDataEntry::ArrayEnd,
-		&DcDeserializeUtils::RecursiveDeserialize,
-		&FDcReader::ReadArrayRoot,
-		&FDcReader::ReadArrayEnd,
-		&FDcPropertyWriter::WriteSetRoot,
-		&FDcPropertyWriter::WriteSetEnd
-	>(Ctx);
-}
-
 FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx)
 {
 	return DcHandlerPipeMap<
@@ -54,16 +19,6 @@ FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx)
 		FDcPropertyWriter,
 		&DcDeserializeUtils::RecursiveDeserialize
 	>(Ctx);
-}
-
-FDcResult HandlerStructDeserialize(FDcDeserializeContext& Ctx)
-{
-	return DcHandlerDeserializeMapToStruct(Ctx);
-}
-
-FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx)
-{
-	return DcHandlerDeserializeMapToClass(Ctx);
 }
 
 EDcDeserializePredicateResult PredicateIsBlobProperty(FDcDeserializeContext& Ctx)

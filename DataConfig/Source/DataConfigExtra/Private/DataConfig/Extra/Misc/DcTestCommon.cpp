@@ -1,6 +1,7 @@
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Misc/DcTypeUtils.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
+#include "DataConfig/Automation/DcAutomationUtils.h"
 #include "Misc/StringBuilder.h"
 #include "Misc/Paths.h"
 #include "Interfaces/IPluginManager.h"
@@ -28,80 +29,8 @@ FString DcGetFixturePath(const FString& Str)
 	return FString::Printf(TEXT("%s/Tests/%s"), *Root, *Str);
 }
 
-
-//	Trim and reindent a string literal to the first non empty indent level
-FString DcReindentStringLiteral(FString Str, FString* Prefix)
+FDcResult DcPropertyPipeVisitAndTestEqual(FDcPropertyDatum FromDatum, FDcPropertyDatum ToDatum)
 {
-	TArray<FString> Lines;
-	Str.ParseIntoArrayLines(Lines);
-
-	int MinIndent = TNumericLimits<int>::Max();
-
-	auto _IsWhitespaceLine = [](const FString& Str)
-	{
-		for (TCHAR Ch : Str)
-		{
-			if (!FChar::IsWhitespace(Ch))
-				return false;
-		}
-
-		return true;
-	};
-
-	int LineCount = Lines.Num();
-	int FirstNonEmptyIx = 0;
-	int LastNonEmptyIx = LineCount;
-	{
-		for (int Ix = 0; Ix < LineCount; Ix++)
-		{
-			if (!_IsWhitespaceLine(Lines[Ix]))
-			{
-				FirstNonEmptyIx = Ix;
-				break;
-			}
-		}
-
-		for (int Ix = 0; Ix < LineCount; Ix++)
-		{
-			if (!_IsWhitespaceLine(Lines[LineCount- Ix - 1]))
-			{
-				LastNonEmptyIx = LineCount-Ix;
-				break;
-			}
-		}
-	}
-
-	TStringBuilder<1024> Sb;
-	{
-		for (int Ix = FirstNonEmptyIx; Ix < LastNonEmptyIx; Ix++)
-		{
-			FString& Line = Lines[Ix];
-
-			Line.ConvertTabsToSpacesInline(4);
-			Line.TrimEndInline();
-			int Spaces = 0;
-			for (TCHAR Char : Line)
-			{
-				if (Char == ' ')
-					Spaces++;
-				else
-					break;
-			}
-
-			if (Spaces < MinIndent)
-				MinIndent = Spaces;
-		}
-
-		for (int Ix = FirstNonEmptyIx; Ix < LastNonEmptyIx; Ix++)
-		{
-			FString& Line = Lines[Ix];
-
-			Line.RightChopInline(MinIndent);
-			if (Prefix) Sb.Append(*Prefix);
-			Sb.Append(Line);
-			Sb << TCHAR('\n');
-		}
-	}
-
-	return Sb.ToString();
+	DC_TRY(DcPropertyPipeVisit(FromDatum, ToDatum));
+	return DcAutomationUtils::TestReadDatumEqual(FromDatum, ToDatum);
 }

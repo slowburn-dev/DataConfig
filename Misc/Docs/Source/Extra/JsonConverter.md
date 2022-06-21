@@ -2,8 +2,12 @@
 
 UE comes with a handy module [`JsonUtilities`][1] that handles conversion between `USTRUCT`s and JSON. In this example we've implemented similar functionalities that behaves almost identical to stock `FJsonConverter`.
 
+
+* [DcJsonConverter.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/Types/DcJsonConverter.h)
+* [DcJsonConverter.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
 FString Str = TEXT(R"(
     {
         "strField" : "Foo",
@@ -43,7 +47,7 @@ FString Str = TEXT(R"(
 `DcExtra::JsonObjectStringToUStruct()` body is trivia as it delegates most of the work to `DcDeserializer`:
 
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
 bool JsonObjectReaderToUStruct(FDcReader* Reader, FDcPropertyDatum Datum)
 {
 	FDcResult Ret = [&]() -> FDcResult {
@@ -83,7 +87,7 @@ The serializing function `DcExtra::UStructToJsonObjectString()` needs some custo
 The good news is that one can customize these behaviors with DataConfig to match it:
 
 ```c++
-// DataConfig/Source/DataConfigExtra/Public/DataConfig/Extra/Types/DcJsonConverter.h
+// DataConfigExtra/Public/DataConfig/Extra/Types/DcJsonConverter.h
 template<typename InStructType>
 static bool UStructToJsonObjectString(const InStructType& InStruct, FString& OutJsonString)
 {
@@ -102,7 +106,7 @@ static bool UStructToJsonObjectString(const InStructType& InStruct, FString& Out
     ...
 }
 
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Types/DcJsonConverter.cpp
 static FDcResult HandlerStructRootSerializeCamelCase(FDcSerializeContext& Ctx)
 {
     ...

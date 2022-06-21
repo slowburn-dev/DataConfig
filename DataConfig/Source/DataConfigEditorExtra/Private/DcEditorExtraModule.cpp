@@ -10,6 +10,7 @@
 #include "DataConfig/DcEnv.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 #include "DataConfig/EditorExtra/Diagnostic/DcDiagnosticEditorExtra.h"
+#include "DataConfig/EditorExtra/Editor/DcEditorDumpAssetToLog.h"
 #include "DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.h"
 #include "DataConfig/Automation/DcAutomation.h"
 
@@ -48,7 +49,9 @@ void FDcEditorExtraModule::StartupModule()
 	auto &ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
     auto &ContextMenuExtenders = ContentBrowserModule.GetAllAssetViewContextMenuExtenders();
 	ContextMenuExtenders.Add(FContentBrowserMenuExtender_SelectedAssets::CreateStatic(DcEditorExtra::GameplayAbilityEffectExtender));
-	ContentExplorerExtenderHandler = ContextMenuExtenders.Last().GetHandle();
+	ContextMenuExtenders.Add(FContentBrowserMenuExtender_SelectedAssets::CreateStatic(DcEditorExtra::DumpAssetToLogExtender));
+	ContentExplorerExtenderHandlers.Add(ContextMenuExtenders.Last().GetHandle());
+	ContentExplorerExtenderHandlers.Add(ContextMenuExtenders.Last().GetHandle());
 }
 
 void FDcEditorExtraModule::ShutdownModule()
@@ -59,14 +62,16 @@ void FDcEditorExtraModule::ShutdownModule()
 	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
 	MessageLogModule.UnregisterLogListing("DataConfig");
 
-	if ( ContentExplorerExtenderHandler.IsValid() && FModuleManager::Get().IsModuleLoaded("ContentBrowser"))
+	if (ContentExplorerExtenderHandlers.Num() > 0 && FModuleManager::Get().IsModuleLoaded("ContentBrowser"))
 	{
 		auto &ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
 		auto &ContextMenuExtenders = ContentBrowserModule.GetAllAssetViewContextMenuExtenders();
 		ContextMenuExtenders.RemoveAll([this](const FContentBrowserMenuExtender_SelectedAssets& Delegate)
 		{
-			return Delegate.GetHandle() == ContentExplorerExtenderHandler;
+			return ContentExplorerExtenderHandlers.Contains( Delegate.GetHandle() );
 		});
+
+		ContentExplorerExtenderHandlers.Empty();
 	}
 }
 

@@ -7,7 +7,7 @@
 `FDcJsonReader` is the DataConfig JSON reader:
 
 ```c++
-// DataConfig/DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FString Str = TEXT(R"(
     {
         "Str":    "Fooo",
@@ -65,7 +65,7 @@ Some additional caveats:
 `FDcJsonWriter` is the DataConfig JSON writer:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcJsonWriter Writer;
 
 DC_TRY(Writer.WriteMapRoot());
@@ -112,7 +112,7 @@ return DcOk();
 DataConfig bundles a set of JSON serialize and deserialize handlers, which are all roundtrip-able:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 #include "DataConfig/Deserialize/DcDeserializerSetup.h"
 
 // ...
@@ -142,7 +142,7 @@ JSON types get mapped into DataConfig data model in a very unsurprising way.
 Here's an example:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
+// DataConfigTests/Private/DcTestDeserialize.cpp
 FString Str = TEXT(R"(
     {
         "BoolField" : true,
@@ -189,12 +189,78 @@ Expect.UInt32Field = 23415;
 Expect.UInt64Field = 1524523;
 ```
 
+### Map
+
+JSON only allow string as object/mapping keys, while in UE `TMap<>` can use any type. When doing serialization `TMap<FString/FName/FText,(TValue)>` types would be directly converted to a JSON object:
+
+```c++
+// DataConfigTests/Public/DcTestDeserialize.h
+FDcTestStruct3
+USTRUCT()
+struct FDcTestStruct3
+{
+    // ...
+    UPROPERTY() TMap<FString, FString> StringMap;
+};
+
+// DataConfigTests/Public/DcTestDeserialize.cpp
+{
+    // ...
+    "StringMap" : {
+        "One": "1",
+        "Two": "2", 
+        "Three": "3",
+    },
+}
+```
+
+For other key types it would be serialized as an array of objects:
+
+```c++
+// DataConfigTests/Public/DcTestSerDe.h
+USTRUCT()
+struct FDcTestStructMaps
+{
+    // ...
+    UPROPERTY() TMap<FColor, FString> ColorKeyMap;
+    UPROPERTY() TMap<EDcTestEnumFlag, FString> EnumFlagsMap;
+};
+
+// DataConfigTests/Public/DcTestDeserialize.cpp
+{
+    "ColorKeyMap" : {
+        "#FF0000FF" : "Red",
+        "#00FF00FF" : "Green",
+        "#0000FFFF" : "Blue"
+    },
+    "EnumFlagsMap" : [
+        {
+            "$key" : [],
+            "$value" : "None"
+        },
+        {
+            "$key" : [
+                "One",
+                "Three"
+            ],
+            "$value" : "One | Three"
+        },
+        {
+            "$key" : [
+                "Five"
+            ],
+            "$value" : "Five"
+        }
+    ]
+}
+```
+
 ### Enum Flags
 
 `UENUM` that get marked with `Bitflags` meta are deserialized from a list of strings:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Public/DcTestDeserialize.h
+// DataConfigTests/Public/DcTestDeserialize.h
 UENUM(meta = (Bitflags))
 enum class EDcTestEnumFlag :uint32
 {
@@ -205,7 +271,7 @@ enum class EDcTestEnumFlag :uint32
 };
 ENUM_CLASS_FLAGS(EDcTestEnumFlag);
 
-// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
+// DataConfigTests/Private/DcTestDeserialize.cpp
 FString Str = TEXT(R"(
     {
         "EnumFlagField1" : [],
@@ -224,7 +290,7 @@ Expect.EnumFlagField2 = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestE
 By default we treat `UOBJECT` marked with `DefaultToInstanced, EditInlineNew` and `UPROPERTY` marked with `Instanced` as sub object. In this case we'll actually instantiate new object during deserialization, using `Ctx.TopObject()` as parent:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Public/DcTestProperty.h
+// DataConfigTests/Public/DcTestProperty.h
 UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
 class UDcBaseShape : public UObject
 {
@@ -247,7 +313,7 @@ class UDcShapeSquare : public UDcBaseShape
     UPROPERTY() float Radius;
 };
 
-// DataConfig/Source/DataConfigTests/Public/DcTestDeserialize.h
+// DataConfigTests/Public/DcTestDeserialize.h
 USTRUCT()
 struct FDcTestStructShapeContainer1
 {
@@ -267,7 +333,7 @@ struct FDcEditorExtraTestObjectRefs1
     UPROPERTY() UObject* ObjField4;
 };
 
-// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
+// DataConfigTests/Private/DcTestDeserialize.cpp
 FString Str = TEXT(R"(
     {
         "ShapeField1" :  {
@@ -307,7 +373,7 @@ Note that criteria for sub object selection can be easily overridden with a new 
 We support multiple ways of referencing a `UObject` in memory or serialized on disk:
 
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Tests/DcTestDeserializeEditor.h
+// DataConfigEditorExtra/Private/DataConfig/EditorExtra/Tests/DcTestDeserializeEditor.h
 USTRUCT()
 struct FDcEditorExtraTestObjectRefs1
 {
@@ -319,7 +385,7 @@ struct FDcEditorExtraTestObjectRefs1
     UPROPERTY() UObject* ObjField4;
 };
 
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Tests/DcTestDeserializeEditor.cpp
+// DataConfigEditorExtra/Private/DataConfig/EditorExtra/Tests/DcTestDeserializeEditor.cpp
 FString Str = TEXT(R"(
     {
         "ObjField1" : "DcEditorExtraNativeDataAsset'/DataConfig/DcFixture/DcTestNativeDataAssetAlpha.DcTestNativeDataAssetAlpha'",
@@ -356,7 +422,7 @@ For `ObjField2/ObjField3`  relative path to the `uasset` is used, but without fi
 We also support class reference fields of `TSubclassOf<>`s:
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.h
+// DataConfigTests/Private/DcTestDeserialize.h
 USTRUCT()
 struct FDcTestStructSubClass1
 {
@@ -367,7 +433,7 @@ struct FDcTestStructSubClass1
     UPROPERTY() TSubclassOf<UStruct> StructSubClassField3;
 };
 
-// DataConfig/Source/DataConfigTests/Private/DcTestDeserialize.cpp
+// DataConfigTests/Private/DcTestDeserialize.cpp
 FString Str = TEXT(R"(
     {
         "StructSubClassField1" : null,
@@ -393,7 +459,7 @@ DcDeserializeBPClass.h/cpp`
 `DcSetupJsonSerializeHandlers()/DcSetupJsonDeserializeHandlers()` accepts an enum to setup alternative handlers. For now `StringSoftLazy` branch would setup special `FSoftObjectProperty/FLazyObjectProperty` handlers that directly serialize these into string. Comparing to this the default setup would always resolve the indirect reference into memory, which maybe isn't always desirable. 
 
 ```c++
-// DataConfig/DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcTestStructRefs1 Source{};
 UObject* TestsObject = StaticFindObject(UObject::StaticClass(), nullptr, TEXT("/Script/DataConfigTests"));
 
@@ -435,7 +501,7 @@ Here're some closing notes:
 - The JSON handlers are designed to *NOT* read anything during the deserialization. This is crucial since `USTRUCT` can contain uninitialized fields. For example:
 
     ```c++
-    // DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+    // DataConfigTests/Private/DcTestBlurb.cpp
     FString Str = TEXT(R"(
         {
             // pass

@@ -17,19 +17,20 @@ enum class EDcPropertyReadType
 
 enum class EDcDataEntry : uint16;
 struct FDcPropertyDatum;
+struct FDcPropertyReader;
 
 struct FDcBaseReadState
 {
 	virtual EDcPropertyReadType GetType() = 0;
 
-	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
-	virtual FDcResult ReadName(FName* OutNamePtr);
-	virtual FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
-	virtual FDcResult SkipRead();
-	virtual FDcResult PeekReadProperty(FFieldVariant* OutProperty);
-	virtual FDcResult PeekReadDataPtr(void** OutDataPtr);
+	virtual FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr);
+	virtual FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr);
+	virtual FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum);
+	virtual FDcResult SkipRead(FDcPropertyReader* Parent);
+	virtual FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty);
+	virtual FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr);
 
-	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType);
+	virtual void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) = 0;
 
 	template<typename T>
 	T* As();
@@ -54,7 +55,7 @@ struct FDcReadStateNil : public FDcBaseReadState
 	static const EDcPropertyReadType ID = EDcPropertyReadType::Nil;
 
 	EDcPropertyReadType GetType() override;
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
@@ -98,19 +99,19 @@ struct FDcReadStateClass : public FDcBaseReadState
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
-	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
-	FDcResult SkipRead() override;
-	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
-	FDcResult PeekReadDataPtr(void** OutDataPtr) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
 
-	FDcResult ReadClassRootAccess(FDcClassAccess& Access);
-	FDcResult ReadClassEndAccess(FDcClassAccess& Access);
-	FDcResult ReadNil();
-	FDcResult ReadObjectReference(UObject** OutPtr);
-	void EndValueRead();
+	FDcResult ReadClassRootAccess(FDcPropertyReader* Parent, FDcClassAccess& Access);
+	FDcResult ReadClassEndAccess(FDcPropertyReader* Parent, FDcClassAccess& Access);
+	FDcResult ReadNil(FDcPropertyReader* Parent);
+	FDcResult ReadObjectReference(FDcPropertyReader* Parent, UObject** OutPtr);
+	void EndValueRead(FDcPropertyReader* Parent);
 };
 
 struct FDcReadStateStruct : public FDcBaseReadState
@@ -143,27 +144,24 @@ struct FDcReadStateStruct : public FDcBaseReadState
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
-	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
-	FDcResult SkipRead() override;
-	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
-	FDcResult PeekReadDataPtr(void** OutDataPtr) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
 
-	FDcResult ReadStructRootAccess(FDcStructAccess& Access);
-	FDcResult ReadStructEndAccess(FDcStructAccess& Access);
+	FDcResult ReadStructRootAccess(FDcPropertyReader* Parent, FDcStructAccess& Access);
+	FDcResult ReadStructEndAccess(FDcPropertyReader* Parent, FDcStructAccess& Access);
 
-	void EndValueRead();
+	void EndValueRead(FDcPropertyReader* Parent);
 };
 
 struct FDcReadStateMap : public FDcBaseReadState
 {
 	static const EDcPropertyReadType ID = EDcPropertyReadType::MapProperty;
 
-	void* MapPtr;
-	FMapProperty* MapProperty;
-	int32 Index;
 
 	enum class EState : uint8
 	{
@@ -173,38 +171,45 @@ struct FDcReadStateMap : public FDcBaseReadState
 		ExpectEnd,
 		Ended
 	};
+	EState State = EState::ExpectRoot;
+	int32 Index = 0;
+	int32 SparseIndex = 0;
 
-	EState State;
+	FName MapName;
+	FScriptMapHelper MapHelper;
+	FMapProperty* MapProperty;
 
 	FDcReadStateMap(void* InMapPtr, FMapProperty* InMapProperty)
+		: MapHelper(InMapProperty, InMapPtr)
 	{
-		MapPtr = InMapPtr;
+		MapName = InMapProperty->GetFName();
 		MapProperty = InMapProperty;
-		Index = 0;
-		State = EState::ExpectRoot;
+	}
+
+	FDcReadStateMap(FProperty* InKeyProperty, FProperty* InValueProperty, void* InMapPtr, EMapPropertyFlags InMapFlags)
+		: MapHelper(FScriptMapHelper::CreateHelperFormInnerProperties(InKeyProperty, InValueProperty, InMapPtr, InMapFlags))
+	{
+		MapName = DC_TRANSIENT_MAP;
+		MapProperty = nullptr;
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
-	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
-	FDcResult SkipRead() override;
-	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
-	FDcResult PeekReadDataPtr(void** OutDataPtr) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
 
-	FDcResult ReadMapRoot();
-	FDcResult ReadMapEnd();
+	FDcResult ReadMapRoot(FDcPropertyReader* Parent);
+	FDcResult ReadMapEnd(FDcPropertyReader* Parent);
 };
 
 struct FDcReadStateArray : public FDcBaseReadState
 {
 	static const EDcPropertyReadType ID = EDcPropertyReadType::ArrayProperty;
 
-	void* ArrayPtr;
-	FArrayProperty* ArrayProperty;
-	int32 Index;
-
 	enum class EState : uint8
 	{
 		ExpectRoot,
@@ -212,37 +217,44 @@ struct FDcReadStateArray : public FDcBaseReadState
 		ExpectItem,
 		Ended,
 	};
-	EState State;
+	EState State = EState::ExpectRoot;
+	int32 Index = 0;
+
+	FName ArrayName;
+	FScriptArrayHelper ArrayHelper;
+	FArrayProperty* ArrayProperty;
 
 	FDcReadStateArray(void* InArrayPtr, FArrayProperty* InArrayProperty)
+		: ArrayHelper(InArrayProperty, InArrayPtr)
 	{
-		ArrayPtr = InArrayPtr;
+		ArrayName = InArrayProperty->GetFName();
 		ArrayProperty = InArrayProperty;
-		State = EState::ExpectRoot;
-		Index = 0;
+	}
+
+	FDcReadStateArray(FProperty* InInnerProperty, void *InArray, EArrayPropertyFlags InArrayFlags)
+		: ArrayHelper(FScriptArrayHelper::CreateHelperFormInnerProperty(InInnerProperty, InArray, InArrayFlags))
+	{
+		ArrayName = DC_TRANSIENT_ARRAY;
+		ArrayProperty = nullptr;
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
-	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
-	FDcResult SkipRead() override;
-	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
-	FDcResult PeekReadDataPtr(void** OutDataPtr) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
 
-	FDcResult ReadArrayRoot();
-	FDcResult ReadArrayEnd();
+	FDcResult ReadArrayRoot(FDcPropertyReader* Parent);
+	FDcResult ReadArrayEnd(FDcPropertyReader* Parent);
 };
 
 struct FDcReadStateSet : public FDcBaseReadState
 {
 	static const EDcPropertyReadType ID = EDcPropertyReadType::SetProperty;
 
-	void* SetPtr;
-	FSetProperty* SetProperty;
-	int32 Index;
-
 	enum class EState : uint8
 	{
 		ExpectRoot,
@@ -250,55 +262,97 @@ struct FDcReadStateSet : public FDcBaseReadState
 		ExpectItem,
 		Ended,
 	};
-	EState State;
+	EState State = EState::ExpectRoot;
+	int32 Index = 0;
+	int32 SparseIndex = 0;
+
+	FName SetName;
+	FScriptSetHelper SetHelper;
+	FSetProperty* SetProperty;
 
 	FDcReadStateSet(void* InSetPtr, FSetProperty* InSetProperty)
+		: SetHelper(InSetProperty, InSetPtr)
 	{
-		SetPtr = InSetPtr;
+		SetName = InSetProperty->GetFName();
 		SetProperty = InSetProperty;
-		State = EState::ExpectRoot;
-		Index = 0;
+	}
+
+	FDcReadStateSet(FProperty* InInnerProperty, void* InSet)
+		: SetHelper(FScriptSetHelper::CreateHelperFormElementProperty(InInnerProperty, InSet))
+	{
+		SetName = DC_TRANSIENT_SET;
+		SetProperty = nullptr;
 	}
 
 	EDcPropertyReadType GetType() override;
 
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
-	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
-	FDcResult SkipRead() override;
-	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
-	FDcResult PeekReadDataPtr(void** OutDataPtr) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
 
-	FDcResult ReadSetRoot();
-	FDcResult ReadSetEnd();
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+
+	FDcResult ReadSetRoot(FDcPropertyReader* Parent);
+	FDcResult ReadSetEnd(FDcPropertyReader* Parent);
 };
 
 struct FDcReadStateScalar : public FDcBaseReadState
 {
-	enum class EState : uint16
+	static const EDcPropertyReadType ID = EDcPropertyReadType::ScalarProperty;
+
+	enum class EState : uint8
 	{
-		ExpectRead,
+		//    ArrayDim == 1
+		ExpectScalar,    
+
+		//    ArrayDim > 1
+		ExpectArrayRoot,
+		ExpectArrayItem,
+		ExpectArrayEnd,
+
 		Ended,
 	};
 	EState State;
+	int32 Index;
 
-	FField* ScalarField;
+	FProperty* ScalarField;
 	void* ScalarPtr;
 
-	FDcReadStateScalar(void* InPtr, FField* InField)
+	enum EArrayScalar { Array };
+
+	FDcReadStateScalar(void* InPtr, FProperty* InField)
 	{
-		State = EState::ExpectRead;
 		ScalarField = InField;
 		ScalarPtr = InPtr;
+		Index = 0;
+
+		State = ScalarField->ArrayDim > 1
+			? EState::ExpectArrayRoot
+			: EState::ExpectScalar;
+	}
+
+	FDcReadStateScalar(EArrayScalar, void* InPtr, FProperty* InField)
+	{
+		check(DcPropertyUtils::IsScalarArray(InField));
+		ScalarField = InField;
+		ScalarPtr = InPtr;
+		State = EState::ExpectArrayRoot;
+		Index = 0;
 	}
 
 	EDcPropertyReadType GetType() override;
-	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
-	FDcResult ReadName(FName* OutNamePtr) override;
-	FDcResult ReadDataEntry(FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
-	FDcResult PeekReadProperty(FFieldVariant* OutProperty) override;
-	FDcResult PeekReadDataPtr(void** OutDataPtr) override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+
+	FDcResult ReadArrayRoot(FDcPropertyReader* Parent);
+	FDcResult ReadArrayEnd(FDcPropertyReader* Parent);
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };

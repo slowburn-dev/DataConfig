@@ -34,9 +34,9 @@ FORCEINLINE FDcResult DcOk() {
 
 #define DC_TRY(expr)						\
 	do {									\
-		::FDcResult Ret = (expr);			\
-		if (!Ret.Ok()) {					\
-			return Ret;						\
+		::FDcResult _DC_TRY_RET = (expr);		\
+		if (!_DC_TRY_RET.Ok()) {				\
+			return _DC_TRY_RET;				\
 		}									\
 	} while (0)
 
@@ -164,7 +164,7 @@ struct DATACONFIGCORE_API FDcEnumData
 	{
 		None					= 0,
 		WriteCheckType			= 1 << 0,
-		WriteCheckNameAndValue			= 1 << 1,
+		WriteCheckNameAndValue	= 1 << 1,
 		WriteCheckSign			= 1 << 2,
 	};
 

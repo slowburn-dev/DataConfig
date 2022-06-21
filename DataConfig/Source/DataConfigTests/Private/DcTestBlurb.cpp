@@ -341,7 +341,7 @@ DC_TEST("DataConfig.Core.Blurb.JSONWriter")
 		)");
 
 		//	validate results
-		check(DcReindentStringLiteral(Str) == Writer.Sb.ToString());
+		check(DcAutomationUtils::DcReindentStringLiteral(Str) == Writer.Sb.ToString());
 		return DcOk();
 
 	}());

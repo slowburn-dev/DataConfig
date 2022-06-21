@@ -8,7 +8,7 @@ At the time we started this project we were looking for a JSON parser that:
 
 - Supports a relaxed JSON spec, i.e. comment and trailing comma.
 - Supports custom deserialization logic, i.e. deserializes `FColor` from `#RRGGBBAA`.
-- Supports UE4 instanced sub objects and polymorphism.
+- Supports UE instanced sub objects and polymorphism.
 
 Ultimately we implemented all these in DataConfig. We also tried not to limit this to be a JSON parser but to provide a set of tools for reading-from and writing-to the property system. 
 
@@ -26,10 +26,10 @@ You should try DataConfig and it's highly likely DataConfig will fit into your s
 
 - Deliver as a quality C++ source library.
   
-  DataConfig should ship with no UI nor tooling code. Users are expected to integrate only `DataConfigCore` as a source module. We intentionally limit the scope of DataConfig to a "C++ Library". Our users should be proficient UE4 C++ programmers.
+  DataConfig should ship with no UI nor tooling code. Users are expected to integrate only `DataConfigCore` as a source module. We intentionally limit the scope of DataConfig to a "C++ Library". Our users should be proficient UE C++ programmers.
   
   - DataConfig should ship with good testing and documentation coverage.
-  - DataConfig follows idiomatic UE4 C++ conventions and has no external dependencies.
+  - DataConfig follows idiomatic UE C++ conventions and has no external dependencies.
   - `DataConfigCore` depends only on `Core` and `CoreUObject` and can be used in standalone `Program` targets.
   - DataConfig API are `UObject` free and stack friendly.
   - Built-in features serve as examples and sensible defaults. Users are expected to write on their own `Reader/Writer/Handlers`.
@@ -38,7 +38,7 @@ You should try DataConfig and it's highly likely DataConfig will fit into your s
 
   We expect users to use DataConfig in an offline, editor only scenario. In this use case we favor some other aspects over runtime performance:
 
-  - Idiomatic. We follow [UE4 c++ coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
+  - Idiomatic. We follow [Unreal Engine C++ coding conventions][2] and keep core dependency to only `Core` and `CoreUObject`.
   - Friendly. When processing invalid data and invalid API usage DataConfig should not crash. It should fail explicitly with detailed context and diagnostics.
   - Small code size / fast compile time. DataConfig tries not to expose template API. `TDcJsonReader` is explicit instantiated with its definition in private files.
   - Light memory footprint. Our JSON parser does stream parsing and would *not* construct the loaded JSON document in memory at all.
@@ -60,7 +60,7 @@ You should try DataConfig and it's highly likely DataConfig will fit into your s
 - Integrated [kawanet/msgpack-test-suite][7].
 
 [1]:https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection "Unreal Property System (Reflection)"
-[2]:https://docs.unrealengine.com/en-US/ProductionPipelines/DevelopmentSetup/CodingStandard/index.html "UE4 Coding Standard"
+[2]:https://docs.unrealengine.com/en-US/ProductionPipelines/DevelopmentSetup/CodingStandard/index.html "Epic C++ Coding StandardBlueprint Debugging in Unreal Engine"
 [3]:https://serde.rs/ "SerDe"
 [4]:https://json.nlohmann.me "JSON for Modern C++"
 [5]:https://rapidjson.org/ "RapidJSON"

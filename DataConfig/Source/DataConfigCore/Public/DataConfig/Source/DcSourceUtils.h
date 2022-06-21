@@ -1,10 +1,33 @@
 #pragma once
 
 #include "DataConfig/Source/DcSourceTypes.h"
+#include "Runtime/Launch/Resources/Version.h"
+#include "Misc/StringBuilder.h"
+
+#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION <= 25
+
+namespace DcSourceUtilsDetails
+{
+template <typename CharType> struct TSBTypeSelector;
+template <> struct TSBTypeSelector<ANSICHAR> { using Type = TAnsiStringBuilder<1024>; };
+template <> struct TSBTypeSelector<WIDECHAR> { using Type = TStringBuilder<1024>; };
+} // namespace DcSourceUtilsDetails
+
+#endif
 
 template<class CharType = TCHAR>
 struct TDcCSourceUtils
 {
+#if ENGINE_MAJOR_VERSION == 5
+	using StringBuilder = TStringBuilderWithBuffer<CharType, 1024>;
+#else
+	#if ENGINE_MINOR_VERSION >= 26
+	using StringBuilder = TStringBuilderWithBuffer<CharType, 1024>;
+	#else
+	using StringBuilder = typename DcSourceUtilsDetails::TSBTypeSelector<CharType>::Type;
+	#endif
+#endif
+
 	using SourceRef = TDcSourceRef<CharType>;
 	using CChar = TChar<CharType>;
 
@@ -73,6 +96,7 @@ struct TDcCSourceUtils
 		return Char >= 0 && Char <= 0x7f;
 	}
 };
+
 
 
 

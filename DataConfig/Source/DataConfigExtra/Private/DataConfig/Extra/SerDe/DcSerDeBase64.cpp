@@ -126,7 +126,7 @@ DC_TEST("DataConfig.Extra.SerDe.Base64")
 			);
 		}));
 		Writer.Sb << TCHAR('\n');
-		UTEST_EQUAL("Extra Base64 Blob SerDe", Writer.Sb.ToString(), DcReindentStringLiteral(Str))
+		UTEST_EQUAL("Extra Base64 Blob SerDe", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(Str))
 	}
 
 	return true;

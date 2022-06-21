@@ -1,0 +1,45 @@
+{
+	"FileVersion": 3,
+	"Modules": [
+		{
+			"Name": "DcProjectGame",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"DisableEnginePluginsByDefault": true,
+	"Plugins": [
+        {
+            "Name": "PluginBrowser",
+            "Enabled": true
+        },
+        {
+            "Name": "ContentBrowserAssetDataSource",
+            "Enabled": true
+        },
+        {
+            "Name": "ContentBrowserClassDataSource",
+            "Enabled": true
+        },
+        {
+            "Name": "ContentBrowserFileDataSource",
+            "Enabled": true
+        },
+        {
+            "Name": "ModularGameplay",
+            "Enabled": true
+        },
+        {
+            "Name": "GameFeatures",
+            "Enabled": true
+        },
+        {
+            "Name": "PropertyAccessEditor",
+            "Enabled": true
+        },
+        {
+            "Name": "PropertyAccessNode",
+            "Enabled": true
+        }
+    ]
+}

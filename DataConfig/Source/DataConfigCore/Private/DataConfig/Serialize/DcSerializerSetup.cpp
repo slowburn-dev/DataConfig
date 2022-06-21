@@ -2,58 +2,64 @@
 #include "DataConfig/MsgPack/DcMsgPackUtils.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Serialize/DcSerializer.h"
-#include "DataConfig/Serialize/DcSerializeUtils.h"
-#include "DataConfig/Serialize/Handlers/Json/DcJsonCommonSerializers.h"
-#include "DataConfig/Serialize/Handlers/Json/DcJsonObjectSerializers.h"
+#include "DataConfig/Serialize/Handlers/Common/DcCommonSerializers.h"
+#include "DataConfig/Serialize/Handlers/Common/DcObjectSerializers.h"
 #include "DataConfig/Serialize/Handlers/Property/DcPropertyPipeSerializers.h"
 #include "DataConfig/Serialize/Handlers/MsgPack/DcMsgPackCommonSerializers.h"
 #include "DataConfig/Serialize/Handlers/MsgPack/DcMsgPackTransientSerializers.h"
-#include "DataConfig/Serialize/Handlers/MsgPack/DcMsgPackPersistentSerializers.h"
 #include "UObject/TextProperty.h"
 
 void DcSetupJsonSerializeHandlers(FDcSerializer& Serializer, EDcJsonSerializeType Type)
 {
-	using namespace DcJsonHandlers;
-
-	Serializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerBoolSerialize));
-	Serializer.AddDirectHandler(FNameProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerNameSerialize));
-	Serializer.AddDirectHandler(FStrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStringSerialize));
-	Serializer.AddDirectHandler(FTextProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTextSerialize));
-	Serializer.AddDirectHandler(FFieldPathProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerFieldPathSerialize));
-
+	using namespace DcCommonHandlers;
 	{
-		// order significant
+		//	order significant
 		Serializer.AddPredicatedHandler(
-			FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsEnumProperty),
-			FDcSerializeDelegate::CreateStatic(HandlerEnumSerialize)
+			FDcSerializePredicate::CreateStatic(PredicateIsScalarArrayProperty),
+			FDcSerializeDelegate::CreateStatic(HandlerArraySerialize)
 		);
 
 		Serializer.AddPredicatedHandler(
-			FDcSerializePredicate::CreateStatic(PredicateIsNumericProperty),
-			FDcSerializeDelegate::CreateStatic(HandlerNumericSerialize)
+			FDcSerializePredicate::CreateStatic(PredicateIsEnumProperty),
+			FDcSerializeDelegate::CreateStatic(HandlerEnumToStringSerialize)
+		);
+
+		Serializer.AddPredicatedHandler(
+			FDcSerializePredicate::CreateStatic(PredicateIsSubObjectProperty),
+			FDcSerializeDelegate::CreateStatic(HandlerInstancedSubObjectSerialize)
 		);
 	}
 
+	AddNumericPipeDirectHandlers(Serializer);
+
+	Serializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeBoolSerialize));
+	Serializer.AddDirectHandler(FNameProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeNameSerialize));
+	Serializer.AddDirectHandler(FStrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeStringSerialize));
+	Serializer.AddDirectHandler(FTextProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeTextSerialize));
+	Serializer.AddDirectHandler(FFieldPathProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerFieldPathToStringDeserialize));
+
 	//	Containers
 	Serializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerArraySerialize));
-	Serializer.AddDirectHandler(FSetProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSetSerialize));
-	Serializer.AddDirectHandler(FMapProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerMapSerialize));
+	Serializer.AddDirectHandler(FSetProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSetToArraySerialize));
+	Serializer.AddDirectHandler(FMapProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStringKeyMapOrArrayOfKeyValueSerialize));
 
 	//	Struct
-	Serializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructRootSerialize));
-	Serializer.AddDirectHandler(FStructProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructRootSerialize));
+	Serializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructToMapSerialize));
+	Serializer.AddDirectHandler(FStructProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructToMapSerialize));
 
 	//	Class
-	Serializer.AddDirectHandler(UClass::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassRootSerialize));
-	Serializer.AddPredicatedHandler(
-		FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsSubObjectProperty),
-		FDcSerializeDelegate::CreateStatic(HandlerInstancedSubObjectSerialize)
-	);
+	Serializer.AddDirectHandler(UClass::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassToMapSerialize));
 
 	//	Object
 	Serializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerObjectReferenceSerialize));
-	Serializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerWeakObjectReferenceSerialize));
 	Serializer.AddDirectHandler(FClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassReferenceSerialize));
+
+#if ENGINE_MAJOR_VERSION == 5
+	Serializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerObjectReferenceSerialize));
+	Serializer.AddDirectHandler(FClassPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassReferenceSerialize));
+#endif //ENGINE_MAJOR_VERSION == 5
+
+	Serializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerWeakObjectReferenceSerialize));
 
 	if (Type == EDcJsonSerializeType::Default)
 	{
@@ -63,9 +69,9 @@ void DcSetupJsonSerializeHandlers(FDcSerializer& Serializer, EDcJsonSerializeTyp
 	}
 	else if (Type == EDcJsonSerializeType::StringSoftLazy)
 	{
-		Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStringSoftObjectSerialize));
-		Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStringSoftClassSerialize));
-		Serializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStringLazyObjectSerialize));
+		Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSoftObjectToStringSerialize));
+		Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSoftClassToStringSerialize));
+		Serializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerLazyObjectToStringSerialize));
 	}
 	else
 	{
@@ -75,80 +81,121 @@ void DcSetupJsonSerializeHandlers(FDcSerializer& Serializer, EDcJsonSerializeTyp
 
 void DcSetupPropertyPipeSerializeHandlers(FDcSerializer& Serializer)
 {
+	{
+		//	order significant
+		Serializer.AddPredicatedHandler(
+			FDcSerializePredicate::CreateStatic(DcCommonHandlers::PredicateIsScalarArrayProperty),
+			FDcSerializeDelegate::CreateStatic(DcCommonHandlers::HandlerArraySerialize)
+		);
+	}
+
 	using namespace DcPropertyPipeHandlers;
 
 	Serializer.AddDirectHandler(UClass::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassSerialize));
 	Serializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassSerialize));
+#if ENGINE_MAJOR_VERSION == 5
+	Serializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassSerialize));
+#endif //ENGINE_MAJOR_VERSION == 5
 
 	Serializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructSerialize));
 	Serializer.AddDirectHandler(FStructProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructSerialize));
 
-	Serializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerArraySerialize));
+	Serializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(DcCommonHandlers::HandlerArraySerialize));
 	Serializer.AddDirectHandler(FSetProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSetSerialize));
 	Serializer.AddDirectHandler(FMapProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerMapSerialize));
 
 	DcPropertyUtils::VisitAllEffectivePropertyClass([&](FFieldClass* FieldClass) {
 		if (!Serializer.FieldClassSerializerMap.Contains(FieldClass))
-			Serializer.AddDirectHandler(FieldClass, FDcSerializeDelegate::CreateStatic(HandlerScalarSerialize));
+			Serializer.AddDirectHandler(FieldClass, FDcSerializeDelegate::CreateStatic(DcCommonHandlers::HandlerPipeScalarSerialize));
 	});
 }
 
 void DcSetupMsgPackSerializeHandlers(FDcSerializer& Serializer, EDcMsgPackSerializeType Type)
 {
-	using namespace DcMsgPackHandlers;
+	using namespace DcCommonHandlers; 
 
-	Serializer.AddDirectHandler(UClass::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassSerialize));
-	Serializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructSerialize));
-	Serializer.AddDirectHandler(FStructProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructSerialize));
+	{
+		//	order significant
+		Serializer.AddPredicatedHandler(
+			FDcSerializePredicate::CreateStatic(PredicateIsScalarArrayProperty),
+			FDcSerializeDelegate::CreateStatic(HandlerArraySerialize)
+		);
+	}
 
+	AddNumericPipeDirectHandlers(Serializer);
+
+	Serializer.AddDirectHandler(FBoolProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeBoolSerialize));
+	Serializer.AddDirectHandler(FStrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeStringSerialize));
+
+	//	Containers
 	Serializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerArraySerialize));
-	Serializer.AddDirectHandler(FSetProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSetSerialize));
-	Serializer.AddDirectHandler(FMapProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerMapSerialize));
+	Serializer.AddDirectHandler(FSetProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSetToArraySerialize));
+	Serializer.AddDirectHandler(FMapProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(DcMsgPackHandlers::HandlerMapSerialize));
 
+	//	Struct
+	Serializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructToMapSerialize));
+	Serializer.AddDirectHandler(FStructProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerStructToMapSerialize));
+
+	//	Class
+	Serializer.AddDirectHandler(UClass::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassToMapSerialize));
+
+	//	Blob
 	Serializer.AddPredicatedHandler(
-		FDcSerializePredicate::CreateStatic(&PredicateIsBlobProperty), 
-		FDcSerializeDelegate::CreateStatic(&HandlerBlobSerialize)
+		FDcSerializePredicate::CreateStatic(DcMsgPackHandlers::PredicateIsBlobProperty), 
+		FDcSerializeDelegate::CreateStatic(DcMsgPackHandlers::HandlerBlobSerialize)
 	);
 
 	if (Type == EDcMsgPackSerializeType::Default
 		|| Type == EDcMsgPackSerializeType::StringSoftLazy)
 	{
 		Serializer.AddPredicatedHandler(
-			FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsSubObjectProperty),
-			FDcSerializeDelegate::CreateStatic(HandlerPersistentInstancedSubObjectSerialize)
+			FDcSerializePredicate::CreateStatic(PredicateIsSubObjectProperty),
+			FDcSerializeDelegate::CreateStatic(HandlerInstancedSubObjectSerialize)
 		);
 
 		Serializer.AddPredicatedHandler(
-			FDcSerializePredicate::CreateStatic(DcSerializeUtils::PredicateIsEnumProperty),
-			FDcSerializeDelegate::CreateStatic(HandlerPersistentEnumSerialize)
+			FDcSerializePredicate::CreateStatic(PredicateIsEnumProperty),
+			FDcSerializeDelegate::CreateStatic(HandlerEnumToStringSerialize)
 		);
 
-		Serializer.AddDirectHandler(FNameProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentNameSerialize));
-		Serializer.AddDirectHandler(FTextProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentTextSerialize));
-		Serializer.AddDirectHandler(FFieldPathProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentFieldPathSerialize));
-		Serializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentObjectReferenceSerialize));
-		Serializer.AddDirectHandler(FClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentClassReferenceSerialize));
-		Serializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentWeakObjectReferenceSerialize));
+		Serializer.AddDirectHandler(FNameProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeNameSerialize));
+		Serializer.AddDirectHandler(FTextProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPipeTextSerialize));
+		Serializer.AddDirectHandler(FFieldPathProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerFieldPathToStringDeserialize));
+
+		Serializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerObjectReferenceSerialize));
+		Serializer.AddDirectHandler(FClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassReferenceSerialize));
+
+#if ENGINE_MAJOR_VERSION == 5
+		Serializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerObjectReferenceSerialize));
+		Serializer.AddDirectHandler(FClassPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerClassReferenceSerialize));
+#endif //ENGINE_MAJOR_VERSION == 5
+
+		Serializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerWeakObjectReferenceSerialize));
 
 		if (Type == EDcMsgPackSerializeType::StringSoftLazy)
 		{
-			Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentSoftObjectReferenceSerialize));
-			Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentSoftClassReferenceSerialize));
-			Serializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentLazyObjectReferenceSerialize));
+			Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSoftObjectToStringSerialize));
+			Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSoftClassToStringSerialize));
+			Serializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerLazyObjectToStringSerialize));
 		}
 		else
 		{
-			Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentStringSoftObjectSerialize));
-			Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentStringSoftClassSerialize));
-			Serializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerPersistentStringLazyObjectSerialize));
+			Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSoftObjectReferenceSerialize));
+			Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerSoftClassReferenceSerialize));
+			Serializer.AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerLazyObjectReferenceSerialize));
 		}
 	}
 	else if (Type == EDcMsgPackSerializeType::InMemory)
 	{
+		using namespace DcMsgPackHandlers;
 		Serializer.AddDirectHandler(FNameProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientNameSerialize));
 		Serializer.AddDirectHandler(FTextProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientTextSerialize));
 		Serializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientObjectSerialize));
 		Serializer.AddDirectHandler(FClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientClassSerialize));
+#if ENGINE_MAJOR_VERSION == 5
+		Serializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientObjectSerialize));
+		Serializer.AddDirectHandler(FClassPtrProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientClassSerialize));
+#endif //ENGINE_MAJOR_VERSION == 5
 		Serializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientSoftObjectSerialize));
 		Serializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientSoftClassSerialize));
 		Serializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcSerializeDelegate::CreateStatic(HandlerTransientWeakObjectSerialize));
@@ -164,10 +211,4 @@ void DcSetupMsgPackSerializeHandlers(FDcSerializer& Serializer, EDcMsgPackSerial
 	{
 		checkNoEntry();
 	}
-
-	DcMsgPackUtils::VisitMsgPackPipeScalarPropertyClass([&](FFieldClass* FieldClass) {
-		if (!Serializer.FieldClassSerializerMap.Contains(FieldClass))
-			Serializer.AddDirectHandler(FieldClass, FDcSerializeDelegate::CreateStatic(HandlerScalarSerialize));
-	});
-
 }

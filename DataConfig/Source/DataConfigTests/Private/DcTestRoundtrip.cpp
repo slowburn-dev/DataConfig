@@ -30,7 +30,8 @@ DC_TEST("DataConfig.Core.RoundTrip.JsonRoundtrip1_Default")
 	UDcTestRoundtrip1* Source = NewObject<UDcTestRoundtrip1>();
 	Source->StructPrimitives.MakeFixture();
 	Source->StructEnumFlag.MakeFixture();
-	Source->StructContainers.MakeFixtureNoStructMap();
+	Source->StructArrayDims.MakeFixture();
+	Source->StructContainers.MakeFixtureFull();
 	Source->StructOthers.MakeFixture();
 	Source->StructInlineSub.MakeFixture();
 	Source->StructObjectRefs.MakeFixture();
@@ -69,7 +70,8 @@ DC_TEST("DataConfig.Core.RoundTrip.JsonRoundtrip2_StringSoftLazy")
 	UDcTestRoundtrip1* Source = NewObject<UDcTestRoundtrip1>();
 	Source->StructPrimitives.MakeFixture();
 	Source->StructEnumFlag.MakeFixture();
-	Source->StructContainers.MakeFixtureNoStructMap();
+	Source->StructArrayDims.MakeFixture();
+	Source->StructContainers.MakeFixtureFull();
 	Source->StructOthers.MakeFixture();
 	Source->StructInlineSub.MakeFixture();
 	Source->StructObjectRefs.MakeFixture();
@@ -108,6 +110,7 @@ DC_TEST("DataConfig.Core.RoundTrip.PropertyRoundtrip1")
 	UDcTestRoundtrip1* Source = NewObject<UDcTestRoundtrip1>();
 	Source->StructPrimitives.MakeFixture();
 	Source->StructEnumFlag.MakeFixture();
+	Source->StructArrayDims.MakeFixture();
 	Source->StructContainers.MakeFixtureFull();
 	Source->StructOthers.MakeFixture();
 	Source->StructInlineSub.MakeFixture();
@@ -149,6 +152,7 @@ DC_TEST("DataConfig.Core.RoundTrip.MsgPack_InMemory")
 	UDcTestRoundtrip1* Source = NewObject<UDcTestRoundtrip1>();
 	Source->StructPrimitives.MakeFixture();
 	Source->StructEnumFlag.MakeFixture();
+	Source->StructArrayDims.MakeFixture();
 	Source->StructContainers.MakeFixtureFull();
 	Source->StructOthers.MakeFixture();
 	Source->StructInlineSub.MakeFixture();
@@ -229,7 +233,8 @@ DC_TEST("DataConfig.Core.RoundTrip.MsgPack_Persistent_Default")
 	UDcTestRoundtrip1* Source = NewObject<UDcTestRoundtrip1>();
 	Source->StructPrimitives.MakeFixture();
 	Source->StructEnumFlag.MakeFixture();
-	Source->StructContainers.MakeFixtureNoStructMap();
+	Source->StructArrayDims.MakeFixture();
+	Source->StructContainers.MakeFixtureFull();
 	Source->StructOthers.MakeFixture();
 	Source->StructInlineSub.MakeFixture();
 	Source->StructObjectRefs.MakeFixture();
@@ -269,7 +274,8 @@ DC_TEST("DataConfig.Core.RoundTrip.MsgPack_Persistent_StringSoftLazy")
 	UDcTestRoundtrip1* Source = NewObject<UDcTestRoundtrip1>();
 	Source->StructPrimitives.MakeFixture();
 	Source->StructEnumFlag.MakeFixture();
-	Source->StructContainers.MakeFixtureNoStructMap();
+	Source->StructArrayDims.MakeFixture();
+	Source->StructContainers.MakeFixtureFull();
 	Source->StructOthers.MakeFixture();
 	Source->StructInlineSub.MakeFixture();
 	Source->StructObjectRefs.MakeFixture();

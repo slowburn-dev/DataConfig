@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.3.0 - 2022-6-20
+
+Checkout blog post ["DataConfig Core and JSON Asset 1.3 Release"](/blog/dataconfig-dcjsonasset-1-3/).
+
+- **CHANGE** Property reader/writer improvement and fixes 
+    - Allow reading `Array/Set/Map` and  native array like `int arr[5]` as root.<br>
+      See: [Non Class/Struct Root](Advanced/NonClassStructRoot.md)
+    - Expand property with `ArrayDim > 1` as array.<br>
+      See: [Property](Formats/Property.md)
+    - Performance improvement by caching `FScript/Array/SetHelper`
+- **NEW** Extra samples:
+    - [Dump Asset To Log](Extra/DumpAssetToLog.md)
+    - [Deserialize From SQLite Query](Extra/SQLite.md)
+    - [Inline Struct](Extra/InlineStruct.md)
+- **FIX** Core changes and fixes:
+    - Fix stale enum property fields serialization crash.
+    - Fix `TSet/TMap` serialization crashes.
+    - Fix soft object/class reference serialize to nil when it's not loaded.
+    - Fix pipe property class/object handlers.
+    - Fix `TObjectPtr<>` serialialzation and deserialization.
+    - Fix `PeekReadDataPtr` on class property.
+    - Removed `FScopedStackedReader/FScopedStackedWriter` usage.
+    - Fix `HeuristicVerifyPointer` diagnostic.  
+    - Fix `DC_TRY` shadowing variable `Ret`.
+    - JSON now support non string keyed `TMap<>` as `[{ "$key": <foo>, "$value": <bar> }]`.<br>
+      See: [JSON- Map](Formats/JSON.md#map)
+    - Fix `DcPropertyUtils::DcIsSubObjectProperty()`<br>
+      Now it only checks for `CPF_InstancedReference`.
+    - Update screenshots to UE5.<br> Note that DataConfig [still supports from 4.25 and onwards](Integration.md).
+    - Update [Property](Formats/Property.md) docs.
+
 ## 1.2.2 - 2022-4-5
 
 - Support for [UE 5.0.0](https://docs.unrealengine.com/5.0/en-US/unreal-engine-5-0-release-notes/)
@@ -19,18 +50,18 @@ All notable changes to this project will be documented in this file.
 
 Checkout blog post ["Introducing DataConfig 1.2"](/blog/dataconfig-1-2/).
 
-* **New** Serializer. Previously we only have deserializers. 
+* **NEW** Serializer. Previously we only have deserializers. 
   * Serializer API mirrors deserializers.
   * Builtin serialization and deserialization handlers are all roundtrip-able.
   * `DcDiagnosticDeserialize -> DcDiagnosticSerDe` for sharing diagnostics.
   * `DcDeserializeUtils -> DcSerDeUtils` for sharing code.
-* **New** MsgPack reader and writer.
+* **NEW** MsgPack reader and writer.
   * Full spec implemented, minus the "Timestamp extension type".
   * Integrate and passes [kawanet/msgpack-test-suite](https://github.com/kawanet/msgpack-test-suite).
-* **New** JSON writer.
+* **NEW** JSON writer.
   * With `WIDECHAR/ANSICHAR` specialization as JSON Reader.
   * Accept config to output pretty or condensed output.
-* **New** Builtin metas.
+* **NEW** Builtin metas.
   * `DcSkip`  - skip marked fields
   * `DcMsgPackBlob`  - marked TArray<>/Struct would be read as blob by MsgPack SerDe
 * **CHANGE** Core type changes.

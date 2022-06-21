@@ -4,8 +4,11 @@ DataConfig support custom serialization and deserialization logic by implementin
 
 In this example, we'd like to convert `FColor` into `#RRGGBBAA` and vice versa: 
 
+* [DcSerdeColor.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeColor.h)
+* [DcSerdeColor.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcSerDeColor.h
+// DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcSerDeColor.h
 USTRUCT()
 struct FDcExtraTestStructWithColor1
 {
@@ -15,7 +18,7 @@ struct FDcExtraTestStructWithColor1
     UPROPERTY() FColor ColorField2;
 };
 
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
 FString Str = TEXT(R"(
     {
         "ColorField1" : "#0000FFFF",
@@ -27,7 +30,7 @@ FString Str = TEXT(R"(
 First you'll need to implement a `FDcDeserializePredicate` delegate to pick out `FColor` properties:
 
 ```c++
-//  DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
+//  DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeColor.cpp
 EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 {
     return DcDeserializeUtils::PredicateIsUStruct<FColor>(Ctx);
@@ -37,7 +40,7 @@ EDcDeserializePredicateResult PredicateIsColorStruct(FDcDeserializeContext& Ctx)
 Then we'll need to implement a `FDcDeserializeDelegate` to deserialize a `FColor`. Here we'll do it by writing through `R/G/B/A` fields by name with the `FDcWriter` API.
 
 ```c++
-// DataConfig/Source/DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
+// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeColor.cpp
 FDcResult HandlerColorDeserialize(FDcDeserializeContext& Ctx)
 {
     FDcPropertyDatum Datum;
@@ -59,7 +62,7 @@ Note how we retrieve the hex string, then parse it with `FColor::FromHex`.
 Upon deserializing we'll need to register these pair of delegates to the `FDcDeserializer`.
 
 ```c++
-// DataConfig/Source/DataConfigTests/Private/DcTestBlurb.cpp
+// DataConfigTests/Private/DcTestBlurb.cpp
 FDcDeserializer Deserializer;
 DcSetupJsonDeserializeHandlers(Deserializer);
 Deserializer.AddPredicatedHandler(

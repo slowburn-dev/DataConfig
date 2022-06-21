@@ -5,8 +5,7 @@ At the moment it supports these the engine versions below:
 - UE 4.25
 - UE 4.26
 - UE 4.27
-- UE 5 Preview 1
-- UE 5 main branch (tested on commit `a321c3431499` on `ue5-main` branch)
+- UE 5.0 
 
 ## Integrate `DataConfig` Plugin
 
@@ -73,11 +72,13 @@ Most projects should has a editor module already setup. In this section we'll go
    }
    ```
    
-4. Rebuild the project and restart the editor. Open `Output Log` and use `LogDataConfigCore` filter and find the dump output. 
+4. Rebuild the project and restart the editor. Open `Output Log` and you should be able to find the dump results (to filter use `Categories -> None` ).
 
    ![Integration-DataConfigCoreOutput](Images/Integration-DataConfigCoreOutput.png)
+   
+   
 
-You can refer to `DataConfigEditorExtra` module for more detailed integration options.
+You can refer to [Module Setup](Extra/ModuleSetup.md) for more detailed integration instructions.
 
 [1]:https://github.com/slowburn-dev/DataConfig "slowburn-dev/DataConfig"
 

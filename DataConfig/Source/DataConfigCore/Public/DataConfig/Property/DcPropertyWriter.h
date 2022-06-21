@@ -10,7 +10,7 @@ namespace DcPropertyWriterDetails
 {
 	struct FWriteState
 	{
-		using ImplStorageType = TAlignedBytes<64, MIN_ALIGNMENT>;
+		using ImplStorageType = TAlignedBytes<96, MIN_ALIGNMENT>;
 		ImplStorageType ImplStorage;
 	};
 } // namespace DcPropertyWriterDetails
@@ -19,6 +19,13 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 {
 	FDcPropertyWriter();
 	FDcPropertyWriter(FDcPropertyDatum Datum);
+
+	enum EArrayWriter { Array };
+	enum ESetWriter { Set };
+
+	FDcPropertyWriter(EArrayWriter, FProperty* InInnerProperty, void* InArray, EArrayPropertyFlags InArrayFlags = EArrayPropertyFlags::None);
+	FDcPropertyWriter(ESetWriter, FProperty* InElementProperty, void* InSet);
+	FDcPropertyWriter(FProperty* InKeyProperty, FProperty* InValueProperty, void* InMap, EMapPropertyFlags InMapFlags = EMapPropertyFlags::None);
 
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 
@@ -81,7 +88,10 @@ struct DATACONFIGCORE_API FDcPropertyWriter : public FDcWriter, private FNoncopy
 
 	///	manual writing supporting
 	FDcResult PushTopClassPropertyState(const FDcPropertyDatum& Datum);
-	FDcResult PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName);
+	FDcResult PushTopStructPropertyState(const FDcPropertyDatum& Datum, const FName& StructName); 
+
+	/// scalar array support
+	bool IsWritingScalarArrayItem();
 
 	FDcResult SetConfig(FDcPropertyConfig InConfig);
 	FDcPropertyConfig Config;

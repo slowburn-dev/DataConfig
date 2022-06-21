@@ -75,7 +75,7 @@ static FDcResult _TestWriter(FAutomationTestBase* Self, TFunctionRef<FDcResult(F
 
 static FDcResult RoundtripJsonMsgpackJson(FAutomationTestBase* Self, FString Str)
 {
-	FString NormalizedStr = DcReindentStringLiteral(Str);
+	FString NormalizedStr = DcAutomationUtils::DcReindentStringLiteral(Str);
 
 	FDcMsgPackWriter::BufferType MsgPackBytes;
 	{
@@ -730,6 +730,29 @@ DC_TEST("DataConfig.Core.MsgPack.Diags")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.MsgPack.FormatHighlight")
+{
+	FDcMsgPackWriter Writer;
+
+	{
+		UTEST_OK("MsgPack FormatHightlight", Writer.WriteInt16(123));
+		FDcDiagnostic DiagWriter({DcDCommon::Category, DcDCommon::CustomMessage});
+		Writer.FormatDiagnostic(DiagWriter);
+		UTEST_EQUAL("MsgPack FormatHightlight", DiagWriter.Highlights[0].Formatted, TEXT("Last write: Int16"));
+
+	}
+
+	{
+		FDcMsgPackReader Reader(FDcBlobViewData::From(Writer.GetMainBuffer()));
+		UTEST_OK("MsgPack FormatHightlight", Reader.ReadInt16(nullptr));
+
+		FDcDiagnostic DiagReader({DcDCommon::Category, DcDCommon::CustomMessage});
+		Reader.FormatDiagnostic(DiagReader);
+		UTEST_EQUAL("MsgPack FormatHightlight", DiagReader.Highlights[0].Formatted, TEXT("Last read: Int16"));
+	}
+
+	return true;
+}
 
 namespace DcTestMsgPackDetails
 {

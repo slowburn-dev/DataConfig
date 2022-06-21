@@ -11,6 +11,8 @@
 class DATACONFIGCORE_API FDcAutomationBase : public FAutomationTestBase
 {
 public:
+	static FString CheckUniqueName(const FString& InName);
+
 	constexpr static uint32 FLAGS = EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter;
 
 	using FAutomationTestBase::FAutomationTestBase;
@@ -70,7 +72,7 @@ public:
 		virtual bool DcRunTestBody(const FString& Parameters) override; \
 		virtual FString GetBeautifiedTestName() const override { return PrettyName; } \
 	}; \
-	DC_JOIN(FDcAutomationTest, ID) DC_JOIN(_DcAutomationInstance, ID)(TEXT(PrettyName)); \
+	DC_JOIN(FDcAutomationTest, ID) DC_JOIN(_DcAutomationInstance, ID)(FDcAutomationBase::CheckUniqueName(TEXT(PrettyName))); \
 	} \
 	bool DC_JOIN(FDcAutomationTest, ID)::DcRunTestBody(const FString& Parameters)
 

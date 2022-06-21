@@ -5,7 +5,7 @@
 void FDcTestStructEnumFlag1::MakeFixture()
 {
 #if !WITH_METADATA
-	UEnum* EnumClass = FindObject<UEnum>(ANY_PACKAGE, TEXT("EDcTestEnumFlag"), true);
+	UEnum* EnumClass = StaticEnum<EDcTestEnumFlag>();
 	check(EnumClass);
 	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
 #endif
@@ -59,4 +59,43 @@ void FDcTestStructRefs2::MakeFixture()
 	SubClassField2 = nullptr;
 	SoftClassField1 = DynamicMetaClass;
 	SoftClassField2 = nullptr;
+}
+
+void FDcTestStructArrayDim1::MakeFixture()
+{
+	NameArr[0] = TEXT("Name0");
+	NameArr[1] = TEXT("Name1");
+
+	StringArr[0] = TEXT("Str0");
+	StringArr[1] = TEXT("Str1");
+
+	FloatArr[0] = 12.3f;
+	FloatArr[1] = 23.4f;
+
+	Int8Arr[0] = 23;
+	Int8Arr[1] = -34;
+
+	EnumFlagArr[0] = EDcTestEnumFlag::None;
+	EnumFlagArr[1] = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestEnumFlag::Five;
+
+	StructArr[0] = { {TEXT("One"), TEXT("Two")}, {1, 2} };
+	StructArr[1] = { {TEXT("Three"), TEXT("Four")}, {3, 4} };
+
+}
+
+void FDcTestStructMaps::MakeFixture()
+{
+#if !WITH_METADATA
+	UEnum* EnumClass = StaticEnum<EDcTestEnumFlag>();
+	check(EnumClass);
+	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
+#endif
+
+	ColorKeyMap.Add(FColor::Red, TEXT("Red"));
+	ColorKeyMap.Add(FColor::Green, TEXT("Green"));
+	ColorKeyMap.Add(FColor::Blue, TEXT("Blue"));
+
+	EnumFlagsMap.Add(EDcTestEnumFlag::None, TEXT("None"));
+	EnumFlagsMap.Add(EDcTestEnumFlag::One | EDcTestEnumFlag::Three, TEXT("One | Three"));
+	EnumFlagsMap.Add(EDcTestEnumFlag::Five, TEXT("Five"));
 }

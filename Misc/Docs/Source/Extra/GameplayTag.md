@@ -4,8 +4,11 @@
 
 In this example we have roundtrip handlers for `FGameplayTag` and `FGameplayTagContainer`.
 
+* [DcSerDeGameplayTags.h]({{SrcRoot}}DataConfigEditorExtra/Public/DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.h)
+* [DcSerDeGameplayTags.cpp]({{SrcRoot}}DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.cpp)
+
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Public/DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.h
+// DataConfigEditorExtra/Public/DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.h
 USTRUCT()
 struct FDcEditorExtraTestStructWithGameplayTag1
 {
@@ -15,7 +18,7 @@ struct FDcEditorExtraTestStructWithGameplayTag1
     UPROPERTY() FGameplayTag TagField2;
 };
 
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.cpp
+// DataConfigEditorExtra/Private/DataConfig/EditorExtra/SerDe/DcSerDeGameplayTags.cpp
 FString Str = TEXT(R"(
     {
         "TagField1" : null,
@@ -27,7 +30,7 @@ FString Str = TEXT(R"(
  `FGameplayTagContainer` converts to a list of strings:
 
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Public/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h
+// DataConfigEditorExtra/Public/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.h
 USTRUCT()
 struct FDcEditorExtraTestStructWithGameplayTag2
 {
@@ -37,7 +40,7 @@ struct FDcEditorExtraTestStructWithGameplayTag2
     UPROPERTY() FGameplayTagContainer TagContainerField2;
 };
 
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.cpp
+// DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.cpp
 FString Str = TEXT(R"(
     {
         "TagContainerField1" : [],
@@ -53,7 +56,7 @@ FString Str = TEXT(R"(
 Note that gameplay tag parsing has error reporting built-in. In this case we can pipe it into our diagnostic:
 
 ```c++
-// DataConfig/Source/DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.cpp
+// DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayTags.cpp
 static FDcResult _StringToGameplayTag(FDcDeserializeContext& Ctx, const FString& Str, FGameplayTag* OutTagPtr)
 {
     FString FixedString;

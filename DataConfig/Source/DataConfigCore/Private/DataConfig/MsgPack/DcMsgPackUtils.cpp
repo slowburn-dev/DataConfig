@@ -10,7 +10,7 @@
 namespace DcMsgPackUtils
 {
 	
-FName DC_META_MSGPACK_BLOB = FName(TEXT("DcMsgPackBlob"));
+const FName DC_META_MSGPACK_BLOB = FName(TEXT("DcMsgPackBlob"));
 
 FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 {
@@ -148,28 +148,6 @@ FDcResult ReadExtBytes(FDcMsgPackReader* Reader, uint8& OutType, TArray<uint8>& 
 	}
 
 	return DcOk();
-}
-
-void VisitMsgPackPipeScalarPropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
-{
-	Visitor(FBoolProperty::StaticClass());
-
-	Visitor(FInt8Property::StaticClass());
-	Visitor(FInt16Property::StaticClass());
-	Visitor(FIntProperty::StaticClass());
-	Visitor(FInt64Property::StaticClass());
-
-	Visitor(FByteProperty::StaticClass());
-	Visitor(FUInt16Property::StaticClass());
-	Visitor(FUInt32Property::StaticClass());
-	Visitor(FUInt64Property::StaticClass());
-
-	Visitor(FFloatProperty::StaticClass());
-	Visitor(FDoubleProperty::StaticClass());
-
-	Visitor(FStrProperty::StaticClass());
-	Visitor(FNameProperty::StaticClass());
-	Visitor(FTextProperty::StaticClass());
 }
 
 } // namespace DcMsgPackUtils

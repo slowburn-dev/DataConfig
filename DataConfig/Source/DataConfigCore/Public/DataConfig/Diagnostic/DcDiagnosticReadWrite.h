@@ -28,6 +28,7 @@ enum Type : uint16
 	EnumNameNotFound,
 	EnumValueInvalid,
 	EnumSignMismatch,
+	EnumMissingEnum,
 	WriteBlobOverrun,
 	FindPropertyByOffsetFailed,
 	DataTypeUnequal,
@@ -37,6 +38,7 @@ enum Type : uint16
 	HeuristicInvalidPointer,
 	ReaderCastExpect,
 	WriterCastExpect,
+	PeekNoContainerProperty,
 	
 	//	putback reader
 	CantUsePutbackValue,
