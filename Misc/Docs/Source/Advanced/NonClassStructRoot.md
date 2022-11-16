@@ -28,7 +28,7 @@ check(Arr.Num() == 5);
 check(Arr[4] == 5);
 ```
 
-Note that `FDcPropertyBuilder` would create a heap allocated `FProperty` and `LinkOnScope()` returns a `TUniquePtr`. You might want to cache the properties if used repeatly.
+Note that `FDcPropertyBuilder` would create a heap allocated `FProperty` and `LinkOnScope()` returns a `TUniquePtr`. You might want to cache the properties if used repeatedly.
 
 
 

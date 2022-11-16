@@ -6,6 +6,8 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/SerDe/DcSerDeUtils.inl"
 
+#include "Misc/EngineVersionComparison.h"
+
 namespace DcSerDeUtils {
 
 bool IsMeta(const FString& Str)
@@ -26,6 +28,61 @@ FDcResult ExpectMetaKey(const FString& Actual, const TCHAR* Expect)
 FDcResult DispatchPipeVisit(EDcDataEntry Next, FDcReader* Reader, FDcWriter* Writer)
 {
 	return DcPipe_Dispatch(Next, Reader, Writer);
+}
+
+
+UObject* StaticFindFirstObject(UClass* Class, const TCHAR* Name, bool bExactClass)
+{
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
+	UObject* Ret = StaticFindObject(Class, ANY_PACKAGE, Name, bExactClass);
+#else
+	UObject* Ret = StaticFindFirstObject(Class, Name, 
+		EFindFirstObjectOptions::NativeFirst |
+		(bExactClass ? EFindFirstObjectOptions::ExactClass : EFindFirstObjectOptions::None)
+		);
+#endif
+	return Ret;
+}
+
+FDcResult TryStaticFindFirstObject(UClass* Class, const TCHAR* Name, bool bExactClass, UObject*& OutObject)
+{
+	UObject* Ret = DcSerDeUtils::StaticFindFirstObject(Class, Name, bExactClass);
+	if (!Ret)
+	{
+		return DC_FAIL(DcDSerDe, UObjectByStrNotFound) << Class->GetFName() << Name;
+	}
+	else
+	{
+		OutObject = Ret;
+		return DcOk();
+	}
+}
+
+FDcResult TryStaticFindObject(UClass* Class, const FName& PackageName, const FName& AssetName, bool ExactClass, UObject*& OutObject)
+{
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
+	UObject* Ret = nullptr;
+	if (!AssetName.IsNone())
+	{
+		 UObject* Package = StaticFindObjectFast(UPackage::StaticClass(),  nullptr, PackageName);
+		 if (Package)
+		 {
+		 	Ret = StaticFindObjectFast(Class, Package, AssetName, ExactClass);
+		 }
+	}
+#else
+	UObject* Ret = StaticFindObject(Class, FTopLevelAssetPath{PackageName, AssetName}, ExactClass);
+#endif
+
+	if (!Ret)
+	{
+		return DC_FAIL(DcDSerDe, UObjectByStrNotFound) << Class->GetFName() << AssetName;
+	}
+	else
+	{
+		OutObject = Ret;
+		return DcOk();
+	}
 }
 
 FDcResult TryStaticFindObject(UClass* Class, UObject* Outer, const TCHAR* Name, bool ExactClass, UObject*& OutObject)
@@ -58,14 +115,14 @@ FDcResult TryStaticLoadObject(UClass* Class, UObject* Outer, const TCHAR* LoadPa
 	}
 }
 
-FDcResult TryStaticLocateObject(UClass* Class, const FString& Str, UObject*& OutObject)
+FDcResult TryStaticLocateObject(UClass* Class, FStringView Str, UObject*& OutObject)
 {
 	if (Str.StartsWith(TEXT("/")))
 	{
 		//	/Game/Path/To/Object
 		//	`Game` is a Mount Point, and there's no `.uasset` suffix
 		UObject* Loaded;
-		DC_TRY(DcSerDeUtils::TryStaticLoadObject(Class, nullptr, *Str, Loaded));
+		DC_TRY(DcSerDeUtils::TryStaticLoadObject(Class, nullptr, Str.GetData(), Loaded));
 
 		OutObject = Loaded;
 		return DcOk();
@@ -76,10 +133,10 @@ FDcResult TryStaticLocateObject(UClass* Class, const FString& Str, UObject*& Out
 	{
 		//	'/Foo/Bar'
 		//	single quoted name, it's object name starting with '/'
-		FString Unquoted = Str.Mid(1, Str.Len() - 2);
+		//	note that need to use the quoted name to find
 		
 		UObject* Loaded;
-		DC_TRY(DcSerDeUtils::TryStaticFindObject(Class, ANY_PACKAGE, *Str, false, Loaded));
+		DC_TRY(DcSerDeUtils::TryStaticFindFirstObject(Class, Str.GetData(), false, Loaded));
 
 		OutObject = Loaded;
 		return DcOk();
@@ -89,7 +146,7 @@ FDcResult TryStaticLocateObject(UClass* Class, const FString& Str, UObject*& Out
 		//	Foo
 		//	try find by name
 		UObject* Loaded;
-		DC_TRY(DcSerDeUtils::TryStaticFindObject(Class, ANY_PACKAGE, *Str, false, Loaded));
+		DC_TRY(DcSerDeUtils::TryStaticFindFirstObject(Class, Str.GetData(), false, Loaded));
 
 		OutObject = Loaded;
 		return DcOk();

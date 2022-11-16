@@ -300,7 +300,7 @@ DC_TEST("DataConfig.Extra.JsonConverter")
 	return true;
 }
 
-DC_TEST("DataConfig.Extra.JsonConverter.ArrayDim")
+DC_TEST("DataConfig.Extra.JsonConverterArrayDim")
 {
 	FString Str = DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 		{

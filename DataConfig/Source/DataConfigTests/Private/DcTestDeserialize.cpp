@@ -1,12 +1,13 @@
 #include "DcTestProperty2.h"
+#include "DcTestProperty4.h"
 #include "DcTestSerDe.h"
-#include "DataConfig/Deserialize/DcDeserializer.h"
 #include "DataConfig/Json/DcJsonReader.h"
-#include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Automation/DcAutomationUtils.h"
+#include "DataConfig/Deserialize/Handlers/Common/DcCommonDeserializers.h"
+#include "DataConfig/SerDe/DcDeserializeCommon.inl"
 #include "DataConfig/Extra/SerDe/DcSerDeColor.h"
 
 DC_TEST("DataConfig.Core.Deserialize.Primitive1")
@@ -133,7 +134,7 @@ DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 
 	FDcTestStructObjectRef1 Expect;
 
-	Expect.ObjField1 = FindObject<UPackage>(ANY_PACKAGE, TEXT("/Script/DataConfigTests"), true);
+	Expect.ObjField1 = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
 	Expect.ObjField2 = Expect.ObjField1;
 	Expect.ObjField3 = nullptr;
 
@@ -599,4 +600,119 @@ DC_TEST("DataConfig.Core.Deserialize.EnumPropertyWithoutEnum")
 	return true;
 }
 
+FDcResult _NaiveReadObjReference(FDcDeserializeContext& Ctx, FObjectPropertyBase* /*ObjectProperty*/, UObject*& OutObject)
+{
+	//	note it doesn't respect ObjectProperty class
+	FString Value;
+	DC_TRY(Ctx.Reader->ReadString(&Value));
+	return DcSerDeUtils::TryStaticLocateObject(
+		UObject::StaticClass(),
+		*Value,
+		OutObject);
+};
+
+DC_TEST("DataConfig.Core.Deserialize.DiagObjectClassMismatch")
+{
+	FDcTestObjectRefs2 Dest;
+	FDcPropertyDatum DestDatum(&Dest);
+
+	{
+		FString Str = TEXT(R"(
+
+			{
+				"TestClassObjectField" : "'/Script/DataConfigTests'",
+			}
+
+		)");
+
+		FDcJsonReader Reader(Str);
+		UTEST_DIAG("DiagObjectClassMismatch", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum, [](FDcDeserializeContext& Ctx) {
+
+			Ctx.Deserializer->AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
+			Ctx.Deserializer->AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateLambda([](FDcDeserializeContext& Ctx){
+				return DcDeserializeObjectReference<_NaiveReadObjReference>(Ctx);
+			}));
+
+		}, DcAutomationUtils::EDefaultSetupType::SetupNothing), DcDSerDe, ClassLhsIsNotChildOfRhs);
+	}
+
+	{
+		FString Str = TEXT(R"(
+
+			{
+				"TestClassSoftObjectField" : "'/Script/DataConfigTests'",
+			}
+
+		)");
+
+		FDcJsonReader Reader(Str);
+		UTEST_DIAG("DiagObjectClassMismatch", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum, [](FDcDeserializeContext& Ctx) {
+
+			Ctx.Deserializer->AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
+			Ctx.Deserializer->AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateLambda([](FDcDeserializeContext& Ctx){
+				return DcDeserializeSoftObjectReference<_NaiveReadObjReference>(Ctx);
+			}));
+
+		}, DcAutomationUtils::EDefaultSetupType::SetupNothing), DcDSerDe, ClassLhsIsNotChildOfRhs);
+	}
+
+	{
+		FString Str = TEXT(R"(
+
+			{
+				"TestClassWeakObjectField" : "'/Script/DataConfigTests'",
+			}
+
+		)");
+
+		FDcJsonReader Reader(Str);
+		UTEST_DIAG("DiagObjectClassMismatch", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum, [](FDcDeserializeContext& Ctx) {
+
+			Ctx.Deserializer->AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
+			Ctx.Deserializer->AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateLambda([](FDcDeserializeContext& Ctx){
+				return DcDeserializeWeakObjectReference<_NaiveReadObjReference>(Ctx);
+			}));
+
+		}, DcAutomationUtils::EDefaultSetupType::SetupNothing), DcDSerDe, ClassLhsIsNotChildOfRhs);
+	}
+
+	{
+		FString Str = TEXT(R"(
+
+			{
+				"TestClassLazyObjectField" : "'/Script/DataConfigTests'",
+			}
+
+		)");
+
+		FDcJsonReader Reader(Str);
+		UTEST_DIAG("DiagObjectClassMismatch", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum, [](FDcDeserializeContext& Ctx) {
+
+			Ctx.Deserializer->AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
+			Ctx.Deserializer->AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateLambda([](FDcDeserializeContext& Ctx){
+				return DcDeserializeLazyObjectReference<_NaiveReadObjReference>(Ctx);
+			}));
+
+		}, DcAutomationUtils::EDefaultSetupType::SetupNothing), DcDSerDe, ClassLhsIsNotChildOfRhs);
+	}
+
+
+	{
+		FString Str = TEXT(R"(
+
+			{
+				"InlineShapeObjectField" : {
+					"$type": "DcTestClass1",
+					"IntField": 253
+				}
+			}
+
+		)");
+
+		FDcJsonReader Reader(Str);
+		UTEST_DIAG("DiagObjectClassMismatch", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum), DcDSerDe, ClassLhsIsNotChildOfRhs);
+	}
+
+	return true;
+};
 

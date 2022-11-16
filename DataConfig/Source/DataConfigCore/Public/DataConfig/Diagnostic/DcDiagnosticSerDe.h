@@ -51,6 +51,9 @@ enum Type : uint16
 	ClassExpectNonAbstract,
 	ClassLhsIsNotChildOfRhs,
 
+	//	Struct
+	StructLhsIsNotChildOfRhs,
+
 	//	Pipe
 	PipeUnhandledEnded,
 	PipeUnhandledExtension,

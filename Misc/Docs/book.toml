@@ -1,6 +1,6 @@
 [book]
 title = "DataConfig Book"
-description = "Serialization framework for Unreal Engine Property System that just works!"
+description = "Serialization framework for Unreal Engine that just works!"
 src = "Source"
 language = "en"
 

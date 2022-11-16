@@ -17,6 +17,9 @@ public class DataConfigHeadless : ModuleRules
 				"DataConfigCore",
 				"DataConfigExtra",
 				"DataConfigTests",
+#if UE_5_0_OR_LATER
+				"DataConfigTests5",
+#endif
 			});
 
 		PrivateIncludePathModuleNames.AddRange(

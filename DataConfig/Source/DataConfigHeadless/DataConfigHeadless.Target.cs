@@ -1,5 +1,3 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
-
 using UnrealBuildTool;
 using System.Collections.Generic;
 
@@ -33,6 +31,10 @@ public class DataConfigHeadlessTarget : TargetRules
 		bBuildDeveloperTools = false;
 
 		bIsBuildingConsoleApplication = true;
+
+#if UE_5_1_OR_LATER
+		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+#endif
 
 		//	toggle to use clang-cl
 		//	it works mostly except breaks FName natvis

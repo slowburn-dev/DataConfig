@@ -3,7 +3,7 @@
 	"Version" : 1,
 	"VersionName" : "1.0",
 	"FriendlyName" : "Data Config",
-	"Description" : "Serialization framework for Unreal Engine Property System that just works!",
+	"Description" : "Serialization framework for Unreal Engine that just works!",
 	"Category" : "Editor",
 	"SupportURL" : "",
 	"EnabledByDefault" : true,
@@ -31,6 +31,16 @@
 			"Type": "Editor",
 	    	"LoadingPhase": "Default"
 		},
+		{
+			"Name": "DataConfigTests5",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DataConfigEditorExtra5",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
+		}
 	],
 	"Plugins": [
 		{
@@ -39,6 +49,10 @@
 		},
 		{
 			"Name": "SQLiteCore",
+			"Enabled": true
+		},
+		{
+			"Name": "StructUtils",
 			"Enabled": true
 		}
 	]

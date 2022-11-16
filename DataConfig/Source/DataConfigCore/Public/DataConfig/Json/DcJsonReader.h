@@ -138,7 +138,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	void AdvanceN(int N);
 	CharType PeekChar(int N = 0);
 
-	FDcResult ReadWordExpect(const CharType* Word);
+	FDcResult ReadWordExpect(const CharType* Word, int32 WordLen);
 
 	void ReadWhiteSpace();
 	void ReadLineComment();

@@ -55,4 +55,3 @@ TSharedRef<FExtender> DumpAssetToLogExtender(const TArray<FAssetData>& SelectedA
 
 } // namespace DcEditorExtra
 
-

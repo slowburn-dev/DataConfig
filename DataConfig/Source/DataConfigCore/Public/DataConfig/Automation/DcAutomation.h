@@ -29,6 +29,10 @@ public:
 	bool RunTest(const FString& Parameters) override;
 
 	virtual bool DcRunTestBody(const FString& Parameters) = 0;
+
+private:
+
+	bool TestDiagnosticImpl(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code);
 };
 
 #define UTEST_OK(What, Result)\

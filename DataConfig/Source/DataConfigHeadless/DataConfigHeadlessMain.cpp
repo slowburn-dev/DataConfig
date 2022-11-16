@@ -7,7 +7,7 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/Extra/Diagnostic/DcDiagnosticExtra.h"
 
-#include "stdio.h"
+#include "Misc/EngineVersion.h"
 
 ///
 /// Usage:
@@ -62,7 +62,10 @@ INT32_MAIN_INT32_ARGC_TCHAR_ARGV()
 		FCommandLine::Parse(*ShortCmdLine, Tokens, Switches);
 	}
 
-	UE_LOG(LogDataConfigCore, Display, TEXT("DataConfigCore Version: %s, %d"),
+	UE_LOG(LogDataConfigCore, Display, TEXT("UE Version: %d.%d.%d, DataConfigCore Version: %s, %d"),
+		ENGINE_MAJOR_VERSION,
+		ENGINE_MINOR_VERSION,
+		ENGINE_PATCH_VERSION,
 		TEXT(DATA_CONFIG_CORE_VERSION),
 		DATA_CONFIG_CORE_VERSION_NUMBER
 	);

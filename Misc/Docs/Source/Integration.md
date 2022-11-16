@@ -6,20 +6,52 @@ At the moment it supports these the engine versions below:
 - UE 4.26
 - UE 4.27
 - UE 5.0 
+- UE 5.1 
 
 ## Integrate `DataConfig` Plugin
 
 The easiest way to try out DataConfig is to add it as a plugin into your C++ project.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
 
+### Generate DataConfig Plugin for UE4/UE5
+
+DataConfig now uses separated `uplugin` files for UE4 and UE5 so that we can try out new features in UE5 without dropping support for UE4. We bundled scripts to generate clean plugins for UE4 and UE5. You can also find these on [DataConfig releases][2] page.
+
+```shell
+git clone https://github.com/slowburn-dev/DataConfig
+# requires python 3.6+
+python ./DataConfig/Misc/Scripts/make_dataconfig_ue4.py
+python ./DataConfig/Misc/Scripts/make_dataconfig_ue5.py
+```
+
+### Manual Steps for UE5
+
+1. Get a copy of [DataConfig repository][1]. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
+
+2. Delete `DataConfig4.uplugin`.
+
+3. **Delete `DataConfig/Source/DataConfigHeadless`** folder. **This step is crucial or you your project won't build**.
+
+### Manual Steps for UE4
+
 1. Get a copy of [the repository][1]. Then copy  `./DataConfig` (where `DataConfig.uplugin` is located) into your project's `Plugins` directory.
 
-2. **Delete `DataConfig\Source\DataConfigHeadless`** folder. It has a `DataConfigHeadless.Target.cs` file which is a hack to build a headless binary during development. **This step is crucial or you your project won't build**.
+2. Delete `DataConfig.uplugin`, then rename `DataConfig4.uplugin` to `DataConfig.uplugin`.
 
-3. Restart your project. There should be a prompt to compile plugin sources. Confirm and wait until your project launches. Then open `Settings -> Plugins` you should see **Data Config** listed under Project Editor category.
+3. **Delete `DataConfig/Source/DataConfigHeadless`** folder. **This step is crucial or you your project won't build**.
+
+4. Additionally delete UE5 specific modules.
+    
+    * `DataConfig/Source/DataConfigEditorExtra5`
+
+### Validate integration
+
+Follow these steps to ensure DataConfig is properly integrated into your project.
+
+1. Restart your project. There should be a prompt to compile plugin sources. Confirm and wait until your project launches. Then open `Settings -> Plugins` you should see **Data Config** listed under Project Editor category.
 
    ![Integration-DataConfigPlugin](Images/Integration-DataConfigPlugin.png)
 
-4. The plugin comes with a set of tests. Open menu `Window -> Developer Tools  -> Session Frontend`. Find and run the `DataConfig` tests and it should all pass.
+2. The plugin comes with a set of tests. Open menu `Window -> Developer Tools  -> Session Frontend`. Find and run the `DataConfig` tests and it should all pass.
 
    ![Integration-DataConfigAutomations](Images/Integration-DataConfigAutomations.png)
 
@@ -61,7 +93,7 @@ Most projects should has a editor module already setup. In this section we'll go
        // dump a FVector to try it out
        FVector Vec(1.0f, 2.0f, 3.0f);
        FDcPropertyDatum VecDatum(TBaseStructure<FVector>::Get(), &Vec);
-
+   
        DcAutomationUtils::DumpToLog(VecDatum);
    }
    
@@ -81,4 +113,6 @@ Most projects should has a editor module already setup. In this section we'll go
 You can refer to [Module Setup](Extra/ModuleSetup.md) for more detailed integration instructions.
 
 [1]:https://github.com/slowburn-dev/DataConfig "slowburn-dev/DataConfig"
+
+[2]:https://github.com/slowburn-dev/DataConfig/releases
 

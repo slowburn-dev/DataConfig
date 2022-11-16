@@ -195,7 +195,6 @@ JSON only allow string as object/mapping keys, while in UE `TMap<>` can use any 
 
 ```c++
 // DataConfigTests/Public/DcTestDeserialize.h
-FDcTestStruct3
 USTRUCT()
 struct FDcTestStruct3
 {
@@ -367,6 +366,8 @@ Expect.ShapeField3 = nullptr;
 ```
 
 Note that criteria for sub object selection can be easily overridden with a new deserialize predicate or alternative `FDcPropertyConfig` when constructing the reader.
+
+Also see [AnyStruct](../Extra/AnyStruct.md), [InlineStruct](../Extra/InlineStruct.md) and [InstancedStruct](../Extra/InstancedStruct.md) for lighter weight alternatives.
 
 ### Object and Class Reference
 

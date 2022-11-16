@@ -5,6 +5,7 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Json/DcJsonWriter.h"
 
 static UDcShapeBox* _MakeBox()
 {
@@ -821,7 +822,7 @@ DC_TEST("DataConfig.Core.Property.PropertyBuilder3")
 	}
 
 	{
-		TSoftObjectPtr<UPackage> Src = FindObject<UPackage>(ANY_PACKAGE, TEXT("/Script/DataConfigTests"), true);
+		TSoftObjectPtr<UPackage> Src = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
 		TSoftObjectPtr<UPackage> Dest;
 
 		auto SoftObjectProp = FDcPropertyBuilder::SoftObject(UPackage::StaticClass()).LinkOnScope();
@@ -843,7 +844,7 @@ DC_TEST("DataConfig.Core.Property.PropertyBuilder3")
 	}
 
 	{
-		TLazyObjectPtr<UPackage> Src = FindObject<UPackage>(ANY_PACKAGE, TEXT("/Script/DataConfigTests"), true);
+		TLazyObjectPtr<UPackage> Src = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
 		TLazyObjectPtr<UPackage> Dest;
 
 		auto LazyObjectProp = FDcPropertyBuilder::LazyObject(UPackage::StaticClass()).LinkOnScope();
@@ -946,3 +947,40 @@ DC_TEST("DataConfig.Core.Property.SetMapWithHoles")
 	return true;
 }
 
+DC_TEST("DataConfig.Core.Property.PropertyConfig")
+{
+#if !WITH_METADATA
+	DcAutomationUtils::AmendMetaData(FDcTestSerializeMeta1::StaticStruct(), TEXT("SerializedField"), TEXT("DcTestSerialize"), TEXT(""));
+#endif
+
+	FDcTestSerializeMeta1 Src;
+	Src.SerializedField = 123;
+	Src.IgnoredField = 456;
+
+	FDcJsonWriter Writer;
+	UTEST_OK("PropertyConfig", DcAutomationUtils::SerializeInto(&Writer, FDcPropertyDatum(&Src), [](FDcSerializeContext& Ctx)
+	{
+		FDcPropertyConfig Config;
+
+		//  only process fields that has `DcTestSerialize` meta
+		Config.ProcessPropertyPredicate = FDcProcessPropertyPredicateDelegate::CreateLambda([](FProperty* Property)
+		{
+			const static FName TestSerializeMeta = FName(TEXT("DcTestSerialize"));
+			return DcPropertyUtils::IsEffectiveProperty(Property)
+				&& Property->HasMetaData(TestSerializeMeta);
+		});
+		Config.ExpandObjectPredicate = FDcExpandObjectPredicateDelegate::CreateStatic(DcPropertyUtils::IsSubObjectProperty);
+		Ctx.Reader->SetConfig(Config).Ok();
+	}));
+	Writer.Sb << TCHAR('\n');
+
+	UTEST_EQUAL("PropertyConfig", Writer.Sb.ToString(), DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
+
+	{
+		"SerializedField" : 123
+	}
+
+	)")));
+
+	return true;
+}

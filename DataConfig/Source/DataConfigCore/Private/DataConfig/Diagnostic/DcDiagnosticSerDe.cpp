@@ -46,6 +46,9 @@ struct FDcDiagnosticDetail _DeserializeDetails[] = {
 	{ ClassExpectNonAbstract, TEXT("Expect class to be non abstract but failed, Class: '{0}'"), },
 	{ ClassLhsIsNotChildOfRhs, TEXT("Class '{0}' is not child of '{1}'") },
 
+	//	Struct
+	{ StructLhsIsNotChildOfRhs, TEXT("Struct '{0}' is not child of '{1}'") },
+
 	//	Pipe
 	{ PipeUnhandledEnded, TEXT("Pipe visit can't handle Ended") },
 	{ PipeUnhandledExtension, TEXT("Pipe visit can't handle Extension") },

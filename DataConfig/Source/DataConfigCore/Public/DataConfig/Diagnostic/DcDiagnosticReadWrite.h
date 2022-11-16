@@ -39,6 +39,9 @@ enum Type : uint16
 	ReaderCastExpect,
 	WriterCastExpect,
 	PeekNoContainerProperty,
+
+	//	property writer
+	WriteObjectReferenceDoNotAcceptNull,
 	
 	//	putback reader
 	CantUsePutbackValue,

@@ -56,7 +56,7 @@ bool FDcAutomationBase::TestOk(const FString& Description, const FDcResult& Resu
 	return TestOk(*Description, Result);
 }
 
-bool FDcAutomationBase::TestDiagnostic(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code)
+bool FDcAutomationBase::TestDiagnosticImpl(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code)
 {
 	if (Result.Ok())
 	{
@@ -85,6 +85,15 @@ bool FDcAutomationBase::TestDiagnostic(const TCHAR* Description, const FDcResult
 	DcEnv().Diagnostics.Empty();
 
 	return true;
+}
+
+bool FDcAutomationBase::TestDiagnostic(const TCHAR* Description, const FDcResult& Result, uint16 Category, uint16 Code)
+{
+	bool bOk = TestDiagnosticImpl(Description, Result, Category, Code);
+	#if DO_CHECK
+	if (!bOk) UE_DEBUG_BREAK();
+	#endif
+	return bOk;
 }
 
 bool FDcAutomationBase::TestDiagnostic(const FString& Description, const FDcResult& Result, uint16 Category, uint16 Code)

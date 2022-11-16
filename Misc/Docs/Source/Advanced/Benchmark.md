@@ -5,6 +5,8 @@ We've integrated two benchmarks fixtures from [JSON for modern C++][1] project. 
 * [canada.json]({{RepoRoot}}DataConfig/Tests/LargeFixtures/canada.json)
 * [corpus.ndjson]({{RepoRoot}}DataConfig/Tests/LargeFixtures/corpus.ndjson)
 
+See [here for instructions](./Automation.md#running-the-benchmarks) to build and run the benchmark.
+
 Here're the results:
 
 * [DcBenchmarkFixture1.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Benchmark/DcBenchmarkFixture1.cpp)

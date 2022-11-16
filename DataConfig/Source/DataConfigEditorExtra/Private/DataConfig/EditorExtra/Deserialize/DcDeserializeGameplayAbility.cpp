@@ -25,6 +25,7 @@
 #include "DataConfig/Automation/DcAutomation.h"
 #include "DataConfig/EditorExtra/SerDe/DcSerDeBlueprint.h"
 #include "DataConfig/Extra/Types/DcPropertyPathAccess.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 
 namespace DcEditorExtra
 {
@@ -83,9 +84,8 @@ FDcResult HandlerGameplayAttributeDeserialize(FDcDeserializeContext& Ctx)
 	FString Head = FString(View.Left(Ix));
 	FString Tail = FString(View.RightChop(Ix + 1));
 	
-	UClass* AttributeClass = FindObject<UClass>(ANY_PACKAGE, *Head, true);	
-	if (AttributeClass == nullptr)
-		return DC_FAIL(DcDSerDe, UObjectByStrNotFound) << TEXT("Class") << Head;
+	UClass* AttributeClass;
+	DC_TRY(DcSerDeUtils::TryFindFirstObject<UClass>(*Head, false, AttributeClass));
 
 	FProperty* AttributeProperty = DcPropertyUtils::FindEffectivePropertyByName(AttributeClass, *Tail);
 	if (AttributeProperty == nullptr)
@@ -202,7 +202,10 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 
 		UObject* Outer = nullptr;
 		ResolveName( Outer, ParentClassPath, false, false );
-		UClass* NativeParentClass = FindObject<UClass>( ANY_PACKAGE, *ParentClassPath );
+		UClass* NativeParentClass = DcSerDeUtils::FindFirstObject<UClass>(*ParentClassPath, false);
+
+		if (!NativeParentClass)
+			continue;
 		
 		if (NativeParentClass->IsChildOf(UGameplayAbility::StaticClass()))
 		{

@@ -59,8 +59,30 @@ struct FDcExtraTestCopyDelegateContainer
 	
 		return *this;
 	}
-
 };
 
+USTRUCT(BlueprintType)
+struct FDcStructShapeBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere) FName ShapeName;
+};
 
+USTRUCT(BlueprintType)
+struct FDcStructShapeRectangle : public FDcStructShapeBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere) float Height;
+	UPROPERTY(EditAnywhere) float Width;
+};
+
+USTRUCT(BlueprintType)
+struct FDcStructShapeCircle : public FDcStructShapeBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere) float Radius;
+};
 

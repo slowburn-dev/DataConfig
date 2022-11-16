@@ -197,7 +197,7 @@ DC_TEST("DataConfig.Extra.InlineStructUsage")
 	return true;
 }
 
-DC_TEST("DataConfig.Extra.SerDe.InlineStruct.Overflow")
+DC_TEST("DataConfig.Extra.SerDe.InlineStructOverflow")
 {
 
 	using namespace DcExtra;

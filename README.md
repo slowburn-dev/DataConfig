@@ -1,6 +1,6 @@
 # DataConfig
 
-__Serialization framework for Unreal Engine Property System that just works!__
+__Serialization framework for Unreal Engine that just works!__
 
 Unreal Engine features a powerful [Property System][1] which implements C++ runtime reflection. **DataConfig** is a serialization framework build on top of it. Notably features:
 

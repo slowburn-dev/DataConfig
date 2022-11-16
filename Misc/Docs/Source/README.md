@@ -1,6 +1,6 @@
 # DataConfig Book
 
-__Serialization framework for Unreal Engine Property System that just works!__
+__Serialization framework for Unreal Engine that just works!__
 
 [**DataConfig**][1] is a serialization framework built on top of Unreal Engine's Property System. It aims to be friendly and robust while offering good performance. Notably features:
 
@@ -22,7 +22,7 @@ There's also [DataConfig JSON Asset][2] on UE Marketplace. It's a premium plugin
 
 ## License
 
-**DataConfig** is released under a free and permissive license. But we really appreciate you to credit us if you find it useful. See [License](License.md) for details
+**DataConfig** is released under free and permissive MIT license. We'd really appreciate to credit us if you find it useful. See [License](License.md) for details.
 
 [1]: https://github.com/slowburn-dev/DataConfig "slowburn-dev/DataConfig"
 [2]: https://www.unrealengine.com/marketplace/en-US/product/dataconfig-json-asset "DataConfig JSON Asset"

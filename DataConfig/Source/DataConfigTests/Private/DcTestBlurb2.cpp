@@ -4,6 +4,7 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticCommon.h"
 #include "DataConfig/Json/DcJsonReader.h"
+#include "DataConfig/Json/DcJsonWriter.h"
 
 void FDcTestExample2::MakeFixture()
 {
@@ -64,7 +65,33 @@ DC_TEST("DataConfig.Core.Blurb.Property")
 
 	}());
 
-
 	return true;
 }
 
+
+DC_TEST("DataConfig.Core.Blurb.Coercion")
+{
+	UTEST_OK("Blurb Coercion", []{
+
+		FDcJsonReader Reader(TEXT(R"(
+			1.234567
+		)"));
+
+		//	check coercion
+		//	note this is a query and doesn't affect reading at all
+		bool bCanCoerceToStr;
+		DC_TRY(Reader.Coercion(EDcDataEntry::String, &bCanCoerceToStr));
+		check(bCanCoerceToStr);
+
+		//	read number token as stjring
+		//	note here we skipped parsing the number to float
+		FString NumStr;
+		DC_TRY(Reader.ReadString(&NumStr));
+
+		check(NumStr == TEXT("1.234567"));
+		return DcOk();
+
+	}());
+
+	return true;
+}

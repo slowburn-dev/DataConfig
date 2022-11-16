@@ -1,0 +1,45 @@
+{
+	"FileVersion" : 3,
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"FriendlyName" : "Data Config UE4",
+	"Description" : "Serialization framework for Unreal Engine that just works!",
+	"Category" : "Editor",
+	"SupportURL" : "",
+	"EnabledByDefault" : true,
+	"CanContainContent" : true,
+	"IsBetaVersion" : false,
+	"Installed" : false,
+	"Modules": [
+		{
+			"Name": "DataConfigCore",
+			"Type": "Editor",
+			"LoadingPhase": "None"
+		},
+		{
+			"Name": "DataConfigExtra",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DataConfigTests",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DataConfigEditorExtra",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "SQLiteCore",
+			"Enabled": true
+		}
+	]
+}

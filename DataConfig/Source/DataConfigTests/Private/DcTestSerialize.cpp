@@ -197,7 +197,7 @@ DC_TEST("DataConfig.Core.Serialize.ObjectRef")
 {
 	FDcTestStructObjectRef1 Value;
 
-	Value.ObjField1 = FindObject<UPackage>(ANY_PACKAGE, TEXT("/Script/DataConfigTests"), true);
+	Value.ObjField1 = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
 	Value.ObjField2 = Value.ObjField1;
 	Value.ObjField3 = nullptr;
 

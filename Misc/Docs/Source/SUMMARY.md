@@ -39,12 +39,15 @@
   - [Blueprint](Extra/Blueprint.md)
   - [Gameplay Tag](Extra/GameplayTag.md)
   - [Gameplay Ability](Extra/GameplayAbility.md)
+  - [InstancedStruct](Extra/InstancedStruct.md)
 
 - [Advanced](Advanced/README.md)
   - [Benchmark](Advanced/Benchmark.md)
   - [Writing Handlers](Advanced/WritingHandlers.md)
   - [Non Class/Struct Root](Advanced/NonClassStructRoot.md)
-
+  - [Automation](Advanced/Automation.md)
+  - [UE Upgrades](Advanced/UEUpgrades.md)
+  
 - [Changes](Changes.md)
 
 - [License](License.md)

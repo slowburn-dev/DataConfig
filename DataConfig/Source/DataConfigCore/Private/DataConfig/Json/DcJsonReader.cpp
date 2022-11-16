@@ -1161,25 +1161,25 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 			return _ConsumeSingleCharToken(ETokenType::Comma);
 		case CharType('t'):
 			{
-				const static CharType _TRUE[] = { 't','r','u','e',0 };
+				const static CharType _TRUE[] = { 't','r','u','e', };
 
-				DC_TRY(ReadWordExpect(_TRUE));
+				DC_TRY(ReadWordExpect(_TRUE, DcDimOf(_TRUE)));
 				Token.Type = ETokenType::True;
 				return DcOk();
 			}
 		case CharType('f'):
 			{
-				const static CharType _FALSE[] = { 'f','a','l','s','e',0 };
+				const static CharType _FALSE[] = { 'f','a','l','s','e', };
 
-				DC_TRY(ReadWordExpect(_FALSE));
+				DC_TRY(ReadWordExpect(_FALSE, DcDimOf(_FALSE)));
 				Token.Type = ETokenType::False;
 				return DcOk();
 			}
 		case CharType('n'):
 			{
-				const static CharType _NULL[] = { 'n','u','l','l',0 };
+				const static CharType _NULL[] = { 'n','u','l','l', };
 
-				DC_TRY(ReadWordExpect(_NULL));
+				DC_TRY(ReadWordExpect(_NULL, DcDimOf(_NULL)));
 				Token.Type = ETokenType::Null;
 				return DcOk();
 			}
@@ -1266,9 +1266,8 @@ CharType TDcJsonReader<CharType>::PeekChar(int N)
 }
 
 template<typename CharType>
-FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word)
+FDcResult TDcJsonReader<CharType>::ReadWordExpect(const CharType* Word, int32 WordLen)
 {
-	int32 WordLen = CString::Strlen(Word);
 	SourceRef WordRef = Token.Ref;
 	WordRef.Begin = Cur;
 	WordRef.Num = WordLen;

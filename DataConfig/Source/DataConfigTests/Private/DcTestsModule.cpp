@@ -23,7 +23,7 @@ public:
 
 	void ShutdownModule() override
 	{
-		UE_LOG(LogDataConfigCore, Log, TEXT("DcTestsModule module starting up"));
+		UE_LOG(LogDataConfigCore, Log, TEXT("DcTestsModule module shutting down"));
 	}
 };
 

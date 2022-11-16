@@ -114,6 +114,34 @@ struct FDcTestMeta1
 };
 ```
 
+Though that `DcSkip` behavior is enabled by default, you can override this with a custom `FPropertyConfig` instance. Here's an example of processing only fields with `DcTestSerialize` meta:
+
+```c++
+//  DataConfigTests/Private/DcTestProperty4.h
+USTRUCT()
+struct FDcTestSerializeMeta1
+{
+	GENERATED_BODY()
+
+	UPROPERTY(meta = (DcTestSerialize)) int SerializedField;
+	UPROPERTY() int IgnoredField;
+};
+
+//  DataConfigTests/Private/DcTestProperty4.cpp
+FDcPropertyConfig Config;
+//  only process fields that has `DcTestSerialize` meta
+Config.ProcessPropertyPredicate = FDcProcessPropertyPredicateDelegate::CreateLambda([](FProperty* Property)
+{
+    const static FName TestSerializeMeta = FName(TEXT("DcTestSerialize"));
+    return DcPropertyUtils::IsEffectiveProperty(Property)
+        && Property->HasMetaData(TestSerializeMeta);
+});
+Config.ExpandObjectPredicate = FDcExpandObjectPredicateDelegate::CreateStatic(DcPropertyUtils::IsSubObjectProperty);
+Ctx.Reader->SetConfig(Config);
+```
+
+
+
 ## Pipe Property Handlers
 
 * [DcPropertyPipeSerializers.h]({{SrcRoot}}DataConfigCore/Public/DataConfig/Serialize/Handlers/Property/DcPropertyPipeSerializers.h)

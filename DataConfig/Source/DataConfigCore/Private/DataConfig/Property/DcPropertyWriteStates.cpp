@@ -160,7 +160,6 @@ FDcResult FDcWriteStateStruct::PeekWriteProperty(FDcPropertyWriter* Parent, FFie
 	else if (State == EState::ExpectValue)
 	{
 		return ReadOutOk(OutProperty, Property);
-
 	}
 	else
 	{
@@ -454,6 +453,9 @@ FDcResult FDcWriteStateClass::WriteObjectReference(FDcPropertyWriter* Parent, co
 {
 	if (State == EState::ExpectReference)
 	{
+		if (Value == nullptr)
+			return DC_FAIL(DcDReadWrite, WriteObjectReferenceDoNotAcceptNull);
+
 		//	`FObjectProperty::SetObjectPropertyValue` not taking const pointer
 		ClassObject = const_cast<UObject*>(Value);
 		Datum.CastFieldChecked<FObjectProperty>()->SetObjectPropertyValue(Datum.DataPtr, const_cast<UObject*>(Value));

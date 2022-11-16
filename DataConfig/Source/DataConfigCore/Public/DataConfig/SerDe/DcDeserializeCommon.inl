@@ -54,7 +54,7 @@ FORCEINLINE_DEBUGGABLE FDcResult TryReadObjectReference(FDcDeserializeContext& C
 		{
 			return DcSerDeUtils::TryStaticLocateObject(
 				ObjectProperty->PropertyClass,
-				Value,
+				*Value,
 				OutObject);
 		}
 	}
@@ -83,7 +83,7 @@ FORCEINLINE_DEBUGGABLE FDcResult TryReadObjectReference(FDcDeserializeContext& C
 		DC_TRY(Ctx.Reader->ReadMapEnd());
 
 		UClass* LoadClass;
-		DC_TRY(DcSerDeUtils::TryFindObject<UClass>(ANY_PACKAGE, *LoadClassName, true, LoadClass));
+		DC_TRY(DcSerDeUtils::TryFindFirstObject<UClass>(*LoadClassName, true, LoadClass));
 
 		DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(LoadClass, ObjectProperty->PropertyClass));
 		
@@ -123,12 +123,17 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeObjectReference(FDcDeserializeCont
 
 	UObject* Loaded;
 	DC_TRY(FuncObjectReader(Ctx, ObjectProperty, Loaded));
-	
+
 	DC_TRY(Ctx.Writer->WriteClassRootAccess(RefStat));
 	if (Loaded)
+	{
+		DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(Loaded->GetClass(), ObjectProperty->PropertyClass));
 		DC_TRY(Ctx.Writer->WriteObjectReference(Loaded));
+	}
 	else
+	{
 		DC_TRY(Ctx.Writer->WriteNil());
+	}
 	DC_TRY(Ctx.Writer->WriteClassEndAccess(RefStat));
 
 	return DcOk();
@@ -146,6 +151,9 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeSoftObjectReference(FDcDeserialize
 
 	UObject* Loaded;
 	DC_TRY(FuncObjectReader(Ctx, SoftObjectProperty, Loaded));
+
+	if (Loaded)
+		DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(Loaded->GetClass(), SoftObjectProperty->PropertyClass));
 
 	DC_TRY(Ctx.Writer->WriteSoftObjectReference(FSoftObjectPtr(Loaded)));
 	return DcOk();
@@ -165,6 +173,9 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeWeakObjectReference(FDcDeserialize
 	UObject* Loaded;
 	DC_TRY(FuncObjectReader(Ctx, WeakObjectProperty, Loaded));
 
+	if (Loaded)
+		DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(Loaded->GetClass(), WeakObjectProperty->PropertyClass));
+
 	DC_TRY(Ctx.Writer->WriteWeakObjectReference(Loaded));
 	return DcOk();
 }
@@ -181,6 +192,9 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeLazyObjectReference(FDcDeserialize
 
 	UObject* Loaded;
 	DC_TRY(FuncObjectReader(Ctx, LazyObjectProperty, Loaded));
+
+	if (Loaded)
+		DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(Loaded->GetClass(), LazyObjectProperty->PropertyClass));
 
 	FLazyObjectPtr LazyPtr{Loaded};
 	DC_TRY(Ctx.Writer->WriteLazyObjectReference(LazyPtr));
@@ -213,11 +227,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeClassReference(FDcDeserializeConte
 	}
 
 	UClass* LoadClass = CastChecked<UClass>(Loaded);
-	if (!LoadClass->IsChildOf(ClassProperty->MetaClass))
-	{
-		return DC_FAIL(DcDSerDe, ClassLhsIsNotChildOfRhs)
-			<< LoadClass->GetFName() << ClassProperty->MetaClass->GetFName();
-	}
+	DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(LoadClass, ClassProperty->MetaClass));
 
 	DC_TRY(Ctx.Writer->WriteClassReference(LoadClass));
 	return DcOk();
@@ -250,11 +260,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeSoftClassReference(FDcDeserializeC
 	}
 
 	UClass* LoadClass = CastChecked<UClass>(Loaded);
-	if (!LoadClass->IsChildOf(SoftClassProperty->MetaClass))
-	{
-		return DC_FAIL(DcDSerDe, ClassLhsIsNotChildOfRhs)
-			<< LoadClass->GetFName() << SoftClassProperty->MetaClass->GetFName();
-	}
+	DC_TRY(DcSerDeUtils::ExpectLhsChildOfRhs(LoadClass, SoftClassProperty->MetaClass));
 
 	DC_TRY(Ctx.Writer->WriteSoftClassReference(FSoftObjectPtr(LoadClass)));
 	return DcOk();
@@ -264,7 +270,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeSoftClassReference(FDcDeserializeC
 FORCEINLINE_DEBUGGABLE FDcResult TryReadTypeStr(FDcDeserializeContext& Ctx, FObjectPropertyBase* ObjectProperty, const FString& TypeStr, UClass*& OutClass)
 {
 	UObject* Obj = nullptr;
-	DC_TRY(DcSerDeUtils::TryStaticLocateObject(UClass::StaticClass(), TypeStr, Obj));
+	DC_TRY(DcSerDeUtils::TryStaticLocateObject(UClass::StaticClass(), *TypeStr, Obj));
 	OutClass = Cast<UClass>(Obj);
 	return DcOk();
 }

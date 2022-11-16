@@ -17,4 +17,3 @@ struct FDcTestExample2
 
 	void MakeFixture();
 };
-

@@ -1,3 +1,5 @@
 # host project build artifacts
 /Engine/
 /Saved/
+# misc stuff copied in here
+/Tmp/

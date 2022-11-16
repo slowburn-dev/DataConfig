@@ -51,7 +51,7 @@ void FDcTestStructRefs1::MakeFixture()
 
 void FDcTestStructRefs2::MakeFixture()
 {
-	UClass* DynamicMetaClass = FindObject<UClass>(ANY_PACKAGE, TEXT("DynamicClass"));
+	UClass* DynamicMetaClass = FindObject<UClass>(nullptr, TEXT("/Script/CoreUObject.DynamicClass"));
 
 	RawClassField1 = DynamicMetaClass;
 	RawClassField2 = nullptr;

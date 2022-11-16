@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.4.0 - 2022-11-17
+
+- **NEW** Support for UE 5.1.
+  - See [UE version upgrade](Advanced/UEUpgrades.md).
+- **NEW** Extra samples and docs.
+  - [Advanced - Automation](Advanced/Automation.md)
+  - [Extra - InstancedStruct](Extra/InstancedStruct.md)
+  - [Configuring with `FPropertyConfig`](Formats/Property.md#configuring-with-fdcpropertyconfig)
+  - [Writing Handlers - Coercion](Advanced/WritingHandlers.md#coercion)
+- **CHANGE** Use separated `uplugin` for UE4 and UE5.
+  - See [Integration](Integration.md#integrate-dataconfig-plugin)
+- **FIX** Core changes and fixes:
+  - Fail when `FPropertyWriter::WriteObjectReference()` takes nullptr.
+    See test: `DataConfig.Core.Property.DiagNullObject`
+  - Additional check for class mismatch for default object deserialize handlers.
+    See test: `DataConfig.Core.Deserialize.DiagObjectClassMismatch`
+
 ## 1.3.0 - 2022-6-20
 
 Checkout blog post ["DataConfig Core and JSON Asset 1.3 Release"](/blog/dataconfig-dcjsonasset-1-3/).

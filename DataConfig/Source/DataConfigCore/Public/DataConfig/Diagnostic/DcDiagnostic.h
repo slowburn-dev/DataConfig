@@ -193,7 +193,7 @@ extern TArray<FDcDiagnosticGroup*> DcDiagGroups;
 DATACONFIGCORE_API void DcRegisterDiagnosticGroup(FDcDiagnosticGroup* InWeakGroup);
 
 template <typename T, size_t N>
-size_t DcDimOf(T(&)[N])
+constexpr size_t DcDimOf(T(&)[N])
 {
 	return N;
 }

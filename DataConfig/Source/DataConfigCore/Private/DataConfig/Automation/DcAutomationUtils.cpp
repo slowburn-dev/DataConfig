@@ -8,6 +8,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 #include "DataConfig/DcCorePrivate.h"
 #include "DataConfig/Source/DcSourceUtils.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 
 namespace DcAutomationUtils
 {
@@ -861,7 +862,7 @@ FString DcReindentStringLiteral(FString Str, FString* Prefix)
 void FDcDebug::DumpStruct(char* StructNameChars, void* Ptr)
 {
 	FString StructNameStr(StructNameChars);
-	UScriptStruct* LoadStruct = FindObject<UScriptStruct>(ANY_PACKAGE, *StructNameStr, true);
+	UScriptStruct* LoadStruct = DcSerDeUtils::FindFirstObject<UScriptStruct>(*StructNameStr, true);
 	if (LoadStruct == nullptr)
 	{
 		FPlatformMisc::LowLevelOutputDebugString(*FString::Printf(TEXT("- DcDebug DumpStruct: Failed to find struct '%s'"), *StructNameStr));

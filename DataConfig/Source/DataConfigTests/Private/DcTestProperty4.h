@@ -129,4 +129,25 @@ struct FDcTestSetMapOfName
 	UPROPERTY() TMap<FName, FString> NameStrMap;
 };
 
+USTRUCT()
+struct FDcTestSerializeMeta1
+{
+	GENERATED_BODY()
 
+	UPROPERTY(meta = (DcTestSerialize)) int SerializedField;
+	UPROPERTY() int IgnoredField;
+};
+
+
+USTRUCT()
+struct FDcTestObjectRefs2
+{
+	GENERATED_BODY()
+
+	UPROPERTY() UDcTestClass1* TestClassObjectField;
+	UPROPERTY() TWeakObjectPtr<UDcTestClass1> TestClassWeakObjectField;
+	UPROPERTY() TLazyObjectPtr<UDcTestClass1> TestClassLazyObjectField;
+	UPROPERTY() TSoftObjectPtr<UDcTestClass1> TestClassSoftObjectField;
+
+	UPROPERTY() UDcBaseShape* InlineShapeObjectField;
+};
