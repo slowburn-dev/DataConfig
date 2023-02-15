@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataConfig/DcTypes.h"
+#include "Misc/EngineVersionComparison.h"
 
 namespace DcTypeUtils {
 
@@ -81,6 +82,16 @@ struct TIsUStruct
 	template <typename C> static uint8 Test(...);
 	
 	enum { Value = sizeof(Test<T>(0)) - 1};
+};
+
+template<typename A, typename B>
+struct TIsSame
+{
+#if UE_VERSION_OLDER_THAN(5, 2, 0)
+	enum { Value = ::TIsSame<A, B>::Value };
+#else
+	enum { Value = std::is_same_v<A, B>	};
+#endif
 };
 
 } // namespace DcTypeUtils

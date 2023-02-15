@@ -649,6 +649,7 @@ FString DumpFormat(FDcReader* Reader)
 	return MoveTemp(Output);
 }
 
+#if WITH_EDITORONLY_DATA
 //	UXXX(meta=(Foo)) only get compiled in `WITH_EDITOR`
 //	need to manually amend it on Program targets
 void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue)
@@ -666,6 +667,8 @@ void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey
 	if (!Property->HasMetaData(MetaKey))
 		Property->SetMetaData(MetaKey, MetaValue);
 }
+#endif // WITH_EDITORONLY_DATA
+
 
 FDcPropertyDatum TryGetMemberDatum(const FDcPropertyDatum& Datum, const FName& Name)
 {

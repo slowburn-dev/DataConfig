@@ -10,7 +10,11 @@ public class DataConfigCore : ModuleRules
 	    Type = ModuleType.CPlusPlus;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        bEnforceIWYU = true;
+#if UE_5_2_OR_LATER
+		IWYUSupport = IWYUSupport.Full;
+#else
+		bEnforceIWYU = true;
+#endif
 
         PublicDependencyModuleNames.AddRange(
 			new string[] {

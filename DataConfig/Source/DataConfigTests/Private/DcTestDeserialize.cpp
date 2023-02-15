@@ -52,6 +52,8 @@ DC_TEST("DataConfig.Core.Deserialize.Primitive1")
 	return true;
 }
 
+
+#if WITH_EDITORONLY_DATA
 DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 {
 	FString Str = TEXT(R"(
@@ -77,6 +79,7 @@ DC_TEST("DataConfig.Core.Deserialize.EnumFlags")
 
 	return true;
 }
+#endif // WITH_EDITORONLY_DATA
 
 DC_TEST("DataConfig.Core.Deserialize.InlineSubObject")
 {
@@ -507,6 +510,7 @@ DC_TEST("DataConfig.Core.Deserialize.NonStructClassRoots")
 	return true;
 }
 
+#if WITH_EDITORONLY_DATA
 DC_TEST("DataConfig.Core.Deserialize.NonStringKeyMaps")
 {
 	FString Str = TEXT(R"(
@@ -559,7 +563,7 @@ DC_TEST("DataConfig.Core.Deserialize.NonStringKeyMaps")
 
 	return true;
 }
-
+#endif // WITH_EDITORONLY_DATA
 
 DC_TEST("DataConfig.Core.Deserialize.EnumPropertyWithoutEnum")
 {

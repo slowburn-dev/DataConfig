@@ -4,7 +4,7 @@
 #include "DcExtraTestFixtures.generated.h"
 
 USTRUCT()
-struct FDcExtraTestSimpleStruct1
+struct DATACONFIGEXTRA_API FDcExtraTestSimpleStruct1
 {
 	GENERATED_BODY()
 
@@ -13,7 +13,7 @@ struct FDcExtraTestSimpleStruct1
 };
 
 USTRUCT()
-struct FDcExtraTestSimpleStruct2
+struct DATACONFIGEXTRA_API FDcExtraTestSimpleStruct2
 {
 	GENERATED_BODY()
 
@@ -24,7 +24,7 @@ struct FDcExtraTestSimpleStruct2
 DECLARE_DELEGATE(FDcExtraTestSingularAction);
 
 USTRUCT()
-struct FDcExtraTestDestructDelegateContainer
+struct DATACONFIGEXTRA_API FDcExtraTestDestructDelegateContainer
 {
 	GENERATED_BODY()
 
@@ -37,7 +37,7 @@ struct FDcExtraTestDestructDelegateContainer
 };
 
 USTRUCT()
-struct FDcExtraTestCopyDelegateContainer
+struct DATACONFIGEXTRA_API FDcExtraTestCopyDelegateContainer
 {
 	GENERATED_BODY()
 
@@ -62,7 +62,7 @@ struct FDcExtraTestCopyDelegateContainer
 };
 
 USTRUCT(BlueprintType)
-struct FDcStructShapeBase
+struct DATACONFIGEXTRA_API FDcStructShapeBase
 {
 	GENERATED_BODY()
 	
@@ -70,7 +70,7 @@ struct FDcStructShapeBase
 };
 
 USTRUCT(BlueprintType)
-struct FDcStructShapeRectangle : public FDcStructShapeBase
+struct DATACONFIGEXTRA_API FDcStructShapeRectangle : public FDcStructShapeBase
 {
 	GENERATED_BODY()
 	
@@ -79,10 +79,38 @@ struct FDcStructShapeRectangle : public FDcStructShapeBase
 };
 
 USTRUCT(BlueprintType)
-struct FDcStructShapeCircle : public FDcStructShapeBase
+struct DATACONFIGEXTRA_API FDcStructShapeCircle : public FDcStructShapeBase
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere) float Radius;
 };
 
+
+UCLASS(Abstract, BlueprintType, EditInlineNew, DefaultToInstanced)
+class DATACONFIGEXTRA_API UDcBaseShape : public UObject
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere) FName ShapeName;
+};
+
+UCLASS()
+class DATACONFIGEXTRA_API UDcShapeBox : public UDcBaseShape
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere) float Height;
+	UPROPERTY(EditAnywhere) float Width;
+};
+
+UCLASS()
+class DATACONFIGEXTRA_API UDcShapeSquare : public UDcBaseShape
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere) float Radius;
+};

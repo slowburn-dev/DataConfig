@@ -19,7 +19,6 @@ public class DataConfigHeadlessTarget : TargetRules
         bUseLoggingInShipping = true;
 
         bCompileICU = false;
-		bBuildWithEditorOnlyData = true;
 
 		bCompileAgainstEngine = false;
 		bCompileAgainstCoreUObject = true;
@@ -39,5 +38,9 @@ public class DataConfigHeadlessTarget : TargetRules
 		//	toggle to use clang-cl
 		//	it works mostly except breaks FName natvis
 		// WindowsPlatform.Compiler = WindowsCompiler.Clang;
+
+		//	toggle to buld with no `WITH_EDITORONLY_DATA`
+		// bBuildWithEditorOnlyData = false;
+		bBuildWithEditorOnlyData = true;
 	}
 }

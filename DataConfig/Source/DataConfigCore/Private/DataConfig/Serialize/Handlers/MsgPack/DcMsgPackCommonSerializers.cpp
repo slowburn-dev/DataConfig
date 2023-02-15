@@ -24,9 +24,13 @@ FDcResult HandlerMapSerialize(FDcSerializeContext& Ctx)
 
 EDcSerializePredicateResult PredicateIsBlobProperty(FDcSerializeContext& Ctx)
 {
+#if WITH_EDITORONLY_DATA
 	return Ctx.TopProperty().HasMetaData(DcMsgPackUtils::DC_META_MSGPACK_BLOB)
 		? EDcSerializePredicateResult::Process
 		: EDcSerializePredicateResult::Pass;
+#else
+	return EDcSerializePredicateResult::Pass;
+#endif // WITH_EDITORONLY_DATA
 }
 
 FDcResult HandlerBlobSerialize(FDcSerializeContext& Ctx)

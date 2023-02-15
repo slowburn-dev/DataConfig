@@ -2,11 +2,11 @@
 
 At the moment it supports these the engine versions below:
 
-- UE 4.25
-- UE 4.26
-- UE 4.27
-- UE 5.0 
 - UE 5.1 
+- UE 5.0 
+- UE 4.27
+- UE 4.26
+- UE 4.25
 
 ## Integrate `DataConfig` Plugin
 
@@ -113,6 +113,5 @@ Most projects should has a editor module already setup. In this section we'll go
 You can refer to [Module Setup](Extra/ModuleSetup.md) for more detailed integration instructions.
 
 [1]:https://github.com/slowburn-dev/DataConfig "slowburn-dev/DataConfig"
-
 [2]:https://github.com/slowburn-dev/DataConfig/releases
 

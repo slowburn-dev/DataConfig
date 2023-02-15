@@ -9,8 +9,12 @@ namespace DcPropertyTypesDetails
 
 static bool _DefaultProcessPropertyPredicate(FProperty* Property)
 {
+#if WITH_EDITORONLY_DATA
 	return DcPropertyUtils::IsEffectiveProperty(Property)
 		&& !Property->HasMetaData(DcPropertyUtils::DC_META_SKIP);
+#else
+	return DcPropertyUtils::IsEffectiveProperty(Property);
+#endif // WITH_EDITORONLY_DATA
 }
 
 } // namespace DcPropertyTypesDetails

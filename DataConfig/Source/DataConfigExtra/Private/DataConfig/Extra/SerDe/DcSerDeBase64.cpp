@@ -12,6 +12,8 @@
 #include "DataConfig/Json/DcJsonWriter.h"
 #include "Misc/Base64.h"
 
+#if WITH_EDITORONLY_DATA
+
 namespace DcExtra
 {
 
@@ -93,10 +95,8 @@ DC_TEST("DataConfig.Extra.SerDe.Base64")
 
 	FDcPropertyDatum ExpectDatum(&Expect);
 
-#if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcExtraTestStructWithBase64::StaticStruct(), TEXT("BlobField1"), TEXT("DcExtraBase64"), TEXT(""));
 	DcAutomationUtils::AmendMetaData(FDcExtraTestStructWithBase64::StaticStruct(), TEXT("BlobField2"), TEXT("DcExtraBase64"), TEXT(""));
-#endif
 
 	{
 		FDcJsonReader Reader(Str);
@@ -132,3 +132,4 @@ DC_TEST("DataConfig.Extra.SerDe.Base64")
 	return true;
 }
 
+#endif // WITH_EDITORONLY_DATA

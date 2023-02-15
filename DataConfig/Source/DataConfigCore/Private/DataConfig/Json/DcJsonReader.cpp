@@ -559,14 +559,14 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 				return DC_FAIL(DcDJSON, InvalidControlCharInString) << FormatHighlight(Cur, 1);
 
 			//	then silently load most control chars for now
-			if (TIsSame<CharType, ANSICHAR>::Value)
+			if (DcTypeUtils::TIsSame<CharType, ANSICHAR>::Value)
 				Token.Flag.bStringHasNonAscii = true;
 
 			Advance();
 		}
 		else
 		{
-			if (TIsSame<CharType, ANSICHAR>::Value)
+			if (DcTypeUtils::TIsSame<CharType, ANSICHAR>::Value)
 			{
 				if (!SourceUtils::IsAscii(Char))
 					Token.Flag.bStringHasNonAscii = true;
@@ -582,7 +582,7 @@ FDcResult TDcJsonReader<CharType>::ReadStringToken()
 template <typename CharType>
 FString TDcJsonReader<CharType>::ConvertStringTokenToLiteral(SourceRef Ref)
 {
-	if (TIsSame<CharType, ANSICHAR>::Value
+	if (DcTypeUtils::TIsSame<CharType, ANSICHAR>::Value
 		&& Token.Flag.bStringHasNonAscii)
 	{
 		//	UTF8 conv when detects non ascii chars

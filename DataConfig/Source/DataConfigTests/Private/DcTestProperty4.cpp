@@ -947,11 +947,10 @@ DC_TEST("DataConfig.Core.Property.SetMapWithHoles")
 	return true;
 }
 
+#if WITH_EDITORONLY_DATA
 DC_TEST("DataConfig.Core.Property.PropertyConfig")
 {
-#if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcTestSerializeMeta1::StaticStruct(), TEXT("SerializedField"), TEXT("DcTestSerialize"), TEXT(""));
-#endif
 
 	FDcTestSerializeMeta1 Src;
 	Src.SerializedField = 123;
@@ -984,3 +983,4 @@ DC_TEST("DataConfig.Core.Property.PropertyConfig")
 
 	return true;
 }
+#endif // WITH_EDITORONLY_DATA

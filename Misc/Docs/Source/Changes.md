@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.4.1 - 2023-2-15
+
+- Fix compilation on `!WITH_EDITORONLY_DATA`.
+  - See [No MetaData](Advanced/NoMetaData.md).
+- Initial UE 5.2 support.
+
 ## 1.4.0 - 2022-11-17
+
+Checkout blog post ["DataConfig 1.4 Released with UE 5.1 Support"](/blog/dataconfig-1-4/).
 
 - **NEW** Support for UE 5.1.
   - See [UE version upgrade](Advanced/UEUpgrades.md).
@@ -44,7 +52,7 @@ Checkout blog post ["DataConfig Core and JSON Asset 1.3 Release"](/blog/dataconf
     - Fix `HeuristicVerifyPointer` diagnostic.  
     - Fix `DC_TRY` shadowing variable `Ret`.
     - JSON now support non string keyed `TMap<>` as `[{ "$key": <foo>, "$value": <bar> }]`.<br>
-      See: [JSON- Map](Formats/JSON.md#map)
+      See: [JSON - Map](Formats/JSON.md#map)
     - Fix `DcPropertyUtils::DcIsSubObjectProperty()`<br>
       Now it only checks for `CPF_InstancedReference`.
     - Update screenshots to UE5.<br> Note that DataConfig [still supports from 4.25 and onwards](Integration.md).

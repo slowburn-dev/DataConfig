@@ -243,11 +243,10 @@ DC_TEST("DataConfig.Extra.SerDe.InlineStructOverflow")
 	return true;
 }
 
+#if WITH_EDITORONLY_DATA
 DC_TEST("DataConfig.Extra.SerDe.InlineStruct")
 {
-#if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcExtraTestSimpleStruct1::StaticStruct(), TEXT("IntFieldWithDefault"), TEXT("DcSkip"), TEXT(""));
-#endif
 
 	using namespace DcExtra;
 	FDcExtraTestWithInlineStruct1 Dest;
@@ -313,5 +312,6 @@ DC_TEST("DataConfig.Extra.SerDe.InlineStruct")
 
 	return true;
 }
+#endif // WITH_EDITORONLY_DATA
 
 

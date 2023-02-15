@@ -54,8 +54,10 @@ DATACONFIGCORE_API void DumpToLog(FDcReader* Reader);
 DATACONFIGCORE_API void DumpToLowLevelDebugOutput(FDcReader* Reader);
 DATACONFIGCORE_API FString DumpFormat(FDcReader* Reader);
 
+#if WITH_EDITORONLY_DATA
 DATACONFIGCORE_API void AmendMetaData(UField* Field, const FName& MetaKey, const TCHAR* MetaValue);
 DATACONFIGCORE_API void AmendMetaData(UStruct* Struct, const FName& FieldName, const FName& MetaKey, const TCHAR* MetaValue);
+#endif // WITH_EDITORONLY_DATA
 
 DATACONFIGCORE_API FDcPropertyDatum TryGetMemberDatum(const FDcPropertyDatum& Datum, const FName& Name);
 

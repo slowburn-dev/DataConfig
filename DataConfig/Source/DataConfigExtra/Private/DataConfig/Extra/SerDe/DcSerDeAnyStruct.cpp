@@ -202,11 +202,10 @@ DC_TEST("DataConfig.Extra.AnyStructRefCounts")
 	return true;
 }
 
+#if WITH_EDITORONLY_DATA
 DC_TEST("DataConfig.Extra.SerDe.AnyStruct")
 {
-#if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcExtraTestSimpleStruct1::StaticStruct(), TEXT("IntFieldWithDefault"), TEXT("DcSkip"), TEXT(""));
-#endif
 
 	using namespace DcExtra;
 	FDcExtraTestWithAnyStruct1 Dest;
@@ -269,4 +268,6 @@ DC_TEST("DataConfig.Extra.SerDe.AnyStruct")
 
 	return true;
 }
+#endif // WITH_EDITORONLY_DATA
+
 

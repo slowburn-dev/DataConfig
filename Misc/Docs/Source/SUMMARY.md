@@ -46,6 +46,7 @@
   - [Writing Handlers](Advanced/WritingHandlers.md)
   - [Non Class/Struct Root](Advanced/NonClassStructRoot.md)
   - [Automation](Advanced/Automation.md)
+  - [No MetaData](Advanced/NoMetaData.md)
   - [UE Upgrades](Advanced/UEUpgrades.md)
   
 - [Changes](Changes.md)

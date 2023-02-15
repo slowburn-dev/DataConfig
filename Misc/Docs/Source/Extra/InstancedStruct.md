@@ -54,8 +54,8 @@ Prior to this you'll need to setup [Sub Objects](../Formats/JSON.md#sub-objects)
 `FInstancedStruct` can also be serialized to and from JSON with DataConfig:
 
 
-* [DcSerDeInstancedStruct.h]({{SrcRoot}}DataConfigExtra5/Public/DataConfig/EditorExtra/SerDe/DcSerDeInstancedStruct.h)
-* [DcSerDeInstancedStruct.cpp]({{SrcRoot}}DataConfigExtra5/Private/DataConfig/EditorExtra/SerDe/DcSerDeInstancedStruct.cpp)
+* [DcSerDeInstancedStruct.h]({{SrcRoot}}DataConfigEditorExtra5/Public/DataConfig/EditorExtra/SerDe/DcSerDeInstancedStruct.h)
+* [DcSerDeInstancedStruct.cpp]({{SrcRoot}}DataConfigEditorExtra5/Private/DataConfig/EditorExtra/SerDe/DcSerDeInstancedStruct.cpp)
 
 ```c++
 // DataConfigExtra5/Public/DataConfig/EditorExtra/SerDe/DcSerDeInstancedStruct.h

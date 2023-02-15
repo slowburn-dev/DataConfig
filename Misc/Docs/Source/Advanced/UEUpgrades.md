@@ -2,12 +2,16 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
-# UE4
+# UE5.2
 
-* The oldest version DataConfig supports is UE 4.25, in which it [introduces a major refactor][1] that changes `UProperty` to `FProperty`. We intended to support UE4 in the foreseeable future, especially when we now have separated `uplugin` for UE4 and UE5.
+* `TIsSame` is deprecated over `std::is_same`.
+* In `Build.cs` `bEnforceIWYU` is changed to enum `IWYUSupport`.
+
+# UE5.1
+
+* UE5.1 deprecates `ANY_PACKAGE` in favor of a new method `FindFirstObject`. In DataConfig we provided `DcSerdeUtils::FindFirstObject` which calls `FindObject(ANY_PACKAGE)` pre 5.1 and calls `FindFirstObject()` for 5.1 and onwards. 
 
 # UE5.0
-
 
 * New [`TObjectPtr`][2] to replace raw UObject pointers. Turns out this is mostly handled within the engine and is transparent to DataConfig.
 
@@ -19,9 +23,9 @@ DataConfig is committed to support multiple UE versions with no deprecations and
 
 * `TStringBuilderWithBuffer` API changes. At call sites we now do `Sb << TCHAR('\n')` instead of `Sb.Append(TCHAR('\n'))` .
 
-# UE5.1
+# UE4
 
-* UE5.1 deprecates `ANY_PACKAGE` in favor of a new method `FindFirstObject`. In DataConfig we provided `DcSerdeUtils::FindFirstObject` which calls `FindObject(ANY_PACKAGE)` pre 5.1 and calls `FindFirstObject()` for 5.1 and onwards. 
+* The oldest version DataConfig supports is UE 4.25, in which it [introduces a major refactor][1] that changes `UProperty` to `FProperty`. We intended to support UE4 in the foreseeable future, especially when we now have separated `uplugin` for UE4 and UE5.
 
 
 [1]:https://docs.unrealengine.com/4.27/en-US/WhatsNew/Builds/ReleaseNotes/4_25/#new:uobjectpropertyoptimizations

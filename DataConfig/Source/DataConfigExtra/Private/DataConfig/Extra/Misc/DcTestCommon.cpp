@@ -13,7 +13,7 @@ static_assert(!DcTypeUtils::TIsUStruct<FVector2D>::Value, "TIsUStruct has limita
 static_assert(!DcTypeUtils::TIsUStruct<UClass>::Value, "test TIsUStruct");
 static_assert(!DcTypeUtils::TIsUStruct<FDcReader>::Value, "test TIsUStruct");
 
-static_assert(TIsSame<DcPropertyUtils::TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "test DcPropertyUtils");
+static_assert(DcTypeUtils::TIsSame<DcPropertyUtils::TPropertyTypeMap<int32>::Type, FIntProperty>::Value, "test DcPropertyUtils");
 
 static_assert(DcPropertyUtils::TIsInPropertyMap<int32>::Value, "test TIsInPropertyMap");
 static_assert(!DcPropertyUtils::TIsInPropertyMap<FDcReader>::Value, "test TIsInPropertyMap");

@@ -4,14 +4,17 @@
 
 void FDcTestStructEnumFlag1::MakeFixture()
 {
-#if !WITH_METADATA
+#if WITH_EDITORONLY_DATA
 	UEnum* EnumClass = StaticEnum<EDcTestEnumFlag>();
 	check(EnumClass);
 	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
-#endif
 
 	EnumFlagField1 = EDcTestEnumFlag::None;
 	EnumFlagField2 = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestEnumFlag::Five;
+#else
+	EnumFlagField1 = EDcTestEnumFlag::None;
+	EnumFlagField2 = EDcTestEnumFlag::None;
+#endif // WITH_EDITORONLY_DATA
 }
 
 void FDcTestStructShapeContainer1::MakeFixtureEmpty()
@@ -75,8 +78,17 @@ void FDcTestStructArrayDim1::MakeFixture()
 	Int8Arr[0] = 23;
 	Int8Arr[1] = -34;
 
+#if WITH_EDITORONLY_DATA
+	UEnum* EnumClass = StaticEnum<EDcTestEnumFlag>();
+	check(EnumClass);
+	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
+
 	EnumFlagArr[0] = EDcTestEnumFlag::None;
 	EnumFlagArr[1] = EDcTestEnumFlag::One | EDcTestEnumFlag::Three | EDcTestEnumFlag::Five;
+#else
+	EnumFlagArr[0] = EDcTestEnumFlag::None;
+	EnumFlagArr[1] = EDcTestEnumFlag::None;
+#endif // WITH_EDITORONLY_DATA
 
 	StructArr[0] = { {TEXT("One"), TEXT("Two")}, {1, 2} };
 	StructArr[1] = { {TEXT("Three"), TEXT("Four")}, {3, 4} };
@@ -85,11 +97,10 @@ void FDcTestStructArrayDim1::MakeFixture()
 
 void FDcTestStructMaps::MakeFixture()
 {
-#if !WITH_METADATA
+#if WITH_EDITORONLY_DATA
 	UEnum* EnumClass = StaticEnum<EDcTestEnumFlag>();
 	check(EnumClass);
 	DcAutomationUtils::AmendMetaData(EnumClass, TEXT("Bitflags"), TEXT(""));
-#endif
 
 	ColorKeyMap.Add(FColor::Red, TEXT("Red"));
 	ColorKeyMap.Add(FColor::Green, TEXT("Green"));
@@ -98,4 +109,5 @@ void FDcTestStructMaps::MakeFixture()
 	EnumFlagsMap.Add(EDcTestEnumFlag::None, TEXT("None"));
 	EnumFlagsMap.Add(EDcTestEnumFlag::One | EDcTestEnumFlag::Three, TEXT("One | Three"));
 	EnumFlagsMap.Add(EDcTestEnumFlag::Five, TEXT("Five"));
+#endif // WITH_EDITORONLY_DATA
 }

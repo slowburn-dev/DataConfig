@@ -8,12 +8,11 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
+#if WITH_EDITORONLY_DATA
 DC_TEST("DataConfig.Core.Property.DcMetaSkip")
 {
 
-#if !WITH_METADATA
 	DcAutomationUtils::AmendMetaData(FDcTestMeta1::StaticStruct(), TEXT("SkipField1"), TEXT("DcSkip"), TEXT(""));
-#endif
 
 	FDcTestMeta1 Source;
 	Source.SkipField1 = 253;
@@ -34,7 +33,7 @@ DC_TEST("DataConfig.Core.Property.DcMetaSkip")
 
 	return true;
 }
-
+#endif // WITH_EDITORONLY_DATA
 
 DC_TEST("DataConfig.Core.Property.ClassAccessControl")
 {

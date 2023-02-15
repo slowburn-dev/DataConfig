@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "IDcTestInterface.h"
+#include "DataConfig/Extra/Types/DcExtraTestFixtures.h"
 #include "DcTestProperty.generated.h"
 
 UENUM()
@@ -117,35 +118,6 @@ struct FDcTestStruct3
 	void MakeFixtureNoStructMap();
 	void MakeFixtureFull();
 };
-
-UCLASS(BlueprintType, EditInlineNew, DefaultToInstanced)
-class UDcBaseShape : public UObject
-{
-	GENERATED_BODY()
-public:
-
-	UPROPERTY() FName ShapeName;
-};
-
-UCLASS()
-class UDcShapeBox : public UDcBaseShape
-{
-	GENERATED_BODY()
-public:
-
-	UPROPERTY() float Height;
-	UPROPERTY() float Width;
-};
-
-UCLASS()
-class UDcShapeSquare : public UDcBaseShape
-{
-	GENERATED_BODY()
-public:
-
-	UPROPERTY() float Radius;
-};
-
 
 UCLASS()
 class UDcTestClass1 : public UObject

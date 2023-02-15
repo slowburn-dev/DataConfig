@@ -89,12 +89,19 @@ FDcResult HandlerEnumToStringSerialize(FDcSerializeContext& Ctx)
 	}
 
 	bool bIsBitFlags;
-#if WITH_METADATA
+
+#if WITH_EDITORONLY_DATA
+
+	#if WITH_METADATA
 	bIsBitFlags = Enum->HasMetaData(TEXT("Bitflags"));
-#else
+	#else
 	//	Program target is missing `UEnum::HasMetaData`
 	bIsBitFlags = ((UField*)Enum)->HasMetaData(TEXT("Bitflags"));
-#endif
+	#endif
+
+#else // WITH_EDITORONLY_DATA
+	bIsBitFlags = false;
+#endif // WITH_EDITORONLY_DATA
 
 	if (!bIsBitFlags)
 	{
