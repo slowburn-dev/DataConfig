@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameplayTags/Public/GameplayTags.h"
+#include "GameplayTags.h"
 #include "DataConfig/Deserialize/DcDeserializeTypes.h"
 #include "DataConfig/Serialize/DcSerializeTypes.h"
 #include "DcSerDeGameplayTags.generated.h"

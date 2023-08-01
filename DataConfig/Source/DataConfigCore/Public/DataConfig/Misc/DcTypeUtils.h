@@ -94,5 +94,16 @@ struct TIsSame
 #endif
 };
 
+template<typename T>
+struct TRemoveConst
+{
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
+	using Type = typename ::TRemoveConst<T>::Type;
+#else
+	using Type = std::remove_const_t<T>;
+#endif
+};
+
+
 } // namespace DcTypeUtils
 

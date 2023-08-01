@@ -2,6 +2,8 @@
 
 At the moment it supports these the engine versions below:
 
+- UE 5.3 
+- UE 5.2 
 - UE 5.1 
 - UE 5.0 
 - UE 4.27
@@ -10,11 +12,33 @@ At the moment it supports these the engine versions below:
 
 ## Integrate `DataConfig` Plugin
 
-The easiest way to try out DataConfig is to add it as a plugin into your C++ project.  In this section we'll walk through the steps of integrating DataConfig plugin into a empty UE C++ Project.
+The easiest way to try out DataConfig is to add it as a plugin into your C++ project.  In this section we'll walk through these steps.
+
+### Download DataConfig Plugin
+
+The quickest way to try out DataConfig is to download the latest release at [DataConfig releases][2] page.
+
+1. Download the zip files on the [releases page][2]. Note there're UE4 and UE5 plugin respectively.
+
+2. Unzip it into your Unreal Engine project's `Plugin` folder. The layout should be like this:
+
+```
+<Your project root>
+|- <Your project>.uproject
+|- Content
+|- Source
+|- ...
+|- Plugins
+   |- DataConfig
+      |- DataConfig.uplugin
+```
+
+3. [Validate DataConfig plugin is integrated corrrectly](#validate-integration).
+
 
 ### Generate DataConfig Plugin for UE4/UE5
 
-DataConfig now uses separated `uplugin` files for UE4 and UE5 so that we can try out new features in UE5 without dropping support for UE4. We bundled scripts to generate clean plugins for UE4 and UE5. You can also find these on [DataConfig releases][2] page.
+DataConfig now uses separated `uplugin` files for UE4 and UE5 so that we can try out new features in UE5 without dropping support for UE4. We bundled scripts to generate clean plugins for UE4 and UE5. This is how the [DataConfig releases][2] are built.
 
 ```shell
 git clone https://github.com/slowburn-dev/DataConfig

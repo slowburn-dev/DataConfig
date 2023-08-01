@@ -54,6 +54,10 @@ DATACONFIGCORE_API FString GetFormatPropertyTypeName(UScriptStruct* Struct);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(UClass* Class);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(const FFieldVariant& Field);
 
+#if ENGINE_MAJOR_VERSION == 5
+FORCEINLINE FString GetFormatPropertyTypeName(TObjectPtr<UClass> Ptr) { return GetFormatPropertyTypeName(Ptr.Get()); }
+FORCEINLINE FString GetFormatPropertyTypeName(TObjectPtr<UScriptStruct> Ptr) { return GetFormatPropertyTypeName(Ptr.Get()); }
+#endif
 
 DATACONFIGCORE_API bool IsSubObjectProperty(FObjectProperty* ObjectProperty);
 DATACONFIGCORE_API bool IsUnsignedProperty(FNumericProperty* NumericProperty);

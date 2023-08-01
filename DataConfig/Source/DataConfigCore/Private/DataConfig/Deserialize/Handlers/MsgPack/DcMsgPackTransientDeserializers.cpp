@@ -92,15 +92,16 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientWeakObjectPtr(FDcReader* Re
 	return DcOk();
 }
 
-static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientScriptDelegate(FDcReader* Reader, DcSerDeCommon::FScriptDelegateAccess& ValueAccess)
+template<typename TDelegate>
+static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientScriptDelegate(FDcReader* Reader, DcSerDeCommon::TDelegateAccess<TDelegate>& ValueAccess)
 {
 	using DcSerDeCommon::FWeakObjectPtrAccess;
-	FWeakObjectPtrAccess& WeakAccess = (FWeakObjectPtrAccess&)ValueAccess.Object;
+	FWeakObjectPtrAccess& WeakAccess = (FWeakObjectPtrAccess&)ValueAccess.GetObject();
 
 	DC_TRY(Reader->ReadArrayRoot());
 	DC_TRY(Reader->ReadInt32(&WeakAccess.ObjectIndex));
 	DC_TRY(Reader->ReadInt32(&WeakAccess.ObjectSerialNumber));
-	DC_TRY(ReadTransientName(Reader, ValueAccess.FunctionName));
+	DC_TRY(ReadTransientName(Reader, ValueAccess.GetFunctionName()));
 	DC_TRY(Reader->ReadArrayEnd());
 
 	return DcOk();
@@ -109,6 +110,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientScriptDelegate(FDcReader* R
 static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientMulticastScriptDelegate(FDcReader* Reader, DcSerDeCommon::FMulticastScriptDelegateAccess& ValueAccess)
 {
 	using DcSerDeCommon::FScriptDelegateAccess;
+	using FInvocationAccess = DcSerDeCommon::FMulticastScriptDelegateAccess::TypeInvocationAccess;
 	DC_TRY(Reader->ReadArrayRoot());
 
 	while(true)
@@ -118,7 +120,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientMulticastScriptDelegate(FDc
 		if (Next == EDcDataEntry::ArrayEnd)
 			break;
 
-		FScriptDelegateAccess& DelgateAccess = (FScriptDelegateAccess&)ValueAccess.InvocationList.AddDefaulted_GetRef();
+		FInvocationAccess& DelgateAccess = (FInvocationAccess&)ValueAccess.GetInvocationList().AddDefaulted_GetRef();
 		DC_TRY(ReadTransientScriptDelegate(Reader, DelgateAccess));
 	}
 

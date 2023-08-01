@@ -13,18 +13,27 @@ struct FWeakObjectPtrAccess
 };
 static_assert(sizeof(FWeakObjectPtrAccess) == sizeof(FWeakObjectPtr), "FWeakObjectPtrAccess stale");
 
-struct FScriptDelegateAccess
+template<typename TDelegate>
+struct TDelegateAccess : public TDelegate
 {
-	FWeakObjectPtr Object;
-	FName FunctionName;
+	FORCEINLINE FWeakObjectPtr& GetObject() { return this->Object; }
+	FORCEINLINE FName& GetFunctionName() { return this->FunctionName; }
 };
-static_assert(sizeof(FScriptDelegateAccess) == sizeof(FScriptDelegate), "FScriptDelegateAccess stale");
 
-struct FMulticastScriptDelegateAccess
+using FScriptDelegateAccess = TDelegateAccess<FScriptDelegate>;
+
+struct FMulticastScriptDelegateAccess : public FMulticastScriptDelegate
 {
-	FMulticastScriptDelegate::FInvocationList InvocationList;
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
+	using TypeInvocationList = FMulticastScriptDelegate::FInvocationList;
+#else
+	using TypeInvocationList = FMulticastScriptDelegate::InvocationListType;
+#endif
+
+	using TypeInvocationAccess = TDelegateAccess<typename TypeInvocationList::ElementType>;
+
+	FORCEINLINE TypeInvocationList& GetInvocationList() { return InvocationList; }
 };
-static_assert(sizeof(FMulticastScriptDelegateAccess) == sizeof(FMulticastScriptDelegate), "FMulticastScriptDelegateAccess stale");
 
 struct FTextAccess
 {

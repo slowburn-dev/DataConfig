@@ -13,7 +13,6 @@ public class DataConfigHeadlessTarget : TargetRules
 		LinkType = TargetLinkType.Monolithic;
 
 		MinGameModuleSourceFilesForUnityBuild = 2;
-		bUseMallocProfiler = false;
 
 		//	! need this for logging
         bUseLoggingInShipping = true;
@@ -35,6 +34,9 @@ public class DataConfigHeadlessTarget : TargetRules
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 #endif
 
+#if UE_5_3_OR_LATER
+		DefaultBuildSettings = BuildSettingsVersion.V4;
+#endif
 		//	toggle to use clang-cl
 		//	it works mostly except breaks FName natvis
 		// WindowsPlatform.Compiler = WindowsCompiler.Clang;

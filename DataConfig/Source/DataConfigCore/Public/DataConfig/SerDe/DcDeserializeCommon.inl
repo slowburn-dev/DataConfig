@@ -12,6 +12,7 @@
 #include "DataConfig/Diagnostic/DcDiagnosticSerDe.h"
 #include "DataConfig/SerDe/DcSerDeUtils.h"
 #include "UObject/Package.h"
+#include "Misc/EngineVersionComparison.h"
 
 FORCEINLINE_DEBUGGABLE FDcResult TryReadObjectReference(FDcDeserializeContext& Ctx, FObjectPropertyBase* ObjectProperty, UObject*& OutObject)
 {
@@ -28,8 +29,14 @@ FORCEINLINE_DEBUGGABLE FDcResult TryReadObjectReference(FDcDeserializeContext& C
 			&& Value.EndsWith(TEXT("'")))
 		{
 			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
-			//	UE4 copied reference style
+			//	UE copied reference style
+
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 			UObject* Loaded = nullptr;
+#else
+			TObjectPtr<UObject> Loaded = nullptr;
+#endif
+
 			const TCHAR* ValueBuffer = *Value;
 			if (FObjectPropertyBase::ParseObjectPropertyValue(
 				ObjectProperty,

@@ -5,7 +5,7 @@ DataConfig is released under [MIT License][1].
 ```
 MIT License
 
-Copyright (c) 2021-2022 Chen Tao 
+Copyright (c) 2021-2023 Chen Tao 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ If you find DataConfig useful in your project, consider credit us in your projec
 
 ```
 DataConfig <https//slowburn.dev/dataconfig>
-MIT License, Copyright (c) 2021-2022 Chen Tao
+MIT License, Copyright (c) 2021-2023 Chen Tao
 ```
 
 There's also [DataConfig JSON Asset][2] on UE Marketplace. It's a premium plugin for importing JSON to UE data assets.

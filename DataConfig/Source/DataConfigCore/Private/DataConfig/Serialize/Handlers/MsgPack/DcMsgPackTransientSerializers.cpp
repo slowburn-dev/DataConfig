@@ -30,27 +30,30 @@ static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientName(FDcWriter* Writer, co
 	return DcOk();
 }
 
-static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientScriptDelegate(FDcWriter* Writer, const DcSerDeCommon::FScriptDelegateAccess& ValueAccess)
+template<typename TDelegate>
+static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientScriptDelegate(FDcWriter* Writer, DcSerDeCommon::TDelegateAccess<TDelegate>& ValueAccess)
 {
 	using DcSerDeCommon::FWeakObjectPtrAccess;
-	FWeakObjectPtrAccess& WeakAccess = (FWeakObjectPtrAccess&)(ValueAccess.Object);
+	FWeakObjectPtrAccess& WeakAccess = (FWeakObjectPtrAccess&)(ValueAccess.GetObject());
 
 	DC_TRY(Writer->WriteArrayRoot());
 	DC_TRY(Writer->WriteInt32(WeakAccess.ObjectIndex));
 	DC_TRY(Writer->WriteInt32(WeakAccess.ObjectSerialNumber));
-	DC_TRY(WriteTransientName(Writer, ValueAccess.FunctionName));
+	DC_TRY(WriteTransientName(Writer, ValueAccess.GetFunctionName()));
 	DC_TRY(Writer->WriteArrayEnd());
 
 	return DcOk();
 }
 
-static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientMulticastScriptDelegate(FDcWriter* Writer, const DcSerDeCommon::FMulticastScriptDelegateAccess& ValueAccess)
+static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientMulticastScriptDelegate(FDcWriter* Writer, DcSerDeCommon::FMulticastScriptDelegateAccess& ValueAccess)
 {
 	using DcSerDeCommon::FScriptDelegateAccess;
+	using FInvocationAccess = DcSerDeCommon::FMulticastScriptDelegateAccess::TypeInvocationAccess;
+
 	DC_TRY(Writer->WriteArrayRoot());
-	for (int Ix = 0; Ix < ValueAccess.InvocationList.Num(); Ix++)
+	for (int Ix = 0; Ix < ValueAccess.GetInvocationList().Num(); Ix++)
 	{
-		FScriptDelegateAccess& DelegateAccess = (FScriptDelegateAccess&)(ValueAccess.InvocationList[Ix]);
+		FInvocationAccess& DelegateAccess = (FInvocationAccess&)(ValueAccess.GetInvocationList()[Ix]);
 		DC_TRY(WriteTransientScriptDelegate(Writer, DelegateAccess));
 	}
 	DC_TRY(Writer->WriteArrayEnd());

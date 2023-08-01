@@ -90,8 +90,14 @@ static FDcResult TryReadClassReferenceWithBlueprint(FDcDeserializeContext& Ctx, 
 			&& Value.EndsWith(TEXT("'")))
 		{
 			//	SkeletalMesh'/Engine/EditorMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh'
-			//	UE4 copied reference style
+			//	UE copied reference style
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 			UObject* Loaded = nullptr;
+#else
+			TObjectPtr<UObject> Loaded = nullptr;
+#endif
+
+
 			const TCHAR* ValueBuffer = *Value;
 			if (FObjectPropertyBase::ParseObjectPropertyValue(
 				ObjectProperty,

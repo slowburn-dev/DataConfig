@@ -175,7 +175,7 @@ FDcResult FDcWriteStateStruct::WriteStructRootAccess(FDcPropertyWriter* Parent, 
 		State = EState::ExpectKeyOrEnd;
 		if (Access.Flag & FDcStructAccess::WriteCheckName)
 		{
-			return DcExpect(Access.Name == StructClass->GetFName(), [=] {
+			return DcExpect(Access.Name == StructClass->GetFName(), [&] {
 				return DC_FAIL(DcDReadWrite, StructNameMismatch)
 					<< StructClass->GetFName() << Access.Name
 					<< Parent->FormatHighlight();
@@ -201,7 +201,7 @@ FDcResult FDcWriteStateStruct::WriteStructEndAccess(FDcPropertyWriter* Parent, F
 		State = EState::Ended;
 		if (Access.Flag & FDcStructAccess::WriteCheckName)
 		{
-			return DcExpect(Access.Name == StructClass->GetFName(), [=] {
+			return DcExpect(Access.Name == StructClass->GetFName(), [&] {
 				return DC_FAIL(DcDReadWrite, StructNameMismatch)
 					<< StructClass->GetFName() << Access.Name
 					<< Parent->FormatHighlight();
@@ -351,7 +351,7 @@ FDcResult FDcWriteStateClass::WriteClassRootAccess(FDcPropertyWriter* Parent, FD
 	{
 		if (Access.Flag & FDcClassAccess::WriteCheckName)
 		{
-			DC_TRY(DcExpect(Class->GetFName() == Access.Name, [=]{
+			DC_TRY(DcExpect(Class->GetFName() == Access.Name, [&]{
 				return DC_FAIL(DcDReadWrite, ClassNameMismatch)
 					<< Class->GetFName() << Access.Name
 					<< Parent->FormatHighlight();
@@ -414,7 +414,7 @@ FDcResult FDcWriteStateClass::WriteClassEndAccess(FDcPropertyWriter* Parent, FDc
 	{
 		if (Access.Flag & FDcClassAccess::WriteCheckName)
 		{
-			DC_TRY(DcExpect(Class->GetFName() == Access.Name, [=] {
+			DC_TRY(DcExpect(Class->GetFName() == Access.Name, [&] {
 				return DC_FAIL(DcDReadWrite, ClassNameMismatch)
 					<< Class->GetFName() << Access.Name
 					<< Parent->FormatHighlight();

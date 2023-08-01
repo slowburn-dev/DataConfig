@@ -37,7 +37,7 @@ struct FDcDataVariant
 
 	template<
 		typename T,
-		typename TActual = typename TRemoveConst<typename TRemoveReference<T>::Type>::Type,
+		typename TActual = typename DcTypeUtils::TRemoveConst<typename TRemoveReference<T>::Type>::Type,
 		typename X = typename TEnableIf<TDcIsDataVariantCompatible<TActual>::Value, void>::Type
 	>
 	FDcDataVariant(T&& InValue)
@@ -55,7 +55,7 @@ struct FDcDataVariant
 	template<typename T>
 	FORCEINLINE void Initialize(T InValue)
 	{
-		using TActual = typename TRemoveConst<typename TRemoveReference<T>::Type>::Type;
+		using TActual = typename DcTypeUtils::TRemoveConst<typename TRemoveReference<T>::Type>::Type;
 		DataType = DcTypeUtils::TDcDataEntryType<TActual>::Value;
 		bDataTypeOnly = false;
 

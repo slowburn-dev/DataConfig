@@ -2,6 +2,12 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
+# UE5.3
+
+* Introduces `BuildSettingsVersion.V4` which now defaults to C++ 20.
+* `TRemoveConst` is deprecated over `std::remove_const`.
+* `FScriptDelegate` etc now has additional checkers based on threading model and debug/release build. Thus we change how `FScriptDelegateAccess` works.
+
 # UE5.2
 
 * `TIsSame` is deprecated over `std::is_same`.

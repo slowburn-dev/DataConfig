@@ -2,11 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.4.2 - 2023-8-1
+
+- UE 5.3 support.
+  - See: [UE version upgrade 5.3](Advanced/UEUpgrades.md#ue53)
+
+
 ## 1.4.1 - 2023-2-15
 
 - Fix compilation on `!WITH_EDITORONLY_DATA`.
   - See [No MetaData](Advanced/NoMetaData.md).
-- Initial UE 5.2 support.
+- UE 5.2 support.
+  - See: [UE version upgrade 5.2](Advanced/UEUpgrades.md#ue52)
 
 ## 1.4.0 - 2022-11-17
 
