@@ -6,7 +6,7 @@ This demonstrates conversion between`TArray<uint8>` and Base64 encoded strings i
 * [DcSerDeBase64.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeBase64.cpp)
 
 ```c++
-// DataConfigExtra/Public/DataConfig/Extra/Deserialize/DcSerDeBase64.h
+// DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeBase64.h
 USTRUCT()
 struct FDcExtraTestStructWithBase64
 {
@@ -16,7 +16,7 @@ struct FDcExtraTestStructWithBase64
     UPROPERTY(meta = (DcExtraBase64)) TArray<uint8> BlobField2;
 };
 
-// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeBase64.cpp
+// DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeBase64.cpp
 FString Str = TEXT(R"(
     {
         "BlobField1" : "dGhlc2UgYXJlIG15IHR3aXN0ZWQgd29yZHM=",
@@ -30,7 +30,7 @@ Note that we're tagging the `BlobField` with `(meta = (DcExtraBase64))` to expli
 UE support [arbitrary meta data in the `meta = ()` segment][1]. But beware that the meta data is only available when `WITH_EDITORDATA` flag is defined. In predicate we check for this `DcExtraBase64` like this:
 
 ```c++
-// DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcSerDeBase64.cpp
+// DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeBase64.cpp
 EDcDeserializePredicateResult PredicateIsBase64Blob(FDcDeserializeContext& Ctx)
 {
 	FArrayProperty* ArrayProperty = DcPropertyUtils::CastFieldVariant<FArrayProperty>(Ctx.TopProperty());

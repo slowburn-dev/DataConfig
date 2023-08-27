@@ -15,6 +15,12 @@ static FDcDiagnosticDetail _ExtraDetails[] = {
 	//	InlineStruct
 	{ InlineStructTooBig, TEXT("Inline struct too big: BufSize '{0}', Struct '{1}' Size '{2}'"), },
 	{ InlineStructNotSet, TEXT("Inline struct not set"), },
+
+	//	Nested
+	{ NestedMissingMetaData, TEXT("Nested missing metadata: '{0}'"), },
+	{ NestedGrid2DHeightMismatch, TEXT("Nested Grid2D height mismatch, Expect '{0}'"), },
+	{ NestedGrid2DWidthMismatch, TEXT("Nested Grid2D width mismatch, Expect '{0}'"), },
+	{ NestedGrid2DLenMismatch, TEXT("Nested Grid2D total length mismatch, Expect '{0}', Actual: '{1}'"), },
 };
 
  FDcDiagnosticGroup Details = {

@@ -114,3 +114,24 @@ public:
 
 	UPROPERTY(EditAnywhere) float Radius;
 };
+
+
+UENUM()
+enum class EDcExtraTestEnum1
+{
+	Alpha,
+	Beta,
+	Gamma,
+};
+
+USTRUCT()
+struct DATACONFIGEXTRA_API FDcExtraSimpleStruct
+{
+    GENERATED_BODY()
+
+    UPROPERTY() FString Name;
+    UPROPERTY() int Id;
+    UPROPERTY() EDcExtraTestEnum1 Type;
+};
+
+

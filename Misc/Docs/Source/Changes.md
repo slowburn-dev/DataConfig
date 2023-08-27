@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.4.3 - 2023-8-27
+
+- **NEW** Extra samples.
+  - [NDJSON](Extra/NDJSON.md)
+  - [Root Object](Extra/RootObject.md)
+  - [Nested Arrays](Extra/Nested.md)
+- **CHANGE** small QoL changes:
+  - Fix `FDcDiagnostic` enum argument captures.
+  - Better `FDcJsonReader::FinishRead()` behavior.
+  - Diagnostic message fixes.
+  - Relax JSONReader a bit to allow root object/array.
+  - Add `PredicateIsRootProperty` util to select root property.
+
 ## 1.4.2 - 2023-8-1
 
 - UE 5.3 support.

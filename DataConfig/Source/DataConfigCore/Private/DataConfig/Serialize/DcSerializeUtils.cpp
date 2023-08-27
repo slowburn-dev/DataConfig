@@ -22,5 +22,13 @@ FDcResult RecursiveSerialize(FDcSerializeContext& Ctx)
 	return DcOk();
 }
 
+EDcSerializePredicateResult PredicateIsRootProperty(FDcSerializeContext& Ctx)
+{
+	check(Ctx.Properties.Num() > 0);
+    return Ctx.TopProperty() == Ctx.Properties[0]
+        ? EDcSerializePredicateResult::Process
+        : EDcSerializePredicateResult::Pass;
+}
+
 } // namespace DcSerializeUtils
 

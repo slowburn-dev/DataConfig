@@ -256,7 +256,8 @@ static FDcResult RunSingleJsonFixture(FDcJsonTestFixure& Fixture)
 		TDcStoreThenReset<bool> ScopedExpectFail(DcEnv().bExpectFail, true);
 
 		FDcResult Ret = DcNoopPipeVisit(&Reader);
-		if (Ret.Ok())
+		FDcResult Finish = Reader.FinishRead();
+		if (Ret.Ok() && Finish.Ok())
 		{
 			return DC_FAIL(DcDCommon, CustomMessage)
 				<< FString::Printf(TEXT("DcJsonFixture: Expect Reject but succeeded: %s"), *Basename);

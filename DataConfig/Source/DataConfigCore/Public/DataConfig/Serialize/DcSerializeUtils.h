@@ -18,6 +18,8 @@ EDcSerializePredicateResult PredicateIsUStruct(FDcSerializeContext& Ctx)
 		? EDcSerializePredicateResult::Process
 		: EDcSerializePredicateResult::Pass;
 }
+
+DATACONFIGCORE_API EDcSerializePredicateResult PredicateIsRootProperty(FDcSerializeContext& Ctx);
 	
 } // namespace DcSerializeUtils
 

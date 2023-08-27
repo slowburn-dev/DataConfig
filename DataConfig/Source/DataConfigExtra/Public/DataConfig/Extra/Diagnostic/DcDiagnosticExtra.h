@@ -24,6 +24,12 @@ enum Type : uint16
 	InlineStructTooBig,
 	InlineStructNotSet,
 
+	//	Nested
+	NestedMissingMetaData,
+	NestedGrid2DHeightMismatch,
+	NestedGrid2DWidthMismatch,
+	NestedGrid2DLenMismatch,
+
 };
 
 extern DATACONFIGEXTRA_API FDcDiagnosticGroup Details;

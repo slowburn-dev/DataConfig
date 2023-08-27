@@ -42,7 +42,7 @@ struct DATACONFIGCORE_API FDcDiagnostic
 };
 
 template<typename T>
-FORCEINLINE typename TEnableIf<!TIsEnumClass<T>::Value, FDcDiagnostic&>::Type
+typename TEnableIf<!TIsEnumClass< typename TRemoveReference<T>::Type >::Value, FDcDiagnostic&>::Type
 operator<<(FDcDiagnostic& Diag, T&& InValue)
 {
 	Diag.Args.Emplace(Forward<T>(InValue));
@@ -50,7 +50,7 @@ operator<<(FDcDiagnostic& Diag, T&& InValue)
 }
 
 template<typename T>
-FORCEINLINE typename TEnableIf<TIsEnumClass<T>::Value, FDcDiagnostic&>::Type
+typename TEnableIf<TIsEnumClass< typename TRemoveReference<T>::Type >::Value, FDcDiagnostic&>::Type
 operator<<(FDcDiagnostic& Diag, T&& InValue)
 {
 	Diag.Args.Emplace((int)(InValue));

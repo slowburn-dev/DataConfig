@@ -308,6 +308,7 @@ FDcResult TDcJsonReader<CharType>::FinishRead()
 
 	EDcDataEntry Next;
 	DC_TRY(PeekRead(&Next));
+
 	if (Next != EDcDataEntry::Ended)
 	{
 		return DC_FAIL(DcDJSON, UnexpectedTrailingToken) 
@@ -316,8 +317,19 @@ FDcResult TDcJsonReader<CharType>::FinishRead()
 	}
 	else
 	{
-		check(State == EState::FinishedStr);
-		return DcOk();
+		if (GetTopState() == EParseState::Object)
+		{
+			return DC_FAIL(DcDJSON, EndUnclosedObject) << FormatHighlight(Cur, 0);
+		}
+		else if (GetTopState() == EParseState::Array)
+		{
+			return DC_FAIL(DcDJSON, EndUnclosedArray) << FormatHighlight(Cur, 0);
+		}
+		else
+		{
+			check(State == EState::FinishedStr);
+			return DcOk();
+		}
 	}
 }
 
@@ -917,7 +929,7 @@ FDcResult TDcJsonReader<CharType>::CheckConsumeToken(EDcDataEntry Expect)
 				<< FormatHighlight(Token.Ref);
 	}
 
-	//	setting need consume token for the next one
+	//	setting need consume token for the next one when not at end
 	bNeedConsumeToken = true;
 	return DcOk();
 }
@@ -948,8 +960,9 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 			DC_TRY(ConsumeEffectiveToken());
 			bTopObjectAtValue = false;
 
-			//	allowing optional trailing comma
-			if (Token.Type == ETokenType::Comma)
+			if (Token.Type == ETokenType::Comma // allowing optional trailing comma
+				|| Token.Type == ETokenType::EOF_) // allowing root level object
+				
 			{
 				return DcOk();
 			}
@@ -969,7 +982,8 @@ FDcResult TDcJsonReader<CharType>::EndTopRead()
 		FToken Prev = Token;
 		DC_TRY(ConsumeEffectiveToken());
 
-		if (Token.Type == ETokenType::Comma)
+		if (Token.Type == ETokenType::Comma // allowing optional trailing comma
+			|| Token.Type == ETokenType::EOF_) // allowing root level array
 		{
 			return DcOk();
 		}
@@ -1101,21 +1115,11 @@ FDcResult TDcJsonReader<CharType>::ConsumeRawToken()
 
 	if (IsAtEnd())
 	{
-		if (GetTopState() == EParseState::Object)
-		{
-			return DC_FAIL(DcDJSON, EndUnclosedObject) << FormatHighlight(Cur, 1);
-		}
-		else if (GetTopState() == EParseState::Array)
-		{
-			return DC_FAIL(DcDJSON, EndUnclosedArray) << FormatHighlight(Cur, 1);
-		}
-		else
-		{
-			Token.Type = ETokenType::EOF_;
-			//	keep the token for diagnostic highlight
-			State = EState::FinishedStr;
-			return DcOk();
-		}
+		Token.Type = ETokenType::EOF_;
+		//	keep the token for diagnostic highlight
+		State = EState::FinishedStr;
+		bNeedConsumeToken = false;
+		return DcOk();
 	}
 
 	auto _ConsumeSingleCharToken = [this](ETokenType TokenType) {

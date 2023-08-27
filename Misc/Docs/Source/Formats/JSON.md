@@ -532,6 +532,8 @@ Here're some closing notes:
     
 - One interesting trait of the pull/push styled API is that `FDcJsonReader` does __not__ preemptively parse number into double and convert it to `int/float` later on. When reading a number token it would do the number parsing at call site. If `ReadIntX()` is called then the number is parsed as integer. If `ReadFloat()/ReadDouble()` is called the token will be parsed as floating point.
 
+- `FDcJsonReader::FinishRead()` can be used to check JSON is fully consumed and sound (no trailing tokens, object/array fully closed). This optional by design and not part of `FDcReader/FDcWriter` API and would make reading more flexible. See [NDJSON](../Extra/NDJSON.md) for more.
+
 [1]: https://www.json.org/json-en.html "Introducing JSON"
 [2]: https://docs.unrealengine.com/4.27/en-US/API/Runtime/JsonUtilities/ "JsonUtilities"
 [3]: http://ndjson.org/ "ndjson"
