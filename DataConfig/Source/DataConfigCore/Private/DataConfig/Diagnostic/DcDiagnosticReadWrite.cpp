@@ -34,7 +34,8 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ ReaderCastExpect, TEXT("Reader cast failed. Expected '{0}, Actual '{1}'") },
 	{ WriterCastExpect, TEXT("Writer cast failed. Expected '{0}, Actual '{1}'") },
 	{ PeekNoContainerProperty, TEXT("Property Reader/Writer has no container property, Actual: '{0}'"), },
-	{ WriteObjectReferenceDoNotAcceptNull, TEXT("FPropertyWriter::WriteObjectReference() don't accept nullptr. You should use WriteNil() instead."), },
+	{ PropertyNotSupportedUEVersion, TEXT("Property not supported by this Unreal Engine version: '{0}'"), },
+	{ WriteObjectReferenceDoNotAcceptNull, TEXT("FPropertyWriter::WriteObjectReference() don't accept nullptr. You should use WriteNone() instead."), },
 
 	//	putback reader
 	{ CantUsePutbackValue, TEXT("Cannot use putback value in '{0}'") },

@@ -528,7 +528,7 @@ DC_TEST("DataConfig.Core.Property.HighlightFormat")
 	UTEST_OK("Highlight Format", Reader.ReadSetEnd());
 	UTEST_OK("Highlight Format", Reader.ReadStructEnd());
 	UTEST_EQUAL("Highlight Format", Reader.FormatHighlight().Formatted,
-		TEXT("Reading property: <nil>"));
+		TEXT("Reading property: <none>"));
 
 	return true;
 }

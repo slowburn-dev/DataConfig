@@ -126,21 +126,21 @@ static FORCEINLINE EDcDataEntry TokenTypeToDataEntry(ETokenType TokenType)
 {
 	static EDcDataEntry _Mapping[(int)ETokenType::_Count] = {
 		EDcDataEntry::Ended,
-		EDcDataEntry::Nil,
+		EDcDataEntry::None,
 		EDcDataEntry::MapRoot,
 		EDcDataEntry::MapEnd,
 		EDcDataEntry::ArrayRoot,
 		EDcDataEntry::ArrayEnd,
-		EDcDataEntry::Nil,
+		EDcDataEntry::None,
 		EDcDataEntry::String,
 		EDcDataEntry::Double,
 		EDcDataEntry::Bool,
 		EDcDataEntry::Bool,
-		EDcDataEntry::Nil,
+		EDcDataEntry::None,
 
-		EDcDataEntry::Nil,
-		EDcDataEntry::Nil,
-		EDcDataEntry::Nil,
+		EDcDataEntry::None,
+		EDcDataEntry::None,
+		EDcDataEntry::None,
 	};
 
 	return _Mapping[(int)TokenType];
@@ -377,9 +377,9 @@ FDcResult TDcJsonReader<CharType>::PeekRead(EDcDataEntry* OutPtr)
 }
 
 template<typename CharType>
-FDcResult TDcJsonReader<CharType>::ReadNil()
+FDcResult TDcJsonReader<CharType>::ReadNone()
 {
-	DC_TRY(CheckConsumeToken(EDcDataEntry::Nil));
+	DC_TRY(CheckConsumeToken(EDcDataEntry::None));
 	if (Token.Type == ETokenType::Null)
 	{
 		DC_TRY(CheckNotObjectKey());
@@ -389,7 +389,7 @@ FDcResult TDcJsonReader<CharType>::ReadNil()
 	else
 	{
 		return DC_FAIL(DcDJSON, ReadTypeMismatch)
-			<< EDcDataEntry::Nil << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
+			<< EDcDataEntry::None << FDcJsonReaderDetails<CharType>::TokenTypeToDataEntry(Token.Type)
 			<< FormatHighlight(Token.Ref);
 	}
 }

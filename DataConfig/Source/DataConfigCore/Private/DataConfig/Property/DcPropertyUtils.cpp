@@ -6,6 +6,11 @@
 #include "UObject/TextProperty.h"
 #include "UObject/PropertyAccessUtil.h"
 
+#include "Misc/EngineVersionComparison.h"
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+#include "UObject/PropertyOptional.h"
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 namespace DcPropertyUtils
 {
 
@@ -15,6 +20,9 @@ bool IsScalarProperty(FField* Property)
 {
 	check(Property);
 	bool bIsCompound = Property->IsA<FStructProperty>()
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+		|| Property->IsA<FOptionalProperty>()
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 		|| Property->IsA<FObjectProperty>()
 		|| Property->IsA<FMapProperty>()
 		|| Property->IsA<FArrayProperty>()
@@ -61,10 +69,10 @@ void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
 	Visitor(FClassProperty::StaticClass());
 	Visitor(FObjectProperty::StaticClass());
 
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 	Visitor(FClassPtrProperty::StaticClass());
 	Visitor(FObjectPtrProperty::StaticClass());
-#endif //ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 
 	Visitor(FMapProperty::StaticClass());
 	Visitor(FArrayProperty::StaticClass());
@@ -78,6 +86,11 @@ void VisitAllEffectivePropertyClass(TFunctionRef<void(FFieldClass*)> Visitor)
 	Visitor(FFieldPathProperty::StaticClass());
 	Visitor(FMulticastInlineDelegateProperty::StaticClass());
 	Visitor(FMulticastSparseDelegateProperty::StaticClass());
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	Visitor(FOptionalProperty::StaticClass());
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 }
 
 FProperty* NextEffectiveProperty(FProperty* Property)
@@ -213,6 +226,10 @@ EDcDataEntry PropertyToDataEntry(FField* Property)
 	if (Property->IsA<FArrayProperty>()) return EDcDataEntry::ArrayRoot;
 	if (Property->IsA<FSetProperty>()) return EDcDataEntry::SetRoot;
 
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	if (Property->IsA<FOptionalProperty>()) return EDcDataEntry::OptionalRoot;
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 	checkNoEntry();
 	return EDcDataEntry::Ended;
 }
@@ -235,6 +252,13 @@ FString FormatMapTypeName(FProperty* KeyProperty, FProperty* ValueProperty)
 {
 	return FString::Printf(TEXT("TMap<%s, %s>"),
 		*GetFormatPropertyTypeName(KeyProperty),
+		*GetFormatPropertyTypeName(ValueProperty)
+	);
+}
+
+FString FormatOptionalTypeName(FProperty* ValueProperty)
+{
+	return FString::Printf(TEXT("TOptional<%s>"),
 		*GetFormatPropertyTypeName(ValueProperty)
 	);
 }
@@ -361,6 +385,15 @@ FString GetFormatPropertyTypeName(FField* Property)
 			*GetFormatPropertyTypeName(InterfaceProperty->InterfaceClass)
 		);
 	}
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	if (FOptionalProperty* OptionalProperty = CastField<FOptionalProperty>(Property))
+	{
+		return FString::Printf(TEXT("TOptional<%s>"),
+			*GetFormatPropertyTypeName(OptionalProperty->GetValueProperty())
+		);
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 	checkNoEntry();
 	return FString();
@@ -706,7 +739,7 @@ FDcPropertyBuilder FDcPropertyBuilder::Map(FProperty* InKey, FProperty* InValue,
 	return Ret;
 }
 
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 FDcPropertyBuilder FDcPropertyBuilder::ObjectPtr(UClass* InClass, const FName InName, FFieldVariant InOuter)
 {
 	FDcPropertyBuilder Ret = Make<FObjectPtrProperty>(InName, InOuter);
@@ -721,6 +754,15 @@ FDcPropertyBuilder FDcPropertyBuilder::ClassPtr(UClass* InClass, const FName InN
 	Ret.As<FClassPtrProperty>()->SetMetaClass(InClass);
 	return Ret;
 }
-#endif // ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+FDcPropertyBuilder FDcPropertyBuilder::Optional(FProperty* InInner, const FName InName, FFieldVariant InOuter)
+{
+	FDcPropertyBuilder Ret = Make<FOptionalProperty>(InName, InOuter);
+	Ret.As<FOptionalProperty>()->SetValueProperty(InInner);
+	return Ret;
+}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 }	// namespace DcPropertyUtils

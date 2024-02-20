@@ -136,6 +136,22 @@ FDcResult FDcPrettyPrintWriter::WriteSetEnd()
 	return DcOk();
 }
 
+FDcResult FDcPrettyPrintWriter::WriteOptionalRoot()
+{
+	Output.Logf(TEXT("%s<OptionalRoot>"), *Indent);
+	SetIndentLevel(IndentLevel + 1);
+	return DcOk();
+}
+
+FDcResult FDcPrettyPrintWriter::WriteOptionalEnd()
+{
+	SetIndentLevel(IndentLevel - 1);
+	Output.Logf(TEXT("%s<OptionalEnd>"), *Indent);
+	return DcOk();
+}
+
+
+
 FDcResult FDcPrettyPrintWriter::WriteObjectReference(const UObject* Value)
 {
 	check(Value);	// note that this is guaranteed to be non-null 
@@ -290,9 +306,9 @@ FDcResult FDcPrettyPrintWriter::WriteBlob(const FDcBlobViewData& Value)
 	return DcOk();
 }
 
-FDcResult FDcPrettyPrintWriter::WriteNil()
+FDcResult FDcPrettyPrintWriter::WriteNone()
 {
-	Output.Logf(TEXT("%s<Nil>"), *Indent);
+	Output.Logf(TEXT("%s<None>"), *Indent);
 	return DcOk();
 }
 

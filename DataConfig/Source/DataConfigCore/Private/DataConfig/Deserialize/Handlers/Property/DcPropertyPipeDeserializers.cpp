@@ -52,6 +52,16 @@ FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx)
 	>(Ctx);
 }
 
+FDcResult HandlerOptionalDeserialize(FDcDeserializeContext& Ctx)
+{
+	return DcHandlerPipeOptional<
+		FDcDeserializeContext,
+		FDcReader,
+		FDcPropertyWriter,
+		&DcDeserializeUtils::RecursiveDeserialize
+	>(Ctx);
+}
+
 } // namespace DcPropertyPipeHandlers
 
 

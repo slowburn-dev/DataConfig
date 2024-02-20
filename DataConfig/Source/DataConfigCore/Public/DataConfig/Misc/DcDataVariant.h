@@ -26,7 +26,7 @@ static_assert(!TDcIsDataVariantCompatible<FDcStructAccess>::Value, "no");
 struct FDcDataVariant
 {
 	FDcDataVariant()
-		: DataType(EDcDataEntry::Nil)
+		: DataType(EDcDataEntry::None)
 	{}
 
 	FDcDataVariant(const FDcDataVariant&) = default;
@@ -66,7 +66,7 @@ struct FDcDataVariant
 	template<>
 	FORCEINLINE void Initialize<nullptr_t>(nullptr_t)
 	{
-		DataType = EDcDataEntry::Nil;
+		DataType = EDcDataEntry::None;
 		bDataTypeOnly = false;
 	}
 
@@ -115,7 +115,7 @@ struct FDcDataVariant
 	template<>
 	nullptr_t GetValue<nullptr_t>() const
 	{
-		check(DataType == EDcDataEntry::Nil);
+		check(DataType == EDcDataEntry::None);
 		return nullptr;
 	}
 

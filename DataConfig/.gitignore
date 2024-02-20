@@ -1,4 +1,5 @@
 /Resources/ClangTidy.lua*
+*.raddbg*
 
 # Visual Studio 2015 user specific files
 .vs/

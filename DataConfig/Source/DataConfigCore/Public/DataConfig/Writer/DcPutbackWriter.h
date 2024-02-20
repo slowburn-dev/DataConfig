@@ -10,7 +10,7 @@ struct DATACONFIGCORE_API FDcPutbackWriter : public FDcWriter
 
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 
-	FDcResult WriteNil() override;
+	FDcResult WriteNone() override;
 	FDcResult WriteBool(bool Value) override;
 	FDcResult WriteName(const FName& Value) override;
 	FDcResult WriteString(const FString& Value) override;
@@ -27,6 +27,8 @@ struct DATACONFIGCORE_API FDcPutbackWriter : public FDcWriter
 	FDcResult WriteArrayEnd() override;
 	FDcResult WriteSetRoot() override;
 	FDcResult WriteSetEnd() override;
+	FDcResult WriteOptionalRoot() override;
+	FDcResult WriteOptionalEnd() override;
 
 	FDcResult WriteObjectReference(const UObject* Value) override;
 	FDcResult WriteClassReference(const UClass* Value) override;

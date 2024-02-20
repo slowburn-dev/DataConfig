@@ -5,9 +5,9 @@ FName DC_TRANSIENT_ARRAY = FName(TEXT("DcTransientArray"));
 FName DC_TRANSIENT_SET = FName(TEXT("DcTransientSet"));
 FName DC_TRANSIENT_MAP = FName(TEXT("DcTransientMap"));
 
-void DcPropertyHighlight::FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType)
+void DcPropertyHighlight::FormatNone(TArray<FString>& OutSegments, EFormatSeg SegType)
 {
-	OutSegments.Add(TEXT("<nil>"));
+	OutSegments.Add(TEXT("<none>"));
 }
 
 void DcPropertyHighlight::FormatScalar(TArray<FString>& OutSegments, EFormatSeg SegType, FProperty* Property, int Index, bool bIsItem)
@@ -98,6 +98,17 @@ void DcPropertyHighlight::FormatSet(TArray<FString>& OutSegments, EFormatSeg Seg
 
 	if (bIsItem)
 		Seg.Append(FString::Printf(TEXT("[%d]"), Index));
+
+	OutSegments.Add(MoveTemp(Seg));
+}
+
+void DcPropertyHighlight::FormatOptional(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& OptionalName, FProperty* ValueProperty)
+{
+	check(ValueProperty);
+	FString Seg = FString::Printf(TEXT("(%s)%s"),
+		*DcPropertyUtils::FormatOptionalTypeName(ValueProperty),
+		*OptionalName.ToString()
+	);
 
 	OutSegments.Add(MoveTemp(Seg));
 }

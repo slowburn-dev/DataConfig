@@ -6,6 +6,11 @@
 #include "CoreMinimal.h"
 #include "UObject/TextProperty.h"
 
+#include "Misc/EngineVersionComparison.h"
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+#include "UObject/PropertyOptional.h"
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 static FORCEINLINE DcPropertyReaderDetails::FReadState::ImplStorageType* GetTopStorage(FDcPropertyReader* Self)
 {
 	return &Self->States.Top().ImplStorage;
@@ -31,10 +36,10 @@ static TState* TryGetTopState(FDcPropertyReader* Self) {
 	return GetTopState(Self).As<TState>();
 }
 
-FDcReadStateNil& PushNilState(FDcPropertyReader* Reader)
+FDcReadStateNone& PushNoneState(FDcPropertyReader* Reader)
 {
 	Reader->States.AddUninitialized();
-	return Emplace<FDcReadStateNil>(GetTopStorage(Reader));
+	return Emplace<FDcReadStateNone>(GetTopStorage(Reader));
 }
 
 FDcReadStateClass& PushClassPropertyState(FDcPropertyReader* Reader, UObject* InClassObject, UClass* InClass, FDcReadStateClass::EType InType, const FName& InObjectName)
@@ -84,6 +89,14 @@ FDcReadStateSet& PushSetPropertyState(FDcPropertyReader* Reader, FProperty* Elem
 	Reader->States.AddUninitialized();
 	return Emplace<FDcReadStateSet>(GetTopStorage(Reader), ElementProperty, InSet);
 }
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+FDcReadStateOptional& PushOptionalPropertyState(FDcPropertyReader* Reader, void* InOptionalPtr, FOptionalProperty* InOptionalProperty)
+{
+	Reader->States.AddUninitialized();
+	return Emplace<FDcReadStateOptional>(GetTopStorage(Reader), InOptionalPtr, InOptionalProperty);
+}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 FDcReadStateScalar& PushScalarPropertyState(FDcPropertyReader* Reader, void* InPtr, FProperty* InField)
 {
@@ -144,7 +157,7 @@ FORCEINLINE FDcResult ReadTopStateScalarProperty(FDcPropertyReader* Self, TScala
 FDcPropertyReader::FDcPropertyReader()
 {
 	Config = FDcPropertyConfig::MakeDefault();
-	PushNilState(this);
+	PushNoneState(this);
 }
 
 FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
@@ -182,6 +195,12 @@ FDcPropertyReader::FDcPropertyReader(FDcPropertyDatum Datum)
 	{
 		PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
 	}
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	else if (Datum.Property.IsA<FOptionalProperty>())
+	{
+		PushOptionalPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FOptionalProperty>());
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 	else 
 	{
 		PushScalarPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FProperty>());
@@ -359,12 +378,12 @@ FDcResult FDcPropertyReader::ReadClassRootAccess(FDcClassAccess& Access)
 				}
 				else
 				{
-					Access.Control = FDcClassAccess::EControl::ReferenceOrNil;
+					Access.Control = FDcClassAccess::EControl::ReferenceOrNone;
 					StateType = FDcReadStateClass::EType::PropertyNormal;
 				}
 				break;
 			}
-			case FDcClassAccess::EControl::ReferenceOrNil:
+			case FDcClassAccess::EControl::ReferenceOrNone:
 				StateType = FDcReadStateClass::EType::PropertyNormal;
 				break;
 			case FDcClassAccess::EControl::ExpandObject:
@@ -541,6 +560,54 @@ FDcResult FDcPropertyReader::ReadSetEnd()
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
 			<< (int)FDcReadStateArray::ID << (int)GetTopState(this).GetType();
 	}
+}
+
+FDcResult FDcPropertyReader::ReadOptionalRoot()
+{
+#if UE_VERSION_OLDER_THAN(5, 4, 0)
+	return DC_FAIL(DcDReadWrite, PropertyNotSupportedUEVersion)
+		<< TEXT("Optional Property");
+#else
+	FDcBaseReadState& TopState = GetTopState(this);
+	{
+		FDcReadStateOptional* OptionalState = TopState.As<FDcReadStateOptional>();
+		if (OptionalState != nullptr
+			&& OptionalState->State == FDcReadStateOptional::EState::ExpectRoot)
+		{
+			return OptionalState->ReadOptionalRoot(this);
+		}
+	}
+
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.ReadDataEntry(this, FOptionalProperty::StaticClass(), Datum));
+
+		FDcReadStateOptional& ChildSet = PushOptionalPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FOptionalProperty>());
+		DC_TRY(ChildSet.ReadOptionalRoot(this));
+	}
+
+	return DcOk();
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+}
+
+FDcResult FDcPropertyReader::ReadOptionalEnd()
+{
+#if UE_VERSION_OLDER_THAN(5, 4, 0)
+	return DC_FAIL(DcDReadWrite, PropertyNotSupportedUEVersion)
+		<< TEXT("Optional Property");
+#else
+	if (FDcReadStateOptional* OptionalState = TryGetTopState<FDcReadStateOptional>(this))
+	{
+		DC_TRY(OptionalState->ReadOptionalEnd(this));
+		PopState<FDcReadStateOptional>(this);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)FDcReadStateOptional::ID << (int)GetTopState(this).GetType();
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 }
 
 FDcResult FDcPropertyReader::ReadObjectReference(UObject** OutPtr)
@@ -774,13 +841,19 @@ FDcResult FDcPropertyReader::SetConfig(FDcPropertyConfig InConfig)
 	return Config.Prepare();
 }
 
-FDcResult FDcPropertyReader::ReadNil()
+FDcResult FDcPropertyReader::ReadNone()
 {
-	//	only class property accepts nil
+	//	only class/optional property accepts none
 	if (FDcReadStateClass* ClassState = TryGetTopState<FDcReadStateClass>(this))
 	{
-		return ClassState->ReadNil(this);
+		return ClassState->ReadNone(this);
 	}
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	else if (FDcReadStateOptional* OptionalState = TryGetTopState<FDcReadStateOptional>(this))
+	{
+		return OptionalState->ReadNone(this);
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -815,7 +888,7 @@ FDcDiagnosticHighlight FDcPropertyReader::FormatHighlight()
 	}
 
 	FString Path = Segments.Num() == 0
-		? TEXT("<nil>")
+		? TEXT("<none>")
 		: FString::Join(Segments, TEXT("."));
 	OutHighlight.Formatted = FString::Printf(TEXT("Reading property: %s"), *Path);
 	return OutHighlight;

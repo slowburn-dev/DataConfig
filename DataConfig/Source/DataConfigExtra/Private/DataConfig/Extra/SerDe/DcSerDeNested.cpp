@@ -41,11 +41,11 @@ FDcResult HandlerVector2DDeserialize(FDcDeserializeContext& Ctx)
         FVector2D* Vec2DPtr = (FVector2D*)Datum.DataPtr;
 
 #if ENGINE_MAJOR_VERSION == 5
-        static_assert(sizeof(FVector2D) == 16);
+        static_assert(sizeof(FVector2D) == 16, "FVector2D size check");
         DC_TRY(Ctx.Reader->ReadDouble(&Vec2DPtr->X));
         DC_TRY(Ctx.Reader->ReadDouble(&Vec2DPtr->Y));
 #else
-        static_assert(sizeof(FVector2D) == 8);
+        static_assert(sizeof(FVector2D) == 8, "FVector2D size check");
         DC_TRY(Ctx.Reader->ReadFloat(&Vec2DPtr->X));
         DC_TRY(Ctx.Reader->ReadFloat(&Vec2DPtr->Y));
 #endif
@@ -71,11 +71,11 @@ FDcResult HandlerVector2DSerialize(FDcSerializeContext& Ctx)
     DC_TRY(Ctx.Writer->WriteArrayRoot());
 
 #if ENGINE_MAJOR_VERSION == 5
-    static_assert(sizeof(FVector2D) == 16);
+    static_assert(sizeof(FVector2D) == 16, "FVector2D size check");
     DC_TRY(Ctx.Writer->WriteDouble(Vec2DPtr->X));
     DC_TRY(Ctx.Writer->WriteDouble(Vec2DPtr->Y));
 #else
-    static_assert(sizeof(FVector2D) == 8);
+    static_assert(sizeof(FVector2D) == 8, "FVector2D size check");
     DC_TRY(Ctx.Writer->WriteFloat(Vec2DPtr->X));
     DC_TRY(Ctx.Writer->WriteFloat(Vec2DPtr->Y));
 #endif

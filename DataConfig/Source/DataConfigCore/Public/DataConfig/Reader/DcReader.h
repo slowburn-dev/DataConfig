@@ -15,7 +15,7 @@ struct DATACONFIGCORE_API FDcReader
 
 	virtual FDcResult PeekRead(EDcDataEntry* OutPtr);
 
-	virtual FDcResult ReadNil();
+	virtual FDcResult ReadNone();
 
 	virtual FDcResult ReadBool(bool* OutPtr);
 	virtual FDcResult ReadName(FName* OutPtr);
@@ -46,6 +46,9 @@ struct DATACONFIGCORE_API FDcReader
 
 	virtual FDcResult ReadSetRoot();
 	virtual FDcResult ReadSetEnd();
+
+	virtual FDcResult ReadOptionalRoot();
+	virtual FDcResult ReadOptionalEnd();
 
 	virtual FDcResult ReadObjectReference(UObject** OutPtr);
 	virtual FDcResult ReadClassReference(UClass** OutPtr);

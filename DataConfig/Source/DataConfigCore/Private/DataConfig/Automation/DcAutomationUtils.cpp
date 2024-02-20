@@ -77,10 +77,10 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 			{
 				return DcOk();
 			}
-			case EDcDataEntry::Nil:
+			case EDcDataEntry::None:
 			{
-				DC_TRY(LhsReader.ReadNil());
-				DC_TRY(RhsReader.ReadNil());
+				DC_TRY(LhsReader.ReadNone());
+				DC_TRY(RhsReader.ReadNone());
 				break;
 			}
 			case EDcDataEntry::Bool:
@@ -230,6 +230,18 @@ FDcResult TestReadDatumEqual(const FDcPropertyDatum& LhsDatum, const FDcProperty
 			{
 				DC_TRY(LhsReader.ReadSetEnd());
 				DC_TRY(RhsReader.ReadSetEnd());
+				break;
+			}
+			case EDcDataEntry::OptionalRoot:
+			{
+				DC_TRY(LhsReader.ReadOptionalRoot());
+				DC_TRY(RhsReader.ReadOptionalRoot());
+				break;
+			}
+			case EDcDataEntry::OptionalEnd:
+			{
+				DC_TRY(LhsReader.ReadOptionalEnd());
+				DC_TRY(RhsReader.ReadOptionalEnd());
 				break;
 			}
 			case EDcDataEntry::ObjectReference:

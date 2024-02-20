@@ -97,9 +97,9 @@ FDcResult FDcPutbackReader::PeekRead(EDcDataEntry* OutPtr)
 	}
 }
 
-FDcResult FDcPutbackReader::ReadNil()
+FDcResult FDcPutbackReader::ReadNone()
 {
-	return DcPutbackReaderDetails::CachedRead<nullptr_t>(this, &FDcReader::ReadNil);
+	return DcPutbackReaderDetails::CachedRead<nullptr_t>(this, &FDcReader::ReadNone);
 }
 
 FDcResult FDcPutbackReader::ReadBool(bool* OutPtr)
@@ -135,6 +135,16 @@ FDcResult FDcPutbackReader::ReadStructRootAccess(FDcStructAccess& Access)
 FDcResult FDcPutbackReader::ReadStructEndAccess(FDcStructAccess& Access)
 {
 	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::StructEnd, &FDcReader::ReadStructEndAccess, Access);
+}
+
+FDcResult FDcPutbackReader::ReadOptionalRoot()
+{
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::OptionalRoot, &FDcReader::ReadOptionalRoot);
+}
+
+FDcResult FDcPutbackReader::ReadOptionalEnd()
+{
+	return DcPutbackReaderDetails::CanNotCachedRead(this, EDcDataEntry::OptionalEnd, &FDcReader::ReadOptionalEnd);
 }
 
 FDcResult FDcPutbackReader::ReadClassRootAccess(FDcClassAccess& Access)

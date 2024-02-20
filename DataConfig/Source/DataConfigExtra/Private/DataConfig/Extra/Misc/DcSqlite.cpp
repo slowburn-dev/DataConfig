@@ -39,7 +39,7 @@ static EDcDataEntry SqliteColumnTypeToDataEntry(ESQLiteColumnType ColType)
 {
 	switch (ColType)
 	{
-	case ESQLiteColumnType::Null: return EDcDataEntry::Nil;
+	case ESQLiteColumnType::Null: return EDcDataEntry::None;
 	case ESQLiteColumnType::String: return EDcDataEntry::String;
 	case ESQLiteColumnType::Integer: return EDcDataEntry::Int32;
 	case ESQLiteColumnType::Float: return EDcDataEntry::Float;
@@ -249,7 +249,7 @@ struct FSqliteReader : FDcReader
 		return ReadOutOk(OutPtr, FText::FromString(MoveTemp(Str)));
 	}
 
-	FDcResult ReadNil() override
+	FDcResult ReadNone() override
 	{
 		if (State != EState::ExpectValue)
 			return DC_FAIL(DcDReadWrite, InvalidStateNoExpect) << State;

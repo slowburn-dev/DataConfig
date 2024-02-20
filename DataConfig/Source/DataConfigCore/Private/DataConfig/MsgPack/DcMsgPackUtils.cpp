@@ -26,7 +26,7 @@ FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 
 	switch (TypeByte)
 	{
-		case _FIXEXT1:
+		case MSGPACK_FIXEXT1:
 		{
 			uint8 Type;
 			uint8 Value;
@@ -34,7 +34,7 @@ FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 			DC_TRY(Writer->WriteFixExt1(Type, Value));
 			break;
 		}
-		case _FIXEXT2:
+		case MSGPACK_FIXEXT2:
 		{
 			uint8 Type;
 			FDcBytes2 Value;
@@ -42,7 +42,7 @@ FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 			DC_TRY(Writer->WriteFixExt2(Type, Value));
 			break;
 		}
-		case _FIXEXT4:
+		case MSGPACK_FIXEXT4:
 		{
 			uint8 Type;
 			FDcBytes4 Value;
@@ -50,7 +50,7 @@ FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 			DC_TRY(Writer->WriteFixExt4(Type, Value));
 			break;
 		}
-		case _FIXEXT8:
+		case MSGPACK_FIXEXT8:
 		{
 			uint8 Type;
 			FDcBytes8 Value;
@@ -58,7 +58,7 @@ FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 			DC_TRY(Writer->WriteFixExt8(Type, Value));
 			break;
 		}
-		case _FIXEXT16:
+		case MSGPACK_FIXEXT16:
 		{
 			uint8 Type;
 			FDcBytes16 Value;
@@ -66,9 +66,9 @@ FDcResult MsgPackExtensionHandler(FDcReader* RawReader, FDcWriter* RawWriter)
 			DC_TRY(Writer->WriteFixExt16(Type, Value));
 			break;
 		}
-		case _EXT8:
-		case _EXT16:
-		case _EXT32:
+		case MSGPACK_EXT8:
+		case MSGPACK_EXT16:
+		case MSGPACK_EXT32:
 		{
 			uint8 Type;
 			FDcBlobViewData Value;
@@ -99,44 +99,44 @@ FDcResult ReadExtBytes(FDcMsgPackReader* Reader, uint8& OutType, TArray<uint8>& 
 
 	switch (TypeByte)
 	{
-		case _FIXEXT1:
+		case MSGPACK_FIXEXT1:
 		{
 			uint8 Value;
 			DC_TRY(Reader->ReadFixExt1(&OutType, &Value));
 			OutBytes.Add(Value);
 			break;
 		}
-		case _FIXEXT2:
+		case MSGPACK_FIXEXT2:
 		{
 			FDcBytes2 Value;
 			DC_TRY(Reader->ReadFixExt2(&OutType, &Value));
 			OutBytes.Append(Value.Data, 2);
 			break;
 		}
-		case _FIXEXT4:
+		case MSGPACK_FIXEXT4:
 		{
 			FDcBytes4 Value;
 			DC_TRY(Reader->ReadFixExt4(&OutType, &Value));
 			OutBytes.Append(Value.Data, 4);
 			break;
 		}
-		case _FIXEXT8:
+		case MSGPACK_FIXEXT8:
 		{
 			FDcBytes8 Value;
 			DC_TRY(Reader->ReadFixExt8(&OutType, &Value));
 			OutBytes.Append(Value.Data, 8);
 			break;
 		}
-		case _FIXEXT16:
+		case MSGPACK_FIXEXT16:
 		{
 			FDcBytes16 Value;
 			DC_TRY(Reader->ReadFixExt16(&OutType, &Value));
 			OutBytes.Append(Value.Data, 16);
 			break;
 		}
-		case _EXT8:
-		case _EXT16:
-		case _EXT32:
+		case MSGPACK_EXT8:
+		case MSGPACK_EXT16:
+		case MSGPACK_EXT32:
 		{
 			FDcBlobViewData Value;
 			DC_TRY(Reader->ReadExt(&OutType, &Value));

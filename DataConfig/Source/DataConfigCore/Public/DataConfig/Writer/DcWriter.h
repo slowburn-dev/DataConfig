@@ -12,7 +12,7 @@ struct DATACONFIGCORE_API FDcWriter
 
 	virtual FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk);
 
-	virtual FDcResult WriteNil();
+	virtual FDcResult WriteNone();
 	virtual FDcResult WriteBool(bool Value);
 	virtual FDcResult WriteName(const FName& Value);
 	virtual FDcResult WriteString(const FString& Value);
@@ -42,6 +42,9 @@ struct DATACONFIGCORE_API FDcWriter
 
 	virtual FDcResult WriteSetRoot();
 	virtual FDcResult WriteSetEnd();
+
+	virtual FDcResult WriteOptionalRoot();
+	virtual FDcResult WriteOptionalEnd();
 
 	virtual FDcResult WriteObjectReference(const UObject* Value);
 	virtual FDcResult WriteClassReference(const UClass* Value);

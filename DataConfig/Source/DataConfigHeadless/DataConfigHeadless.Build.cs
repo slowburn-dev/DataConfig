@@ -20,6 +20,9 @@ public class DataConfigHeadless : ModuleRules
 #if UE_5_0_OR_LATER
 				"DataConfigTests5",
 #endif
+#if UE_5_4_OR_LATER
+				"DataConfigTests54",
+#endif
 			});
 
 		PrivateIncludePathModuleNames.AddRange(

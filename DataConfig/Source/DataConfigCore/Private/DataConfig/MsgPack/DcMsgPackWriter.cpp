@@ -73,7 +73,7 @@ FORCEINLINE bool IsValidWriteScalar(EDcDataEntry Entry)
 {
 	switch (Entry)
 	{
-		case EDcDataEntry::Nil:
+		case EDcDataEntry::None:
 		case EDcDataEntry::Bool:
 		case EDcDataEntry::Name:
 		case EDcDataEntry::String:
@@ -144,9 +144,9 @@ FDcResult FDcMsgPackWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	}
 }
 
-FDcResult FDcMsgPackWriter::WriteNil()
+FDcResult FDcMsgPackWriter::WriteNone()
 {
-	DcMsgPackWriterDetails::WriteTypeByte(States.Top(), DcMsgPackCommon::_NIL);
+	DcMsgPackWriterDetails::WriteTypeByte(States.Top(), DcMsgPackCommon::MSGPACK_NIL);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
 }
@@ -154,7 +154,7 @@ FDcResult FDcMsgPackWriter::WriteNil()
 FDcResult FDcMsgPackWriter::WriteBool(bool Value)
 {
 	DcMsgPackWriterDetails::WriteTypeByte(States.Top(), Value
-		? DcMsgPackCommon::_TRUE : DcMsgPackCommon::_FALSE
+		? DcMsgPackCommon::MSGPACK_TRUE : DcMsgPackCommon::MSGPACK_FALSE
 	);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -171,26 +171,26 @@ FDcResult FDcMsgPackWriter::WriteString(const FString& Value)
 		DcMsgPackWriterDetails::WriteTypeByte(
 			TopState,
 			DcMsgPackWriterDetails::Mask_3b_5b(
-				DcMsgPackCommon::_MINFIXSTR,
+				DcMsgPackCommon::MSGPACK_MINFIXSTR,
 				(uint8)Len
 		));
 		TopState.Buffer.Append(Bytes, Len);
 	}
 	else if (Len <= 0xFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_STR8);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_STR8);
 		TopState.Buffer.Add((uint8)Len);
 		TopState.Buffer.Append(Bytes, Len);
 	}
 	else if (Len <= 0xFFFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_STR16);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_STR16);
 		DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, (uint16)Len);
 		TopState.Buffer.Append(Bytes, Len);
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_STR32);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_STR32);
 		DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, (uint32)Len);
 		TopState.Buffer.Append(Bytes, Len);
 	}
@@ -214,19 +214,19 @@ FDcResult FDcMsgPackWriter::WriteBlob(const FDcBlobViewData& Value)
 	FWriteState& TopState = States.Top();
 	if (Value.Num <= 0xFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_BIN8);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_BIN8);
 		TopState.Buffer.Add((uint8)Value.Num);
 		TopState.Buffer.Append(Value.DataPtr, Value.Num);
 	}
 	else if (Value.Num <= 0xFFFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_BIN16);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_BIN16);
 		DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, (uint16)Value.Num);
 		TopState.Buffer.Append(Value.DataPtr, Value.Num);
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_BIN32);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_BIN32);
 		DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, (uint32)Value.Num);
 		TopState.Buffer.Append(Value.DataPtr, Value.Num);
 	}
@@ -254,18 +254,18 @@ FDcResult FDcMsgPackWriter::WriteMapEnd()
 		DcMsgPackWriterDetails::WriteTypeByte(
 			ParentState,
 			DcMsgPackWriterDetails::Mask_4b_4b(
-				DcMsgPackCommon::_MINFIXMAP,
+				DcMsgPackCommon::MSGPACK_MINFIXMAP,
 				(uint8)TopState.Size
 		));
 	}
 	else if (TopState.Size <= 0xFFFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::_MAP16);
+		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::MSGPACK_MAP16);
 		DcMsgPackWriterDetails::WriteNumber(ParentState.Buffer, (uint16)TopState.Size);
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::_MAP32);
+		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::MSGPACK_MAP32);
 		DcMsgPackWriterDetails::WriteNumber(ParentState.Buffer, (uint32)TopState.Size);
 	}
 
@@ -296,18 +296,18 @@ FDcResult FDcMsgPackWriter::WriteArrayEnd()
 		DcMsgPackWriterDetails::WriteTypeByte(
 			ParentState,
 			DcMsgPackWriterDetails::Mask_4b_4b(
-				DcMsgPackCommon::_MINFIXARRAY,
+				DcMsgPackCommon::MSGPACK_MINFIXARRAY,
 				(uint8)TopState.Size
 		));
 	}
 	else if (TopState.Size <= 0xFFFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::_ARRAY16);
+		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::MSGPACK_ARRAY16);
 		DcMsgPackWriterDetails::WriteNumber(ParentState.Buffer, (uint16)TopState.Size);
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::_ARRAY32);
+		DcMsgPackWriterDetails::WriteTypeByte(ParentState, DcMsgPackCommon::MSGPACK_ARRAY32);
 		DcMsgPackWriterDetails::WriteNumber(ParentState.Buffer, (uint32)TopState.Size);
 	}
 
@@ -329,7 +329,7 @@ FDcResult FDcMsgPackWriter::WriteUInt8(const uint8& Value)
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_UINT8);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_UINT8);
 		TopState.Buffer.Add(Value);
 	}
 
@@ -340,7 +340,7 @@ FDcResult FDcMsgPackWriter::WriteUInt8(const uint8& Value)
 FDcResult FDcMsgPackWriter::WriteUInt16(const uint16& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_UINT16);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_UINT16);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -349,7 +349,7 @@ FDcResult FDcMsgPackWriter::WriteUInt16(const uint16& Value)
 FDcResult FDcMsgPackWriter::WriteUInt32(const uint32& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_UINT32);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_UINT32);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -358,7 +358,7 @@ FDcResult FDcMsgPackWriter::WriteUInt32(const uint32& Value)
 FDcResult FDcMsgPackWriter::WriteUInt64(const uint64& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_UINT64);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_UINT64);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -373,7 +373,7 @@ FDcResult FDcMsgPackWriter::WriteInt8(const int8& Value)
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_INT8);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_INT8);
 		TopState.Buffer.Add(Value);
 	}
 
@@ -384,7 +384,7 @@ FDcResult FDcMsgPackWriter::WriteInt8(const int8& Value)
 FDcResult FDcMsgPackWriter::WriteInt16(const int16& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_INT16);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_INT16);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -393,7 +393,7 @@ FDcResult FDcMsgPackWriter::WriteInt16(const int16& Value)
 FDcResult FDcMsgPackWriter::WriteInt32(const int32& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_INT32);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_INT32);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -402,7 +402,7 @@ FDcResult FDcMsgPackWriter::WriteInt32(const int32& Value)
 FDcResult FDcMsgPackWriter::WriteInt64(const int64& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_INT64);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_INT64);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -411,7 +411,7 @@ FDcResult FDcMsgPackWriter::WriteInt64(const int64& Value)
 FDcResult FDcMsgPackWriter::WriteFloat(const float& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FLOAT32);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FLOAT32);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -420,7 +420,7 @@ FDcResult FDcMsgPackWriter::WriteFloat(const float& Value)
 FDcResult FDcMsgPackWriter::WriteDouble(const double& Value)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FLOAT64);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FLOAT64);
 	DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Value);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
 	return DcOk();
@@ -429,7 +429,7 @@ FDcResult FDcMsgPackWriter::WriteDouble(const double& Value)
 FDcResult FDcMsgPackWriter::WriteFixExt1(uint8 Type, uint8 Byte)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FIXEXT1);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FIXEXT1);
 	TopState.Buffer.Add(Type);
 	TopState.Buffer.Add(Byte);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
@@ -439,7 +439,7 @@ FDcResult FDcMsgPackWriter::WriteFixExt1(uint8 Type, uint8 Byte)
 FDcResult FDcMsgPackWriter::WriteFixExt2(uint8 Type, FDcBytes2 Bytes)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FIXEXT2);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FIXEXT2);
 	TopState.Buffer.Add(Type);
 	DcMsgPackWriterDetails::WriteFixExt(TopState.Buffer, Bytes);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
@@ -449,7 +449,7 @@ FDcResult FDcMsgPackWriter::WriteFixExt2(uint8 Type, FDcBytes2 Bytes)
 FDcResult FDcMsgPackWriter::WriteFixExt4(uint8 Type, FDcBytes4 Bytes)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FIXEXT4);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FIXEXT4);
 	TopState.Buffer.Add(Type);
 	DcMsgPackWriterDetails::WriteFixExt(TopState.Buffer, Bytes);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
@@ -459,7 +459,7 @@ FDcResult FDcMsgPackWriter::WriteFixExt4(uint8 Type, FDcBytes4 Bytes)
 FDcResult FDcMsgPackWriter::WriteFixExt8(uint8 Type, FDcBytes8 Bytes)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FIXEXT8);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FIXEXT8);
 	TopState.Buffer.Add(Type);
 	DcMsgPackWriterDetails::WriteFixExt(TopState.Buffer, Bytes);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
@@ -469,7 +469,7 @@ FDcResult FDcMsgPackWriter::WriteFixExt8(uint8 Type, FDcBytes8 Bytes)
 FDcResult FDcMsgPackWriter::WriteFixExt16(uint8 Type, FDcBytes16 Bytes)
 {
 	FWriteState& TopState = States.Top();
-	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_FIXEXT16);
+	DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_FIXEXT16);
 	TopState.Buffer.Add(Type);
 	DcMsgPackWriterDetails::WriteFixExt(TopState.Buffer, Bytes);
 	DcMsgPackWriterDetails::EndWriteValuePosition(this);
@@ -483,21 +483,21 @@ FDcResult FDcMsgPackWriter::WriteExt(uint8 Type, FDcBlobViewData Blob)
 	int Size = Blob.Num;
 	if (Size <= 0xFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_EXT8);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_EXT8);
 		TopState.Buffer.Add(Size);
 		TopState.Buffer.Add(Type);
 		TopState.Buffer.Append(Blob.DataPtr, Size);
 	}
 	else if (Size <= 0xFFFF)
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_EXT16);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_EXT16);
 		DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, (uint16)Size);
 		TopState.Buffer.Add(Type);
 		TopState.Buffer.Append(Blob.DataPtr, Size);
 	}
 	else
 	{
-		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::_EXT32);
+		DcMsgPackWriterDetails::WriteTypeByte(TopState, DcMsgPackCommon::MSGPACK_EXT32);
 		DcMsgPackWriterDetails::WriteNumber(TopState.Buffer, Size);
 		TopState.Buffer.Add(Type);
 		TopState.Buffer.Append(Blob.DataPtr, Size);

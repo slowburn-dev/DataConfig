@@ -83,7 +83,7 @@ struct TDcJsonWriter : public FDcWriter, private FNoncopyable
 
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 
-	FDcResult WriteNil() override;
+	FDcResult WriteNone() override;
 	FDcResult WriteBool(bool Value) override;
 	FDcResult WriteString(const FString& Value) override;
 

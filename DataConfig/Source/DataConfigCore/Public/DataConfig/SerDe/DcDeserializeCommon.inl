@@ -100,9 +100,9 @@ FORCEINLINE_DEBUGGABLE FDcResult TryReadObjectReference(FDcDeserializeContext& C
 		OutObject = Loaded;
 		return DcOk();
 	}
-	else if (Next == EDcDataEntry::Nil)
+	else if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Ctx.Reader->ReadNil());
+		DC_TRY(Ctx.Reader->ReadNone());
 
 		OutObject = nullptr;
 		return DcOk();
@@ -126,7 +126,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeObjectReference(FDcDeserializeCont
 			<< TEXT("ObjectProperty") << Ctx.TopProperty().GetFName() << Ctx.TopProperty().GetClassName();
 	}
 
-	FDcClassAccess RefStat {FDcClassAccess::EControl::ReferenceOrNil };
+	FDcClassAccess RefStat {FDcClassAccess::EControl::ReferenceOrNone };
 
 	UObject* Loaded;
 	DC_TRY(FuncObjectReader(Ctx, ObjectProperty, Loaded));
@@ -139,7 +139,7 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeObjectReference(FDcDeserializeCont
 	}
 	else
 	{
-		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteNone());
 	}
 	DC_TRY(Ctx.Writer->WriteClassEndAccess(RefStat));
 
@@ -305,14 +305,14 @@ FORCEINLINE_DEBUGGABLE FDcResult DcDeserializeInstancedSubObject(FDcDeserializeC
 			<< ObjectProperty->GetFName() << ObjectProperty->GetClass()->GetFName();
 	}
 
-	if (Next == EDcDataEntry::Nil)
+	if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Ctx.Reader->ReadNil());
-		FDcClassAccess NilStat;
-		NilStat.Control = FDcClassAccess::EControl::ReferenceOrNil;
-		DC_TRY(Ctx.Writer->WriteClassRootAccess(NilStat));
-		DC_TRY(Ctx.Writer->WriteNil());
-		DC_TRY(Ctx.Writer->WriteClassEndAccess(NilStat));
+		DC_TRY(Ctx.Reader->ReadNone());
+		FDcClassAccess NoneStat;
+		NoneStat.Control = FDcClassAccess::EControl::ReferenceOrNone;
+		DC_TRY(Ctx.Writer->WriteClassRootAccess(NoneStat));
+		DC_TRY(Ctx.Writer->WriteNone());
+		DC_TRY(Ctx.Writer->WriteClassEndAccess(NoneStat));
 
 		return DcOk();
 	}

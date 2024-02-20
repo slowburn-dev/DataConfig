@@ -9,6 +9,10 @@
 #include "DataConfig/Deserialize/Handlers/MsgPack/DcMsgPackTransientDeserializers.h"
 #include "UObject/UnrealType.h"
 #include "UObject/TextProperty.h"
+#include "Misc/EngineVersionComparison.h"
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+#include "UObject/PropertyOptional.h"
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer, EDcJsonDeserializeType Type)
 {
@@ -60,11 +64,15 @@ void DcSetupJsonDeserializeHandlers(FDcDeserializer& Deserializer, EDcJsonDeseri
 	//	Object
 	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 	Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassReferenceDeserialize));
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 	Deserializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 	Deserializer.AddDirectHandler(FClassPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassReferenceDeserialize));
-#endif //ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 	Deserializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerWeakObjectReferenceDeserialize));
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	Deserializer.AddDirectHandler(FOptionalProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerOptionalDeserialize));
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 	if (Type == EDcJsonDeserializeType::Default)
 	{
@@ -99,9 +107,9 @@ void DcSetupPropertyPipeDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(UClass::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassDeserialize));
 
 	Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassDeserialize));
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 	Deserializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassDeserialize));
-#endif //ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 
 	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStructDeserialize));
 	Deserializer.AddDirectHandler(FStructProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStructDeserialize));
@@ -109,6 +117,10 @@ void DcSetupPropertyPipeDeserializeHandlers(FDcDeserializer& Deserializer)
 	Deserializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerArrayDeserialize));
 	Deserializer.AddDirectHandler(FSetProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerSetDeserialize));
 	Deserializer.AddDirectHandler(FMapProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerMapDeserialize));
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	Deserializer.AddDirectHandler(FOptionalProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerOptionalDeserialize));
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 	DcPropertyUtils::VisitAllEffectivePropertyClass([&](FFieldClass* FieldClass) {
 		if (!Deserializer.FieldClassDeserializerMap.Contains(FieldClass))
@@ -136,6 +148,10 @@ void DcSetupMsgPackDeserializeHandlers(FDcDeserializer& Deserializer, EDcMsgPack
 	Deserializer.AddDirectHandler(FArrayProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayDeserialize));
 	Deserializer.AddDirectHandler(FSetProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerArrayToSetDeserialize));
 	Deserializer.AddDirectHandler(FMapProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcMsgPackHandlers::HandlerMapDeserialize));
+	
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	Deserializer.AddDirectHandler(FOptionalProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerOptionalDeserialize));
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 	//	Struct
 	Deserializer.AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerMapToStructDeserialize));
@@ -168,10 +184,10 @@ void DcSetupMsgPackDeserializeHandlers(FDcDeserializer& Deserializer, EDcMsgPack
 		Deserializer.AddDirectHandler(FFieldPathProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerStringToFieldPathDeserialize));
 		Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 		Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassReferenceDeserialize));
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 		Deserializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerObjectReferenceDeserialize));
 		Deserializer.AddDirectHandler(FClassPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerClassReferenceDeserialize));
-#endif //ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 
 		Deserializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerWeakObjectReferenceDeserialize));
 
@@ -195,10 +211,10 @@ void DcSetupMsgPackDeserializeHandlers(FDcDeserializer& Deserializer, EDcMsgPack
 		Deserializer.AddDirectHandler(FTextProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientTextDeserialize));
 		Deserializer.AddDirectHandler(FObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientObjectDeserialize));
 		Deserializer.AddDirectHandler(FClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientClassDeserialize));
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 		Deserializer.AddDirectHandler(FObjectPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientObjectDeserialize));
 		Deserializer.AddDirectHandler(FClassPtrProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientClassDeserialize));
-#endif //ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 		Deserializer.AddDirectHandler(FSoftObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientSoftObjectDeserialize));
 		Deserializer.AddDirectHandler(FSoftClassProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientSoftClassDeserialize));
 		Deserializer.AddDirectHandler(FWeakObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateStatic(HandlerTransientWeakObjectDeserialize));

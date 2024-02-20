@@ -8,10 +8,10 @@
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
 
 template<typename TReader, typename TWriter>
-FORCEINLINE FDcResult DcPipe_Nil(TReader* Reader, TWriter* Writer)
+FORCEINLINE FDcResult DcPipe_None(TReader* Reader, TWriter* Writer)
 {
-	DC_TRY(Reader->ReadNil());
-	DC_TRY(Writer->WriteNil());
+	DC_TRY(Reader->ReadNone());
+	DC_TRY(Writer->WriteNone());
 	return DcOk();
 }
 
@@ -141,6 +141,22 @@ FORCEINLINE FDcResult DcPipe_SetEnd(TReader* Reader, TWriter* Writer)
 {
 	DC_TRY(Reader->ReadSetEnd());
 	DC_TRY(Writer->WriteSetEnd());
+	return DcOk();
+}
+
+template<typename TReader, typename TWriter>
+FORCEINLINE FDcResult DcPipe_OptionalRoot(TReader* Reader, TWriter* Writer)
+{
+	DC_TRY(Reader->ReadOptionalRoot());
+	DC_TRY(Writer->WriteOptionalRoot());
+	return DcOk();
+}
+
+template<typename TReader, typename TWriter>
+FORCEINLINE FDcResult DcPipe_OptionalEnd(TReader* Reader, TWriter* Writer)
+{
+	DC_TRY(Reader->ReadOptionalEnd());
+	DC_TRY(Writer->WriteOptionalEnd());
 	return DcOk();
 }
 
@@ -347,8 +363,8 @@ FORCEINLINE_DEBUGGABLE FDcResult DcPipe_Dispatch(EDcDataEntry Next, TReader* Rea
 {
 	switch (Next)
 	{
-		case EDcDataEntry::Nil:
-			return DcPipe_Nil(Reader, Writer);
+		case EDcDataEntry::None:
+			return DcPipe_None(Reader, Writer);
 		case EDcDataEntry::Bool:
 			return DcPipe_Bool(Reader, Writer);
 		case EDcDataEntry::Name:
@@ -401,6 +417,10 @@ FORCEINLINE_DEBUGGABLE FDcResult DcPipe_Dispatch(EDcDataEntry Next, TReader* Rea
 			return DcPipe_SetRoot(Reader, Writer);
 		case EDcDataEntry::SetEnd:
 			return DcPipe_SetEnd(Reader, Writer);
+		case EDcDataEntry::OptionalRoot:
+			return DcPipe_OptionalRoot(Reader, Writer);
+		case EDcDataEntry::OptionalEnd:
+			return DcPipe_OptionalEnd(Reader, Writer);
 		case EDcDataEntry::ObjectReference:
 			return DcPipe_ObjectReference(Reader, Writer);
 		case EDcDataEntry::ClassReference:

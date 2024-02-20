@@ -292,11 +292,11 @@ DC_TEST("DataConfig.Core.Serialize.ClassRefs")
 	FString ExpectStr = DcAutomationUtils::DcReindentStringLiteral(TEXT(R"(
 
 		{
-			"RawClassField1" : "DynamicClass",
+			"RawClassField1" : "ScriptStruct",
 			"RawClassField2" : null,
-			"SubClassField1" : "DynamicClass",
+			"SubClassField1" : "ScriptStruct",
 			"SubClassField2" : null,
-			"SoftClassField1" : "DynamicClass",
+			"SoftClassField1" : "ScriptStruct",
 			"SoftClassField2" : null
 		}
 

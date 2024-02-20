@@ -2,6 +2,11 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
+# UE5.4
+- New property `Optional` and `VValue` are added. We fully support `Optional` starting by adding `EDcDataEntry::OptionalRoot/OptionalEnd` and then evantually it works with all DataConfig APIs including JSON/MsgPack serialization and property builder. 
+- `FObjectPtrProperty/FClassPtrProperty` are deprecated. It's introduced in 5.0 now removed and alias to `FObjectProperty/FClassProperty` respectively.
+- Defaults to MSVC `\W4` flag now which checks for unreachable code. It reports confusing locations and you can set `bUseUnity = false` in your `*.Build.cs` module rules to locate whereabout.
+
 # UE5.3
 
 * Introduces `BuildSettingsVersion.V4` which now defaults to C++ 20.

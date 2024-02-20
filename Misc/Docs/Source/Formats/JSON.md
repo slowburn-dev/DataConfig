@@ -133,7 +133,7 @@ JSON types get mapped into DataConfig data model in a very unsurprising way.
 | JSON Type | DcDataEntry              |
 | :-------- | ------------------------ |
 | Boolean   | Bool                     |
-| Null      | Nil                      |
+| Null      | None                     |
 | String    | String, Name, Text, Enum |
 | Number    | (All numerics)           |
 | Array     | Array, Set               |

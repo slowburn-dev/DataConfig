@@ -236,10 +236,10 @@ FDcResult FDcMsgPackReader::PeekTypeByte(uint8* OutPtr)
 	return ReadOutOk(OutPtr, View.Get(State.Index));
 }
 
-FDcResult FDcMsgPackReader::ReadNil()
+FDcResult FDcMsgPackReader::ReadNone()
 {
 	DC_TRY(DcMsgPackReaderDetails::CheckTopStateRemains(this));
-	DC_TRY(DcMsgPackReaderDetails::ReadDataTypeCheck(this, EDcDataEntry::Nil));
+	DC_TRY(DcMsgPackReaderDetails::ReadDataTypeCheck(this, EDcDataEntry::None));
 	return DcMsgPackReaderDetails::EndTopRead(this);
 }
 
@@ -249,9 +249,9 @@ FDcResult FDcMsgPackReader::ReadBool(bool* OutPtr)
 
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
-	if (TypeByte == DcMsgPackCommon::_TRUE)
+	if (TypeByte == DcMsgPackCommon::MSGPACK_TRUE)
 		ReadOut(OutPtr, true);
-	else if (TypeByte == DcMsgPackCommon::_FALSE)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_FALSE)
 		ReadOut(OutPtr, false);
 	else
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch)
@@ -267,23 +267,23 @@ FDcResult FDcMsgPackReader::ReadString(FString* OutPtr)
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 	int32 Size;
-	if (TypeByte >= DcMsgPackCommon::_MINFIXSTR && TypeByte <= DcMsgPackCommon::_MAXFIXSTR)
+	if (TypeByte >= DcMsgPackCommon::MSGPACK_MINFIXSTR && TypeByte <= DcMsgPackCommon::MSGPACK_MAXFIXSTR)
 	{
 		Size = 0b0001'1111 & TypeByte;
 	}
-	else if (TypeByte == DcMsgPackCommon::_STR8)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_STR8)
 	{
 		uint8 Byte;
 		DC_TRY(DcMsgPackReaderDetails::Read1(this, &Byte));
 		Size = Byte;
 	}
-	else if (TypeByte == DcMsgPackCommon::_STR16)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_STR16)
 	{
 		FDcBytes2 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
 		Size = Bytes.As<uint16>();
 	}
-	else if (TypeByte == DcMsgPackCommon::_STR32)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_STR32)
 	{
 		FDcBytes4 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
@@ -343,19 +343,19 @@ FDcResult FDcMsgPackReader::ReadBlob(FDcBlobViewData* OutPtr)
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 	int Size;
-	if (TypeByte == DcMsgPackCommon::_BIN8)
+	if (TypeByte == DcMsgPackCommon::MSGPACK_BIN8)
 	{
 		uint8 Byte;
 		DC_TRY(DcMsgPackReaderDetails::Read1(this, &Byte));
 		Size = Byte;
 	}
-	else if (TypeByte == DcMsgPackCommon::_BIN16)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_BIN16)
 	{
 		FDcBytes2 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
 		Size = Bytes.As<uint16>();
 	}
-	else if (TypeByte == DcMsgPackCommon::_BIN32)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_BIN32)
 	{
 		FDcBytes4 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
@@ -389,17 +389,17 @@ FDcResult FDcMsgPackReader::ReadMapRoot()
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 	int32 Size;
-	if (TypeByte >= DcMsgPackCommon::_MINFIXMAP && TypeByte <= DcMsgPackCommon::_MAXFIXMAP)
+	if (TypeByte >= DcMsgPackCommon::MSGPACK_MINFIXMAP && TypeByte <= DcMsgPackCommon::MSGPACK_MAXFIXMAP)
 	{
 		Size = 0b1111 & TypeByte;
 	}
-	else if (TypeByte == DcMsgPackCommon::_MAP16)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_MAP16)
 	{
 		FDcBytes2 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
 		Size = Bytes.As<uint16>();
 	}
-	else if (TypeByte == DcMsgPackCommon::_MAP32)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_MAP32)
 	{
 		FDcBytes4 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
@@ -439,17 +439,17 @@ FDcResult FDcMsgPackReader::ReadArrayRoot()
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 	int32 Size;
-	if (TypeByte >= DcMsgPackCommon::_MINFIXARRAY && TypeByte <= DcMsgPackCommon::_MAXFIXARRAY)
+	if (TypeByte >= DcMsgPackCommon::MSGPACK_MINFIXARRAY && TypeByte <= DcMsgPackCommon::MSGPACK_MAXFIXARRAY)
 	{
 		Size = 0b1111 & TypeByte;
 	}
-	else if (TypeByte == DcMsgPackCommon::_ARRAY16)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_ARRAY16)
 	{
 		FDcBytes2 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
 		Size = Bytes.As<uint16>();
 	}
-	else if (TypeByte == DcMsgPackCommon::_ARRAY32)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_ARRAY32)
 	{
 		FDcBytes4 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
@@ -490,11 +490,11 @@ FDcResult FDcMsgPackReader::ReadInt8(int8* OutPtr)
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 
-	if (TypeByte >= _MINNEGATIVEFIXINT && TypeByte <= _MAXNEGATIVEFIXINT)
+	if (TypeByte >= MSGPACK_MINNEGATIVEFIXINT && TypeByte <= MSGPACK_MAXNEGATIVEFIXINT)
 	{
 		ReadOut(OutPtr, reinterpret_cast<int8&>(TypeByte));
 	}
-	else if (TypeByte >= _MINFIXINT && TypeByte <= _MAXFIXINT)
+	else if (TypeByte >= MSGPACK_MINFIXINT && TypeByte <= MSGPACK_MAXFIXINT)
 	{
 		ReadOut(OutPtr, reinterpret_cast<int8&>(TypeByte));
 	}
@@ -521,7 +521,7 @@ FDcResult FDcMsgPackReader::ReadUInt8(uint8* OutPtr)
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 
-	if (TypeByte >= _MINFIXINT && TypeByte <= _MAXFIXINT)
+	if (TypeByte >= MSGPACK_MINFIXINT && TypeByte <= MSGPACK_MAXFIXINT)
 	{
 		ReadOut(OutPtr, TypeByte);
 	}
@@ -547,7 +547,7 @@ FDcResult FDcMsgPackReader::ReadFixExt1(uint8* OutType, uint8* OutByte)
 {
 	DC_TRY(DcMsgPackReaderDetails::CheckTopStateRemains(this));
 
-	DC_TRY(DcMsgPackReaderDetails::ReadTypeByteCheck(this, DcMsgPackCommon::_FIXEXT1));
+	DC_TRY(DcMsgPackReaderDetails::ReadTypeByteCheck(this, DcMsgPackCommon::MSGPACK_FIXEXT1));
 	uint8 Type;
 	DC_TRY(DcMsgPackReaderDetails::Read1(this, &Type));
 	uint8 Byte;
@@ -560,22 +560,22 @@ FDcResult FDcMsgPackReader::ReadFixExt1(uint8* OutType, uint8* OutByte)
 
 FDcResult FDcMsgPackReader::ReadFixExt2(uint8* OutType, FDcBytes2* OutBytes)
 {
-	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::_FIXEXT2>(this, OutType, OutBytes);
+	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::MSGPACK_FIXEXT2>(this, OutType, OutBytes);
 }
 
 FDcResult FDcMsgPackReader::ReadFixExt4(uint8* OutType, FDcBytes4* OutBytes)
 {
-	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::_FIXEXT4>(this, OutType, OutBytes);
+	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::MSGPACK_FIXEXT4>(this, OutType, OutBytes);
 }
 
 FDcResult FDcMsgPackReader::ReadFixExt8(uint8* OutType, FDcBytes8* OutBytes)
 {
-	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::_FIXEXT8>(this, OutType, OutBytes);
+	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::MSGPACK_FIXEXT8>(this, OutType, OutBytes);
 }
 
 FDcResult FDcMsgPackReader::ReadFixExt16(uint8* OutType, FDcBytes16* OutBytes)
 {
-	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::_FIXEXT16>(this, OutType, OutBytes);
+	return DcMsgPackReaderDetails::ReadExtDispatch<DcMsgPackCommon::MSGPACK_FIXEXT16>(this, OutType, OutBytes);
 }
 
 FDcResult FDcMsgPackReader::ReadExt(uint8* OutType, FDcBlobViewData* OutBlob)
@@ -585,19 +585,19 @@ FDcResult FDcMsgPackReader::ReadExt(uint8* OutType, FDcBlobViewData* OutBlob)
 	uint8 TypeByte;
 	DC_TRY(DcMsgPackReaderDetails::ReadTypeByte(this, &TypeByte));
 	int Size;
-	if (TypeByte == DcMsgPackCommon::_EXT8)
+	if (TypeByte == DcMsgPackCommon::MSGPACK_EXT8)
 	{
 		uint8 Byte;
 		DC_TRY(DcMsgPackReaderDetails::Read1(this, &Byte));
 		Size = Byte;
 	}
-	else if (TypeByte == DcMsgPackCommon::_EXT16)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_EXT16)
 	{
 		FDcBytes2 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));
 		Size = Bytes.As<uint16>();
 	}
-	else if (TypeByte == DcMsgPackCommon::_EXT32)
+	else if (TypeByte == DcMsgPackCommon::MSGPACK_EXT32)
 	{
 		FDcBytes4 Bytes;
 		DC_TRY(DcMsgPackReaderDetails::ReadN(this, &Bytes));

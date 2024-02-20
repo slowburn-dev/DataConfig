@@ -41,5 +41,7 @@ DATACONFIGCORE_API FDcResult HandlerMapToClassDeserialize(FDcDeserializeContext&
 DATACONFIGCORE_API FDcResult HandlerArrayDeserialize(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerArrayToSetDeserialize(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerMapOrArrayOfKeyValueDeserialize(FDcDeserializeContext& Ctx);
-	
+
+DATACONFIGCORE_API FDcResult HandlerOptionalDeserialize(FDcDeserializeContext& Ctx);
+
 } // namespace DcCommonHandlers

@@ -15,7 +15,7 @@ FORCEINLINE_DEBUGGABLE FDcResult TryWriteObjectReference(FDcSerializeContext& Ct
 {
 	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
 	if (Value == nullptr)
-		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteNone());
 	else
 		DC_TRY(Ctx.Writer->WriteString(DcSerDeUtils::FormatObjectName(Value)));
 
@@ -51,18 +51,18 @@ FORCEINLINE_DEBUGGABLE FDcResult DcSerializeObjectReference(FDcSerializeContext&
 		EDcDataEntry Next;
 		DC_TRY(Ctx.Reader->PeekRead(&Next));
 
-		if (Next == EDcDataEntry::Nil)
-			DC_TRY(Ctx.Reader->ReadNil());
+		if (Next == EDcDataEntry::None)
+			DC_TRY(Ctx.Reader->ReadNone());
 		else if (Next == EDcDataEntry::ObjectReference)
 			DC_TRY(Ctx.Reader->ReadObjectReference(&Value));
 		else
 			return DC_FAIL(DcDSerDe, DataEntryMismatch2)
-				<< EDcDataEntry::Nil << EDcDataEntry::ObjectReference << Next;
+				<< EDcDataEntry::None << EDcDataEntry::ObjectReference << Next;
 
 		DC_TRY(Ctx.Reader->ReadClassEndAccess(Access));
 	}
 
-	Access.Control = FDcClassAccess::EControl::ReferenceOrNil;
+	Access.Control = FDcClassAccess::EControl::ReferenceOrNone;
 	DC_TRY(FuncObjectWriter(Ctx, ObjectProperty, Value));
 
 	return DcOk();
@@ -176,11 +176,11 @@ FORCEINLINE_DEBUGGABLE FDcResult DcSerializeInstancedSubObject(FDcSerializeConte
 
 	EDcDataEntry CurPeek;
 	DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
-	if (CurPeek == EDcDataEntry::Nil)
+	if (CurPeek == EDcDataEntry::None)
 	{
 		check(SubObjectPtr == nullptr);
-		DC_TRY(Ctx.Reader->ReadNil());
-		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Reader->ReadNone());
+		DC_TRY(Ctx.Writer->WriteNone());
 	}
 	else
 	{

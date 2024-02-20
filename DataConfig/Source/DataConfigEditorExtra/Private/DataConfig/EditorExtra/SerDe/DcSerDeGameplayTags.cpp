@@ -61,9 +61,9 @@ FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx)
 
 	FGameplayTag* TagPtr = (FGameplayTag*)Datum.DataPtr;
 
-	if (Next == EDcDataEntry::Nil)
+	if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Ctx.Reader->ReadNil());
+		DC_TRY(Ctx.Reader->ReadNone());
 		*TagPtr = FGameplayTag::EmptyTag;
 
 		return DcOk();
@@ -79,7 +79,7 @@ FDcResult HandlerGameplayTagDeserialize(FDcDeserializeContext& Ctx)
 	else
 	{
 		return DC_FAIL(DcDSerDe, DataEntryMismatch2)
-			<< EDcDataEntry::Nil << EDcDataEntry::String << Next;
+			<< EDcDataEntry::None << EDcDataEntry::String << Next;
 	}
 }
 
@@ -147,7 +147,7 @@ FDcResult HandlerGameplayTagSerialize(FDcSerializeContext& Ctx)
 		if (GameplayTagPtr->IsValid())
 			DC_TRY(Ctx.Writer->WriteString(GameplayTagPtr->ToString()));
 		else
-			DC_TRY(Ctx.Writer->WriteNil());
+			DC_TRY(Ctx.Writer->WriteNone());
 	}
 	else
 	{

@@ -1,6 +1,9 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
+//	UE5.4 onwards this `DataConfigHeadless.Target.cs` must recides here
+//	under `Source` otherwise it won't build.
+
 public class DataConfigHeadlessTarget : TargetRules
 {
 	public DataConfigHeadlessTarget(TargetInfo Target) : base(Target)
@@ -35,7 +38,7 @@ public class DataConfigHeadlessTarget : TargetRules
 #endif
 
 #if UE_5_3_OR_LATER
-		DefaultBuildSettings = BuildSettingsVersion.V4;
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
 #endif
 		//	toggle to use clang-cl
 		//	it works mostly except breaks FName natvis

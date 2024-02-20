@@ -54,13 +54,13 @@ void FDcTestStructRefs1::MakeFixture()
 
 void FDcTestStructRefs2::MakeFixture()
 {
-	UClass* DynamicMetaClass = FindObject<UClass>(nullptr, TEXT("/Script/CoreUObject.DynamicClass"));
+	UClass* ScriptStructMetaClass = FindObject<UClass>(nullptr, TEXT("/Script/CoreUObject.ScriptStruct"));
 
-	RawClassField1 = DynamicMetaClass;
+	RawClassField1 = ScriptStructMetaClass;
 	RawClassField2 = nullptr;
-	SubClassField1 = DynamicMetaClass;
+	SubClassField1 = ScriptStructMetaClass;
 	SubClassField2 = nullptr;
-	SoftClassField1 = DynamicMetaClass;
+	SoftClassField1 = ScriptStructMetaClass;
 	SoftClassField2 = nullptr;
 }
 

@@ -5,15 +5,17 @@
 #include "DataConfig/Property/DcPropertyDatum.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "UObject/UnrealType.h"
+#include "Misc/EngineVersionComparison.h"
 
 enum class EDcPropertyWriteType
 {
-	Nil,
+	None,
 	ClassProperty,
 	StructProperty,
 	MapProperty,
 	ArrayProperty,
 	SetProperty,
+	OptionalProperty,
 	ScalarProperty,
 };
 
@@ -50,11 +52,11 @@ T* FDcBaseWriteState::As()
 		return nullptr;
 }
 
-struct FDcWriteStateNil : public FDcBaseWriteState
+struct FDcWriteStateNone : public FDcBaseWriteState
 {
-	static const EDcPropertyWriteType ID = EDcPropertyWriteType::Nil;
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::None;
 
-	FDcWriteStateNil() = default;
+	FDcWriteStateNone() = default;
 
 	EDcPropertyWriteType GetType() override;
 	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
@@ -165,7 +167,7 @@ struct FDcWriteStateClass : public FDcBaseWriteState
 	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
 	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
 
-	FDcResult WriteNil(FDcPropertyWriter* Parent);
+	FDcResult WriteNone(FDcPropertyWriter* Parent);
 	FDcResult WriteClassRootAccess(FDcPropertyWriter* Parent, FDcClassAccess& Access);
 	FDcResult WriteClassEndAccess(FDcPropertyWriter* Parent, FDcClassAccess& Access);
 	FDcResult WriteObjectReference(FDcPropertyWriter* Parent, const UObject* Value);
@@ -308,6 +310,45 @@ struct FDcWriteStateSet : public FDcBaseWriteState
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
 
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+struct FDcWriteStateOptional : public FDcBaseWriteState
+{
+	static const EDcPropertyWriteType ID = EDcPropertyWriteType::OptionalProperty;
+
+	void* OptionalPtr;
+	FOptionalProperty* OptionalProperty;
+
+	enum class EState : uint8
+	{
+		ExpectRoot,
+		ExpectValueOrNone,
+		ExpectEnd,
+		Ended,
+	};
+	EState State;
+
+	FDcWriteStateOptional(void* InOptionalPtr, FOptionalProperty* InOptionalProperty)
+	{
+		OptionalPtr = InOptionalPtr;
+		OptionalProperty = InOptionalProperty;
+		State = EState::ExpectRoot;
+	}
+
+	EDcPropertyWriteType GetType() override;
+	FDcResult PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) override;
+	FDcResult WriteName(FDcPropertyWriter* Parent, const FName& Value) override;
+	FDcResult WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult SkipWrite(FDcPropertyWriter* Parent) override;
+	FDcResult PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) override;
+
+	FDcResult WriteOptionalRoot(FDcPropertyWriter* Parent);
+	FDcResult WriteNone(FDcPropertyWriter* Parent);
+	FDcResult WriteOptionalEnd(FDcPropertyWriter* Parent);
+
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+};
+static_assert(TIsTriviallyDestructible<FDcWriteStateOptional>::Value, "need trivial destructible");
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 struct FDcWriteStateScalar : public FDcBaseWriteState
 {
@@ -365,7 +406,6 @@ struct FDcWriteStateScalar : public FDcBaseWriteState
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
-
 
 template<typename TProperty, typename TScalar>
 FORCEINLINE void WritePropertyValueConversion(FField* Property, void* Ptr, const TScalar& Value)

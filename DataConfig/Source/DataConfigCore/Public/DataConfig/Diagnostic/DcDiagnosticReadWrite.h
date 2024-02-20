@@ -39,6 +39,7 @@ enum Type : uint16
 	ReaderCastExpect,
 	WriterCastExpect,
 	PeekNoContainerProperty,
+	PropertyNotSupportedUEVersion,
 
 	//	property writer
 	WriteObjectReferenceDoNotAcceptNull,
@@ -51,6 +52,7 @@ enum Type : uint16
 
 	//	skip
 	SkipOutOfRange,
+
 
 };
 

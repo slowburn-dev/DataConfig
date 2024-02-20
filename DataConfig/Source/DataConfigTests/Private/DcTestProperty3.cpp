@@ -104,7 +104,7 @@ DC_TEST("DataConfig.Core.Property.ClassAccessControl")
 			UTEST_OK("ClassAccessControl", Reader.ReadName(&Name));
 			UTEST_TRUE("ClassAccessControl", Name == TEXT("InlineField"));
 
-			FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNil};
+			FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNone};
 			UTEST_OK("ClassAccessControl", Reader.ReadClassRootAccess(Access));
 
 			UObject* Ref;
@@ -182,7 +182,7 @@ DC_TEST("DataConfig.Core.Property.ClassAccessControl")
 		{
 			//	force ref
 			UTEST_OK("ClassAccessControl", Writer.WriteName(TEXT("InlineField")));
-			FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNil};
+			FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNone};
 			UTEST_OK("ClassAccessControl", Writer.WriteClassRootAccess(Access));
 			UTEST_OK("ClassAccessControl", Writer.WriteObjectReference(Source.InlineField));
 			UTEST_OK("ClassAccessControl", Writer.WriteClassEndAccess(Access));

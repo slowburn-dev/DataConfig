@@ -36,9 +36,9 @@ FDcResult DcHandlerDeserializeAnyStruct(
 	DC_TRY(Ctx.Writer->WriteDataEntry(FStructProperty::StaticClass(), Datum));
 	FDcAnyStruct* AnyStructPtr = (FDcAnyStruct*)Datum.DataPtr;
 
-	if (Next == EDcDataEntry::Nil)
+	if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Ctx.Reader->ReadNil());
+		DC_TRY(Ctx.Reader->ReadNone());
 		AnyStructPtr->Reset();
 
 		return DcOk();
@@ -75,7 +75,7 @@ FDcResult DcHandlerDeserializeAnyStruct(
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
-			<< EDcDataEntry::MapRoot << EDcDataEntry::Nil << Next;
+			<< EDcDataEntry::MapRoot << EDcDataEntry::None << Next;
 	}
 
 }
@@ -106,7 +106,7 @@ FDcResult DcHandlerSerializeAnyStruct(FDcSerializeContext& Ctx, TFunctionRef<FSt
 	}
 	else
 	{
-		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteNone());
 	}
 
 	return DcOk();

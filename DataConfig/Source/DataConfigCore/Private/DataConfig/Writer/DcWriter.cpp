@@ -6,7 +6,7 @@ FDcWriter::~FDcWriter()
 {}
 
 FDcResult FDcWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk) { return DC_FAIL(DcDCommon, NotImplemented); }
-FDcResult FDcWriter::WriteNil(){ return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteNone(){ return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteBool(bool) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteName(const FName&) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteString(const FString&) { return DC_FAIL(DcDCommon, NotImplemented); }
@@ -22,6 +22,8 @@ FDcResult FDcWriter::WriteArrayRoot() { return DC_FAIL(DcDCommon, NotImplemented
 FDcResult FDcWriter::WriteArrayEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteSetRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteSetEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteOptionalRoot() { return DC_FAIL(DcDCommon, NotImplemented); }
+FDcResult FDcWriter::WriteOptionalEnd() { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteObjectReference(const UObject*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteClassReference(const UClass*) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcWriter::WriteWeakObjectReference(const FWeakObjectPtr&) { return DC_FAIL(DcDCommon, NotImplemented); }

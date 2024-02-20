@@ -317,6 +317,25 @@ FDcResult HandlerMapOrArrayOfKeyValueDeserialize(FDcDeserializeContext& Ctx)
 	return DcOk();
 }
 
+FDcResult HandlerOptionalDeserialize(FDcDeserializeContext& Ctx)
+{
+	DC_TRY(Ctx.Writer->WriteOptionalRoot());
+
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	if (Next == EDcDataEntry::None)
+	{
+		DC_TRY(Ctx.Reader->ReadNone());
+		DC_TRY(Ctx.Writer->WriteNone());
+	}
+	else
+	{
+		DC_TRY(DcDeserializeUtils::RecursiveDeserialize(Ctx));
+	}
+
+	DC_TRY(Ctx.Writer->WriteOptionalEnd());
+	return DcOk();
+}
 
 } // namespace DcCommonHandlers
 

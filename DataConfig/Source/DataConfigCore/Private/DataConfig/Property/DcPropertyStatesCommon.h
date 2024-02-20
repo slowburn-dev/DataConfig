@@ -24,13 +24,14 @@ namespace DcPropertyHighlight
 		Last,
 	};
 
-	void FormatNil(TArray<FString>& OutSegments, EFormatSeg SegType);
+	void FormatNone(TArray<FString>& OutSegments, EFormatSeg SegType);
 	void FormatScalar(TArray<FString>& OutSegments, EFormatSeg SegType, FProperty* Property, int Index, bool bIsItem);
 	void FormatClass(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ObjectName, UClass* Class, FProperty* Property);
 	void FormatStruct(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& StructName, UScriptStruct* StructClass, FProperty* Property);
 	void FormatMap(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& MapName, FProperty* KeyProperty, FProperty* ValueProperty, int Index, bool bIsKeyOrValue);
 	void FormatArray(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& ArrayName, FProperty* InnerProperty, int Index, bool bIsItem);
 	void FormatSet(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& SetName, FProperty* ElementProperty, int Index, bool bIsItem);
+	void FormatOptional(TArray<FString>& OutSegments, EFormatSeg SegType, const FName& OptionalName, FProperty* ValueProperty);
 
 } // namespace DcPropertyHighlight
 

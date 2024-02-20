@@ -104,7 +104,7 @@ struct TDcJsonReader : public FDcReader, private FNoncopyable
 	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
-	FDcResult ReadNil() override;
+	FDcResult ReadNone() override;
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;
 	FDcResult ReadString(FString* OutPtr) override;

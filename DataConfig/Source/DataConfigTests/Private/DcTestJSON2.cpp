@@ -91,7 +91,7 @@ DC_TEST("DataConfig.Core.JSON.WriterErrors")
 		FDcJsonWriter Writer;
 
 		UTEST_OK("WriterJson Errors", Writer.WriteMapRoot());
-		UTEST_DIAG("WriterJson Errors", Writer.WriteNil(), DcDJSON, ExpectStringAtObjectKey);
+		UTEST_DIAG("WriterJson Errors", Writer.WriteNone(), DcDJSON, ExpectStringAtObjectKey);
 	}
 
 	{

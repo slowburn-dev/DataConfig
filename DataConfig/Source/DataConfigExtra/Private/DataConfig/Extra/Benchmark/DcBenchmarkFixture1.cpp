@@ -328,9 +328,9 @@ FDcResult HandlerNullableDeserialize(FDcDeserializeContext& Ctx)
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
 	EDcDataEntry Actual = DcPropertyUtils::PropertyToDataEntry(Ctx.TopProperty());
 
-	if (Next == EDcDataEntry::Nil)
+	if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Ctx.Reader->ReadNil());
+		DC_TRY(Ctx.Reader->ReadNone());
 
 		switch (Actual)
 		{
@@ -373,7 +373,7 @@ FDcResult HandlerNullableSerialize(FDcSerializeContext& Ctx)
 		DC_TRY(Ctx.Reader->ReadString(&Value));
 
 		if (Value == TEXT("<empty>"))
-			DC_TRY(Ctx.Writer->WriteNil());
+			DC_TRY(Ctx.Writer->WriteNone());
 		else
 			DC_TRY(Ctx.Writer->WriteString(Value));
 
@@ -384,7 +384,7 @@ FDcResult HandlerNullableSerialize(FDcSerializeContext& Ctx)
 		int Value;
 		DC_TRY(Ctx.Reader->ReadInt32(&Value));
 		if (Value == 0)
-			DC_TRY(Ctx.Writer->WriteNil());
+			DC_TRY(Ctx.Writer->WriteNone());
 		else
 			DC_TRY(Ctx.Writer->WriteInt32(Value));
 

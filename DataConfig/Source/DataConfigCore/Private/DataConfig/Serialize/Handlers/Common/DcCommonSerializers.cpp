@@ -303,6 +303,25 @@ FDcResult HandlerStringKeyMapOrArrayOfKeyValueSerialize(FDcSerializeContext& Ctx
 	}
 }
 
+FDcResult HandlerOptionalSerialize(FDcSerializeContext& Ctx)
+{
+	DC_TRY(Ctx.Reader->ReadOptionalRoot());
+
+	EDcDataEntry Next;
+	DC_TRY(Ctx.Reader->PeekRead(&Next));
+	if (Next == EDcDataEntry::None)
+	{
+		DC_TRY(Ctx.Reader->ReadNone());
+		DC_TRY(Ctx.Writer->WriteNone());
+	}
+	else
+	{
+		DC_TRY(DcSerializeUtils::RecursiveSerialize(Ctx));
+	}
+
+	DC_TRY(Ctx.Reader->ReadOptionalEnd());
+	return DcOk();
+}
 
 } // namespace DcCommonHandlers
 

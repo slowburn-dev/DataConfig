@@ -43,7 +43,7 @@ FORCEINLINE FDcResult DcOk() {
 UENUM()
 enum class EDcDataEntry : uint16
 {
-	Nil,
+	None,
 
 	Bool,
 	Name,
@@ -83,6 +83,10 @@ enum class EDcDataEntry : uint16
 	//	Set,
 	SetRoot,
 	SetEnd,
+
+	//	Optional
+	OptionalRoot,
+	OptionalEnd,
 
 	//	Reference
 	ObjectReference,
@@ -130,9 +134,9 @@ struct DATACONFIGCORE_API FDcClassAccess
 {
 	enum class EControl : uint8
 	{
-		Default,		//	default, determined by `Config.ShouldExpandObject()`
-		ReferenceOrNil,	//	reference or nil
-		ExpandObject,	//	expand as sub object
+		Default,			//	default, determined by `Config.ShouldExpandObject()`
+		ReferenceOrNone,	//	reference or none
+		ExpandObject,		//	expand as sub object
 	};
 
 	EControl Control = EControl::Default;

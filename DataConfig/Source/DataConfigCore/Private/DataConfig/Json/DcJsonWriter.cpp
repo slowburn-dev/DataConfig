@@ -20,7 +20,7 @@ FORCEINLINE bool IsValidWriteScalar(EDcDataEntry Entry)
 {
 	switch (Entry)
 	{
-		case EDcDataEntry::Nil:
+		case EDcDataEntry::None:
 		case EDcDataEntry::Bool:
 		case EDcDataEntry::Name:
 		case EDcDataEntry::String:
@@ -345,7 +345,7 @@ TDcJsonWriter<CharType>::TDcJsonWriter(ConfigType InConfig)
 }
 
 template<typename CharType>
-FDcResult TDcJsonWriter<CharType>::WriteNil()
+FDcResult TDcJsonWriter<CharType>::WriteNone()
 {
 	using Details = FDcJsonWriterDetails<CharType>;
 

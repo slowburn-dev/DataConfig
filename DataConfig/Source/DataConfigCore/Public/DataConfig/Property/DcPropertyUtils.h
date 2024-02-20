@@ -5,6 +5,7 @@
 #include "UObject/UnrealType.h"
 #include "Templates/Function.h"
 #include "UObject/TextProperty.h"
+#include "Misc/EngineVersionComparison.h"
 
 enum class EDcDataEntry : uint16;
 struct FDcPropertyDatum;
@@ -48,6 +49,7 @@ DATACONFIGCORE_API EDcDataEntry PropertyToDataEntry(FField* Property);
 DATACONFIGCORE_API FString FormatArrayTypeName(FProperty* InnerProperty);
 DATACONFIGCORE_API FString FormatSetTypeName(FProperty* InnerProperty);
 DATACONFIGCORE_API FString FormatMapTypeName(FProperty* KeyProperty, FProperty* ValueProperty);
+DATACONFIGCORE_API FString FormatOptionalTypeName(FProperty* ValueProperty);
 
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(FField* Property);
 DATACONFIGCORE_API FString GetFormatPropertyTypeName(UScriptStruct* Struct);
@@ -197,10 +199,14 @@ struct DATACONFIGCORE_API FDcPropertyBuilder
 	static FDcPropertyBuilder Set(FProperty* InInner, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
 	static FDcPropertyBuilder Map(FProperty* InKey, FProperty* InValue, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
 
-#if ENGINE_MAJOR_VERSION == 5
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
 	static FDcPropertyBuilder ObjectPtr(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
 	static FDcPropertyBuilder ClassPtr(UClass* InClass, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
-#endif // ENGINE_MAJOR_VERSION == 5
+#endif //ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	static FDcPropertyBuilder Optional(FProperty* InInner, const FName InName = DC_TRANSIENT_PROPERTY, FFieldVariant InOuter = nullptr);
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 	FDcPropertyBuilder& ArrayDim(int InArrayDim);
 

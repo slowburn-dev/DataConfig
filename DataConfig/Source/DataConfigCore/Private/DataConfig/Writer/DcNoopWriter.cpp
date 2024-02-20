@@ -6,7 +6,7 @@ FDcResult FDcNoopWriter::PeekWrite(EDcDataEntry, bool* bOutOk)
 	ReadOut(bOutOk, true);
 	return DcOk(); 
 }
-FDcResult FDcNoopWriter::WriteNil() { return DcOk(); }
+FDcResult FDcNoopWriter::WriteNone() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteBool(bool) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteName(const FName&) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteString(const FString&) { return DcOk(); }
@@ -22,6 +22,8 @@ FDcResult FDcNoopWriter::WriteArrayRoot() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteArrayEnd() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSetRoot() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteSetEnd() { return DcOk(); }
+FDcResult FDcNoopWriter::WriteOptionalRoot() { return DcOk(); }
+FDcResult FDcNoopWriter::WriteOptionalEnd() { return DcOk(); }
 FDcResult FDcNoopWriter::WriteObjectReference(const UObject*) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteClassReference(const UClass*) { return DcOk(); }
 FDcResult FDcNoopWriter::WriteWeakObjectReference(const FWeakObjectPtr&) { return DcOk(); }

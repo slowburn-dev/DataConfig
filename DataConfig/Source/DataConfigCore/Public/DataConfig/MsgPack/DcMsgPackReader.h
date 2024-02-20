@@ -41,7 +41,7 @@ struct DATACONFIGCORE_API FDcMsgPackReader : public FDcReader, private FNoncopya
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 
-	FDcResult ReadNil() override;
+	FDcResult ReadNone() override;
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadString(FString* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;

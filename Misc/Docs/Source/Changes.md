@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.5.0 - 2024-2-20
+
+- **BREAKING** `EDcDataEntry::Nil` renamed to `EDcDataType::None`.
+  - This is necessary to fix Mac builds.
+- UE 5.4 support.
+  - See [UE version upgrade 5.4](Advanced/UEUpgrades.md#ue54)
+- **NEW** Optional support.
+  - See [Optional](Extra/Optional.md)
+
 ## 1.4.3 - 2023-8-27
 
 - **NEW** Extra samples.

@@ -5,6 +5,11 @@
 #include "DataConfig/DcEnv.h"
 #include "UObject/TextProperty.h"
 
+#include "Misc/EngineVersionComparison.h"
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+#include "UObject/PropertyOptional.h"
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 static FORCEINLINE DcPropertyWriterDetails::FWriteState::ImplStorageType* GetTopStorage(FDcPropertyWriter* Self)
 {
 	return &Self->States.Top().ImplStorage;
@@ -30,9 +35,9 @@ static TState* TryGetTopState(FDcPropertyWriter* Self) {
 	return GetTopState(Self).As<TState>();
 }
 
-static FDcWriteStateNil& PushNilState(FDcPropertyWriter* Writer) {
+static FDcWriteStateNone& PushNoneState(FDcPropertyWriter* Writer) {
 	Writer->States.AddUninitialized();
-	return Emplace<FDcWriteStateNil>(GetTopStorage(Writer));
+	return Emplace<FDcWriteStateNone>(GetTopStorage(Writer));
 }
 
 static FDcWriteStateClass& PushClassRootState(FDcPropertyWriter* Writer, UObject* InClassObject, UClass* InClass)
@@ -89,6 +94,14 @@ static FDcWriteStateSet& PushSetPropertyState(FDcPropertyWriter* Writer, FProper
 	return Emplace<FDcWriteStateSet>(GetTopStorage(Writer), ElementProperty, InSet);
 }
 
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+static FDcWriteStateOptional& PushOptionalPropertyState(FDcPropertyWriter* Writer, void* InOptionalPtr, FOptionalProperty* InOptionalProperty)
+{
+	Writer->States.AddUninitialized();
+	return Emplace<FDcWriteStateOptional>(GetTopStorage(Writer), InOptionalPtr, InOptionalProperty);
+}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 static FDcWriteStateScalar& PushScalarPropertyState(FDcPropertyWriter* Writer, void* InPtr, FProperty* InField)
 {
 	Writer->States.AddUninitialized();
@@ -125,7 +138,7 @@ FORCEINLINE FDcResult WriteTopStateScalarProperty(FDcPropertyWriter* Self, const
 FDcPropertyWriter::FDcPropertyWriter()
 {
 	Config = FDcPropertyConfig::MakeDefault();
-	PushNilState(this);
+	PushNoneState(this);
 }
 
 FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
@@ -161,6 +174,12 @@ FDcPropertyWriter::FDcPropertyWriter(FDcPropertyDatum Datum)
 	{
 		PushMappingPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FMapProperty>());
 	}
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	else if (Datum.Property.IsA<FOptionalProperty>())
+	{
+		PushOptionalPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FOptionalProperty>());
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 	else
 	{
 		PushScalarPropertyState(this, Datum.DataPtr, Datum.CastField<FProperty>());
@@ -313,7 +332,7 @@ FDcResult FDcPropertyWriter::PushTopClassPropertyState(const FDcPropertyDatum& D
 	{
 		PushClassPropertyState(this, Datum.DataPtr, ObjProperty, Config.ShouldExpandObject(ObjProperty)
 			? FDcClassAccess::EControl::ExpandObject
-			: FDcClassAccess::EControl::ReferenceOrNil);
+			: FDcClassAccess::EControl::ReferenceOrNone);
 		return DcOk();
 	}
 	else
@@ -387,7 +406,7 @@ FDcResult FDcPropertyWriter::WriteClassRootAccess(FDcClassAccess& Access)
 		{
 			ConfigControl = Config.ShouldExpandObject(ObjProperty)
 				? FDcClassAccess::EControl::ExpandObject
-				: FDcClassAccess::EControl::ReferenceOrNil;
+				: FDcClassAccess::EControl::ReferenceOrNone;
 		}
 
 		PushClassPropertyState(this, Datum.DataPtr, ObjProperty, ConfigControl);
@@ -551,12 +570,67 @@ FDcResult FDcPropertyWriter::WriteSetEnd()
 	}
 }
 
-FDcResult FDcPropertyWriter::WriteNil()
+FDcResult FDcPropertyWriter::WriteOptionalRoot()
+{
+#if UE_VERSION_OLDER_THAN(5, 4, 0)
+	return DC_FAIL(DcDReadWrite, PropertyNotSupportedUEVersion)
+		<< TEXT("Optional Property");
+#else
+	FDcBaseWriteState& TopState = GetTopState(this);
+	{
+		FDcWriteStateOptional* OptionalState = TopState.As<FDcWriteStateOptional>();
+		if (OptionalState != nullptr
+			&& OptionalState->State == FDcWriteStateOptional::EState::ExpectRoot)
+		{
+			return OptionalState->WriteOptionalRoot(this);
+		}
+	}
+
+	{
+		FDcPropertyDatum Datum;
+		DC_TRY(TopState.WriteDataEntry(this, FOptionalProperty::StaticClass(), Datum));
+
+		FDcWriteStateOptional& ChildOptional = PushOptionalPropertyState(this, Datum.DataPtr, Datum.CastFieldChecked<FOptionalProperty>());
+		DC_TRY(ChildOptional.WriteOptionalRoot(this));
+	}
+
+	return DcOk();
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+}
+
+FDcResult FDcPropertyWriter::WriteOptionalEnd()
+{
+#if UE_VERSION_OLDER_THAN(5, 4, 0)
+	return DC_FAIL(DcDReadWrite, PropertyNotSupportedUEVersion)
+		<< TEXT("Optional Property");
+#else
+	if (FDcWriteStateOptional* OptionalState = TryGetTopState<FDcWriteStateOptional>(this))
+	{
+		DC_TRY(OptionalState->WriteOptionalEnd(this));
+		PopState<FDcWriteStateOptional>(this);
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)FDcWriteStateOptional::ID << (int)GetTopState(this).GetType()
+			<< FormatHighlight();
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+}
+
+FDcResult FDcPropertyWriter::WriteNone()
 {
 	if (FDcWriteStateClass* ClassState = TryGetTopState<FDcWriteStateClass>(this))
 	{
-		return ClassState->WriteNil(this);
+		return ClassState->WriteNone(this);
 	}
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+	else if (FDcWriteStateOptional* OptionalState = TryGetTopState<FDcWriteStateOptional>(this))
+	{
+		return OptionalState->WriteNone(this);
+	}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
@@ -745,7 +819,7 @@ FDcDiagnosticHighlight FDcPropertyWriter::FormatHighlight()
 	}
 
 	FString Path = Segments.Num() == 0
-		? TEXT("<nil>")
+		? TEXT("<none>")
 		: FString::Join(Segments, TEXT("."));
 	OutHighlight.Formatted = FString::Printf(TEXT("Writing property: %s"), *Path);
 	return OutHighlight;

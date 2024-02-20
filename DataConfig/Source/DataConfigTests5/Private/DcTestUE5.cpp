@@ -5,6 +5,7 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Json/DcJsonWriter.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 
 DC_TEST("DataConfig.Core.Property.UE5.TObjectPtr")
 {
@@ -52,7 +53,7 @@ DC_TEST("DataConfig.Core.Property.UE5.TObjectPtr")
 			UTEST_OK("TObjectPtr", Reader.ReadName(&FieldName));
 			UTEST_TRUE("TObjectPtr", FieldName == TEXT("ObjPtrField2"));
 			UTEST_OK("TObjectPtr", Reader.ReadClassRoot());
-			UTEST_OK("TObjectPtr", Reader.ReadNil());
+			UTEST_OK("TObjectPtr", Reader.ReadNone());
 			UTEST_OK("TObjectPtr", Reader.ReadClassEnd());
 
 		UTEST_OK("TObjectPtr", Reader.ReadStructEnd());
@@ -100,7 +101,7 @@ DC_TEST("DataConfig.Core.RoundTrip.UE5.TObjectPtr")
 
 	{
 		auto Prop = FDcPropertyBuilder::Array(
-			FDcPropertyBuilder::ObjectPtr(UObject::StaticClass())
+			FDcPropertyBuilder::Object(UObject::StaticClass())
 		).LinkOnScope();
 
 		UObject* TestsObject = StaticFindObject(UObject::StaticClass(), nullptr, TEXT("/Script/DataConfigTests"));
@@ -161,7 +162,7 @@ DC_TEST("DataConfig.Core.RoundTrip.UE5.TObjectPtr")
 
 	{
 		auto Prop = FDcPropertyBuilder::Array(
-			FDcPropertyBuilder::ClassPtr(UObject::StaticClass())
+			FDcPropertyBuilder::Class(UObject::StaticClass())
 		).LinkOnScope();
 
 		TArray<TObjectPtr<UClass>> Source;
@@ -219,4 +220,3 @@ DC_TEST("DataConfig.Core.RoundTrip.UE5.TObjectPtr")
 
 	return true;
 }
-

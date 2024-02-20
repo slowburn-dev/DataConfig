@@ -172,9 +172,9 @@ static FDcResult TryReadClassReferenceWithBlueprint(FDcDeserializeContext& Ctx, 
 		OutObject = Loaded;
 		return DcOk();
 	}
-	else if (Next == EDcDataEntry::Nil)
+	else if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Ctx.Reader->ReadNil());
+		DC_TRY(Ctx.Reader->ReadNone());
 
 		OutObject = nullptr;
 		return DcOk();
@@ -292,7 +292,7 @@ static FDcResult TryWriteObjectReferenceWithBP(FDcSerializeContext& Ctx, FObject
 {
 	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
 	if (Value == nullptr)
-		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteNone());
 	else if (_IsAsset(Value))
 		DC_TRY(Ctx.Writer->WriteString(_GetAssetPathName(Value)));
 	else

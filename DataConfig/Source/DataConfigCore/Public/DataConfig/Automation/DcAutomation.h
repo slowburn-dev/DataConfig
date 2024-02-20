@@ -15,7 +15,12 @@ public:
 
 	constexpr static uint32 FLAGS = EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter;
 
-	using FAutomationTestBase::FAutomationTestBase;
+	FDcAutomationBase( const FString& InName, const bool bInComplexTask )
+		: FAutomationTestBase(InName, bInComplexTask)
+	{
+		//	suppress logs here as `DcAutomationDetails::RunTestsBody` handles logs
+		bSuppressLogs = true;
+	}
 
 	uint32 GetTestFlags() const override;
 	uint32 GetRequiredDeviceNum() const override; 

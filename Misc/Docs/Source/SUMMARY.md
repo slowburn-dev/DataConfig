@@ -38,6 +38,7 @@
   - [SQLite](Extra/SQLite.md)
   - [NDJSON](Extra/NDJSON.md)
   - [Root Object](Extra/RootObject.md)
+  - [Optional](Extra/Optional.md)
   - [Module Setup](Extra/ModuleSetup.md)
   - [Dump Asset To Log](Extra/DumpAssetToLog.md)
   - [Blueprint](Extra/Blueprint.md)

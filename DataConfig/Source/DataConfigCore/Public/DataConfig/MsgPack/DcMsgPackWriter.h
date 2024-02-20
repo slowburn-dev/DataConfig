@@ -35,7 +35,7 @@ struct DATACONFIGCORE_API FDcMsgPackWriter : public FDcWriter, private FNoncopya
 
 	FDcResult PeekWrite(EDcDataEntry Next, bool* bOutOk) override;
 
-	FDcResult WriteNil() override;
+	FDcResult WriteNone() override;
 	FDcResult WriteBool(bool Value) override;
 	FDcResult WriteString(const FString& Value) override;
 	FDcResult WriteName(const FName& Name) override;

@@ -26,14 +26,14 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerRaw(FDcReader* Reader, void*&
 	return DcOk();
 }
 
-static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerOrNil(FDcReader* Reader, void*& OutPtr)
+static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerOrNone(FDcReader* Reader, void*& OutPtr)
 {
 	EDcDataEntry Next;
 	DC_TRY(Reader->PeekRead(&Next));
 
-	if (Next == EDcDataEntry::Nil)
+	if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(Reader->ReadNil());
+		DC_TRY(Reader->ReadNone());
 		OutPtr = nullptr;
 	}
 #if PLATFORM_64BITS
@@ -44,7 +44,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerOrNil(FDcReader* Reader, void
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
-			<< EDcDataEntry::Nil << EDcDataEntry::UInt64 << Next;
+			<< EDcDataEntry::None << EDcDataEntry::UInt64 << Next;
 	}
 #else
 	else if (Next == EDcDataEntry::UInt32)
@@ -54,7 +54,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerOrNil(FDcReader* Reader, void
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
-			<< EDcDataEntry::Nil << EDcDataEntry::UInt32 << Next;
+			<< EDcDataEntry::None << EDcDataEntry::UInt32 << Next;
 	}
 #endif
 
@@ -192,14 +192,14 @@ FDcResult HandlerTransientTextDeserialize(FDcDeserializeContext& Ctx)
 
 FDcResult HandlerTransientObjectDeserialize(FDcDeserializeContext& Ctx)
 {
-	FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNil};
+	FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNone};
 	DC_TRY(Ctx.Writer->WriteClassRootAccess(Access));
 
 	void* Ptr;
-	DC_TRY(DcMsgPackHandlersDetails::ReadPointerOrNil(Ctx.Reader, Ptr));
+	DC_TRY(DcMsgPackHandlersDetails::ReadPointerOrNone(Ctx.Reader, Ptr));
 	if (Ptr == nullptr)
 	{
-		DC_TRY(Ctx.Writer->WriteNil());
+		DC_TRY(Ctx.Writer->WriteNone());
 	}
 	else
 	{
@@ -214,7 +214,7 @@ FDcResult HandlerTransientObjectDeserialize(FDcDeserializeContext& Ctx)
 FDcResult HandlerTransientClassDeserialize(FDcDeserializeContext& Ctx)
 {
 	void* Ptr;
-	DC_TRY(DcMsgPackHandlersDetails::ReadPointerOrNil(Ctx.Reader, Ptr));
+	DC_TRY(DcMsgPackHandlersDetails::ReadPointerOrNone(Ctx.Reader, Ptr));
 	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Ptr));
 	DC_TRY(Ctx.Writer->WriteClassReference((UClass*)Ptr));
 

@@ -29,6 +29,8 @@ _copytree(root_src / "DataConfigCore", plugin_src / "DataConfigCore")
 _copytree(root_src / "DataConfigExtra", plugin_src / "DataConfigExtra")
 _copytree(root_src / "DataConfigTests", plugin_src / "DataConfigTests")
 _copytree(root_src / "DataConfigTests5", plugin_src / "DataConfigTests5")
+# include 5.* for all ue5 plugins, it's fine for older releases as it won't be included in the build
+_copytree(root_src / "DataConfigTests54", plugin_src / "DataConfigTests54")
 _copytree(root_src / "DataConfigEditorExtra", plugin_src / "DataConfigEditorExtra")
 _copytree(root_src / "DataConfigEditorExtra5", plugin_src / "DataConfigExtra5")
 

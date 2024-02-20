@@ -8,6 +8,10 @@
 #include "DataConfig/Property/DcPropertyWriter.h"
 #include "DataConfig/SerDe/DcSerDeCommon.h"
 
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+#include "UObject/PropertyOptional.h"
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
+
 namespace DcPropertyWriteStatesDetails
 {
 
@@ -45,19 +49,19 @@ FDcResult FDcBaseWriteState::WriteDataEntry(FDcPropertyWriter* Parent, FFieldCla
 FDcResult FDcBaseWriteState::SkipWrite(FDcPropertyWriter* Parent) { return DC_FAIL(DcDCommon, NotImplemented); }
 FDcResult FDcBaseWriteState::PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant*) { return DC_FAIL(DcDCommon, NotImplemented); }
 
-EDcPropertyWriteType FDcWriteStateNil::GetType()
+EDcPropertyWriteType FDcWriteStateNone::GetType()
 {
-	return EDcPropertyWriteType::Nil;
+	return EDcPropertyWriteType::None;
 }
 
-FDcResult FDcWriteStateNil::PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk)
+FDcResult FDcWriteStateNone::PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk)
 {
 	return ReadOutOk(bOutOk, Next == EDcDataEntry::Ended);
 }
 
-void FDcWriteStateNil::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+void FDcWriteStateNone::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
 {
-	DcPropertyHighlight::FormatNil(OutSegments, SegType);
+	DcPropertyHighlight::FormatNone(OutSegments, SegType);
 }
 
 EDcPropertyWriteType FDcWriteStateStruct::GetType()
@@ -238,7 +242,7 @@ FDcResult FDcWriteStateClass::PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry 
 	}
 	else if (State == EState::ExpectReference)
 	{
-		return ReadOutOk(bOutOk, Next == EDcDataEntry::ObjectReference || Next == EDcDataEntry::Nil);
+		return ReadOutOk(bOutOk, Next == EDcDataEntry::ObjectReference || Next == EDcDataEntry::None);
 	}
 	else if (State == EState::ExpectEnd)
 	{
@@ -361,7 +365,7 @@ FDcResult FDcWriteStateClass::WriteClassRootAccess(FDcPropertyWriter* Parent, FD
 		if (Access.Control == FDcClassAccess::EControl::Default)
 			Access.Control = ConfigControl;
 
-		if (Access.Control == FDcClassAccess::EControl::ReferenceOrNil)
+		if (Access.Control == FDcClassAccess::EControl::ReferenceOrNone)
 		{
 			State = EState::ExpectReference;
 		}
@@ -432,7 +436,7 @@ FDcResult FDcWriteStateClass::WriteClassEndAccess(FDcPropertyWriter* Parent, FDc
 	}
 }
 
-FDcResult FDcWriteStateClass::WriteNil(FDcPropertyWriter* Parent)
+FDcResult FDcWriteStateClass::WriteNone(FDcPropertyWriter* Parent)
 {
 	if (State == EState::ExpectReference)
 	{
@@ -911,6 +915,144 @@ void FDcWriteStateSet::FormatHighlightSegment(TArray<FString>& OutSegments, DcPr
 	DcPropertyHighlight::FormatSet(OutSegments, SegType, SetName, SetHelper.ElementProp, Index,
 		State == EState::ExpectItemOrEnd);
 }
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+EDcPropertyWriteType FDcWriteStateOptional::GetType()
+{
+	return EDcPropertyWriteType::OptionalProperty;
+}
+
+FDcResult FDcWriteStateOptional::PeekWrite(FDcPropertyWriter* Parent, EDcDataEntry Next, bool* bOutOk) 
+{
+	if (State == EState::ExpectRoot)
+	{
+		return ReadOutOk(bOutOk, Next == EDcDataEntry::OptionalRoot);
+	}
+	else if (State == EState::ExpectValueOrNone)
+	{
+		return ReadOutOk(bOutOk, Next == EDcDataEntry::None
+			|| Next == DcPropertyUtils::PropertyToDataEntry(OptionalProperty->GetValueProperty()));
+	}
+	else if (State == EState::ExpectEnd)
+	{
+		return ReadOutOk(bOutOk, Next == EDcDataEntry::OptionalEnd);
+	}
+	else if (State == EState::Ended)
+	{
+		return ReadOutOk(bOutOk, Next == EDcDataEntry::Ended);
+	}
+	else
+	{
+		return DcNoEntry();
+	}
+}
+
+FDcResult FDcWriteStateOptional::WriteName(FDcPropertyWriter* Parent, const FName& Value) 
+{
+	if (State == EState::ExpectValueOrNone)
+	{
+		return WriteValue<FNameProperty, FName>(Parent, *this, Value);
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
+			<< (int)State << Parent->FormatHighlight();
+	}
+}
+
+FDcResult FDcWriteStateOptional::WriteDataEntry(FDcPropertyWriter* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) 
+{
+	if (State != EState::ExpectValueOrNone)
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectValueOrNone << (int)State
+			<< Parent->FormatHighlight();
+
+	check(ExpectedPropertyClass);
+	FProperty* ValueProperty = OptionalProperty->GetValueProperty();
+	DC_TRY(DcPropertyWriteStatesDetails::CheckExpectedProperty(Parent, ValueProperty, ExpectedPropertyClass));
+
+	OutDatum.Property = ValueProperty;
+	OutDatum.DataPtr = OptionalProperty->MarkSetAndGetInitializedValuePointerToReplace(OptionalPtr);
+
+	State = EState::ExpectEnd;
+
+	return DcOk();
+}
+
+FDcResult FDcWriteStateOptional::SkipWrite(FDcPropertyWriter* Parent) 
+{
+	if (State == EState::ExpectValueOrNone)
+	{
+		State = EState::ExpectEnd;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectValueOrNone << (int)State
+			<< Parent->FormatHighlight();
+	}
+}
+
+FDcResult FDcWriteStateOptional::PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty) 
+{
+	if (State == EState::ExpectRoot)
+	{
+		return ReadOutOk(OutProperty, OptionalProperty);
+	}
+	else if (State == EState::ExpectValueOrNone)
+	{
+		return ReadOutOk(OutProperty, OptionalProperty->GetValueProperty());
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateNoExpect)
+			<< State << Parent->FormatHighlight();
+	}
+}
+
+FDcResult FDcWriteStateOptional::WriteOptionalRoot(FDcPropertyWriter* Parent)
+{
+	if (State == EState::ExpectRoot)
+	{
+		State = EState::ExpectValueOrNone;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectRoot << (int)State
+			<< Parent->FormatHighlight();
+	}
+}
+
+FDcResult FDcWriteStateOptional::WriteNone(FDcPropertyWriter* Parent)
+{
+	OptionalProperty->MarkUnset(OptionalPtr);
+	State = EState::ExpectEnd;
+	return DcOk();
+}
+
+FDcResult FDcWriteStateOptional::WriteOptionalEnd(FDcPropertyWriter* Parent)
+{
+	if (State == EState::ExpectEnd)
+	{
+		State = EState::Ended;
+		return DcOk();
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
+			<< (int)EState::ExpectEnd << (int)State
+			<< Parent->FormatHighlight();
+	}
+}
+
+void FDcWriteStateOptional::FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType)
+{
+	DcPropertyHighlight::FormatOptional(OutSegments, SegType, OptionalProperty->GetFName(), OptionalProperty->GetValueProperty());
+}
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 EDcPropertyWriteType FDcWriteStateScalar::GetType()
 {

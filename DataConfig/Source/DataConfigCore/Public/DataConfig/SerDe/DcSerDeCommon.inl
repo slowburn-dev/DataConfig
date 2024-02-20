@@ -148,7 +148,7 @@ FORCEINLINE_DEBUGGABLE static FDcResult DcHandlerPipeClass(
 	DC_TRY(Ctx.Reader->ReadClassRootAccess(Access));
 	DC_TRY(Ctx.Writer->WriteClassRootAccess(Access));
 
-	if (Access.Control == FDcClassAccess::EControl::ReferenceOrNil)
+	if (Access.Control == FDcClassAccess::EControl::ReferenceOrNone)
 	{
 		EDcDataEntry Next;
 		DC_TRY(Ctx.Reader->PeekRead(&Next));
@@ -177,4 +177,32 @@ FORCEINLINE_DEBUGGABLE static FDcResult DcHandlerPipeClass(
 	return DcOk();
 }
 
+template<typename TCtx,
+	typename TReader,
+	typename TWriter,
+	FDcResult (*Recurse)(TCtx&)>
+FORCEINLINE_DEBUGGABLE static FDcResult DcHandlerPipeOptional(
+	TCtx& Ctx
+)
+{
+	DC_TRY(Ctx.Reader->ReadOptionalRoot());
+	DC_TRY(Ctx.Writer->WriteOptionalRoot());
+
+	EDcDataEntry CurPeek;
+	DC_TRY(Ctx.Reader->PeekRead(&CurPeek));
+	if (CurPeek == EDcDataEntry::None)
+	{
+		DC_TRY(Ctx.Reader->ReadNone());
+		DC_TRY(Ctx.Writer->WriteNone());
+	}
+	else
+	{
+		DC_TRY(Recurse(Ctx));
+	}
+
+	DC_TRY(Ctx.Reader->ReadOptionalEnd());
+	DC_TRY(Ctx.Writer->WriteOptionalEnd());
+
+	return DcOk();
+}
 

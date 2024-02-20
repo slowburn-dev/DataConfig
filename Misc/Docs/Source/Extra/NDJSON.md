@@ -2,8 +2,8 @@
 
 [NDJSON][1] is a popular extension to JSON that stores 1 JSON object per line. DataConfig's JSON parser and writer is flexible enough to easily support this use case.
 
-* [DcSqlite.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/Misc/DcNDJSON.h)
-* [DcSqlite.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Misc/DcNDJSON.cpp)
+* [DcNDJSON.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/Misc/DcNDJSON.h)
+* [DcNDJSON.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/Misc/DcNDJSON.cpp)
 
 ```c++
 // DataConfigExtra/Public/DataConfig/Extra/Misc/DcNDJSON.h

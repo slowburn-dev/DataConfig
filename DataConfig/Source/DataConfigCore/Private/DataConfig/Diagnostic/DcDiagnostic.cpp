@@ -59,7 +59,7 @@ FStringFormatArg DcConvertArg(FDcDataVariant& Var)
 	{
 		return FStringFormatArg(Var.GetValue<bool>());
 	}
-	else if (Var.DataType == EDcDataEntry::Nil)
+	else if (Var.DataType == EDcDataEntry::None)
 	{
 		return FStringFormatArg(TEXT("<null>"));
 	}

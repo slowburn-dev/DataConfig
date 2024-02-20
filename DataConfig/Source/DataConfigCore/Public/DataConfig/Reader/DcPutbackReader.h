@@ -11,7 +11,7 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
-	FDcResult ReadNil() override;
+	FDcResult ReadNone() override;
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;
 	FDcResult ReadString(FString* OutPtr) override;
@@ -28,6 +28,8 @@ struct DATACONFIGCORE_API FDcPutbackReader : public FDcReader
 	FDcResult ReadArrayEnd() override;
 	FDcResult ReadSetRoot() override;
 	FDcResult ReadSetEnd() override;
+	FDcResult ReadOptionalRoot() override;
+	FDcResult ReadOptionalEnd() override;
 
 	FDcResult ReadObjectReference(UObject** OutPtr) override;
 	FDcResult ReadClassReference(UClass** OutPtr) override;

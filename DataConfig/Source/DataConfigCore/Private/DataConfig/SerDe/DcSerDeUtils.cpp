@@ -201,8 +201,8 @@ FDcResult DispatchNoopRead(EDcDataEntry Next, FDcReader* Reader)
 {
 	switch (Next)
 	{
-		case EDcDataEntry::Nil:
-			return Reader->ReadNil();
+		case EDcDataEntry::None:
+			return Reader->ReadNone();
 		case EDcDataEntry::Bool:
 			return Reader->ReadBool(nullptr);
 		case EDcDataEntry::Name:
@@ -284,7 +284,6 @@ FDcResult DispatchNoopRead(EDcDataEntry Next, FDcReader* Reader)
 		default:
 			return DcNoEntry();
 	}
-	return DcNoEntry();
 }
 
 FDcResult ReadNoopConsumeValue(FDcReader* Reader)

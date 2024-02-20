@@ -2,6 +2,7 @@
 
 At the moment it supports these the engine versions below:
 
+- UE 5.4
 - UE 5.3 
 - UE 5.2 
 - UE 5.1 

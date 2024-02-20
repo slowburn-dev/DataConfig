@@ -92,9 +92,19 @@ FDcResult FDcWeakCompositeWriter::WriteSetEnd()
 	return CompositeDispatch(this, &FDcWriter::WriteSetEnd);
 }
 
-FDcResult FDcWeakCompositeWriter::WriteNil()
+FDcResult FDcWeakCompositeWriter::WriteOptionalRoot()
 {
-	return CompositeDispatch(this, &FDcWriter::WriteNil);
+	return CompositeDispatch(this, &FDcWriter::WriteOptionalRoot);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteOptionalEnd()
+{
+	return CompositeDispatch(this, &FDcWriter::WriteOptionalEnd);
+}
+
+FDcResult FDcWeakCompositeWriter::WriteNone()
+{
+	return CompositeDispatch(this, &FDcWriter::WriteNone);
 }
 
 FDcResult FDcWeakCompositeWriter::WriteObjectReference(const UObject* Value)

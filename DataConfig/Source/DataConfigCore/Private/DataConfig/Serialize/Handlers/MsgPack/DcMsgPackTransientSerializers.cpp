@@ -96,14 +96,14 @@ FDcResult HandlerTransientTextSerialize(FDcSerializeContext& Ctx)
 
 FDcResult HandlerTransientObjectSerialize(FDcSerializeContext& Ctx)
 {
-	FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNil};
+	FDcClassAccess Access{FDcClassAccess::EControl::ReferenceOrNone};
 	DC_TRY(Ctx.Reader->ReadClassRootAccess(Access));
 
 	EDcDataEntry Next;
 	DC_TRY(Ctx.Reader->PeekRead(&Next));
-	if (Next == EDcDataEntry::Nil)
+	if (Next == EDcDataEntry::None)
 	{
-		DC_TRY(DcPipe_Nil(Ctx.Reader, Ctx.Writer));
+		DC_TRY(DcPipe_None(Ctx.Reader, Ctx.Writer));
 	}
 	else if (Next == EDcDataEntry::ObjectReference)
 	{
@@ -114,7 +114,7 @@ FDcResult HandlerTransientObjectSerialize(FDcSerializeContext& Ctx)
 	else
 	{
 		return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
-			<< EDcDataEntry::Nil << EDcDataEntry::ObjectReference << Next;
+			<< EDcDataEntry::None << EDcDataEntry::ObjectReference << Next;
 	}
 
 	DC_TRY(Ctx.Reader->ReadClassEndAccess(Access));

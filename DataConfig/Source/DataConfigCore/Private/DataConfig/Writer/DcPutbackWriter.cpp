@@ -43,9 +43,9 @@ FDcResult FDcPutbackWriter::PeekWrite(EDcDataEntry Next, bool* bOutOk)
 	}
 }
 
-FDcResult FDcPutbackWriter::WriteNil()
+FDcResult FDcPutbackWriter::WriteNone()
 {
-	return DcPutbackWriterDetails::CachedWrite<EDcDataEntry::Nil>(this, &FDcWriter::WriteNil);
+	return DcPutbackWriterDetails::CachedWrite<EDcDataEntry::None>(this, &FDcWriter::WriteNone);
 }
 
 FDcResult FDcPutbackWriter::WriteBool(bool Value)
@@ -121,6 +121,16 @@ FDcResult FDcPutbackWriter::WriteSetRoot()
 FDcResult FDcPutbackWriter::WriteSetEnd()
 {
 	return DcPutbackWriterDetails::CachedWrite<EDcDataEntry::SetEnd>(this, &FDcWriter::WriteSetEnd);
+}
+
+FDcResult FDcPutbackWriter::WriteOptionalRoot()
+{
+	return DcPutbackWriterDetails::CachedWrite<EDcDataEntry::OptionalRoot>(this, &FDcWriter::WriteOptionalRoot);
+}
+
+FDcResult FDcPutbackWriter::WriteOptionalEnd()
+{
+	return DcPutbackWriterDetails::CachedWrite<EDcDataEntry::OptionalEnd>(this, &FDcWriter::WriteOptionalEnd);
 }
 
 FDcResult FDcPutbackWriter::WriteObjectReference(const UObject* Value)

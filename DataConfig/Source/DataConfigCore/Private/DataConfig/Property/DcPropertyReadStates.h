@@ -3,15 +3,17 @@
 #include "DataConfig/DcTypes.h"
 #include "DataConfig/Property/DcPropertyUtils.h"
 #include "DataConfig/Property/DcPropertyStatesCommon.h"
+#include "Misc/EngineVersionComparison.h"
 
 enum class EDcPropertyReadType
 {
-	Nil,
+	None,
 	ClassProperty,
 	StructProperty,
 	MapProperty,
 	ArrayProperty,
 	SetProperty,
+	OptionalProperty,
 	ScalarProperty,
 };
 
@@ -50,9 +52,9 @@ T* FDcBaseReadState::As()
 		return nullptr;
 }
 
-struct FDcReadStateNil : public FDcBaseReadState
+struct FDcReadStateNone : public FDcBaseReadState
 {
-	static const EDcPropertyReadType ID = EDcPropertyReadType::Nil;
+	static const EDcPropertyReadType ID = EDcPropertyReadType::None;
 
 	EDcPropertyReadType GetType() override;
 	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
@@ -74,7 +76,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 		ExpectKey,
 		ExpectValue,
 		ExpectEnd,
-		ExpectNil,
+		ExpectNone,
 		ExpectReference,
 		Ended,
 	};
@@ -109,7 +111,7 @@ struct FDcReadStateClass : public FDcBaseReadState
 
 	FDcResult ReadClassRootAccess(FDcPropertyReader* Parent, FDcClassAccess& Access);
 	FDcResult ReadClassEndAccess(FDcPropertyReader* Parent, FDcClassAccess& Access);
-	FDcResult ReadNil(FDcPropertyReader* Parent);
+	FDcResult ReadNone(FDcPropertyReader* Parent);
 	FDcResult ReadObjectReference(FDcPropertyReader* Parent, UObject** OutPtr);
 	void EndValueRead(FDcPropertyReader* Parent);
 };
@@ -356,6 +358,49 @@ struct FDcReadStateScalar : public FDcBaseReadState
 
 	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
 };
+
+#if !UE_VERSION_OLDER_THAN(5, 4, 0)
+struct FDcReadStateOptional : public FDcBaseReadState
+{
+	static const EDcPropertyReadType ID = EDcPropertyReadType::OptionalProperty;
+
+	void* OptionalPtr;
+	FOptionalProperty* OptionalProperty;
+
+	enum class EState : uint8
+	{
+		ExpectRoot,
+		ExpectValue,
+		ExpectNone,
+		ExpectEnd,
+		Ended,
+	};
+
+	EState State;
+
+	FDcReadStateOptional(void* InOptionalPtr, FOptionalProperty* InOptionalProperty)
+	{
+		OptionalPtr = InOptionalPtr;
+		OptionalProperty = InOptionalProperty;
+		State = EState::ExpectRoot;
+	}
+
+	EDcPropertyReadType GetType() override;
+	FDcResult PeekRead(FDcPropertyReader* Parent, EDcDataEntry* OutPtr) override;
+	FDcResult ReadName(FDcPropertyReader* Parent, FName* OutNamePtr) override;
+	FDcResult ReadDataEntry(FDcPropertyReader* Parent, FFieldClass* ExpectedPropertyClass, FDcPropertyDatum& OutDatum) override;
+	FDcResult PeekReadProperty(FDcPropertyReader* Parent, FFieldVariant* OutProperty) override;
+	FDcResult PeekReadDataPtr(FDcPropertyReader* Parent, void** OutDataPtr) override;
+	FDcResult SkipRead(FDcPropertyReader* Parent) override;
+
+	FDcResult ReadOptionalRoot(FDcPropertyReader* Parent);
+	FDcResult ReadNone(FDcPropertyReader* Parent);
+	FDcResult ReadOptionalEnd(FDcPropertyReader* Parent);
+
+	void FormatHighlightSegment(TArray<FString>& OutSegments, DcPropertyHighlight::EFormatSeg SegType) override;
+};
+static_assert(TIsTriviallyDestructible<FDcReadStateOptional>::Value, "need trivial destructible");
+#endif // !UE_VERSION_OLDER_THAN(5, 4, 0)
 
 //	storage is already POD type, and TArray<> do only bitwise relocate anyway
 //	we'll just needs to assume these types are trivially destructable

@@ -10,6 +10,7 @@ DATACONFIGCORE_API FDcResult HandlerSetDeserialize(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerMapDeserialize(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerStructDeserialize(FDcDeserializeContext& Ctx);
 DATACONFIGCORE_API FDcResult HandlerClassDeserialize(FDcDeserializeContext& Ctx);
+DATACONFIGCORE_API FDcResult HandlerOptionalDeserialize(FDcDeserializeContext& Ctx);
 
 } // namespace DcPropertyPipeHandlers
 

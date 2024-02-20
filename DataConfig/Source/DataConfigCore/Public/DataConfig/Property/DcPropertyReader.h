@@ -32,7 +32,7 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 	FDcResult Coercion(EDcDataEntry ToEntry, bool* OutPtr) override;
 	FDcResult PeekRead(EDcDataEntry* OutPtr) override;
 
-	FDcResult ReadNil() override;
+	FDcResult ReadNone() override;
 	FDcResult ReadBool(bool* OutPtr) override;
 	FDcResult ReadName(FName* OutPtr) override;
 	FDcResult ReadString(FString* OutPtr) override;
@@ -53,6 +53,9 @@ struct DATACONFIGCORE_API FDcPropertyReader : public FDcReader, private FNoncopy
 
 	FDcResult ReadSetRoot() override;
 	FDcResult ReadSetEnd() override;
+
+	FDcResult ReadOptionalRoot() override;
+	FDcResult ReadOptionalEnd() override;
 
 	FDcResult ReadObjectReference(UObject** OutPtr) override;
 	FDcResult ReadClassReference(UClass** OutPtr) override;

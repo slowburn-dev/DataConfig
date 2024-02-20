@@ -17,7 +17,7 @@ The enum covers all possible types:
 UENUM()
 enum class EDcDataEntry : uint16
 {
-	Nil,
+	None,
 
 	Bool,
 	Name,
@@ -96,7 +96,7 @@ Most enumerators directly maps to a `FProperty` type:
 
 It should've covered all possible `FProperty` types. There're some additions that has no direct `FProperty` mapping:
 
-* `EDcDataEntry::Nil` -  It's maps `null` in JSON, and it's also used to explicitly represent null object reference.
+* `EDcDataEntry::None` -  It's maps `null` in JSON, and it's also used to explicitly represent null object reference.
 * `EDcDataEntry::Ended` - It's a phony type that is returned when there's no more data or reader/writer is in a invalid state.
 * `EDcDataEntry::Blob` - It's an extension to allow direct memory read/write from given fields. 
 * `EDcDataEntry::Extension` - It's an extension that allows additional data formats. MsgPack reader/writer uses this to support its `extension` data types.

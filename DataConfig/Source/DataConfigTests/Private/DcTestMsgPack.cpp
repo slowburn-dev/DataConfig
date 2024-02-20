@@ -131,7 +131,7 @@ DC_TEST("DataConfig.Core.MsgPack.Roundtrip1")
 
 	UTEST_OK("MsgPack Roundtrip1", _TestWriter(this, [](FDcMsgPackWriter& Writer)
 	{
-		DC_TRY(Writer.WriteNil());
+		DC_TRY(Writer.WriteNone());
 		DC_TRY(Writer.WriteBool(true));
 		DC_TRY(Writer.WriteBool(false));
 		return DcOk();
@@ -887,8 +887,8 @@ static FDcResult HandlerMsgPackFixture(FDcDeserializeContext& Ctx)
 		{
 			FDcMsgPackWriter MsgPackWriter;
 
-			DC_TRY(Ctx.Reader->ReadNil());
-			DC_TRY(MsgPackWriter.WriteNil());
+			DC_TRY(Ctx.Reader->ReadNone());
+			DC_TRY(MsgPackWriter.WriteNone());
 
 			DC_TRY(_WriteActual(MsgPackWriter, EDcTestMsgPackCompareType::PrettyPrintEqualable));
 		}
