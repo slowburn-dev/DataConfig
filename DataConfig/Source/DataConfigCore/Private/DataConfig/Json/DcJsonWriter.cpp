@@ -222,7 +222,7 @@ static void WriteEscapedString(TSelf* Self, const FString& Str)
 			{
 				if (StringSourceUtils::IsControl(Ch))
 				{
-					const static TCHAR _CONTROL_ESCAPE_FMT[] = { '\\', 'u', '%', '0', '4', 'x', 0 };
+					constexpr static TCHAR _CONTROL_ESCAPE_FMT[] = { '\\', 'u', '%', '0', '4', 'x', 0 };
 					Escaped.Appendf(_CONTROL_ESCAPE_FMT, Ch);
 				}
 				else

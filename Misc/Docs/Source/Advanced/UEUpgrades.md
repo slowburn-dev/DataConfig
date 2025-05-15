@@ -2,9 +2,15 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
+# UE5.6
+
+- `FString::Appendf` and series of functions now do compile time check on the format string, requires the format string to be a static constexpr.
+- `GMalloc` access is deprecated.
+- 'UClass::ClassDefaultObject' is deprecated in favor of global `GetDefault<>()` or `GetMutableDefault<>()`.
+
 # UE5.5
 
-- A new series batch scripts under `Engine/Build/BatchFiles/RunUBT` is added which will will do a bunch of checks before running `UnrealBuildTool`.
+- A new series batch scripts named `Engine/Build/BatchFiles/RunUBT` are added which will will do a bunch of checks before running `UnrealBuildTool`.
   One should now use `RunUBT` instead of `UnrealBuildTool` otherwise it won't work in some configuration.
 - `EAutomationTestFlags` is now a `enum class` type.
 - `TIsTriviallyDestructible` is deprecated over `std::is_trivially_destructible_v`.

@@ -26,7 +26,7 @@ TSharedRef<FExtender> DumpAssetToLogExtender(const TArray<FAssetData>& SelectedA
 							if (UBlueprint* Blueprint = Cast<UBlueprint>(Asset.GetAsset()))
 							{
 								//	dump BP class generated class CDO as it makes more sense
-								DcAutomationUtils::DumpToLog(FDcPropertyDatum(Blueprint->GeneratedClass->ClassDefaultObject));
+								DcAutomationUtils::DumpToLog(FDcPropertyDatum(GetMutableDefault<UObject>(Blueprint->GeneratedClass)));
 							}
 							else
 							{

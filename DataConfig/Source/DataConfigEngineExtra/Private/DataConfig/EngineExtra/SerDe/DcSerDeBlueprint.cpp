@@ -857,6 +857,7 @@ DC_TEST("DataConfig.EngineExtra.BPClassInstance")
 	return true;
 }
 
+#if WITH_EDITOR
 DC_TEST("DataConfig.EngineExtra.BPStructInstance")
 {
 	using namespace DcExtra;
@@ -933,4 +934,4 @@ DC_TEST("DataConfig.EngineExtra.BPStructInstance")
 
 	return true;
 }
-
+#endif // WITH_EDITOR

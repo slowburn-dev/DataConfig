@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.7.4 - 2025-5-15
+- Initial UE 5.6 support.
+
 ## 1.7.3 - 2024-12-25
 
 - **FIX** Fix uninitialized struct fields which causes bogus errors.

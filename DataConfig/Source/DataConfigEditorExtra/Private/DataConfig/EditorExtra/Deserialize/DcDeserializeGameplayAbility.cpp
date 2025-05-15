@@ -216,7 +216,7 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 
 								FDcResult Ret = SelectJSONAndLoadIntoBlueprintCDO(Asset, [](UBlueprint* Blueprint, FDcReader& Reader)
 								{
-									UGameplayAbility* AbilityCDO = CastChecked<UGameplayAbility>(Blueprint->GeneratedClass->ClassDefaultObject);
+									UGameplayAbility* AbilityCDO = GetMutableDefault<UGameplayAbility>(Blueprint->GeneratedClass);
 									return DeserializeGameplayAbility(AbilityCDO, Reader);
 								});
 
@@ -249,7 +249,7 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 
 								FDcResult Ret = SelectJSONAndLoadIntoBlueprintCDO(Asset, [](UBlueprint* Blueprint, FDcReader& Reader)
 								{
-									UGameplayEffect* EffectCDO = CastChecked<UGameplayEffect>(Blueprint->GeneratedClass->ClassDefaultObject);
+									UGameplayEffect* EffectCDO = GetMutableDefault<UGameplayEffect>(Blueprint->GeneratedClass);
 									return DeserializeGameplayEffect(EffectCDO, Reader);
 								});
 

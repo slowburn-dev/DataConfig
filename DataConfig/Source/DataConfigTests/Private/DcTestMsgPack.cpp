@@ -107,7 +107,7 @@ static FDcResult RoundtripJsonMsgpackJson(FAutomationTestBase* Self, FString Str
 
 static uint8* _MallocPatternMemory(int Size)
 {
-	uint8* Bytes = (uint8*)GMalloc->Malloc(Size);
+	uint8* Bytes = (uint8*)FMemory::Malloc(Size);
 	{
 		for (int Ix = 0; Ix <= 0xFF; Ix++)
 			Bytes[Ix] = (uint8)Ix;
@@ -392,7 +392,7 @@ DC_TEST("DataConfig.Core.MsgPack.Blob_8_16_32")
 	uint8* Bytes = _MallocPatternMemory(Size);
 	ON_SCOPE_EXIT
 	{
-		GMalloc->Free(Bytes);
+		FMemory::Free(Bytes);
 	};
 
 	UTEST_OK("MsgPack Blob_8_16_32", _TestWriter(this, [Bytes](FDcMsgPackWriter& Writer)
@@ -527,7 +527,7 @@ DC_TEST("DataConfig.Core.MsgPack.Extension")
 	uint8* Bytes = _MallocPatternMemory(Size);
 	ON_SCOPE_EXIT
 	{
-		GMalloc->Free(Bytes);
+		FMemory::Free(Bytes);
 	};
 
 	UTEST_OK("MsgPack Roundtrip1", _TestWriter(this, [Bytes](FDcMsgPackWriter& Writer)
