@@ -42,7 +42,7 @@ struct FDcExtraTestWithInlineStruct1
 	GENERATED_BODY()
 
 	UPROPERTY() FDcInlineStruct64 InlineField1;
-	UPROPERTY() FDcInlineStruct64 InlineField2;;
+	UPROPERTY() FDcInlineStruct64 InlineField2;
 };
 
 USTRUCT()

@@ -36,7 +36,7 @@ struct FDcScopedSkipStructHandler
 			FDcScopedSkipStructHandler ScopedSkipStructHandler(Ctx.bSkipStructHandlers);\
 			return DcDeserializeUtils::RecursiveDeserialize(Ctx);\
 		}\
-	} while(0)
+	} while (0)
 
 FDcResult HandlerGuidDeserialize(FDcDeserializeContext& Ctx)
 {

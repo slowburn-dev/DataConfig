@@ -58,7 +58,7 @@ FDcResult TryStaticFindFirstObject(UClass* Class, const TCHAR* Name, bool bExact
 	}
 }
 
-FDcResult TryStaticFindObject(UClass* Class, const FName& PackageName, const FName& AssetName, bool ExactClass, UObject*& OutObject)
+FDcResult TryStaticFindObject(UClass* Class, const FName& PackageName, const FName& AssetName, bool bExactClass, UObject*& OutObject)
 {
 #if UE_VERSION_OLDER_THAN(5, 1, 0)
 	UObject* Ret = nullptr;
@@ -67,11 +67,17 @@ FDcResult TryStaticFindObject(UClass* Class, const FName& PackageName, const FNa
 		 UObject* Package = StaticFindObjectFast(UPackage::StaticClass(),  nullptr, PackageName);
 		 if (Package)
 		 {
-		 	Ret = StaticFindObjectFast(Class, Package, AssetName, ExactClass);
+		 	Ret = StaticFindObjectFast(Class, Package, AssetName, bExactClass);
 		 }
 	}
 #else
-	UObject* Ret = StaticFindObject(Class, FTopLevelAssetPath{PackageName, AssetName}, ExactClass);
+
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+	UObject* Ret = StaticFindObject(Class, FTopLevelAssetPath{PackageName, AssetName}, bExactClass);
+#else
+	UObject* Ret = StaticFindObject(Class, FTopLevelAssetPath{PackageName, AssetName}, bExactClass ? EFindObjectFlags::ExactClass : EFindObjectFlags::None);
+#endif
+
 #endif
 
 	if (!Ret)
@@ -85,10 +91,16 @@ FDcResult TryStaticFindObject(UClass* Class, const FName& PackageName, const FNa
 	}
 }
 
-FDcResult TryStaticFindObject(UClass* Class, UObject* Outer, const TCHAR* Name, bool ExactClass, UObject*& OutObject)
+FDcResult TryStaticFindObject(UClass* Class, UObject* Outer, const TCHAR* Name, bool bExactClass, UObject*& OutObject)
 {
 	check(Class);
-	UObject* Ret = StaticFindObject(Class, Outer, Name, ExactClass);
+
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+	UObject* Ret = StaticFindObject(Class, Outer, Name, bExactClass);
+#else
+	UObject* Ret = StaticFindObject(Class, Outer, Name, bExactClass ? EFindObjectFlags::ExactClass : EFindObjectFlags::None);
+#endif
+
 	if (!Ret)
 	{
 		return DC_FAIL(DcDSerDe, UObjectByStrNotFound) << Class->GetFName() << Name;
@@ -291,7 +303,7 @@ FDcResult ReadNoopConsumeValue(FDcReader* Reader)
 	EDcDataEntry Next;
 	DC_TRY(Reader->PeekRead(&Next));
 
-	switch(Next)
+	switch (Next)
 	{
 		case EDcDataEntry::ArrayRoot:
 		{

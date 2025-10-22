@@ -71,7 +71,7 @@ FDcResult FDcReadStateClass::PeekRead(FDcPropertyReader* Parent, EDcDataEntry* O
 	}
 	else if (State == EState::ExpectEnd)
 	{
-		ReadOut(OutPtr,EDcDataEntry::ClassEnd);
+		ReadOut(OutPtr, EDcDataEntry::ClassEnd);
 		return DcOk();
 	}
 	else if (State == EState::ExpectNone)

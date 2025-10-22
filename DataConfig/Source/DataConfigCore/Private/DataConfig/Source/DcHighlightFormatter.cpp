@@ -42,11 +42,11 @@ FString THightlightFormatter<CharType>::FormatHighlight(SourceRef SpanRef, int L
 
 	int LineOffset;
 	{
-		if (SpanRef.Num >= _LINE_MAX_LENGH)
-			SpanRef.Num = _LINE_MAX_LENGH;
+		if (SpanRef.Num >= _LINE_MAX_LENGTH)
+			SpanRef.Num = _LINE_MAX_LENGTH;
 
 		//  calculate a line window
-		int Slack = _LINE_MAX_LENGH - SpanRef.Num;
+		int Slack = _LINE_MAX_LENGTH - SpanRef.Num;
 		int SlackBefore = Slack / 2;
 		int SlackAfter = Slack - SlackBefore;
 
@@ -62,13 +62,13 @@ FString THightlightFormatter<CharType>::FormatHighlight(SourceRef SpanRef, int L
 	auto _ClampLine = [LineOffset](SourceRef Line)
 	{
 		Line.Begin += LineOffset;
-		Line.Num = FMath::Clamp(Line.Num - LineOffset, 0, _LINE_MAX_LENGH);
+		Line.Num = FMath::Clamp(Line.Num - LineOffset, 0, _LINE_MAX_LENGTH);
 		return Line;
 	};
 
 	auto _HasSuffix = [LineOffset](const SourceRef& Line)
 	{
-		return (Line.Num - LineOffset) > _LINE_MAX_LENGH;
+		return (Line.Num - LineOffset) > _LINE_MAX_LENGTH;
 	};
 
 	{
@@ -144,7 +144,7 @@ FString THightlightFormatter<CharType>::FormatDiagnosticLine(const FString& InLi
 {
 	using DcSourceUtils = TDcCSourceUtils<TCHAR>;
 	FString OutLine;
-	int Len = InLine.Len();;
+	int Len = InLine.Len();
 
 	for (int Ix = 0; Ix < Len; Ix++)
 	{

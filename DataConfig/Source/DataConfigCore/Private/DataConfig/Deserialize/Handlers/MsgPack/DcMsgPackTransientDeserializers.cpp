@@ -113,7 +113,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientMulticastScriptDelegate(FDc
 	using FInvocationAccess = DcSerDeCommon::FMulticastScriptDelegateAccess::TypeInvocationAccess;
 	DC_TRY(Reader->ReadArrayRoot());
 
-	while(true)
+	while (true)
 	{
 		EDcDataEntry Next;
 		DC_TRY(Reader->PeekRead(&Next));

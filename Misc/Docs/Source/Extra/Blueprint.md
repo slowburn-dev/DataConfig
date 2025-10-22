@@ -1,6 +1,6 @@
 # Blueprint Serialization/Deserialization
 
-[The Property System][1] is so powerful that you can create new Blueprint Class/Struct, which is equivalent to C++ `UCLASS/USTRUCT` to some extents. In this example we'll show how to handle these in DataConfig. 
+[The Property System][1] is so powerful that you can create new Blueprint Class/Struct, which is equivalent to C++ `UCLASS/USTRUCT` to some extent. In this example we'll show how to handle these in DataConfig.
 
 The whole blueprint stuff depends on `Engine` module. This is also why we put related code into `DataConfigEngineExtra` module.
 
@@ -69,11 +69,11 @@ FString Str = TEXT(R"(
 )");
 ```
 
-You can also reference on how to handle Blueprint enum in this example. It need some special care to convert between int value and the descriptive text set within the editor.
+You can also see how to handle Blueprint enums in this example. It needs some special care to convert between int value and the descriptive text set within the editor.
 
 ## Blueprint Struct Instance
 
-Finally we're combined `FColor`, `FDcAnyStruct` and Blueprint struct into one single example:
+Finally we've combined `FColor`, `FDcAnyStruct` and Blueprint struct into one single example:
 
 ![DataConfigEditorExtra-BlueprintStruct](Images/DataConfigEditorExtra-BlueprintStruct.png)
 

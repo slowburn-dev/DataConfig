@@ -234,7 +234,7 @@ struct FDcReadStateArray : public FDcBaseReadState
 		ArrayProperty = InArrayProperty;
 	}
 
-	FDcReadStateArray(FProperty* InInnerProperty, void *InArray, EArrayPropertyFlags InArrayFlags)
+	FDcReadStateArray(FProperty* InInnerProperty, void* InArray, EArrayPropertyFlags InArrayFlags)
 		: ArrayHelper(FScriptArrayHelper::CreateHelperFormInnerProperty(InInnerProperty, InArray, InArrayFlags))
 	{
 		ArrayName = DC_TRANSIENT_ARRAY;

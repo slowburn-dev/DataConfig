@@ -139,7 +139,7 @@ DC_TEST("DataConfig.Core.Deserialize.ObjectRef")
 
 	FDcTestStructObjectRef1 Expect;
 
-	Expect.ObjField1 = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
+	Expect.ObjField1 = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests"), true);
 	Expect.ObjField2 = Expect.ObjField1;
 	Expect.ObjField3 = nullptr;
 
@@ -381,7 +381,7 @@ DC_TEST("DataConfig.Core.Deserialize.SkipMetas")
 		{
 			"$meta1" : "Foo",
 			"$meta2" : 123,
-			"$meta3" : [1,2,3, "four", "five", [[[]]], [{}, {}, {}]],
+			"$meta3" : [1, 2, 3, "four", "five", [[[]]], [{}, {}, {}]],
 			"$meta4" : { "one": "uno", "two": 2, "nest" : {}, "nest2": []},
 			"$meta5" : null,
 			"IntField" : 253,

@@ -321,7 +321,9 @@ struct FDcTestStructShapeContainer1
     UPROPERTY() UDcBaseShape* ShapeField1;
     UPROPERTY() UDcBaseShape* ShapeField2;
     UPROPERTY() UDcBaseShape* ShapeField3;
-}USTRUCT()
+};
+
+USTRUCT()
 struct FDcEditorExtraTestObjectRefs1
 {
     GENERATED_BODY()

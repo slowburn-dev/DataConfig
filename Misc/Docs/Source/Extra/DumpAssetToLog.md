@@ -4,7 +4,7 @@ In this example we added a `Dump Asset To Log` menu entry. After enabling it you
 
 ![DataConfigEditorExtra-DumpAssetToLog](Images/DataConfigEditorExtra-DumpAssetToLog.png)
 
-On clicking it would use the pretty print writer to dump the asset into Output Log:
+Clicking it would use the pretty print writer to dump the asset into Output Log:
 
 ![DataConfigEditorExtra-DumpOutputLog](Images/DataConfigEditorExtra-DumpOutputLog.png)
 

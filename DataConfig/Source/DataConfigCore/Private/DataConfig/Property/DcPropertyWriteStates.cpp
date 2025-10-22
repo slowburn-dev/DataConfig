@@ -574,28 +574,7 @@ FDcResult FDcWriteStateMap::WriteDataEntry(FDcPropertyWriter* Parent, FFieldClas
 
 FDcResult FDcWriteStateMap::SkipWrite(FDcPropertyWriter* Parent)
 {
-	if (State == EState::ExpectKeyOrEnd)
-	{
-		State = EState::ExpectValue;
-		return DcOk();
-	}
-	else if (State == EState::ExpectValue)
-	{
-		++Index;
-
-		if (Index >= MapHelper.Num())
-			return DC_FAIL(DcDReadWrite, SkipOutOfRange)
-				<< MapHelper.Num() << Parent->FormatHighlight();
-
-		State = EState::ExpectKeyOrEnd;
-		return DcOk();
-	}
-	else
-	{
-		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect2)
-			<< (int)EState::ExpectKeyOrEnd << (int)EState::ExpectValue << (int)State
-			<< Parent->FormatHighlight();
-	}
+	return DC_FAIL(DcDReadWrite, SkipNotSupported);
 }
 
 FDcResult FDcWriteStateMap::PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty)
@@ -725,18 +704,7 @@ FDcResult FDcWriteStateArray::WriteDataEntry(FDcPropertyWriter* Parent, FFieldCl
 
 FDcResult FDcWriteStateArray::SkipWrite(FDcPropertyWriter* Parent)
 {
-	if (State != EState::ExpectItemOrEnd)
-		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectItemOrEnd << (int)State
-			<< Parent->FormatHighlight();
-
-	++Index;
-
-	if (Index >= ArrayHelper.Num())
-		return DC_FAIL(DcDReadWrite, SkipOutOfRange)
-			<< ArrayHelper.Num() << Parent->FormatHighlight();
-
-	return DcOk();
+	return DC_FAIL(DcDReadWrite, SkipNotSupported);
 }
 
 FDcResult FDcWriteStateArray::PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty)
@@ -856,18 +824,7 @@ FDcResult FDcWriteStateSet::WriteDataEntry(FDcPropertyWriter* Parent, FFieldClas
 
 FDcResult FDcWriteStateSet::SkipWrite(FDcPropertyWriter* Parent)
 {
-	if (State != EState::ExpectItemOrEnd)
-		return DC_FAIL(DcDReadWrite, InvalidStateWithExpect)
-			<< (int)EState::ExpectItemOrEnd << (int)State
-			<< Parent->FormatHighlight();
-
-	++Index;
-
-	if (Index >= SetHelper.Num())
-		return DC_FAIL(DcDReadWrite, SkipOutOfRange)
-			<< SetHelper.Num() << Parent->FormatHighlight();
-
-	return DcOk();
+	return DC_FAIL(DcDReadWrite, SkipNotSupported);
 }
 
 FDcResult FDcWriteStateSet::PeekWriteProperty(FDcPropertyWriter* Parent, FFieldVariant* OutProperty)

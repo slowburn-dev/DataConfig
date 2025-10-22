@@ -31,7 +31,7 @@ SOFTWARE.
 If you find DataConfig useful in your project, consider credit us in your project with the full license above or the shorter snippets below. 
 
 ```
-DataConfig <https//slowburn.dev/dataconfig>
+DataConfig <https://slowburn.dev/dataconfig>
 MIT License, Copyright (c) 2021-2025 Chen Tao
 ```
 

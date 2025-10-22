@@ -11,7 +11,7 @@ struct THightlightFormatter
 	using SourceUtils = TDcCSourceUtils<CharType>;
 
 	static constexpr int _LINE_CONTEXT = 2;
-	static constexpr int _LINE_MAX_LENGH = 140;
+	static constexpr int _LINE_MAX_LENGTH = 140;
 
 	SourceRef LinesBefore[_LINE_CONTEXT];
 	SourceRef LineHighlight;

@@ -7,7 +7,7 @@ DataConfig can also be used to author one-off utility. In this example we implem
 
 ```c++
 // DataConfigExtra/Private/DataConfig/Extra/Deserialize/DcDeserializeRenameStructFieldNames.cpp
-//  struct equivelent to this:
+//  struct equivalent to this:
 FString Str = TEXT(R"(
     {
         "FromName1" : "Foo",
@@ -35,7 +35,7 @@ UTEST_OK("...", DcExtra::DeserializeStructRenaming(
         return FromName;
 })));
 
-// ... results into a struct equivelent to this: 
+// ... results into a struct equivalent to this: 
 FString Str = TEXT(R"(
     {
         "ToName1" : "Foo",

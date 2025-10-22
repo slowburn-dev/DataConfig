@@ -1,6 +1,6 @@
 # Blueprint Nodes
 
-We have a set of blueprint nodes that's have similar API as built-in [JsonBlueprintUtilities][1] plugin:
+We have a set of blueprint nodes that have similar API as built-in [JsonBlueprintUtilities][1] plugin:
 
 ![Blueprint Nodes](./Images/DataConfigEngineExtra-BlueprintNodes.png)
 

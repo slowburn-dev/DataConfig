@@ -118,7 +118,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 		FDcJsonReader JsonReader(JsonStr);
 		FDcPipeVisitor PipeVisitor(&JsonReader, &MsgPackWriter);
 
-		//	read json number to msgpack float
+		//	read JSON number to msgpack float
 		PipeVisitor.PeekVisit.BindLambda([](FDcPipeVisitor* Visitor, EDcDataEntry Next, EPipeVisitControl& OutControl)
 		{
 			if (Next == EDcDataEntry::Double)
@@ -138,7 +138,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 	}
 	FDcMsgPackWriter::BufferType& Buffer = MsgPackWriter.GetMainBuffer();
 
-	//	Json Deserialize
+	//	JSON Deserialize
 	{
 		FDcBenchStat Stat = DcBenchStats([&]
 		{
@@ -147,13 +147,13 @@ DC_TEST("DataConfigBenchmark.Canada")
 			return Result.Ok();
 		});
 
-		FString Output = DcFormatBenchStats(TEXT("Canada Json Deserialize"), JsonStr.Len(), Stat);
+		FString Output = DcFormatBenchStats(TEXT("Canada JSON Deserialize"), JsonStr.Len(), Stat);
 		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Output);
 		if (!Stat.bAllOk)
 			return false;
 	}
 
-	//	Json Serialize
+	//	JSON Serialize
 	{
 		FDcBenchStat Stat = DcBenchStats([&]
 		{
@@ -166,7 +166,7 @@ DC_TEST("DataConfigBenchmark.Canada")
 			return Result.Ok();
 		});
 
-		FString Output = DcFormatBenchStats(TEXT("Canada Json Serialize"), JsonStr.Len(), Stat);
+		FString Output = DcFormatBenchStats(TEXT("Canada JSON Serialize"), JsonStr.Len(), Stat);
 		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Output);
 		if (!Stat.bAllOk)
 			return false;
@@ -407,7 +407,7 @@ DC_TEST("DataConfigBenchmark.Corpus")
 		FDcJsonReader JsonReader(JsonStr);
 		FDcPipeVisitor PipeVisitor(&JsonReader, &MsgPackWriter);
 
-		//	read json number to msgpack int32
+		//	read JSON number to msgpack int32
 		PipeVisitor.PeekVisit.BindLambda([](FDcPipeVisitor* Visitor, EDcDataEntry Next, EPipeVisitControl& OutControl)
 		{
 			if (Next == EDcDataEntry::Double)
@@ -427,7 +427,7 @@ DC_TEST("DataConfigBenchmark.Corpus")
 	}
 	FDcMsgPackWriter::BufferType& Buffer = MsgPackWriter.GetMainBuffer();
 
-	//	Json Deserialize
+	//	JSON Deserialize
 	{
 		FDcBenchStat Stat = DcBenchStats([&]
 		{
@@ -436,13 +436,13 @@ DC_TEST("DataConfigBenchmark.Corpus")
 			return Result.Ok();
 		});
 
-		FString Output = DcFormatBenchStats(TEXT("Corpus Json Deserialize"), JsonStr.Len(), Stat);
+		FString Output = DcFormatBenchStats(TEXT("Corpus JSON Deserialize"), JsonStr.Len(), Stat);
 		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Output);
 		if (!Stat.bAllOk)
 			return false;
 	}
 
-	//	Json Serialize
+	//	JSON Serialize
 	{
 		FDcBenchStat Stat = DcBenchStats([&]
 		{
@@ -468,7 +468,7 @@ DC_TEST("DataConfigBenchmark.Corpus")
 			return Result.Ok();
 		});
 
-		FString Output = DcFormatBenchStats(TEXT("Corpus Json Serialize"), JsonStr.Len(), Stat);
+		FString Output = DcFormatBenchStats(TEXT("Corpus JSON Serialize"), JsonStr.Len(), Stat);
 		UE_LOG(LogDataConfigCore, Display, TEXT("%s"), *Output);
 		if (!Stat.bAllOk)
 			return false;

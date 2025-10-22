@@ -11,8 +11,8 @@ void FDcExtraCoreTypesStruct::MakeFixture()
 	VecField1 = FVector::UpVector;
 	VecField2 = FVector::ZeroVector;
 
-	PlaneField1 = {1,2,3,4};
-	PlaneField2 = {0,0,0,0};
+	PlaneField1 = {1, 2, 3, 4};
+	PlaneField2 = {0, 0, 0, 0};
 
 	MatrixField1 = FMatrix::Identity;
 	MatrixField2 = FMatrix{ForceInitToZero};

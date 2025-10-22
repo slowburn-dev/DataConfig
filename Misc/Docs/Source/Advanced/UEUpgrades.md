@@ -2,6 +2,13 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
+# UE5.7
+
+- `FindObject` series of functions deprecates `bExactClass` in favor of `EFindObjectFlags`.
+- Many metadata fields like `BaseStruct`, `AllowedClasses` requires full long names: 
+  - for example previously for instanced struct we can do this: `UPROPERTY(EditAnywhere, meta = (BaseStruct = "DcStructShapeBase"))`. Now it has to be using the full path starting with `/` like `UPROPERTY(EditAnywhere, meta = (BaseStruct = "/Script/DataConfigExtra.DcStructShapeBase"))`.
+  - See the full list in `LongPathNameMetaDataSpecifierValidator` in `UhtDefaultSpecifiers.cs`.
+
 # UE5.6
 
 - `FString::Appendf` and series of functions now do compile time check on the format string, requires the format string to be a static constexpr.

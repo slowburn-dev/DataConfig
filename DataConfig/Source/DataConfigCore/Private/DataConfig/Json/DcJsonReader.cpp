@@ -350,7 +350,7 @@ FDcResult TDcJsonReader<CharType>::SetNewString(const CharType* InStrPtr, int32 
 template <typename CharType>
 FDcResult TDcJsonReader<CharType>::Coercion(EDcDataEntry ToEntry, bool* OutPtr)
 {
-	if(bNeedConsumeToken)
+	if (bNeedConsumeToken)
 	{
 		DC_TRY(ConsumeEffectiveToken());
 		bNeedConsumeToken = false;

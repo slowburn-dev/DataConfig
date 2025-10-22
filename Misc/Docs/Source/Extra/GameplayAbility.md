@@ -5,7 +5,7 @@ We'll conclude with a concrete user story: populating `GameplayAbility` and `Gam
 * [DcDeserializeGameplayAbility.h]({{SrcRoot}}DataConfigEditorExtra/Public/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.h)
 * [DcDeserializeGameplayAbility.cpp]({{SrcRoot}}DataConfigEditorExtra/Private/DataConfig/EditorExtra/Deserialize/DcDeserializeGameplayAbility.cpp)
 
-[Gameplay Ability System][1] is a built-in plugin for building data driven abilities. Users are expected to derived and modify `GameplayAbility` and `GameplayEffect` blueprint for custom logic. 
+[Gameplay Ability System][1] is a built-in plugin for building data driven abilities. Users are expected to derive and modify `GameplayAbility` and `GameplayEffect` blueprint for custom logic. 
 
 Given a JSON like this:
 
@@ -29,7 +29,7 @@ Given a JSON like this:
 }
 ```
 
-Right click on a `GameplayAbility` blueprint asset and select `Load From JSON`， then select this file and confirm. It would correctly populate the fields with the values in JSON, as seen in the pic below:
+Right click on a `GameplayAbility` blueprint asset and select `Load From JSON`, then select this file and confirm. It would correctly populate the fields with the values in JSON, as seen in the pic below:
 
 ![DataConfigEditorExtra-LoadJsonIntoAbility](Images/DataConfigEditorExtra-LoadJsonIntoAbility.png)
 

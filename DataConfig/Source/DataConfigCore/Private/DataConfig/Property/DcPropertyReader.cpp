@@ -72,7 +72,7 @@ FDcReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, void* InArr
 	return Emplace<FDcReadStateArray>(GetTopStorage(Reader), InArrayPtr, InArrayProperty);
 }
 
-FDcReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, FProperty* InInnerProperty, void *InArray, EArrayPropertyFlags InArrayFlags)
+FDcReadStateArray& PushArrayPropertyState(FDcPropertyReader* Reader, FProperty* InInnerProperty, void* InArray, EArrayPropertyFlags InArrayFlags)
 {
 	Reader->States.AddUninitialized();
 	return Emplace<FDcReadStateArray>(GetTopStorage(Reader), InInnerProperty, InArray, InArrayFlags);
@@ -107,7 +107,7 @@ FDcReadStateScalar& PushScalarPropertyState(FDcPropertyReader* Reader, void* InP
 FDcReadStateScalar& PushScalarArrayPropertyState(FDcPropertyReader* Reader, void* InPtr, FProperty* InField)
 {
 	Reader->States.AddUninitialized();
-	return Emplace<FDcReadStateScalar>(GetTopStorage(Reader), FDcReadStateScalar::Array, InPtr, InField);;
+	return Emplace<FDcReadStateScalar>(GetTopStorage(Reader), FDcReadStateScalar::Array, InPtr, InField);
 }
 
 void PopState(FDcPropertyReader* Reader)

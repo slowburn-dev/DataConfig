@@ -53,8 +53,7 @@ enum Type : uint16
 
 	//	skip
 	SkipOutOfRange,
-
-
+	SkipNotSupported,
 };
 
 } // namespace DcDReadWrite

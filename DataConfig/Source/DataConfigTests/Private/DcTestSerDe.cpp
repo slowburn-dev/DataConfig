@@ -19,7 +19,7 @@ void FDcTestStructEnumFlag1::MakeFixture()
 
 void FDcTestStructShapeContainer1::MakeFixtureEmpty()
 {
-	ShapeField1 = NewObject<UDcShapeBox>();;
+	ShapeField1 = NewObject<UDcShapeBox>();
 	ShapeField2 = NewObject<UDcShapeSquare>();
 	ShapeField3 = nullptr;
 }

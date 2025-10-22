@@ -1,6 +1,6 @@
 # MsgPack
 
-[MsgPack][1] is an popular binary serialization format. It can be considered as a binary superset of JSON. Unreal Engine already supports [`Cbor`][2] module which is a format which is very similar to MsgPack.
+[MsgPack][1] is a popular binary serialization format. It can be considered as a binary superset of JSON. Unreal Engine already supports [`Cbor`][2] module which is a format which is very similar to MsgPack.
 
 We choose to implement MsgPack as we're more familiar with it and also providing an alternative.
 
@@ -78,7 +78,7 @@ This is a special set of handlers that only makes sense for binary formats. For 
 | ------------------- | ------------------------- |
 | Name                | `[uint32, uint32, int32]` |
 | Text                | `[void*, void*, uint32]`  |
-| ObjectReference, ClassReference    | `void*`                   |
+| ObjectReference, ClassReference,    | `void*`                   |
 | SoftObjectReference, SoftClassReference | `FString or void*` |
 | WeakObjectReference | `[int32, int32]` |
 | LazyObjectReference | `<uuid as FIXEXT16>` |

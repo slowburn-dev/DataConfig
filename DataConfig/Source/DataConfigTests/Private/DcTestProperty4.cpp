@@ -7,6 +7,7 @@
 #include "DataConfig/Json/DcJsonReader.h"
 #include "DataConfig/Json/DcJsonWriter.h"
 #include "DataConfig/Diagnostic/DcDiagnosticReadWrite.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 
 static UDcShapeBox* _MakeBox()
 {
@@ -325,7 +326,7 @@ DC_TEST("DataConfig.Core.Property.ContainerRoots")
 DC_TEST("DataConfig.Core.Property.StackScalarRoots")
 {
 	int SrcIntVal = 253;
-	int SrcIntArr[5] = {1,2,3,4,5};
+	int SrcIntArr[5] = {1, 2, 3, 4, 5};
 
 	using namespace DcPropertyUtils;
 
@@ -823,7 +824,7 @@ DC_TEST("DataConfig.Core.Property.PropertyBuilder3")
 	}
 
 	{
-		TSoftObjectPtr<UPackage> Src = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
+		TSoftObjectPtr<UPackage> Src =  DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests"), true);
 		TSoftObjectPtr<UPackage> Dest;
 
 		auto SoftObjectProp = FDcPropertyBuilder::SoftObject(UPackage::StaticClass()).LinkOnScope();
@@ -845,7 +846,7 @@ DC_TEST("DataConfig.Core.Property.PropertyBuilder3")
 	}
 
 	{
-		TLazyObjectPtr<UPackage> Src = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
+		TLazyObjectPtr<UPackage> Src = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests"), true);
 		TLazyObjectPtr<UPackage> Dest;
 
 		auto LazyObjectProp = FDcPropertyBuilder::LazyObject(UPackage::StaticClass()).LinkOnScope();

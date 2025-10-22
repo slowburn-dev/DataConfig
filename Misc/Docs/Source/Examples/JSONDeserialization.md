@@ -114,7 +114,6 @@ DC_TRY(Ctx.Prepare());
 DC_TRY(Serializer.Serialize(Ctx));
 
 auto& Buffer = Writer.GetMainBuffer();
-//  starts withMsgPack FIXMAP(3) header
+//  starts with MsgPack FIXMAP(3) header
 check(Buffer[0] == 0x83);   
 ```
-

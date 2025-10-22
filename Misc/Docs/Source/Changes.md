@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## 1.7.5 - 2025-10-22
+- Initial UE 5.7 support.
+
 ## 1.7.4 - 2025-5-15
 - Initial UE 5.6 support.
 
@@ -126,7 +130,7 @@ Checkout blog post ["DataConfig Core and JSON Asset 1.3 Release"](/blog/dataconf
     - Fix `TSet/TMap` serialization crashes.
     - Fix soft object/class reference serialize to nil when it's not loaded.
     - Fix pipe property class/object handlers.
-    - Fix `TObjectPtr<>` serialialzation and deserialization.
+    - Fix `TObjectPtr<>` serialization and deserialization.
     - Fix `PeekReadDataPtr` on class property.
     - Removed `FScopedStackedReader/FScopedStackedWriter` usage.
     - Fix `HeuristicVerifyPointer` diagnostic.  
@@ -194,7 +198,7 @@ Checkout blog post ["Introducing DataConfig 1.2"](/blog/dataconfig-1-2/).
     * Fix `ReadName()` which previously would fail.
     * Fix quoted string parsing/escaping  in `ParseQuotedString`
   * Add `EDcDataEntry::Extension`.
-  * Add `FDcPropertyDatum` template constructor to directly construct one from a `FSturct*`.
+  * Add `FDcPropertyDatum` template constructor to directly construct one from a `FStruct*`.
   * `FPrettyPrintWriter` now print blobs with hash, previously it's pointer value.
   * `DcAutomationUtils::SerializeIntoJson/DeserializeIntoJson` -> `SerializeInto/DeserializeFrom` as we're supporting other formats.
   * Add `HeuristicVerifyPointer` to check common magic invalid pointers.

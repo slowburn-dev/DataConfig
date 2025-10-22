@@ -12,7 +12,7 @@ DC_TEST("DataConfig.Core.Property.UE5.TObjectPtr")
 	{
 		FDcTest5ObjectPtrAlpha Source;
 
-		Source.ObjPtrField1 = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests5"), true);
+		Source.ObjPtrField1 = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests5"), true);
 		Source.ObjPtrField2 = nullptr;
 
 		FDcTest5ObjectPtrAlpha Dest;
@@ -23,14 +23,14 @@ DC_TEST("DataConfig.Core.Property.UE5.TObjectPtr")
 		UTEST_OK("TObjectPtr roundtrip", DcPropertyPipeVisit(SourceDatum, DestDatum));
 		UTEST_OK("TObjectPtr roundtrip", DcAutomationUtils::TestReadDatumEqual(SourceDatum, DestDatum));
 
-		UTEST_TRUE("TObjectPtr roundtrip", Dest.ObjPtrField1 == FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests5"), true));
+		UTEST_TRUE("TObjectPtr roundtrip", Dest.ObjPtrField1 == DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests5"), true));
 		UTEST_TRUE("TObjectPtr roundtrip", !Dest.ObjPtrField2);
 	}
 
 	{
 		FDcTest5ObjectPtrAlpha Source;
 
-		Source.ObjPtrField1 = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests5"), true);
+		Source.ObjPtrField1 = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests5"), true);
 		Source.ObjPtrField2 = nullptr;
 
 		FDcTest5ObjectPtrAlpha Dest;
@@ -47,7 +47,7 @@ DC_TEST("DataConfig.Core.Property.UE5.TObjectPtr")
 			UTEST_TRUE("TObjectPtr", FieldName == TEXT("ObjPtrField1"));
 			UTEST_OK("TObjectPtr", Reader.ReadClassRoot());
 			UTEST_OK("TObjectPtr", Reader.ReadTObjectPtr<UObject>(&ObjPtr));
-			UTEST_TRUE("TObjectPtr", ObjPtr == FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests5"), true));
+			UTEST_TRUE("TObjectPtr", ObjPtr == DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests5"), true));
 			UTEST_OK("TObjectPtr", Reader.ReadClassEnd());
 
 			UTEST_OK("TObjectPtr", Reader.ReadName(&FieldName));
@@ -66,7 +66,7 @@ DC_TEST("DataConfig.Core.Property.UE5.TObjectPtr")
 			UTEST_OK("TObjectPtr", Writer.WriteClassEnd());
 
 		UTEST_OK("TObjectPtr", Writer.WriteStructEnd());
-		UTEST_TRUE("TObjectPtr", Dest.ObjPtrField1 == FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests5"), true));
+		UTEST_TRUE("TObjectPtr", Dest.ObjPtrField1 == DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests5"), true));
 	}
 
 	return true;

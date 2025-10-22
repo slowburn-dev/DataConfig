@@ -62,7 +62,7 @@ You should try DataConfig and it's highly likely DataConfig will fit into your s
 - Integrated [kawanet/msgpack-test-suite][7].
 
 [1]:https://dev.epicgames.com/documentation/en-us/unreal-engine/reflection-system-in-unreal-engine "Unreal Engine Reflection System"
-[2]:https://docs.unrealengine.com/en-US/ProductionPipelines/DevelopmentSetup/CodingStandard/index.html "Epic C++ Coding StandardBlueprint Debugging in Unreal Engine"
+[2]:https://docs.unrealengine.com/en-US/ProductionPipelines/DevelopmentSetup/CodingStandard/index.html "Epic C++ Coding Standard"
 [3]:https://serde.rs/ "SerDe"
 [4]:https://json.nlohmann.me "JSON for Modern C++"
 [5]:https://rapidjson.org/ "RapidJSON"

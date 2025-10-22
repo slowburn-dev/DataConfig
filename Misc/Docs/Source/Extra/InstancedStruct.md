@@ -40,9 +40,6 @@ You can use `FInstancedStruct` specified with a `BaseStruct` meta to reference t
 // DataConfigEngineExtra5/Public/DataConfig/EngineExtra/SerDe/DcSerDeInstancedStruct.h
 UPROPERTY(EditAnywhere, meta = (BaseStruct = "/Script/DataConfigExtra.DcStructShapeBase"))
 FInstancedStruct InstancedStruct1;
-
-UPROPERTY(EditAnywhere, meta = (BaseStruct = "DcStructShapeBase"))
-FInstancedStruct InstancedStruct2;
 ```
 
 The best part is that the editor is also working as intended:

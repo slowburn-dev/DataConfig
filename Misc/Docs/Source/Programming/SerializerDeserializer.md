@@ -4,7 +4,7 @@ Serializer/Deserializer are built on top of the data model to convert between ex
 
 ## Context
 
-A company class to the deserializer is `FDcDeserializeContext`:
+A companion class to the deserializer is `FDcDeserializeContext`:
 
 ```c++
 // DataConfigCore/Public/DataConfig/Deserialize/DcDeserializeTypes.h
@@ -150,9 +150,9 @@ Deserializer.AddPredicatedHandler(
 ```
 
 By convention the current deserializing property can be retrieved with `Ctx.TopProperty()`. `PredicateIsScalarArrayProperty` here
-checks if it's wring a scalar array with non 1 dimension, if that's the case it would need to treat it like an array.
+checks if it's writing a scalar array with non 1 dimension, if that's the case it would need to treat it like an array.
 
-Note that all registered predicate handler is iterated through on every property, then proceed to handler on first success match or
+Note that all registered predicate handlers are iterated through on every property, then proceed to handler on first success match or
 fall through to struct/direct handlers when no match. Use it only when struct/direct handlers doesn't fit.
 
 To recap:

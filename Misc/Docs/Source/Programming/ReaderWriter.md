@@ -8,13 +8,13 @@ FDcReader/FDcWriter defines the set of API for accessing DataConfig data model. 
 
 You should look at builtin implementation for references. Here's some general rules and caveats:
 
-- `PeekRead()/PeekWrite()` should act like it's side-effect free.
+- `PeekRead()/PeekWrite()` should act like they're side-effect free.
 
    This means that it's OK to call `PeekRead()/PeekWrite()` multiple times. In comparison access methods like `ReadBool()/WriteBool()` consume the data and alternate internal state. Note that under the hood it might do anything. Both returns `FDcResult` so the peek can fail. The reason behind this is that calling `PeekRead()/PeekWrite()` is totally optional. In `FDcJsonReader::PeekRead()` we do parsing and cache the parsed result to follow this convention.
 
 - `CastByID()` does not respect inheritance hierarchy.
 
-   We have this very minimal RTTI implemetantion that only allow casting to the exact type.
+   We have this very minimal RTTI implementation that only allows casting to the exact type.
 
 - Implement a subset of the data model.
 
@@ -32,7 +32,7 @@ These are all talked about in details in the [formats section][1]. We'll go thro
 
 ## `FDcPipeVisitor` and `FDcPrettyPrintWriter`
 
-`FDcPipeVisitor` takes a `FDcReader` and a `FDcWriter` then start peek-read-write loop until it peeks `EDcDataEntry::Ended` from reader or an error happens 
+`FDcPipeVisitor` takes a `FDcReader` and a `FDcWriter` then starts a peek-read-write loop until it peeks `EDcDataEntry::Ended` from reader or an error happens 
 
 Then there's `FDcPrettyPrintWriter` that dumps everything that got write to it as string.
 
@@ -55,7 +55,7 @@ void DumpToOutputDevice(...)
 
 `FDcPipeVisitor` is a handy utility that we use it extensively through the code base for various cases. Try `FDcPipeVisitor` when you got a reader/writer pair.
 
-There's also `FNoopWriter` takes every write and do nothing with it.
+There's also `FNoopWriter` that takes every write and does nothing with it.
 
 ## Composition
 

@@ -142,7 +142,7 @@ static FDcResult SelectJSONAndLoadIntoBlueprintCDO(FAssetData Asset, TFunctionRe
 		TEXT("Select JSON File"),
 		FEditorDirectories::Get().GetLastDirectory(ELastDirectory::GENERIC_IMPORT),
 		TEXT(""),
-		TEXT("Json config file (*.json)|*.json"),
+		TEXT("JSON config file (*.json)|*.json"),
 		EFileDialogFlags::None,
 		OpenFilenames,
 		FilterIndex
@@ -192,7 +192,7 @@ TSharedRef<FExtender> GameplayAbilityEffectExtender(const TArray<FAssetData>& Se
 	for (auto& Asset : SelectedAssets)
 	{
 		FString ParentClassPath;
-		if(!Asset.GetTagValue(FBlueprintTags::NativeParentClassPath, ParentClassPath))
+		if (!Asset.GetTagValue(FBlueprintTags::NativeParentClassPath, ParentClassPath))
 			continue;
 
 		UObject* Outer = nullptr;

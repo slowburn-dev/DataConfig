@@ -9,6 +9,7 @@
 #include "DataConfig/Automation/DcAutomationUtils.h"
 #include "DataConfig/Extra/Misc/DcTestCommon.h"
 #include "DataConfig/Extra/SerDe/DcSerDeColor.h"
+#include "DataConfig/SerDe/DcSerDeUtils.h"
 
 DC_TEST("DataConfig.Core.Serialize.Primitive1")
 {
@@ -199,7 +200,7 @@ DC_TEST("DataConfig.Core.Serialize.ObjectRef")
 {
 	FDcTestStructObjectRef1 Value;
 
-	Value.ObjField1 = FindObject<UPackage>(nullptr, TEXT("/Script/DataConfigTests"), true);
+	Value.ObjField1 = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests"), true);
 	Value.ObjField2 = Value.ObjField1;
 	Value.ObjField3 = nullptr;
 

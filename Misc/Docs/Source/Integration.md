@@ -1,6 +1,6 @@
 # Integration
 
-At the moment it supports these the engine versions below:
+At the moment it supports the following engine versions:
 
 - UE 5.6
 - UE 5.5
@@ -36,12 +36,12 @@ The quickest way to try out DataConfig is to download the latest release at [Dat
       |- DataConfig.uplugin
 ```
 
-3. [Validate DataConfig plugin is integrated corrrectly](#validate-integration).
+3. [Validate DataConfig plugin is integrated correctly](#validate-integration).
 
 
 ### Generate DataConfig Plugin for UE4/UE5
 
-DataConfig now uses separated `uplugin` files for UE4 and UE5 so that we can try out new features in UE5 without dropping support for UE4. We bundled scripts to generate clean plugins for UE4 and UE5. This is how the [DataConfig releases][2] are built.
+DataConfig now uses separate `uplugin` files for UE4 and UE5 so that we can try out new features in UE5 without dropping support for UE4. We bundled scripts to generate clean plugins for UE4 and UE5. This is how the [DataConfig releases][2] are built.
 
 ```shell
 git clone https://github.com/slowburn-dev/DataConfig
@@ -53,7 +53,7 @@ python ./DataConfig/Misc/Scripts/make_dataconfig_ue5.py
 
 ### `DataConfigXX.uplugin`
 
-Ultimately we figured that we'll need multiple `.uplugin` files to support acrosss UE versions:
+Ultimately we figured that we'll need multiple `.uplugin` files to support across UE versions:
 
 | Name                 | Version      |
 | -------------------- | ------------ |
@@ -69,7 +69,7 @@ When packaging for each engine version we rename the one we want and delete the 
 
 2. Delete `DataConfig4.uplugin`, and other `DataConfig5X.uplugin`.
 
-3. **Delete `DataConfig/Source/DataConfigHeadless`** folder. **This step is crucial or you your project won't build**.
+3. **Delete `DataConfig/Source/DataConfigHeadless`** folder. **This step is crucial or your project won't build**.
 
 ### Manual Steps for UE4
 
@@ -77,7 +77,7 @@ When packaging for each engine version we rename the one we want and delete the 
 
 2. Delete `DataConfig.uplugin`, then rename `DataConfig4.uplugin` to `DataConfig.uplugin`.
 
-3. **Delete `DataConfig/Source/DataConfigHeadless`** folder. **This step is crucial or you your project won't build**.
+3. **Delete `DataConfig/Source/DataConfigHeadless`** folder. **This step is crucial or your project won't build**.
 
 4. Additionally delete UE5 specific modules.
    
@@ -99,11 +99,11 @@ Follow these steps to ensure DataConfig is properly integrated into your project
 
 DataConfig is packed into a plugin to bundle automation tests with a few assets. You're encouraged to integrate only the `DataConfigCore` module. It contains all core features with minimal dependencies. 
 
-Most projects should has a editor module already setup. In this section we'll go through the steps of integrating `DataConfigCore` and build it with the project's `FooProjectEditor` module.
+Most projects should have an editor module already set up. In this section we'll go through the steps of integrating `DataConfigCore` and build it with the project's `FooProjectEditor` module.
 
 1. Get a copy of this repository. Then copy `DataConfig/Source/DataConfigCore` into your project's `Source` directory.
 
-2. Edit `FooProjectEditor.Build.cs` add add `DataConfigCore` as an extra module:
+2. Edit `FooProjectEditor.Build.cs` and add `DataConfigCore` as an extra module:
 
    ```c++
    using UnrealBuildTool;

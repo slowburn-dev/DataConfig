@@ -44,6 +44,7 @@ static FDcDiagnosticDetail _ReadWriteDetails[] = {
 	{ PipeReadWriteMismatch, TEXT("Pipe visit read write mismatch. Reader peeks '{0}' but writer rejects it.") },
 	//	skip
 	{ SkipOutOfRange, TEXT("Skipping out of range, Container actual length : {0}") },
+	{ SkipNotSupported, TEXT("Skipping not supported") },
 };
 
 FDcDiagnosticGroup Details = {

@@ -530,7 +530,7 @@ void TDcJsonWriter<CharType>::FormatDiagnostic(FDcDiagnostic& Diag)
 
 	TDcSourceView<CharType> View{Sb.GetData(), Sb.Len()};
 	TDcSourceRef<CharType> SpanRef{&View, Sb.Len() - 1, 1};
-	FString FormatHeader(TEXT("Json Last Writes:"));
+	FString FormatHeader(TEXT("JSON Last Writes:"));
 	OutHighlight.Formatted = Highlighter.FormatHighlight(SpanRef, INDEX_NONE, &FormatHeader);
 
 	if (OutHighlight.Formatted.IsEmpty())

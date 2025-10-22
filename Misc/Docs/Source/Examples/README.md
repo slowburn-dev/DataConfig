@@ -1,6 +1,6 @@
 # Examples
 
-Here're some short and quick examples showcasing DataConfig API usage and features. All code shown here can be found in the [repo][1].
+Here are some short and quick examples showcasing DataConfig API usage and features. All code shown here can be found in the [repo][1].
 
 ## Blueprint Nodes
 
@@ -10,7 +10,7 @@ Create a Blueprint Actor and setup the `BeginPlay` event like this:
 
 ![Examples OnBeginPlay Dump](./Images/Examples-OnBeginPlayDump.png)
 
-Then place the actor in the level and start play. The JSON string would be print to screen like this.
+Then place the actor in the level and start play. The JSON string would be printed to the screen like this.
 
 ![Examples Blueprint PrintToScreen](./Images/Examples-BlueprintPrintToScreen.png)
 

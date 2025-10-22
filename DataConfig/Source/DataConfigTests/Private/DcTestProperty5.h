@@ -18,7 +18,7 @@ struct FDcTestStructWithDefaults
 	UPROPERTY() TMap<FString, int> StringIntMapFieldWithDefault = {
 		{"One", 1},
 		{"Two", 2},
-		{"Three", 1+1+1*1},
+		{"Three", 1 + 1 + 1 * 1},
 	};
 };
 

@@ -56,7 +56,7 @@ void FDcEngineExtraModule::ShutdownModule()
 Here's a checklist for integration:
 
 - Register additional diagnostics early. 
-- Call `DcStartUp()/DcShutDonw()` pair.
+- Call `DcStartUp()/DcShutDown()` pair.
 - Register custom diagnostic consumer.
 
 `FDcMessageLogDiagnosticConsumer` is an example of redirecting diagnostics to the UE Message Log window with its own category.

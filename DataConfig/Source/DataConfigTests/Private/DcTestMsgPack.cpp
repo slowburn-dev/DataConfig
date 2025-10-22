@@ -53,7 +53,7 @@ static FDcResult RoundtripMsgPackFromWriter(FAutomationTestBase* Self, FDcMsgPac
 
 	if (!Self->TestEqual(TEXT("MsgPack Roundtrip"), ToStr, FromStr))
 		return DC_FAIL(DcDCommon, CustomMessage)
-			<< FString::Printf(TEXT("Json Writer Roundtrip Failed: %s -> %s"), *FromStr, *ToStr);
+			<< FString::Printf(TEXT("JSON Writer Roundtrip Failed: %s -> %s"), *FromStr, *ToStr);
 
 	return DcOk();
 }

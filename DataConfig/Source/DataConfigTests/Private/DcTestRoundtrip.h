@@ -34,7 +34,7 @@ public:
 	UPROPERTY() FDcTestStructArrayDim1 StructArrayDims;
 
 	//	Containers
- 	UPROPERTY() FDcTestStruct3 StructContainers;
+	UPROPERTY() FDcTestStruct3 StructContainers;
 
 	//	Others
 	UPROPERTY() FDcTestRoundtripStruct1 StructOthers;

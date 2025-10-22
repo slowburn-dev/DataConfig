@@ -27,7 +27,7 @@ FString Str = TEXT(R"(
 )");
 ```
 
- `FGameplayTagContainer` converts to a list of strings:
+`FGameplayTagContainer` converts to a list of strings:
 
 ```c++
 // DataConfigEngineExtra/Public/DataConfig/EngineExtra/Deserialize/DcDeserializeGameplayTags.h
@@ -70,7 +70,7 @@ static FDcResult _StringToGameplayTag(FDcDeserializeContext& Ctx, const FString&
 }
 ```
 
-In case of a invalid tag it would report the reason and fixed string:
+In case of an invalid tag it would report the reason and fixed string:
 
 ```
 # DataConfig Error: Invalid Gameplay Tag String, Actual: 'DataConfig.Invalid.Tag.', Fixed: 'DataConfig.Invalid.Tag', Error: 'Tag ends with .'

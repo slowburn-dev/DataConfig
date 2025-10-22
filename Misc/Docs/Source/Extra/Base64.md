@@ -1,6 +1,6 @@
 # Base64 Blob Serialization/Deserialization
 
-This demonstrates conversion between`TArray<uint8>` and Base64 encoded strings in JSON:
+This demonstrates conversion between `TArray<uint8>` and Base64 encoded strings in JSON:
 
 * [DcSerDeBase64.h]({{SrcRoot}}DataConfigExtra/Public/DataConfig/Extra/SerDe/DcSerDeBase64.h)
 * [DcSerDeBase64.cpp]({{SrcRoot}}DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeBase64.cpp)
@@ -25,9 +25,9 @@ FString Str = TEXT(R"(
 )");
 ```
 
-Note that we're tagging the `BlobField` with `(meta = (DcExtraBase64))` to explicitly show that we' want this member to be converted into Base64.
+Note that we're tagging the `BlobField` with `(meta = (DcExtraBase64))` to explicitly show that we want this member to be converted into Base64.
 
-UE support [arbitrary meta data in the `meta = ()` segment][1]. But beware that the meta data is only available when `WITH_EDITORDATA` flag is defined. In predicate we check for this `DcExtraBase64` like this:
+UE support [arbitrary meta data in the `meta = ()` segment][1]. But beware that the meta data is only available when `WITH_EDITORDATA` flag is defined. In the predicate we check for this `DcExtraBase64` like this:
 
 ```c++
 // DataConfigExtra/Private/DataConfig/Extra/SerDe/DcSerDeBase64.cpp

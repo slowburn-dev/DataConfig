@@ -70,7 +70,7 @@ struct FSqliteReader : FDcReader
 	FSQLiteDatabase* Db;
 	FSQLitePreparedStatement* Stmt;
 
-	bool bPrepared = false;;
+	bool bPrepared = false;
 
 	TArray<FString> Names;
 	TArray<ESQLiteColumnType> Types;
@@ -319,7 +319,7 @@ DC_TEST("DataConfig.Extra.Sqlite")
 	ON_SCOPE_EXIT { TestDb.Close(); };
 
 	//	data fixture
-	FString Statement = TEXT("CREATE TABLE users (id INTEGER NOT NULL,name TEXT, title TEXT)");
+	FString Statement = TEXT("CREATE TABLE users (id INTEGER NOT NULL, name TEXT, title TEXT)");
 	bSuccess &= TestDb.Execute(*Statement);
 	Statement = TEXT("INSERT INTO users (id, name, title) VALUES (1, 'John', 'Manager')");
 	bSuccess &= TestDb.Execute(*Statement);

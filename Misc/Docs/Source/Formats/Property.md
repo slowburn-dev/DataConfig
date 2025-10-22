@@ -101,7 +101,7 @@ Some caveats:
 
 * [DcPropertyTypes.h]({{SrcRoot}}DataConfigCore/Public/DataConfig/Property/DcPropertyTypes.h)
 
-Property reader/writer accepts `FDcPropertyConfig` class for customizing behaviors. By default we've implemented `DcSkip` metadata that you can mark on `given reader/writer.URPOPERTY()` and the field would be skipped by given reader/writer:
+Property reader/writer accepts `FDcPropertyConfig` class for customizing behaviors. By default we've implemented `DcSkip` metadata that you can mark on `given reader/writer.UPROPERTY()` and the field would be skipped by given reader/writer:
 
 ```c++
 //  DataConfigTests/Private/DcTestProperty3.h
