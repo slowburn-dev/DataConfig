@@ -39,29 +39,31 @@ static FDcResult RoundtripJsonLiteral(FAutomationTestBase* Self, const FString& 
 	return DcOk();
 }
 
+static FDcResult ReadJsonStrEqual(FDcAutomationBase* Self, FString InStr, FString ExpectStr)
+{
+	FDcJsonReader Reader(InStr);
+	FString ParsedStr;
+	DC_TRY(Reader.ReadString(&ParsedStr));
+	if (!Self->TestEqual("ReadJson String Literal", ParsedStr, ExpectStr))
+		return DC_FAIL(DcDCommon, CustomMessage)
+			<< FString::Printf(TEXT("ReadJson String Literal Failed"));
+
+	return DcOk();
+}
+
 } // namespace DcTestJsonDetails
 
 DC_TEST("DataConfig.Core.JSON.ReadStrings")
 {
+	using namespace DcTestJsonDetails;
+
 	{
-		auto _ReadJsonStrEqual = [](FDcAutomationBase* Self, FString InStr, FString ExpectStr) -> FDcResult
-		{
-			FDcJsonReader Reader(InStr);
-			FString ParsedStr;
-			DC_TRY(Reader.ReadString(&ParsedStr));
-			if (!Self->TestEqual("ReadJson String Literal", ParsedStr, ExpectStr))
-				return DC_FAIL(DcDCommon, CustomMessage)
-					<< FString::Printf(TEXT("ReadJson String Literal"));
-
-			return DcOk();
-		};
-
-		UTEST_OK("ReadJson String Literal", _ReadJsonStrEqual(this, TEXT(R"( "" )"), TEXT("")));
-		UTEST_OK("ReadJson String Literal", _ReadJsonStrEqual(this, TEXT(R"( "Hello\nWorld" )"), TEXT("Hello\nWorld")));
-		UTEST_OK("ReadJson String Literal", _ReadJsonStrEqual(this, TEXT(R"( "\"\\/\b\f\n\r\t" )"), TEXT("\"\\/\b\f\n\r\t")));
-		UTEST_OK("ReadJson String Literal", _ReadJsonStrEqual(this, TEXT(R"( "\u0024" )"), TEXT("$")));
-		UTEST_OK("ReadJson String Literal", _ReadJsonStrEqual(this, TEXT(R"( "\u00A2" )"), TEXT("\u00A2")));
-		UTEST_OK("ReadJson String Literal", _ReadJsonStrEqual(this, TEXT(R"( "\uD834\uDD1E" )"), TEXT("\xD834\xDD1E")));
+		UTEST_OK("ReadJson String Literal", ReadJsonStrEqual(this, TEXT(R"( "" )"), TEXT("")));
+		UTEST_OK("ReadJson String Literal", ReadJsonStrEqual(this, TEXT(R"( "Hello\nWorld" )"), TEXT("Hello\nWorld")));
+		UTEST_OK("ReadJson String Literal", ReadJsonStrEqual(this, TEXT(R"( "\"\\/\b\f\n\r\t" )"), TEXT("\"\\/\b\f\n\r\t")));
+		UTEST_OK("ReadJson String Literal", ReadJsonStrEqual(this, TEXT(R"( "\u0024" )"), TEXT("$")));
+		UTEST_OK("ReadJson String Literal", ReadJsonStrEqual(this, TEXT(R"( "\u00A2" )"), TEXT("\u00A2")));
+		UTEST_OK("ReadJson String Literal", ReadJsonStrEqual(this, TEXT(R"( "\uD834\uDD1E" )"), TEXT("\xD834\xDD1E")));
 	}
 
 	{
@@ -809,6 +811,17 @@ DC_TEST("DataConfig.Core.JSON.OverrideConfig")
 		)")));
 	}
 
+
+	return true;
+}
+
+DC_TEST("DataConfig.Core.JSON.ReadSurrogatePairs")
+{
+	using namespace DcTestJsonDetails;
+
+	UTEST_OK("ReadJson Surrogate Pair", ReadJsonStrEqual(this, TEXT(R"( "\uD83D\uDE00" )"), TEXT("\xD83D\xDE00")));
+	UTEST_OK("ReadJson Surrogate Pair", ReadJsonStrEqual(this, TEXT(R"( "\uD83D\uDCA9" )"), TEXT("\xD83D\xDCA9")));
+	UTEST_OK("ReadJson Surrogate Pair", ReadJsonStrEqual(this, TEXT(R"( "Mixed \uD83D\uDE00 Emoji" )"), TEXT("Mixed \xD83D\xDE00 Emoji")));
 
 	return true;
 }

@@ -23,7 +23,13 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Blueprint.h"
+
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 #include "Engine/UserDefinedStruct.h"
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+#include "StructUtils/UserDefinedStruct.h"
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
+
 #include "Engine/UserDefinedEnum.h"
 #include "Misc/ScopeExit.h"
 #include "Misc/EngineVersionComparison.h"
@@ -487,11 +493,19 @@ FDcResult HandlerBPEnumSerialize(FDcSerializeContext& Ctx)
 		for (int Ix = 0; Ix < Len; Ix++)
 		{
 			int64 Cur = Enum->GetValueByIndex(Ix);
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 			int CurPopCount = FPlatformMath::CountBits(Cur);
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+			int CurPopCount = FPlatformMath::CountBits64(Cur);
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 			if (CurPopCount == 0)
 				continue;
 
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 			if (FPlatformMath::CountBits(Data & Cur) == CurPopCount)
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+			if (FPlatformMath::CountBits64(Data & Cur) == CurPopCount)
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 			{
 				DC_TRY(Ctx.Writer->WriteString(Enum->GetNameStringByIndex(Ix)));
 				Data ^= Cur;

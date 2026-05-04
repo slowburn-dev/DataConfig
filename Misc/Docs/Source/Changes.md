@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.7.6 - 2026-05-04
+- Initial UE 5.8 support.
 
 ## 1.7.5 - 2025-10-22
 - Initial UE 5.7 support.

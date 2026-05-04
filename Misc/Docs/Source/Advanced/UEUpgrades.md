@@ -2,6 +2,13 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
+
+# UE5.8
+
+- `FScriptDelegate` API changed.
+- `PLATFORM_64BITS` is deprecated as UE only supports 64-bit.
+- `FFieldClass::Construct` with InFlags is deprecated.
+
 # UE5.7
 
 - `FindObject` series of functions deprecates `bExactClass` in favor of `EFindObjectFlags`.
