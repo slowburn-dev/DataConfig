@@ -14,6 +14,7 @@ namespace DcMsgPackHandlersDetails
 
 static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerRaw(FDcReader* Reader, void*& OutPtr)
 {
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 #if PLATFORM_64BITS
 	uint64 Value;
 	DC_TRY(Reader->ReadUInt64(&Value));
@@ -23,6 +24,11 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerRaw(FDcReader* Reader, void*&
 	DC_TRY(Reader->ReadUInt32(&Value));
 	OutPtr = reinterpret_cast<void*>(Value);
 #endif
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+	uint64 Value;
+	DC_TRY(Reader->ReadUInt64(&Value));
+	OutPtr = reinterpret_cast<void*>(Value);
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 	return DcOk();
 }
 
@@ -36,6 +42,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerOrNone(FDcReader* Reader, voi
 		DC_TRY(Reader->ReadNone());
 		OutPtr = nullptr;
 	}
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 #if PLATFORM_64BITS
 	else if (Next == EDcDataEntry::UInt64)
 	{
@@ -57,6 +64,17 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadPointerOrNone(FDcReader* Reader, voi
 			<< EDcDataEntry::None << EDcDataEntry::UInt32 << Next;
 	}
 #endif
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+	else if (Next == EDcDataEntry::UInt64)
+	{
+		DC_TRY(ReadPointerRaw(Reader, OutPtr));
+	}
+	else
+	{
+		return DC_FAIL(DcDReadWrite, DataTypeMismatch2)
+			<< EDcDataEntry::None << EDcDataEntry::UInt64 << Next;
+	}
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 
 	return DcOk();
 }
@@ -93,7 +111,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientWeakObjectPtr(FDcReader* Re
 }
 
 template<typename TDelegate>
-static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientScriptDelegate(FDcReader* Reader, DcSerDeCommon::TDelegateAccess<TDelegate>& ValueAccess)
+static FORCEINLINE_DEBUGGABLE FDcResult ReadTransientScriptDelegate(FDcReader* Reader, TDelegate& ValueAccess)
 {
 	using DcSerDeCommon::FWeakObjectPtrAccess;
 	FWeakObjectPtrAccess& WeakAccess = (FWeakObjectPtrAccess&)ValueAccess.GetObject();

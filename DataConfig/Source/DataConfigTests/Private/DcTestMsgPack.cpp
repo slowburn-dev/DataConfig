@@ -187,12 +187,12 @@ DC_TEST("DataConfig.Core.MsgPack.Roundtrip1")
 		DC_TRY(Writer.WriteFloat(-0.0f));
 		DC_TRY(Writer.WriteFloat(1.0f));
 		DC_TRY(Writer.WriteFloat(-1.0f));
-		DC_TRY(Writer.WriteFloat(1E30));
-		DC_TRY(Writer.WriteFloat(1e30));
-		DC_TRY(Writer.WriteFloat(-1E10));
-		DC_TRY(Writer.WriteFloat(-1e10));
-		DC_TRY(Writer.WriteFloat(1.234E+10));
-		DC_TRY(Writer.WriteFloat(1.234E-10));
+		DC_TRY(Writer.WriteFloat(1E30f));
+		DC_TRY(Writer.WriteFloat(1e30f));
+		DC_TRY(Writer.WriteFloat(-1E10f));
+		DC_TRY(Writer.WriteFloat(-1e10f));
+		DC_TRY(Writer.WriteFloat(1.234E+10f));
+		DC_TRY(Writer.WriteFloat(1.234E-10f));
 
 		return DcOk();
 	}));

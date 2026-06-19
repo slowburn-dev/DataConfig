@@ -517,6 +517,7 @@ bool HeuristicIsPointerInvalid(const void* Ptr)
 	//	not going to happen
 	SIZE_T PtrPattern = (SIZE_T)Ptr;
 	bool bInvalid;
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 #if PLATFORM_64BITS
 	switch (PtrPattern)
 	{
@@ -548,6 +549,22 @@ bool HeuristicIsPointerInvalid(const void* Ptr)
 			break;
 	}
 #endif
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+	switch (PtrPattern)
+	{
+		case 0xCCCC'CCCC'CCCC'CCCC:
+		case 0xCDCD'CDCD'CDCC'CDCD:
+		case 0xDEAD'BEEF'DEAD'BEAF:
+		case 0xFEEE'FEEE'FEEE'FEEE:
+		case 0xABAB'ABAB'ABAB'ABAB:
+		case 0xFDFD'FDFD'FDFD'FDFD:
+			bInvalid = true;
+			break;
+		default:
+			bInvalid = false;
+			break;
+	}
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 	return bInvalid;
 }
 
@@ -604,7 +621,11 @@ FDcPropertyBuilder FDcPropertyBuilder::Make(
 )
 {
 	FDcPropertyBuilder Ret;
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 	Ret.Property = CastFieldChecked<FProperty>(PropertyClass->Construct(InOuter, InName, RF_NoFlags));
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+	Ret.Property = CastFieldChecked<FProperty>(PropertyClass->Construct(InOuter, InName));
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 	Ret.Property->ArrayDim = 1;
 	return Ret;
 }
@@ -700,7 +721,11 @@ FDcPropertyBuilder FDcPropertyBuilder::Enum(UEnum* InEnum, FProperty* InUnderlyi
 
 FDcPropertyBuilder FDcPropertyBuilder::Enum(UEnum* InEnum, const FName InName, FFieldVariant InOuter)
 {
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 	return Enum(InEnum, new FByteProperty(InEnum, TEXT("UnderlyingType"), RF_NoFlags), InName, InOuter);
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+	return Enum(InEnum, new FByteProperty(InEnum, TEXT("UnderlyingType")), InName, InOuter);
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 }
 
 FDcPropertyBuilder FDcPropertyBuilder::Byte(UEnum* InEnum, const FName InName, FFieldVariant InOuter)

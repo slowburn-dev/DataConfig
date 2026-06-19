@@ -116,8 +116,10 @@ static FDcResult ParseQuotedString(TSelf* Self, const FString& InStr, FString& O
 		}
 	}
 
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 	if (bHasUnicodeEscapes)
 		StringConv::InlineCombineSurrogates(OutStr);
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 
 	return DcOk();
 }

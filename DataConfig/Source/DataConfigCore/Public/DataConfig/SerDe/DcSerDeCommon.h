@@ -16,13 +16,15 @@ struct FWeakObjectPtrAccess
 };
 static_assert(sizeof(FWeakObjectPtrAccess) == sizeof(FWeakObjectPtr), "FWeakObjectPtrAccess stale");
 
+
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
+
 template<typename TDelegate>
 struct TDelegateAccess : public TDelegate
 {
 	FORCEINLINE FWeakObjectPtr& GetObject() { return this->Object; }
 	FORCEINLINE FName& GetFunctionName() { return this->FunctionName; }
 };
-
 using FScriptDelegateAccess = TDelegateAccess<FScriptDelegate>;
 
 struct FMulticastScriptDelegateAccess : public FMulticastScriptDelegate
@@ -37,6 +39,32 @@ struct FMulticastScriptDelegateAccess : public FMulticastScriptDelegate
 
 	FORCEINLINE TypeInvocationList& GetInvocationList() { return InvocationList; }
 };
+
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+
+template<typename ThreadSafetyMode = FNotThreadSafeDelegateMode>
+struct TScriptDelegateAccess : public TDelegateAccessHandlerBase<ThreadSafetyMode>
+{
+	FWeakObjectPtr Object;
+	FName FunctionName;
+
+#if defined(UE_USE_DYNAMIC_DELEGATE_PAYLOADS) && UE_USE_DYNAMIC_DELEGATE_PAYLOADS
+	UPTRINT UnknownPayload[2];
+#endif
+
+	FORCEINLINE FWeakObjectPtr& GetObject() { return this->Object; }
+	FORCEINLINE FName& GetFunctionName() { return this->FunctionName; }
+};
+using FScriptDelegateAccess = TScriptDelegateAccess<>;
+static_assert(sizeof(FScriptDelegate) == sizeof(FScriptDelegateAccess), "FScriptDelegate stale");
+
+struct FMulticastScriptDelegateAccess : public FMulticastScriptDelegate
+{
+	using TypeInvocationAccess = TScriptDelegateAccess<FNotThreadSafeNotCheckedDelegateMode>;
+
+	FORCEINLINE auto& GetInvocationList() { return InvocationList; }
+};
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 
 struct FTextAccess
 {

@@ -13,11 +13,16 @@ namespace DcMsgPackHandlersDetails
 static FORCEINLINE_DEBUGGABLE FDcResult WritePointer(FDcWriter* Writer, void* Value)
 {
 	DC_TRY(DcPropertyUtils::HeuristicVerifyPointer(Value));
+
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 #if PLATFORM_64BITS
 	return Writer->WriteUInt64((uint64)Value);
 #else
 	return Writer->WriteUInt32((uint32)Value);
 #endif
+#else // UE_VERSION_OLDER_THAN(5, 8, 0)
+	return Writer->WriteUInt64((uint64)Value);
+#endif // UE_VERSION_OLDER_THAN(5, 8, 0)
 }
 
 static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientName(FDcWriter* Writer, const FName& Name)
@@ -31,7 +36,7 @@ static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientName(FDcWriter* Writer, co
 }
 
 template<typename TDelegate>
-static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientScriptDelegate(FDcWriter* Writer, DcSerDeCommon::TDelegateAccess<TDelegate>& ValueAccess)
+static FORCEINLINE_DEBUGGABLE FDcResult WriteTransientScriptDelegate(FDcWriter* Writer, TDelegate& ValueAccess)
 {
 	using DcSerDeCommon::FWeakObjectPtrAccess;
 	FWeakObjectPtrAccess& WeakAccess = (FWeakObjectPtrAccess&)(ValueAccess.GetObject());
