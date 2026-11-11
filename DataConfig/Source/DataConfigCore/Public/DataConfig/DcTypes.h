@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/EngineVersionComparison.h"
 #include "DataConfig/DcMacros.h"
 #include "DcTypes.generated.h"
 
@@ -34,8 +35,8 @@ FORCEINLINE FDcResult DcOk() {
 
 #define DC_TRY(expr)						\
 	do {									\
-		::FDcResult _DC_TRY_RET = (expr);		\
-		if (!_DC_TRY_RET.Ok()) {				\
+		::FDcResult _DC_TRY_RET = (expr);	\
+		if (!_DC_TRY_RET.Ok()) {			\
 			return _DC_TRY_RET;				\
 		}									\
 	} while (0)
@@ -241,3 +242,25 @@ using FDcBytes2 = FDcFixedBytes<2>;
 using FDcBytes4 = FDcFixedBytes<4>;
 using FDcBytes8 = FDcFixedBytes<8>;
 using FDcBytes16 = FDcFixedBytes<16>;
+
+#if UE_VERSION_OLDER_THAN(5, 9, 0)
+
+template<class T=UObject>
+using TDcLazyObjectPtr = TLazyObjectPtr<T>;
+
+#else
+
+template<class T=UObject>
+struct TDcLazyObjectPtr : public FLazyObjectPtr
+{
+	using ElementType = T;
+	using FLazyObjectPtr::operator=;
+
+	TDcLazyObjectPtr() = default;
+
+	TDcLazyObjectPtr(T* Object)
+		: FLazyObjectPtr(Object)
+	{}
+};
+
+#endif // UE_VERSION_OLDER_THAN(5, 9, 0)

@@ -146,10 +146,6 @@ void FDcTestArrayDim1::MakeFixture()
 	WeakObjectArr[0] = ObjectRefArr[0];
 	WeakObjectArr[1] = ObjectRefArr[1];
 
-	LazyObjectArr[0] = ObjectRefArr[0];
-	LazyObjectArr[1] = ObjectRefArr[1];
-	LazyObjectArr[2] = nullptr;
-
 	SoftObjectArr[0] = ObjectRefArr[0];
 	SoftObjectArr[1] = ObjectRefArr[1];
 	SoftObjectArr[2] = nullptr;
@@ -437,6 +433,7 @@ DC_TEST("DataConfig.Core.Property.ScalarArray")
 
 	return true;
 }
+
 
 DC_TEST("DataConfig.Core.Property.ScalarArray2")
 {
@@ -846,8 +843,8 @@ DC_TEST("DataConfig.Core.Property.PropertyBuilder3")
 	}
 
 	{
-		TLazyObjectPtr<UPackage> Src = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests"), true);
-		TLazyObjectPtr<UPackage> Dest;
+		TDcLazyObjectPtr<UPackage> Src = DcSerDeUtils::FindFirstObject<UPackage>(TEXT("/Script/DataConfigTests"), true);
+		TDcLazyObjectPtr<UPackage> Dest;
 
 		auto LazyObjectProp = FDcPropertyBuilder::LazyObject(UPackage::StaticClass()).LinkOnScope();
 		UTEST_OK("Builder Roundtrip3", DcPropertyPipeVisitAndTestEqual(

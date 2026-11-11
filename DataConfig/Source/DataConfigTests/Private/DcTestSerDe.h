@@ -82,9 +82,6 @@ struct FDcTestStructRefs1
 	UPROPERTY() TWeakObjectPtr<UObject> WeakField1;
 	UPROPERTY() TWeakObjectPtr<UObject> WeakField2;
 
-	UPROPERTY() TLazyObjectPtr<UObject> LazyField1;
-	UPROPERTY() TLazyObjectPtr<UObject> LazyField2;
-
 	void MakeFixture();
 };
 

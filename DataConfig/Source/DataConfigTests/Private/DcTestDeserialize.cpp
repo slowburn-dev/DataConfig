@@ -268,8 +268,6 @@ DC_TEST("DataConfig.Core.Deserialize.ObjRefs")
 			"SoftField2" : null,
 			"WeakField1" : "'/Script/DataConfigTests'",
 			"WeakField2" : null,
-			"LazyField1" : "'/Script/DataConfigTests'",
-			"LazyField2" : null,
 		}
 
 	)");
@@ -714,25 +712,6 @@ DC_TEST("DataConfig.Core.Deserialize.DiagObjectClassMismatch")
 		}, DcAutomationUtils::EDefaultSetupType::SetupNothing), DcDSerDe, ClassLhsIsNotChildOfRhs);
 	}
 
-	{
-		FString Str = TEXT(R"(
-
-			{
-				"TestClassLazyObjectField" : "'/Script/DataConfigTests'",
-			}
-
-		)");
-
-		FDcJsonReader Reader(Str);
-		UTEST_DIAG("DiagObjectClassMismatch", DcAutomationUtils::DeserializeFrom(&Reader, DestDatum, [](FDcDeserializeContext& Ctx) {
-
-			Ctx.Deserializer->AddDirectHandler(UScriptStruct::StaticClass(), FDcDeserializeDelegate::CreateStatic(DcCommonHandlers::HandlerMapToStructDeserialize));
-			Ctx.Deserializer->AddDirectHandler(FLazyObjectProperty::StaticClass(), FDcDeserializeDelegate::CreateLambda([](FDcDeserializeContext& Ctx){
-				return DcDeserializeLazyObjectReference<_NaiveReadObjReference>(Ctx);
-			}));
-
-		}, DcAutomationUtils::EDefaultSetupType::SetupNothing), DcDSerDe, ClassLhsIsNotChildOfRhs);
-	}
 
 
 	{

@@ -45,6 +45,11 @@
 			"Name": "DataConfigTests5",
 			"Type": "Editor",
 	    	"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DataConfigTestsBefore59",
+			"Type": "Editor",
+	    	"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

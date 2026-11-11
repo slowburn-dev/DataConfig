@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataConfig/Source/DcSourceTypes.h"
-#include "Runtime/Launch/Resources/Version.h"
 #include "Misc/StringBuilder.h"
 
 #if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION <= 25

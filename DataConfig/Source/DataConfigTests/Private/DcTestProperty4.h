@@ -55,7 +55,6 @@ struct FDcTestArrayDim1
 	UPROPERTY() UClass* ClassArr[3] = {};
 
 	UPROPERTY() TWeakObjectPtr<UObject> WeakObjectArr[2];
-	UPROPERTY() TLazyObjectPtr<UObject> LazyObjectArr[3];
 	UPROPERTY() TSoftObjectPtr<UObject> SoftObjectArr[4];
 
 	UPROPERTY() TSoftClassPtr<UObject> SoftClassArr[2];
@@ -149,7 +148,6 @@ struct FDcTestObjectRefs2
 
 	UPROPERTY() UDcTestClass1* TestClassObjectField = nullptr;
 	UPROPERTY() TWeakObjectPtr<UDcTestClass1> TestClassWeakObjectField;
-	UPROPERTY() TLazyObjectPtr<UDcTestClass1> TestClassLazyObjectField;
 	UPROPERTY() TSoftObjectPtr<UDcTestClass1> TestClassSoftObjectField;
 
 	UPROPERTY() UDcBaseShape* InlineShapeObjectField = nullptr;
@@ -166,3 +164,5 @@ public:
 	UPROPERTY() UDcSelfReference1* RefField1;
 	UPROPERTY() UDcSelfReference1* RefField2;
 };
+
+

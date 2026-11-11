@@ -240,9 +240,7 @@ DC_TEST("DataConfig.Core.Serialize.ObjRefs")
 			"SoftField1" : "'/Script/DataConfigTests'",
 			"SoftField2" : null,
 			"WeakField1" : "'/Script/DataConfigTests'",
-			"WeakField2" : null,
-			"LazyField1" : "'/Script/DataConfigTests'",
-			"LazyField2" : null
+			"WeakField2" : null
 		}
 
 	)"));

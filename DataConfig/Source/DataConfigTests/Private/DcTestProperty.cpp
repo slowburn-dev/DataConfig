@@ -89,7 +89,6 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 
 	Source.ClassField = UDcTestDelegateClass1::StaticClass();
 	Source.WeakObjetField = DelegateObj;
-	Source.LazyObjectField = DelegateObj;
 	Source.SoftObjectField = DelegateObj;
 	Source.SoftClassField = UDcTestDelegateClass1::StaticClass();
 	Source.InterfaceField = InterfaceObj;
@@ -109,9 +108,10 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 	//	compile checks
 	if (0)
 	{
+		TDcLazyObjectPtr<UObject> LazyObjectField;
 		FDcReader Reader;
 		Reader.ReadWeakObjectField(&Source.WeakObjetField).Ok();
-		Reader.ReadLazyObjectField(&Source.LazyObjectField).Ok();
+		Reader.ReadLazyObjectField(&LazyObjectField).Ok();
 		Reader.ReadSoftObjectField(&Source.SoftObjectField).Ok();
 		Reader.ReadSoftClassField(&Source.SoftClassField).Ok();
 		Reader.ReadInterfaceField(&Source.InterfaceField).Ok();
@@ -120,7 +120,7 @@ DC_TEST("DataConfig.Core.Property.Primitive2")
 
 		FDcWriter Writer;
 		Writer.WriteWeakObjectField(Source.WeakObjetField).Ok();
-		Writer.WriteLazyObjectField(Source.LazyObjectField).Ok();
+		Writer.WriteLazyObjectField(LazyObjectField).Ok();
 		Writer.WriteSoftObjectField(Source.SoftObjectField).Ok();
 		Writer.WriteSoftClassField(Source.SoftClassField).Ok();
 		Writer.WriteInterfaceField(Source.InterfaceField).Ok();

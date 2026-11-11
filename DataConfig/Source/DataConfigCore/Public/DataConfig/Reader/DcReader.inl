@@ -60,7 +60,7 @@ FDcResult FDcReader::ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr)
 }
 
 template<typename TObject>
-FDcResult FDcReader::ReadLazyObjectField(TLazyObjectPtr<TObject>* OutPtr)
+FDcResult FDcReader::ReadLazyObjectField(TDcLazyObjectPtr<TObject>* OutPtr)
 {
 	FLazyObjectPtr LazyPtr;
 	DC_TRY(ReadLazyObjectReference(&LazyPtr));

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Runtime/Launch/Resources/Version.h"
 #include "DataConfig/Misc/DcTemplateUtils.h"
 #include "DataConfig/DcTypes.h"
 
@@ -62,7 +61,7 @@ struct DATACONFIGCORE_API FDcReader
 	template<typename TObject>
 	FDcResult ReadWeakObjectField(TWeakObjectPtr<TObject>* OutPtr);
 	template<typename TObject>
-	FDcResult ReadLazyObjectField(TLazyObjectPtr<TObject>* OutPtr);
+	FDcResult ReadLazyObjectField(TDcLazyObjectPtr<TObject>* OutPtr);
 	template<typename TObject>
 	FDcResult ReadSoftObjectField(TSoftObjectPtr<TObject>* OutPtr);
 	template<typename TClass>

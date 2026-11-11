@@ -3,3 +3,6 @@
 /Saved/
 # misc stuff copied in here
 /Tmp/
+
+# all .tmp
+.tmp/

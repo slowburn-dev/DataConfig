@@ -349,37 +349,6 @@ DC_TEST("DataConfig.Core.Blurb.JSONWriter")
 	return true;
 }
 
-DC_TEST("DataConfig.Core.Blurb.StringSoftLazy")
-{
-	UTEST_OK("Blurb StringSoftLazy", [&]{
-
-		FDcTestStructRefs1 Source{};
-		UObject* TestsObject = StaticFindObject(UObject::StaticClass(), nullptr, TEXT("/Script/DataConfigTests"));
-
-		Source.SoftField1 = TestsObject;
-		Source.LazyField1 = TestsObject;
-
-		FDcJsonWriter Writer;
-		DC_TRY(DcAutomationUtils::SerializeInto(&Writer, FDcPropertyDatum(&Source),
-		[](FDcSerializeContext& Ctx) {
-			DcSetupJsonSerializeHandlers(*Ctx.Serializer, EDcJsonSerializeType::StringSoftLazy);
-		}, DcAutomationUtils::EDefaultSetupType::SetupNothing));
-
-		/*
-		FLogScopedCategoryAndVerbosityOverride  LogOverride(TEXT("LogDataConfigCore"), ELogVerbosity::Display);
-		FString Str = Writer.Sb.ToString();
-		UE_LOG(LogDataConfigCore, Display, TEXT("SoftLazy: %s"), *Str);
-		*/
-
-		return DcOk();
-
-	}());
-
-	return true;
-
-}
-
-
 DC_TEST("DataConfig.Core.Blurb.MsgPackBlobExt")
 {
 	TArray<uint8> Arr = {1,2,3,4,5};

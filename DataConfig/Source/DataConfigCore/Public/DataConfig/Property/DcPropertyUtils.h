@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Runtime/Launch/Resources/Version.h"
 #include "DataConfig/DcTypes.h"
 #include "UObject/UnrealType.h"
 #include "Templates/Function.h"

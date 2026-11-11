@@ -2,18 +2,8 @@
 
 At the moment it supports the following engine versions:
 
-- UE 5.8
-- UE 5.7
-- UE 5.6
-- UE 5.5
-- UE 5.4
-- UE 5.3 
-- UE 5.2 
-- UE 5.1 
-- UE 5.0 
-- UE 4.27
-- UE 4.26
-- UE 4.25
+- UE 5.0-5.9
+- UE 4.25-4.27
 
 ## Integrate `DataConfig` Plugin
 

@@ -48,8 +48,6 @@ void FDcTestStructRefs1::MakeFixture()
 	SoftField2 = nullptr;
 	WeakField1 = TestsObject;
 	WeakField2 = nullptr;
-	LazyField1 = TestsObject;
-	LazyField2 = nullptr;
 }
 
 void FDcTestStructRefs2::MakeFixture()

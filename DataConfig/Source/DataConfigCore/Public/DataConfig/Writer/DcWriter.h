@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Runtime/Launch/Resources/Version.h"
 #include "DataConfig/DcTypes.h"
 
 struct FDcDiagnostic;
@@ -58,7 +57,7 @@ struct DATACONFIGCORE_API FDcWriter
 	template<typename TObject>
 	FDcResult WriteWeakObjectField(const TWeakObjectPtr<TObject>& Value);
 	template<typename TObject>
-	FDcResult WriteLazyObjectField(const TLazyObjectPtr<TObject>& Value);
+	FDcResult WriteLazyObjectField(const TDcLazyObjectPtr<TObject>& Value);
 	template<typename TObject>
 	FDcResult WriteSoftObjectField(const TSoftObjectPtr<TObject>& Value);
 	template<typename TClass>

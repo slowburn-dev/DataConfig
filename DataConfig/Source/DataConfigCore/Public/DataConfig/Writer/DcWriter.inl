@@ -59,7 +59,7 @@ FDcResult FDcWriter::WriteWeakObjectField(const TWeakObjectPtr<TObject>& Value)
 }
 
 template<typename TObject>
-FDcResult FDcWriter::WriteLazyObjectField(const TLazyObjectPtr<TObject>& Value)
+FDcResult FDcWriter::WriteLazyObjectField(const TDcLazyObjectPtr<TObject>& Value)
 {
 	//	LazyPtr is missing a copy constructor, can only do assign
 	FLazyObjectPtr LazyPtr;

@@ -69,7 +69,6 @@ struct FDcTestStruct2
 	//	other scalar types
 	UPROPERTY() UClass* ClassField = nullptr;
 	UPROPERTY() TWeakObjectPtr<UObject> WeakObjetField;
-	UPROPERTY() TLazyObjectPtr<UObject> LazyObjectField;
 	UPROPERTY() TSoftObjectPtr<UObject> SoftObjectField;
 	UPROPERTY() TSoftClassPtr<UObject> SoftClassField;
 	UPROPERTY() TScriptInterface<IDcTestInterface1> InterfaceField;

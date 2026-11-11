@@ -2,6 +2,10 @@
 
 DataConfig is committed to support multiple UE versions with no deprecations and warnings. On this page we'll document important upgrade and migration info.
 
+# UE5.9
+
+- `TLazyObjectPtr` is deprecated.
+
 
 # UE5.8
 
